@@ -1,11 +1,11 @@
 // ***********************************************************************
 // Author           : AMERICAS\Vinay_Chand
-// Created          : 12/3/2014 3:53:48 PM
+// Created          : 12/9/2014 2:20:52 PM
 //
 // Last Modified By : AMERICAS\Vinay_Chand
-// Last Modified On : 12/3/2014 3:53:48 PM
+// Last Modified On : 12/9/2014 2:20:52 PM
 // ***********************************************************************
-// <copyright file="CrossReferenceListPage.cs" company="Dell">
+// <copyright file="B2BMaintenanceCrossReference.cs" company="Dell">
 //     Copyright (c) Dell 2014. All rights reserved.
 // </copyright>
 // <summary>Provide a summary of the page class here.</summary>
@@ -13,9 +13,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using System.Linq;
 using OpenQA.Selenium;
-using OpenQA.Selenium.Support.UI;
 using DCSG.ADEPT.Framework;
 using DCSG.ADEPT.Framework.Core;
 using DCSG.ADEPT.Framework.Core.Extensions.WebDriver;
@@ -29,15 +27,14 @@ namespace Modules.Channel.B2B.Core.Pages
     /// <summary>
     /// This base class is the where all specific page classes will be derived.
     /// </summary>
-    public class B2BCrossReferenceListPage : DCSGPageBase
+    public class B2BMaintenanceCrossReferencePage : DCSGPageBase
     {
         IWebDriver webDriver;
-
         /// <summary>
         /// Constructor to hand off webDriver
         /// </summary>
         /// <param name="webDriver"></param>
-        public B2BCrossReferenceListPage(IWebDriver webDriver)
+        public B2BMaintenanceCrossReferencePage(IWebDriver webDriver)
             : base(ref webDriver)
         {
             this.webDriver = webDriver;
@@ -66,88 +63,45 @@ namespace Modules.Channel.B2B.Core.Pages
             throw new NotImplementedException();
         }
 
-        #region Elements
-        private IWebElement ChooseCrossReferenceTypeList
+        # region Elements
+        private IWebElement CrossReferneceType
         {
             get
             {
-                return webDriver.FindElement(By.Id("ContentPageHolder_drp_CRTType"));
-
+                return webDriver.FindElement(By.Id("ContentPageHolder_lblCRType"));
             }
         }
-
-
-
-
-        private IWebElement ViewCrList
+        private IWebElement FileToUpload
         {
             get
             {
-                return webDriver.FindElement(By.Id("ContentPageHolder_lnk_btnSearch"));
-
+                return webDriver.FindElement(By.Id("ContentPageHolder_Label4"));
             }
         }
-
-
-        public IWebElement CrossReferenceTable
+        private IWebElement Description
         {
             get
             {
-                return webDriver.FindElement(By.Id("ContentPageHolder_CRTGridCRTList_grdVwCrossReferenceList"));
-
+                return webDriver.FindElement(By.Id("ContentPageHolder_Label3"));
             }
         }
-
-        public IList<IWebElement> CrossReferenceTypeColumn
-        {
-            get
-            {
-                return
-                    webDriver.FindElements(
-                        By.XPath(
-                            "//table[@id='ContentPageHolder_CRTGridCRTList_grdVwCrossReferenceList']/tbody/tr/td[3]"));
-            }
-        }
-
-        public IWebElement NewCrossReference
-        {
-            get
-            {
-                webDriver.WaitForElement(By.Id("ContentPageHolder_lnk_btnNew"), TimeSpan.FromSeconds(30));
-                return webDriver.FindElement(By.Id("ContentPageHolder_lnk_btnNew"));
-            }
-        }
-
-        #endregion
-
+        # endregion
         # region Element Actions
-
-        public void SelectCrTypeList(string CrossReferenceTypeList)
+        public string crosstyperefText()
         {
-            SelectElement crossReferenceTypeList = new SelectElement(ChooseCrossReferenceTypeList);
-            crossReferenceTypeList.SelectByValue(CrossReferenceTypeList);
+            const string crosstyperefPath = "ContentPageHolder_lblCRType";
+            return webDriver.FindElement(By.Id(crosstyperefPath)).Text;
         }
-
-        public void ClickViewCrList()
+        public string FileUploadText()
         {
-            ViewCrList.Click();
+            const string fileUploadTextPath = "ContentPageHolder_Label4";
+            return webDriver.FindElement(By.Id(fileUploadTextPath)).Text;
         }
-
-        public IList<IWebElement> GetTypeColumnValues()
+        public string DescriptionText()
         {
-            return CrossReferenceTypeColumn;
+            const string descriptionPath = "ContentPageHolder_Label3";
+            return webDriver.FindElement(By.Id(descriptionPath)).Text;
         }
-        public bool CheckChennelSegmentBookingDropDown(string ListOptions)
-        {
-            SelectElement crList = new SelectElement(ChooseCrossReferenceTypeList);
-            ChooseCrossReferenceTypeList.Click();
-            return crList.Options.Any(e => e.Text.Contains(ListOptions));
-        }
-        public void ClickNewCrossReference()
-        {
-            NewCrossReference.Click();
-        }
-
         # endregion
     }
 }

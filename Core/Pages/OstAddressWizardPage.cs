@@ -96,6 +96,16 @@ namespace Modules.Channel.B2B.Core.Pages
 
         }
 
+        private IWebElement ShipToAddressOption
+        {
+            get
+            {
+                webDriver.WaitForElementDisplayed(By.Id("__tab_TabContainerAddress_TabPanelShiptoAddress"), TimeSpan.FromSeconds(30));
+                //Xpath = //span[@id='__tab_TabContainerAddress_TabPanelShiptoAddress']
+                return webDriver.FindElement(By.Id("__tab_TabContainerAddress_TabPanelShiptoAddress"));
+            }
+        }
+
         private IWebElement SelectButton
         {
             get
@@ -121,9 +131,33 @@ namespace Modules.Channel.B2B.Core.Pages
             }
         }
 
+        private IWebElement CustomerNumberColumnPosition
+        {
+            get
+            {
+                return webDriver.FindElement(By.XPath("//table[@id='TabContainerAddress_TabPanelBilltoAddress_AffinityBillAddress_gvAffinityAddress']/thead/tr/th[5]"));
+            }
+        }
+
+        private IWebElement ChannelNumberColumnPosition
+        {
+            get
+            {
+                return webDriver.FindElement(By.XPath("//table[@id='TabContainerAddress_TabPanelBilltoAddress_AffinityBillAddress_gvAffinityAddress']/thead/tr/th[6]"));
+            }
+        }
+
+        public IWebElement Hyperlink
+        {
+            get
+            {
+                return webDriver.FindElement(By.LinkText("Refresh Addresses"));
+            }
+        }
+
         public bool CheckLocalChannelNumber()
         {
-            return BillToAddSearchByField.Options.Select(e => e.Text.Contains("Local Channel #")).Any();
+            return BillToAddSearchByField.Options.Any(e => e.Text.Contains("Local Channel #"));
         }
 
         public void SelectLocalChannelOption()
@@ -143,6 +177,51 @@ namespace Modules.Channel.B2B.Core.Pages
         {
             String columnPath = "//table[@id='TabContainerAddress_TabPanelBilltoAddress_AffinityBillAddress_gvAffinityAddress']/tbody/tr/td[6]";
             return webDriver.FindElements(By.XPath(columnPath)).All(e => e.Text.Contains(localchannelvalue));
+        }
+
+        public string ChannelNumberColumnText()
+        {
+            return ChannelNumberColumnPosition.Text;
+
+        }
+
+        public string CustomerNumberColumnText()
+        {
+            return CustomerNumberColumnPosition.Text;
+        }
+
+        public void ShipToAddress()
+        {
+            ShipToAddressOption.Click();
+        }
+
+        public void BillToAddHyperLinkClick()
+        {
+            Hyperlink.Click();
+        }
+
+        public string BillToAddUpdateTextCValidate()
+        {
+            webDriver.WaitForElementDisplayed(By.XPath("//span[@id='TabContainerAddress_TabPanelBilltoAddress_AffinityBillAddress_lbl_Error']"), TimeSpan.FromSeconds(30));
+            return webDriver.FindElement(By.XPath("//span[@id='TabContainerAddress_TabPanelBilltoAddress_AffinityBillAddress_lbl_Error']")).Text;
+        }
+
+        public string OmsAdd(string localchannelvalue)
+        {
+            string AddressPath = "//span[@id='TabContainerAddress_TabPanelBilltoAddress_AffinityBillAddress_gvAffinityAddress_lblAddressAffinity1_0']";
+            return webDriver.FindElement(By.XPath(AddressPath)).Text;
+        }
+
+        public void AddNewOmsAddressClick()
+        {
+            webDriver.FindElement(By.XPath("//input[@id='TabContainerAddress_TabPanelBilltoAddress_AffinityBillAddress_img_Add_New_BLG_OMS_Address']")).Click();
+        }
+
+        public string AddOmsAddressNewWindow()
+        {
+            webDriver.WaitForElementDisplayed(By.XPath("//h2[contains(text(),'Add')]"), TimeSpan.FromSeconds(30));
+
+            return webDriver.FindElement(By.XPath("//h2[contains(text(),'Add')]")).Text;
         }
     }
 }

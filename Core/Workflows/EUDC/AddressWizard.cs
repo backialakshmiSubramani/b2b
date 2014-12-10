@@ -38,10 +38,20 @@ namespace Modules.Channel.B2B.Core.Workflows.EUDC
             get { return new OstAddressWizardPage(webDriver); }
         }
 
+        private OstShipToAddressPage ShipToAddressPage
+        {
+            get
+            {
+                return new OstShipToAddressPage(webDriver);
+            }
+        }
+
         public AddressWizard(IWebDriver Driver)
         {
             webDriver = Driver;
         }
+
+
 
         public bool BillToAddSearchBy(string accountId)
         {
@@ -59,6 +69,43 @@ namespace Modules.Channel.B2B.Core.Workflows.EUDC
             AddressWizardPage.SelectLocalChannelOption();
             AddressWizardPage.LocalChannelNumberValue(localchannelvalue);
             return AddressWizardPage.FindLocalChannel(localchannelvalue);
+        }
+
+        public bool CustomerAndLocalChnNumDisplay(string accountId)
+        {
+            HomePage.GoToCatalogAndPricingPage(accountId);
+            CatalogAndPricingPage.GoToAdressWizardPage();
+            webDriver.SwitchTo().Frame(0);
+            return (AddressWizardPage.CustomerNumberColumnText().Contains("Customer #") && AddressWizardPage.ChannelNumberColumnText().Contains("Local Channel #"));
+        }
+
+        public bool ShipToAddressCheck(string accountId)
+        {
+            HomePage.GoToCatalogAndPricingPage(accountId);
+            CatalogAndPricingPage.GoToAdressWizardPage();
+            webDriver.SwitchTo().Frame(0);
+            AddressWizardPage.ShipToAddress();
+            return ShipToAddressPage.SelectShipToAddOptions();
+        }
+
+        public string BillToAddressRefreshHyperlink(string accountId)
+        {
+            HomePage.GoToCatalogAndPricingPage(accountId);
+            CatalogAndPricingPage.GoToAdressWizardPage();
+            webDriver.SwitchTo().Frame(0);
+            AddressWizardPage.BillToAddHyperLinkClick();
+            return AddressWizardPage.BillToAddUpdateTextCValidate();
+        }
+
+        public string CheckOmsAdd(string accountId, string localchannelvalue)
+        {
+            HomePage.GoToCatalogAndPricingPage(accountId);
+            CatalogAndPricingPage.GoToAdressWizardPage();
+            webDriver.SwitchTo().Frame(0);
+            AddressWizardPage.SelectLocalChannelOption();
+            AddressWizardPage.LocalChannelNumberValue(localchannelvalue);
+            string p = AddressWizardPage.OmsAdd(localchannelvalue);
+            return p;
         }
     }
 }

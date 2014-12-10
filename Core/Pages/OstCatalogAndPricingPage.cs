@@ -105,10 +105,11 @@ namespace Modules.Channel.B2B.Core.Pages
         {
             get
             {
+                this.webDriver.WaitForElementDisplayed(By.LinkText("Address Wizard"), TimeSpan.FromSeconds(30));
                 return webDriver.FindElement(By.LinkText("Address Wizard"));
+
             }
         }
-
         #endregion
 
         #region Elements Actions

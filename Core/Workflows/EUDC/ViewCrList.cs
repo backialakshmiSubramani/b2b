@@ -30,32 +30,69 @@ namespace Modules.Channel.B2B.Core.Workflows.EUDC
             get { return new B2BCrossReferenceListPage(_webDriver); }
         }
 
+        private B2BMaintenanceCrossReferencePage MaintenanceCrossReferencePage
+        {
+            get
+            {
+                return new B2BMaintenanceCrossReferencePage(_webDriver);
+            }
+        }
+        private B2BPreviewAssociatedCrossReferenceListPage PreviewAssociatedCrossReferenceList
+        {
+            get
+            {
+                return new B2BPreviewAssociatedCrossReferenceListPage(_webDriver);
+            }
+        }
         public ViewCrList(IWebDriver driver)
         {
             _webDriver = driver;
         }
-
         public void OpenCrossReferenceList()
         {
             B2BhomePage.ClickCrossReferenceListLink();
         }
-
         public string OpenCrAssociationList()
         {
             B2BhomePage.ClickCrAssociationList();
             return _webDriver.Url;
         }
-
         public void DispalyCrList(string crossReferenceType)
         {
             B2BCrossReferenceListPage.SelectCrTypeList(crossReferenceType);
             B2BCrossReferenceListPage.ClickViewCrList();
             _webDriver.WaitForPageLoad(TimeSpan.FromSeconds(20));
         }
-
         public bool CheckTypeColumnValue(string columnText)
         {
-           return B2BCrossReferenceListPage.GetTypeColumnValues().All(e => e.Text.Contains(columnText));
+            return B2BCrossReferenceListPage.GetTypeColumnValues().All(e => e.Text.Contains(columnText));
+        }
+
+        public string TableRowChecking()
+        {
+            return PreviewAssociatedCrossReferenceList.RowText();
+        }
+        public bool ChannelSegmentBookingDropDownCheck(string listOptions)
+        {
+            return B2BCrossReferenceListPage.CheckChennelSegmentBookingDropDown(listOptions);
+        }
+        public string OpenCrossRefMaintenancePage()
+        {
+            B2BCrossReferenceListPage.ClickNewCrossReference();
+            _webDriver.WaitForPageLoad(TimeSpan.FromSeconds(10));
+            return _webDriver.Url;
+        }
+        public string CrossTypeLabel()
+        {
+            return MaintenanceCrossReferencePage.crosstyperefText();
+        }
+        public string FileUploadLabel()
+        {
+            return MaintenanceCrossReferencePage.FileUploadText();
+        }
+        public string DescriptionLabel()
+        {
+            return MaintenanceCrossReferencePage.DescriptionText();
         }
     }
 }
