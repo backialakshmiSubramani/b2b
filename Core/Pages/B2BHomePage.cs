@@ -21,6 +21,7 @@ using DCSG.ADEPT.Framework.Core.Extensions.WebDriver;
 using DCSG.ADEPT.Framework.Core.Extensions.WebElement;
 using DCSG.ADEPT.Framework.Core.Extensions.Locators;
 using DCSG.ADEPT.Framework.Core.Page;
+using System.Linq;
 
 
 namespace Modules.Channel.B2B.Core.Pages
@@ -113,6 +114,23 @@ namespace Modules.Channel.B2B.Core.Pages
             }
         }
 
+        private IWebElement BuyerCatalogLink
+        {
+            get
+            {
+                return webDriver.FindElement(By.XPath("//a[normalize-space(.)='Buyer Catalog']"));
+            }
+        }
+
+        private IWebElement QATools3
+        {
+            get
+            {
+                return webDriver.FindElement(By.XPath("//table[@id='ucLeftMenu_B2BLeftNavHeading']/tbody/tr[33]/td/a"));
+            }
+
+        }
+
         #endregion
 
         #region Element Actions
@@ -132,16 +150,34 @@ namespace Modules.Channel.B2B.Core.Pages
             CrAssociationlist.Click();
         }
 
+        public void ClickGoButton()
+        {
+            GoButton.Click();
+        }
+
+        public void ClickQaTools3()
+        {
+            QATools3.Click();
+            // webDriver.WaitForPageLoad(TimeSpan.FromSeconds(30));
+            String newWindow = webDriver.WindowHandles.LastOrDefault();
+            webDriver.SwitchTo().Window(newWindow);
+            webDriver.WaitForPageLoad(TimeSpan.FromSeconds(40));
+        }
+
         #endregion
+
         #region ReUsable Methods
         public void SelectEnvironment(string EnvironmentValue)
         {
             SelectElement environment = new SelectElement(ChooseEnvironmentList);
             environment.SelectByText(EnvironmentValue);
-            GoButton.Click();
+            ClickGoButton();
         }
         #endregion
 
-
+        public void ClickOnBuyerCatalogLink()
+        {
+            BuyerCatalogLink.Click();
+        }
     }
 }
