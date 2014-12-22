@@ -107,5 +107,22 @@ namespace Modules.Channel.B2B.Core.Workflows.EUDC
             string p = AddressWizardPage.OmsAdd(localchannelvalue);
             return p;
         }
+
+        /// <summary>
+        /// method to select Local Channel # from Drop Down and passing the value in search field 
+        /// </summary>
+        /// <param name="accountId"></param>
+        /// <param name="localchannelvalue"></param>
+        /// <returns>false,if local channel # is not displayed</returns>
+        public bool CheckLocalChannelNumber(string accountId, string localchannelvalue)
+        {
+            HomePage.GoToCatalogAndPricingPage(accountId);
+            CatalogAndPricingPage.GoToAdressWizardPage();
+            webDriver.SwitchTo().Frame(0);
+            AddressWizardPage.SelectLocalChannelOption();
+            AddressWizardPage.LocalChannelNumberValue(localchannelvalue);
+            return AddressWizardPage.ChannelNumberColumnTextExist();
+
+        }
     }
 }
