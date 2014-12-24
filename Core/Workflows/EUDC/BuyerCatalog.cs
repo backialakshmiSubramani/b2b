@@ -15,7 +15,7 @@ namespace Modules.Channel.B2B.Core.Workflows.EUDC
     {
         private IWebDriver webDriver;
 
-        private OperationsAfterPoSubmission operationsAfterPoSubmission;
+        private PoOperations poOperations;
 
         private B2BQaToolsPage B2BQaToolsPage
         {
@@ -28,7 +28,7 @@ namespace Modules.Channel.B2B.Core.Workflows.EUDC
         public BuyerCatalog(IWebDriver driver)
         {
             this.webDriver = driver;
-            operationsAfterPoSubmission = new OperationsAfterPoSubmission(webDriver);
+            poOperations = new PoOperations(webDriver);
         }
 
         private B2BHomePage B2BHomePage
@@ -125,8 +125,12 @@ namespace Modules.Channel.B2B.Core.Workflows.EUDC
                 customerId);
 
             var parentWindow = webDriver.CurrentWindowHandle;
+
             string poNumber;
-            if (!SubmitXmlForPoCreation(poXml, environment.ToString(), targetUrl, out poNumber))
+
+            B2BCatalogViewer.ClickQaTools3();
+
+            if (!poOperations.SubmitXmlForPoCreation(poXml, environment.ToString(), targetUrl, out poNumber))
             {
                 return false;
             }
@@ -138,36 +142,12 @@ namespace Modules.Channel.B2B.Core.Workflows.EUDC
 
         public bool VerifyPoCreation(string poNumber, Workflow workflow, RunEnvironment environment, string crtFilePath, string crtEndUserId, string gcmUrl, string baseItemPrice)
         {
-            return operationsAfterPoSubmission.AllOperations(poNumber, workflow, environment, crtFilePath, crtEndUserId, gcmUrl, baseItemPrice);
+            return poOperations.AllOperations(poNumber, workflow, environment, crtFilePath, crtEndUserId, gcmUrl, baseItemPrice);
         }
 
         public void SelectEnvironment(string environment)
         {
             B2BHomePage.SelectEnvironment(environment);
-        }
-
-        public bool SubmitXmlForPoCreation(IEnumerable<string> poXml, string environment, string targetUrl, out string poNumber)
-        {
-            B2BCatalogViewer.ClickQaTools3();
-            B2BQaToolsPage.ClickLocationEnvironment(environment);
-            B2BQaToolsPage.ClickLocationEnvironmentLink(environment);
-            B2BQaToolsPage.PasteTargetUrl(targetUrl);
-            B2BQaToolsPage.PasteInputXml(poXml);
-            B2BQaToolsPage.ClickSubmitMessage();
-
-            var submissionResult = B2BQaToolsPage.SubmissionResult.Text;
-            Console.WriteLine("Submission Result is: " + submissionResult);
-
-            if (!submissionResult.Contains("200"))
-            {
-                Console.WriteLine("The status is not 200. The submission result: {0} ", submissionResult);
-                poNumber = string.Empty;
-                return false;
-            }
-
-            poNumber = submissionResult.Split(' ').Last();
-            Console.WriteLine("PO Created: " + poNumber);
-            return true;
         }
     }
 }

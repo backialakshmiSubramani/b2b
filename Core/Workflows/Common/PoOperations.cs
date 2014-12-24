@@ -15,19 +15,16 @@ using DCSG.ADEPT.Framework.Core.Extensions.Locators;
 using DCSG.ADEPT.Framework.Core.Page;
 using Modules.Channel.B2B.Core.Pages;
 using Excel = Microsoft.Office.Interop.Excel;
+using System.Collections;
+using System.Diagnostics.CodeAnalysis;
+using System.Xml.Linq;
+using System.Xml.XPath;
+using Microsoft.SharePoint.Client;
+using OpenQA.Selenium.Internal;
 
 namespace Modules.Channel.B2B.Core.Workflows.Common
 {
-    using System.Collections;
-    using System.Diagnostics.CodeAnalysis;
-    using System.Xml.Linq;
-    using System.Xml.XPath;
-
-    using Microsoft.SharePoint.Client;
-
-    using OpenQA.Selenium.Internal;
-
-    public class OperationsAfterPoSubmission
+    public class PoOperations
     {
         private IWebDriver webDriver;
 
@@ -35,7 +32,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
 
         private ArrayList crtDetails;
 
-        public OperationsAfterPoSubmission(IWebDriver Driver)
+        public PoOperations(IWebDriver Driver)
         {
             webDriver = Driver;
             excelApplication = new Excel.Application();
@@ -47,6 +44,14 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
             get
             {
                 return new B2BHomePage(webDriver);
+            }
+        }
+
+        private B2BQaToolsPage B2BQaToolsPage
+        {
+            get
+            {
+                return new B2BQaToolsPage(webDriver);
             }
         }
 
@@ -257,7 +262,6 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
 
        public void GetCrtDetails(string crtFilePath, string crtEndUserId)
         {
-
             Excel.Workbook workbook =
                 excelApplication.Workbooks.Open(
                     System.IO.Directory.GetCurrentDirectory() + "\\" + crtFilePath,
@@ -340,6 +344,29 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
                 return false;
             }
 
+            return true;
+        }
+
+        public bool SubmitXmlForPoCreation(IEnumerable<string> poXml, string environment, string targetUrl, out string poNumber)
+        {
+            B2BQaToolsPage.ClickLocationEnvironment(environment);
+            B2BQaToolsPage.ClickLocationEnvironmentLink(environment);
+            B2BQaToolsPage.PasteTargetUrl(targetUrl);
+            B2BQaToolsPage.PasteInputXml(poXml);
+            B2BQaToolsPage.ClickSubmitMessage();
+
+            var submissionResult = B2BQaToolsPage.SubmissionResult.Text;
+            Console.WriteLine("Submission Result is: " + submissionResult);
+
+            if (!submissionResult.Contains("200"))
+            {
+                Console.WriteLine("The status is not 200. The submission result: {0} ", submissionResult);
+                poNumber = string.Empty;
+                return false;
+            }
+
+            poNumber = submissionResult.Split(' ').Last();
+            Console.WriteLine("PO Created: " + poNumber);
             return true;
         }
     }
