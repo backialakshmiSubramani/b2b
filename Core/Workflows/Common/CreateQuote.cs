@@ -13,7 +13,7 @@ using DCSG.ADEPT.Framework.Core.Extensions.Locators;
 using DCSG.ADEPT.Framework.Core.Page;
 using Modules.Channel.B2B.Core.Pages;
 
-namespace Modules.Channel.B2B.Common
+namespace Modules.Channel.B2B.Core.Workflows.Common
 {
     public class CreateQuote
     {
@@ -110,19 +110,18 @@ namespace Modules.Channel.B2B.Common
             string price = "0";
 
             B2BHomePage.SelectEnvironment(env);
-            B2BHomePage.ClickGoButton();
             B2BHomePage.ClickQaTools3();
 
-            B2BQaToolsPage.Click_LocationEnv();
-            B2BQaToolsPage.Click_LocationEnvLink();
-            B2BQaToolsPage.Click_PunchoutCreate();
+            B2BQaToolsPage.ClickLocationEnvironment(env);
+            B2BQaToolsPage.ClickLocationEnvironmentLink(env);
+            B2BQaToolsPage.ClickPunchoutCreate();
             B2BQaToolsPage.Click_Cxml();
             B2BQaToolsPage.ClickCxmlMainCreate();
             B2BQaToolsPage.Profile_For_ProfileCorrelator(profileId);
             B2BQaToolsPage.Profile_For_UserIdIdentity(profileId);
             B2BQaToolsPage.Click_ApplyParameter();
-            B2BQaToolsPage.Click_SubmitMessage();
-            responseCode = B2BQaToolsPage.OutputElement.Text;
+            B2BQaToolsPage.ClickSubmitMessage();
+            responseCode = B2BQaToolsPage.SubmissionResult.Text;
             Console.WriteLine("Response Code is :- " + responseCode);
 
             if (responseCode.Contains("200"))

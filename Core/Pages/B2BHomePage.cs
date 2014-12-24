@@ -32,6 +32,7 @@ namespace Modules.Channel.B2B.Core.Pages
     public class B2BHomePage : DCSGPageBase
     {
         IWebDriver webDriver;
+        private IJavaScriptExecutor javaScriptExecutor;
 
         /// <summary>
         /// Constructor to hand off webDriver
@@ -41,6 +42,7 @@ namespace Modules.Channel.B2B.Core.Pages
             : base(ref webDriver)
         {
             this.webDriver = webDriver;
+            javaScriptExecutor = (IJavaScriptExecutor)webDriver;
             //populate the following variables with the appropriate value
             //Name = "";
             //Url = "";
@@ -122,13 +124,20 @@ namespace Modules.Channel.B2B.Core.Pages
             }
         }
 
-        private IWebElement QATools3
+        private IWebElement QaTools3
         {
             get
             {
-                return webDriver.FindElement(By.XPath("//table[@id='ucLeftMenu_B2BLeftNavHeading']/tbody/tr[33]/td/a"));
+                return webDriver.FindElement(By.XPath("//a[normalize-space(.)='QA Tools 3.0']"));
             }
+        }
 
+        private IWebElement LogReport
+        {
+            get
+            {
+                return webDriver.FindElement(By.LinkText("Log Report"));
+            }
         }
 
         #endregion
@@ -137,31 +146,44 @@ namespace Modules.Channel.B2B.Core.Pages
 
         public void ClickB2BProfileList()
         {
-            B2BProfileListLink.Click();
+            ////B2BProfileListLink.Click();
+            javaScriptExecutor.ExecuteScript("arguments[0].click();", B2BProfileListLink);
         }
 
         public void ClickCrossReferenceListLink()
         {
-            CrossReferenceListLink.Click();
+            ////CrossReferenceListLink.Click();
+            javaScriptExecutor.ExecuteScript("arguments[0].click();", CrossReferenceListLink);
         }
 
         public void ClickCrAssociationList()
         {
-            CrAssociationlist.Click();
-        }
-
-        public void ClickGoButton()
-        {
-            GoButton.Click();
+            ////CrAssociationlist.Click();
+            javaScriptExecutor.ExecuteScript("arguments[0].click();", CrAssociationlist);
         }
 
         public void ClickQaTools3()
         {
-            QATools3.Click();
-            // webDriver.WaitForPageLoad(TimeSpan.FromSeconds(30));
+            ////QaTools3.Click();
+            javaScriptExecutor.ExecuteScript("arguments[0].click();", QaTools3);
+
             String newWindow = webDriver.WindowHandles.LastOrDefault();
             webDriver.SwitchTo().Window(newWindow);
             webDriver.WaitForPageLoad(TimeSpan.FromSeconds(40));
+        }
+
+        public void ClickLogReport()
+        {
+            ////LogReport.Click();
+            javaScriptExecutor.ExecuteScript("arguments[0].click();", LogReport);
+            webDriver.WaitForElementDisplayed(By.Id("ucBreadCrumb_lblPageTitle"), TimeSpan.FromSeconds(20));
+        }
+
+        public void ClickOnBuyerCatalogLink()
+        {
+            webDriver.WaitForPageLoad(TimeSpan.FromSeconds(40));
+            ////BuyerCatalogLink.Click();
+            javaScriptExecutor.ExecuteScript("arguments[0].click();", BuyerCatalogLink);
         }
 
         #endregion
@@ -171,13 +193,12 @@ namespace Modules.Channel.B2B.Core.Pages
         {
             SelectElement environment = new SelectElement(ChooseEnvironmentList);
             environment.SelectByText(EnvironmentValue);
-            ClickGoButton();
+
+            javaScriptExecutor.ExecuteScript("arguments[0].click();", GoButton);
+            ////GoButton.Click();
+            webDriver.WaitForPageLoad(TimeSpan.FromSeconds(20));
         }
         #endregion
 
-        public void ClickOnBuyerCatalogLink()
-        {
-            BuyerCatalogLink.Click();
-        }
     }
 }
