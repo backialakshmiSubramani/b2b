@@ -84,6 +84,28 @@ namespace Modules.Channel.B2B.Core.Pages
             }
         }
 
+        private IWebElement CrossReferneceTypeLabel
+        {
+            get
+            {
+                return webDriver.FindElement(By.Id("ContentPageHolder_lblCRType"));
+            }
+        }
+        private IWebElement DescriptionLabel
+        {
+            get
+            {
+                return webDriver.FindElement(By.Id("ContentPageHolder_Label3"));
+            }
+        }
+        private IWebElement FileToUploadLabel
+        {
+            get
+            {
+                return webDriver.FindElement(By.Id("ContentPageHolder_Label4"));
+            }
+        }
+
         private IWebElement FileToUpload
         {
             get
@@ -119,6 +141,8 @@ namespace Modules.Channel.B2B.Core.Pages
             }
         }
 
+       
+
         # endregion
 
         # region Element Actions
@@ -137,7 +161,7 @@ namespace Modules.Channel.B2B.Core.Pages
         public void SetUploadFilePath(string filePath)
         {
             Console.WriteLine("File path {0}", System.IO.Directory.GetCurrentDirectory());
-            FileToUpload.SendKeys(System.IO.Directory.GetCurrentDirectory() +  filePath);
+            FileToUploadLabel.SendKeys(System.IO.Directory.GetCurrentDirectory() +  filePath);
         }
 
         public void ClickSave()
@@ -167,6 +191,19 @@ namespace Modules.Channel.B2B.Core.Pages
             {
                 return false;
             }
+        }
+
+        public string crosstyperefText()
+        {
+            return CrossReferneceTypeLabel.Text;
+        }
+        public string FileUploadText()
+        {
+            return FileToUpload.Text;
+        }
+        public string DescriptionText()
+        {
+            return DescriptionLabel.Text;
         }
 
         # endregion

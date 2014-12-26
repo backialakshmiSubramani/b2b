@@ -30,11 +30,11 @@ namespace Modules.Channel.B2B.Core.Workflows.EUDC
             get { return new B2BCrossReferenceListPage(_webDriver); }
         }
 
-        private B2BMaintenanceCrossReferencePage MaintenanceCrossReferencePage
+        private B2BCrossReferenceMaintenancePage MaintenanceCrossReferencePage
         {
             get
             {
-                return new B2BMaintenanceCrossReferencePage(_webDriver);
+                return new B2BCrossReferenceMaintenancePage(_webDriver);
             }
         }
         private B2BPreviewAssociatedCrossReferenceListPage PreviewAssociatedCrossReferenceList
