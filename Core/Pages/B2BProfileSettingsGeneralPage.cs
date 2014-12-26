@@ -118,11 +118,11 @@ namespace Modules.Channel.B2B.Core.Pages
         }
 
 
-        private IWebElement SelectAccessGroupList
+        private SelectElement AccessGroupList
         {
             get
             {
-                return webDriver.FindElement(By.XPath("//select[contains(@id,'SelectAccessGroup')]"));
+                return new SelectElement(webDriver.FindElement(By.XPath("//select[contains(@id,'SelectAccessGroup')]")));
             }
         }
 
@@ -181,8 +181,7 @@ namespace Modules.Channel.B2B.Core.Pages
 
         public void EnterAccessGroup(string AccessGroupValue)
         {
-            SelectElement accessGroup = new SelectElement(SelectAccessGroupList);
-            accessGroup.SelectByText(AccessGroupValue);
+            AccessGroupList.SelectByText(AccessGroupValue);
         }
 
         public void ClickCreateNewProfile()

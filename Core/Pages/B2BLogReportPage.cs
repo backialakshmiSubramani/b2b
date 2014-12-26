@@ -88,6 +88,15 @@ namespace Modules.Channel.B2B.Core.Pages
                 return webDriver.FindElement(By.Id("tbox_QuoteID"));
             }
         }
+
+        private IWebElement IncludeInsertLogCheckBox
+        {
+            get
+            {
+                return webDriver.FindElement(By.Id("chkb_InsertLog"));
+            }
+        }
+
         private IWebElement SubmitLink
         {
             get
@@ -139,9 +148,11 @@ namespace Modules.Channel.B2B.Core.Pages
 
         public void ClickSubmit()
         {
+            ////IncludeInsertLogCheckBox.Click();
+            javaScriptExecutor.ExecuteScript("arguments[0].click();", IncludeInsertLogCheckBox);
             ////SubmitLink.Click();
             javaScriptExecutor.ExecuteScript("arguments[0].click();", SubmitLink);
-            webDriver.WaitForPageLoad(TimeSpan.FromSeconds(25));
+            webDriver.WaitForPageLoad(new TimeSpan(0, 0, 10));
         }
 
         public string FindThreadIdInTable()
@@ -158,7 +169,7 @@ namespace Modules.Channel.B2B.Core.Pages
         {
             ////PoNumberInTable.Click();
             javaScriptExecutor.ExecuteScript("arguments[0].click();", PoNumberInTable);
-            webDriver.WaitForPageLoad(TimeSpan.FromSeconds(30));
+            webDriver.WaitForPageLoad(new TimeSpan(0, 0, 10));
         }
 
         /// <summary>
@@ -191,7 +202,7 @@ namespace Modules.Channel.B2B.Core.Pages
                     e => e.FindElements(By.TagName("td"))[5].Text.Contains(purchaseOderMessage));
             ////purchaseOrderMessageRow.FindElements(By.TagName("td"))[0].Click();
             javaScriptExecutor.ExecuteScript("arguments[0].click();", purchaseOrderMessageRow.FindElements(By.TagName("td"))[0].FindElement(By.TagName("a")));
-            webDriver.WaitForPageLoad(new TimeSpan(0, 0, 20));
+            webDriver.WaitForPageLoad(new TimeSpan(0, 0, 10));
         }
     }
 }

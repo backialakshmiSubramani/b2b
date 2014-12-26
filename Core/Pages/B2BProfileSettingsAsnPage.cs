@@ -84,11 +84,13 @@ namespace Modules.Channel.B2B.Core.Pages
             }
         }
 
-        private IWebElement DeliveryPreferenceList
+        private SelectElement DeliveryPreferenceList
         {
             get
             {
-                return webDriver.FindElement(By.XPath("//select[contains(@id,'Asn_Delivery_Preference')]"));
+                return
+                    new SelectElement(
+                        webDriver.FindElement(By.XPath("//select[contains(@id,'Asn_Delivery_Preference')]")));
             }
         }
 
@@ -130,8 +132,7 @@ namespace Modules.Channel.B2B.Core.Pages
                     if (EnableChannelASNChkBox.GetAttribute("checked") != "true")
                     {
                         EnableChannelASNChkBox.Click();
-                        SelectElement deliveryPreference = new SelectElement(DeliveryPreferenceList);
-                        deliveryPreference.SelectByText(DeliveryPreference);
+                        DeliveryPreferenceList.SelectByText(DeliveryPreference);
                         UpdateBtn.Click();
                     }
                     else

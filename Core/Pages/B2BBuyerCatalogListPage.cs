@@ -111,17 +111,17 @@ namespace Modules.Channel.B2B.Core.Pages
 
         #region Element Actions
         /// <summary>
-        /// Call this method to search for a Buyer Catalog providing the customer name and identity
+        /// Call this method to search for a Buyer Catalog providing the profile name and identity
         /// </summary>
-        /// <param name="customerName">Customer/Profile name</param>
+        /// <param name="profileName">Customer/Profile name</param>
         /// <param name="identityName">Identity associated</param>
-        public void SearchForBuyerCatalog(string customerName)
+        public void SearchForBuyerCatalog(string profileName)
         {
-            SelectCustomer.SelectByText(customerName);
+            SelectCustomer.SelectByText(profileName);
 
             ////SearchCatalogLink.Click();
             javaScriptExecutor.ExecuteScript("arguments[0].click();", SearchCatalogLink);
-            webDriver.WaitForPageLoad(new TimeSpan(0, 0, 30));
+            webDriver.WaitForPageLoad(new TimeSpan(0, 0, 10));
         }
 
         /// <summary>
@@ -144,7 +144,7 @@ namespace Modules.Channel.B2B.Core.Pages
             // Click on the corresponding link to view the catalog
             ////rowWithCatalogName.FindElements(By.TagName("td"))[1].Click();
             javaScriptExecutor.ExecuteScript("arguments[0].click();", rowWithCatalogName.FindElement(By.XPath("//td[2]/nobr/a")));
-            webDriver.WaitForPageLoad(TimeSpan.FromSeconds(30));
+            webDriver.WaitForPageLoad(new TimeSpan(0, 0, 10));
 
             return true;
         }

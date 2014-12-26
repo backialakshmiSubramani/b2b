@@ -17,20 +17,29 @@ namespace Modules.Channel.B2B.Core.Workflows.EUDC
 
         private PoOperations poOperations;
 
-        private B2BQaToolsPage B2BQaToolsPage
-        {
-            get
-            {
-                return new B2BQaToolsPage(webDriver);
-            }
-        }
-
         public BuyerCatalog(IWebDriver driver)
         {
             this.webDriver = driver;
             poOperations = new PoOperations(webDriver);
         }
 
+        ////************************************************************
+        public string ProfileName { get; set; }
+        public string IdentityName { get; set; }
+        public string ValidityEnd { get; set; }
+        public string NotificationEmail { get; set; }
+        public string ConfigurationType { get; set; }
+        public string DeploymentMode { get; set; }
+        public string OrderIdBase { get; set; }
+        public string B2BCrtEndUserId { get; set; }
+        public RunEnvironment RunEnvironment { get; set; }
+        public string TargetUrl { get; set; }
+        public Workflow WorkFlow { get; set; }
+        public string CrtFilePath { get; set; }
+        public PoXmlFormat PoXmlFormat { get; set; }
+        public string GcmUrl { get; set; }
+        ////************************************************************
+        
         private B2BHomePage B2BHomePage
         {
             get
@@ -64,31 +73,18 @@ namespace Modules.Channel.B2B.Core.Workflows.EUDC
         }
 
         // Creates Buyer Catalog and generates XML for PO submission
-        public bool CreateBhcPo(
-            string customerName,
-            string identityName,
-            string validityEnd,
-            string emailAddress,
-            string configurationType,
-            string deploymentMode,
-            string orderIdBase,
-            string customerId,
-            RunEnvironment environment,
-            string targetUrl,
-            Workflow workflow,
-            string crtFilePath,
-            string templateName,
-            string gcmUrl)
+        public bool CreateBhcPo()
         {
-             B2BHomePage.ClickOnBuyerCatalogLink();
+            B2BHomePage.SelectEnvironment(RunEnvironment.ToString());
+            B2BHomePage.ClickOnBuyerCatalogLink();
             var threadId = B2BCreateBuyerCatalogPage.GenerateCatalog(
-                customerName,
-                identityName,
-                validityEnd,
-                emailAddress,
-                configurationType);
+                ProfileName,
+                IdentityName,
+                ValidityEnd,
+                NotificationEmail,
+                ConfigurationType);
             B2BCreateBuyerCatalogPage.GoToBuyerCatalogListPage();
-            B2BBuyerCatalogListPage.SearchForBuyerCatalog(customerName);
+            B2BBuyerCatalogListPage.SearchForBuyerCatalog(ProfileName);
             if (!B2BBuyerCatalogListPage.CheckCatalogAvailabilityAndAct(threadId))
             {
                 Console.WriteLine("The catalog status is not = 'Available'. Retrying....");
@@ -96,7 +92,7 @@ namespace Modules.Channel.B2B.Core.Workflows.EUDC
                 {
                     System.Threading.Thread.Sleep(10000);
                     Console.WriteLine("Retry No. {0}", i + 1);
-                    B2BBuyerCatalogListPage.SearchForBuyerCatalog(customerName);
+                    B2BBuyerCatalogListPage.SearchForBuyerCatalog(ProfileName);
                     if (B2BBuyerCatalogListPage.CheckCatalogAvailabilityAndAct(threadId))
                     {
                         break;
@@ -110,19 +106,19 @@ namespace Modules.Channel.B2B.Core.Workflows.EUDC
                 }
             }
 
-            var orderId = orderIdBase + DateTime.Today.ToString("yyyyMMdd") + DateTime.Now.ToString("hhmmss");
+            var orderId = OrderIdBase + DateTime.Today.ToString("yyyyMMdd") + DateTime.Now.ToString("hhmmss");
             string baseItemPrice;
             var catalogPartId = B2BCatalogViewer.GetCatalogPartIdAndBaseUnitPrice(out baseItemPrice);
             catalogPartId = "BHC:" + catalogPartId;
 
-            var poXml = PoXmlGenerator.GeneratorPoCXml(
-                templateName,
-                identityName,
-                deploymentMode,
+            var poXml = PoXmlGenerator.GeneratePoXml(
+                PoXmlFormat,
+                IdentityName,
+                DeploymentMode,
                 orderId,
                 baseItemPrice,
                 catalogPartId,
-                customerId);
+                B2BCrtEndUserId);
 
             var parentWindow = webDriver.CurrentWindowHandle;
 
@@ -130,24 +126,24 @@ namespace Modules.Channel.B2B.Core.Workflows.EUDC
 
             B2BCatalogViewer.ClickQaTools3();
 
-            if (!poOperations.SubmitXmlForPoCreation(poXml, environment.ToString(), targetUrl, out poNumber))
+            if (!poOperations.SubmitXmlForPoCreation(poXml, RunEnvironment.ToString(), TargetUrl, out poNumber))
             {
                 return false;
             }
 
+            if (!webDriver.CurrentWindowHandle.Equals(parentWindow))
+            {
+                webDriver.Close();
+            }
+
             webDriver.SwitchTo().Window(parentWindow);
             B2BCatalogViewer.GoToHomePage();
-            return this.VerifyPoCreation(poNumber, workflow, environment, crtFilePath, customerId, gcmUrl, baseItemPrice);
+            return this.VerifyPoCreation(poNumber, WorkFlow, RunEnvironment, CrtFilePath, B2BCrtEndUserId, GcmUrl, baseItemPrice);
         }
 
         public bool VerifyPoCreation(string poNumber, Workflow workflow, RunEnvironment environment, string crtFilePath, string crtEndUserId, string gcmUrl, string baseItemPrice)
         {
             return poOperations.AllOperations(poNumber, workflow, environment, crtFilePath, crtEndUserId, gcmUrl, baseItemPrice);
-        }
-
-        public void SelectEnvironment(string environment)
-        {
-            B2BHomePage.SelectEnvironment(environment);
         }
     }
 }

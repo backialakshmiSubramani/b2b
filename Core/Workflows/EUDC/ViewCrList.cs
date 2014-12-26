@@ -30,7 +30,7 @@ namespace Modules.Channel.B2B.Core.Workflows.EUDC
             get { return new B2BCrossReferenceListPage(_webDriver); }
         }
 
-        private B2BCrossReferenceMaintenancePage MaintenanceCrossReferencePage
+        private B2BCrossReferenceMaintenancePage CrossReferenceMaintenancePage
         {
             get
             {
@@ -74,7 +74,7 @@ namespace Modules.Channel.B2B.Core.Workflows.EUDC
         }
         public bool ChannelSegmentBookingDropDownCheck(string listOptions)
         {
-            return B2BCrossReferenceListPage.CheckChennelSegmentBookingDropDown(listOptions);
+            return B2BCrossReferenceListPage.CheckChannelSegmentBookingDropDown(listOptions);
         }
         public string OpenCrossRefMaintenancePage()
         {
@@ -84,15 +84,15 @@ namespace Modules.Channel.B2B.Core.Workflows.EUDC
         }
         public string CrossTypeLabel()
         {
-            return MaintenanceCrossReferencePage.crosstyperefText();
+            return CrossReferenceMaintenancePage.crosstyperefText();
         }
         public string FileUploadLabel()
         {
-            return MaintenanceCrossReferencePage.FileUploadText();
+            return CrossReferenceMaintenancePage.FileUploadText();
         }
         public string DescriptionLabel()
         {
-            return MaintenanceCrossReferencePage.DescriptionText();
+            return CrossReferenceMaintenancePage.DescriptionText();
         }
     }
 }

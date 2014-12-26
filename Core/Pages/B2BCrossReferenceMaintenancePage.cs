@@ -32,6 +32,8 @@ namespace Modules.Channel.B2B.Core.Pages
     {
         IWebDriver webDriver;
 
+        private IJavaScriptExecutor javaScriptExecutor;
+
         /// <summary>
         /// Constructor to hand off webDriver
         /// </summary>
@@ -40,6 +42,8 @@ namespace Modules.Channel.B2B.Core.Pages
             : base(ref webDriver)
         {
             this.webDriver = webDriver;
+            javaScriptExecutor = (IJavaScriptExecutor)this.webDriver;
+
             //populate the following variables with the appropriate value
             //Name = "";
             //Url = "";
@@ -65,14 +69,14 @@ namespace Modules.Channel.B2B.Core.Pages
             throw new NotImplementedException();
         }
 
-        # region Elements
+        #region Elements
 
-        private IWebElement CrossReferenceTypeList
+        private SelectElement CrossReferenceTypeList
         {
             get
             {
                 webDriver.WaitForElementDisplayed(By.XPath("//select[contains(@id,'CRTType')]"), TimeSpan.FromSeconds(60));
-                return webDriver.FindElement(By.XPath("//select[contains(@id,'CRTType')]"));
+                return new SelectElement(webDriver.FindElement(By.XPath("//select[contains(@id,'CRTType')]")));
             }
         }
 
@@ -141,16 +145,13 @@ namespace Modules.Channel.B2B.Core.Pages
             }
         }
 
-       
+        #endregion
 
-        # endregion
-
-        # region Element Actions
+        #region Element Actions
 
         public void SelectCrossReferenceType(string crType)
         {
-            SelectElement crTypeList = new SelectElement(CrossReferenceTypeList);
-            crTypeList.SelectByText(crType);
+            CrossReferenceTypeList.SelectByText(crType);
         }
 
         public void SetDescription(string description)
@@ -161,24 +162,23 @@ namespace Modules.Channel.B2B.Core.Pages
         public void SetUploadFilePath(string filePath)
         {
             Console.WriteLine("File path {0}", System.IO.Directory.GetCurrentDirectory());
-            FileToUploadLabel.SendKeys(System.IO.Directory.GetCurrentDirectory() +  filePath);
+            FileToUpload.SendKeys(System.IO.Directory.GetCurrentDirectory() + @"\" + filePath);
         }
 
         public void ClickSave()
         {
-            SaveButton.Click();
+            ////SaveButton.Click();
+            javaScriptExecutor.ExecuteScript("arguments[0].click();", SaveButton);
         }
 
-        public bool IsSuccessMsgDisplayed()
+        public bool IsSuccessfulMessageDisplayed()
         {
             if (CrtUploadSuccessMsg.Displayed)
             {
                 return true;
             }
-            else
-            {
-                return false;
-            }
+
+            return false;
         }
 
         public bool IsErrorMessageDisplayed()
@@ -187,25 +187,25 @@ namespace Modules.Channel.B2B.Core.Pages
             {
                 return true;
             }
-            else
-            {
-                return false;
-            }
+
+            return false;
         }
 
         public string crosstyperefText()
         {
             return CrossReferneceTypeLabel.Text;
         }
+
         public string FileUploadText()
         {
-            return FileToUpload.Text;
+            return FileToUploadLabel.Text;
         }
+
         public string DescriptionText()
         {
             return DescriptionLabel.Text;
         }
 
-        # endregion
+        #endregion
     }
 }

@@ -70,12 +70,12 @@ namespace Modules.Channel.B2B.Core.Pages
 
         #region Elements
 
-        private IWebElement ChooseEnvironmentList
+        private SelectElement EnvironmentList
         {
             get
             {
-                webDriver.WaitForElement(By.Id("ucLeftMenu_ddlEnv"), TimeSpan.FromSeconds(30));
-                return webDriver.FindElement(By.Id("ucLeftMenu_ddlEnv"));
+                webDriver.WaitForElement(By.Id("ucLeftMenu_ddlEnv"), new TimeSpan(0, 0, 10));
+                return new SelectElement(webDriver.FindElement(By.Id("ucLeftMenu_ddlEnv")));
             }
         }
 
@@ -91,7 +91,7 @@ namespace Modules.Channel.B2B.Core.Pages
         {
             get
             {
-                webDriver.WaitForElement(By.XPath("//a[contains(text(),'B2B Profile List')]"), TimeSpan.FromSeconds(30));
+                webDriver.WaitForElement(By.XPath("//a[contains(text(),'B2B Profile List')]"), new TimeSpan(0, 0, 10));
                 return webDriver.FindElement(By.XPath("//a[contains(text(),'B2B Profile List')]"));
             }
         }
@@ -100,7 +100,7 @@ namespace Modules.Channel.B2B.Core.Pages
         {
             get
             {
-                webDriver.WaitForElement(By.XPath("//a[contains(text(),'Cross Reference List')]"), TimeSpan.FromSeconds(30));
+                webDriver.WaitForElement(By.XPath("//a[contains(text(),'Cross Reference List')]"), new TimeSpan(0, 0, 10));
                 return webDriver.FindElement(By.XPath("//a[contains(text(),'Cross Reference List')]"));
             }
         }
@@ -110,7 +110,7 @@ namespace Modules.Channel.B2B.Core.Pages
 
             get
             {
-                webDriver.WaitForElement(By.XPath("//a[contains(text(),'CR Association List')]"), TimeSpan.FromSeconds(30));
+                webDriver.WaitForElement(By.XPath("//a[contains(text(),'CR Association List')]"), new TimeSpan(0, 0, 10));
                 return webDriver.FindElement(By.XPath("//a[contains(text(),'CR Association List')]"));
 
             }
@@ -167,23 +167,23 @@ namespace Modules.Channel.B2B.Core.Pages
             ////QaTools3.Click();
             javaScriptExecutor.ExecuteScript("arguments[0].click();", QaTools3);
 
+            webDriver.WaitForPageLoad(new TimeSpan(0, 0, 10));
             String newWindow = webDriver.WindowHandles.LastOrDefault();
             webDriver.SwitchTo().Window(newWindow);
-            webDriver.WaitForPageLoad(TimeSpan.FromSeconds(40));
         }
 
         public void ClickLogReport()
         {
             ////LogReport.Click();
             javaScriptExecutor.ExecuteScript("arguments[0].click();", LogReport);
-            webDriver.WaitForElementDisplayed(By.Id("ucBreadCrumb_lblPageTitle"), TimeSpan.FromSeconds(20));
+            webDriver.WaitForElementDisplayed(By.Id("ucBreadCrumb_lblPageTitle"), new TimeSpan(0, 0, 10));
         }
 
         public void ClickOnBuyerCatalogLink()
         {
-            webDriver.WaitForPageLoad(TimeSpan.FromSeconds(40));
             ////BuyerCatalogLink.Click();
             javaScriptExecutor.ExecuteScript("arguments[0].click();", BuyerCatalogLink);
+            webDriver.WaitForPageLoad(new TimeSpan(0, 0, 10));
         }
 
         #endregion
@@ -191,12 +191,10 @@ namespace Modules.Channel.B2B.Core.Pages
         #region ReUsable Methods
         public void SelectEnvironment(string EnvironmentValue)
         {
-            SelectElement environment = new SelectElement(ChooseEnvironmentList);
-            environment.SelectByText(EnvironmentValue);
-
-            javaScriptExecutor.ExecuteScript("arguments[0].click();", GoButton);
+            EnvironmentList.SelectByText(EnvironmentValue);
             ////GoButton.Click();
-            webDriver.WaitForPageLoad(TimeSpan.FromSeconds(20));
+            javaScriptExecutor.ExecuteScript("arguments[0].click();", GoButton);
+            webDriver.WaitForPageLoad(new TimeSpan(0, 0, 10));
         }
         #endregion
 

@@ -66,12 +66,12 @@ namespace Modules.Channel.B2B.Core.Pages
         }
         # region Elements
 
-        private IWebElement ChooseAccountName
+        private SelectElement AccountName
         {
             get
             {
                 webDriver.WaitForElement(By.Id("ContentPageHolder_drp_CRT_Profiles"), TimeSpan.FromSeconds(30));
-                return webDriver.FindElement(By.Id("ContentPageHolder_drp_CRT_Profiles"));
+                return new SelectElement(webDriver.FindElement(By.Id("ContentPageHolder_drp_CRT_Profiles")));
             }
         }
         private IWebElement SearchButton
@@ -81,7 +81,7 @@ namespace Modules.Channel.B2B.Core.Pages
                 return webDriver.FindElement(By.Id("ContentPageHolder_lnk_btnSearch"));
             }
         }
-        public IWebElement CrossReferenceListTable
+        private IWebElement CrossReferenceListTable
         {
             get
             {
@@ -92,8 +92,7 @@ namespace Modules.Channel.B2B.Core.Pages
         # region Element Actions
         public void SelectAccountName(string AccountName)
         {
-            SelectElement accountName = new SelectElement(ChooseAccountName);
-            accountName.SelectByValue(AccountName);
+            this.AccountName.SelectByValue(AccountName);
         }
         public void ClickSearchButton()
         {

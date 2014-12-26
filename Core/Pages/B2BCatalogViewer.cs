@@ -126,12 +126,10 @@ namespace Modules.Channel.B2B.Core.Pages
         public void ClickQaTools3()
         {
             ////QATools3.Click();
-
             javaScriptExecutor.ExecuteScript("arguments[0].click();", QATools3);
-
+            webDriver.WaitForPageLoad(new TimeSpan(0, 0, 10));
             String newWindow = webDriver.WindowHandles.LastOrDefault();
             webDriver.SwitchTo().Window(newWindow);
-            webDriver.WaitForPageLoad(TimeSpan.FromSeconds(30));
         }
 
         public void GoToHomePage()

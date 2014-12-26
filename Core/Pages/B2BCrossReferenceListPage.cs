@@ -33,6 +33,8 @@ namespace Modules.Channel.B2B.Core.Pages
     {
         IWebDriver webDriver;
 
+        private IJavaScriptExecutor javaScriptExecutor;
+
         /// <summary>
         /// Constructor to hand off webDriver
         /// </summary>
@@ -41,6 +43,7 @@ namespace Modules.Channel.B2B.Core.Pages
             : base(ref webDriver)
         {
             this.webDriver = webDriver;
+            javaScriptExecutor = (IJavaScriptExecutor)this.webDriver;
             //populate the following variables with the appropriate value
             //Name = "";
             //Url = "";
@@ -67,18 +70,14 @@ namespace Modules.Channel.B2B.Core.Pages
         }
 
         #region Elements
-        private IWebElement ChooseCrossReferenceTypeList
+        private SelectElement ChooseCrossReferenceTypeList
         {
             get
             {
-                return webDriver.FindElement(By.Id("ContentPageHolder_drp_CRTType"));
-
+                return new SelectElement(webDriver.FindElement(By.Id("ContentPageHolder_drp_CRTType")));
             }
         }
-
-
-
-
+        
         private IWebElement ViewCrList
         {
             get
@@ -89,7 +88,7 @@ namespace Modules.Channel.B2B.Core.Pages
         }
 
 
-        public IWebElement CrossReferenceTable
+        private IWebElement CrossReferenceTable
         {
             get
             {
@@ -98,7 +97,7 @@ namespace Modules.Channel.B2B.Core.Pages
             }
         }
 
-        public IList<IWebElement> CrossReferenceTypeColumn
+        private IList<IWebElement> CrossReferenceTypeColumn
         {
             get
             {
@@ -109,7 +108,7 @@ namespace Modules.Channel.B2B.Core.Pages
             }
         }
 
-        public IWebElement NewCrossReference
+        private IWebElement NewCrossReference
         {
             get
             {
@@ -124,28 +123,32 @@ namespace Modules.Channel.B2B.Core.Pages
 
         public void SelectCrTypeList(string CrossReferenceTypeList)
         {
-            SelectElement crossReferenceTypeList = new SelectElement(ChooseCrossReferenceTypeList);
-            crossReferenceTypeList.SelectByValue(CrossReferenceTypeList);
+            ChooseCrossReferenceTypeList.SelectByValue(CrossReferenceTypeList);
         }
 
         public void ClickViewCrList()
         {
-            ViewCrList.Click();
+            ////ViewCrList.Click();
+            javaScriptExecutor.ExecuteScript("arguments[0].click();", ViewCrList);
+
         }
 
         public IList<IWebElement> GetTypeColumnValues()
         {
             return CrossReferenceTypeColumn;
         }
-        public bool CheckChennelSegmentBookingDropDown(string ListOptions)
+        public bool CheckChannelSegmentBookingDropDown(string ListOptions)
         {
-            SelectElement crList = new SelectElement(ChooseCrossReferenceTypeList);
-            ChooseCrossReferenceTypeList.Click();
-            return crList.Options.Any(e => e.Text.Contains(ListOptions));
+            return ChooseCrossReferenceTypeList.Options.Any(e => e.Text.Contains(ListOptions));
         }
         public void ClickNewCrossReference()
         {
-            NewCrossReference.Click();
+            ////NewCrossReference.Click();
+            javaScriptExecutor.ExecuteScript("arguments[0].click();", NewCrossReference);
+
+            // Both CrossReferenceList page and CrossReferenceMaintenance page have same element Cross Reference Type List
+            // hence wait for page load after click
+            webDriver.WaitForPageLoad(TimeSpan.FromSeconds(10));
         }
 
         # endregion

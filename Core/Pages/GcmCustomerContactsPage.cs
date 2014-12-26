@@ -68,7 +68,7 @@ namespace Modules.Channel.B2B.Core.Pages
             throw new NotImplementedException();
         }
 
-        public IWebElement EndUserLink
+        private IWebElement EndUserLink
         {
             get
             {

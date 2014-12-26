@@ -130,6 +130,7 @@ namespace Modules.Channel.B2B.Core.Pages
         {
             get
             {
+                webDriver.WaitForElementDisplayed(By.Id("ContentPageHolder_lbl_TY_ThreadId"), new TimeSpan(0, 0, 10));
                 return this.webDriver.FindElement(By.Id("ContentPageHolder_lbl_TY_ThreadId"));
             }
         }
@@ -147,14 +148,13 @@ namespace Modules.Channel.B2B.Core.Pages
         #region Element Actions
 
         public string GenerateCatalog(
-            string customerName,
+            string profileName,
             string identityName,
             string validityEnd,
             string emailAddress,
             string configurationType)
         {
-            webDriver.WaitForPageLoad(TimeSpan.FromSeconds(30));
-            SelectCustomer.SelectByText(customerName);
+            SelectCustomer.SelectByText(profileName);
             webDriver.WaitForElementDisplayed(
                 By.XPath("//select[@id='ContentPageHolder_drp_CBC_Identity']/option[text()='" + identityName + "']"),
                 TimeSpan.FromSeconds(10));
@@ -196,7 +196,6 @@ namespace Modules.Channel.B2B.Core.Pages
 
             javaScriptExecutor.ExecuteScript("arguments[0].click();", GenerateCatalogLink);
 
-            webDriver.WaitForElementDisplayed(By.Id("ContentPageHolder_lbl_TY_ThreadId"), TimeSpan.FromSeconds(30));
             return ThreadId.Text;
         }
 
@@ -204,7 +203,7 @@ namespace Modules.Channel.B2B.Core.Pages
         {
             ////BuyerCatalogListLink.Click();
             javaScriptExecutor.ExecuteScript("arguments[0].click();", BuyerCatalogListLink);
-            webDriver.WaitForPageLoad(TimeSpan.FromSeconds(30));
+            webDriver.WaitForPageLoad(new TimeSpan(0, 0, 10));
         }
 
         #endregion

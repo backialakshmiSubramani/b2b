@@ -72,7 +72,7 @@ namespace Modules.Channel.B2B.Core.Pages
             get
             {
                 webDriver.WaitForElement(By.XPath("//a[contains(text(),'Create New Profile')]"), TimeSpan.FromSeconds(30));
-                return  webDriver.FindElement(By.XPath("//a[contains(text(),'Create New Profile')]"));
+                return webDriver.FindElement(By.XPath("//a[contains(text(),'Create New Profile')]"));
             }
         }
 
@@ -89,7 +89,7 @@ namespace Modules.Channel.B2B.Core.Pages
             get
             {
                 webDriver.WaitForElement(By.LinkText("Advance Search"), TimeSpan.FromSeconds(30));
-                 return webDriver.FindElement(By.LinkText("Advance Search"));
+                return webDriver.FindElement(By.LinkText("Advance Search"));
             }
 
         }
@@ -102,11 +102,11 @@ namespace Modules.Channel.B2B.Core.Pages
             }
         }
 
-        private IWebElement SearchCriteriaList
+        private SelectElement SearchCriteriaList
         {
             get
             {
-                 return webDriver.FindElement(By.Id("ContentPageHolder_ddlSearchType"));
+                return new SelectElement(webDriver.FindElement(By.Id("ContentPageHolder_ddlSearchType")));
 
             }
         }
@@ -118,19 +118,14 @@ namespace Modules.Channel.B2B.Core.Pages
                 return webDriver.FindElement(By.XPath("//a[contains(text(),'›')]"));
             }
         }
-            
-                      
-            
+
         private IWebElement ChannelASNChkBox
         {
             get
             {
-             return webDriver.FindElement(By.XPath("//input[@id='ContentPageHolder_chkIsChannelASNEnabled']"));
+                return webDriver.FindElement(By.XPath("//input[@id='ContentPageHolder_chkIsChannelASNEnabled']"));
             }
         }
-
-        
-       
 
         #endregion
 
@@ -150,7 +145,7 @@ namespace Modules.Channel.B2B.Core.Pages
             if (ChannelASNChkBox.GetAttribute("checked") != "checked")
             {
                 ChannelASNChkBox.Click();
-            }       
+            }
         }
 
         public void ClickSearchLink()
@@ -160,22 +155,21 @@ namespace Modules.Channel.B2B.Core.Pages
 
         public void ClickSearchedProfile()
         {
-            
+
             webDriver.WaitForElement(By.XPath("//a[contains(@id,'hypCustomerName')]"), TimeSpan.FromSeconds(60));
             webDriver.FindElement(By.XPath("//a[contains(@id,'hypCustomerName')]")).Click();
 
         }
-      
+
         #endregion
 
         #region ReUsable Methods
-        public void SearchProfile(string SearchCriteria , string ProfileName)
+        public void SearchProfile(string SearchCriteria, string ProfileName)
         {
-           
+
             if (SearchCriteria != null)
             {
-                SelectElement criteria = new SelectElement(SearchCriteriaList);
-                criteria.SelectByText(SearchCriteria);
+                SearchCriteriaList.SelectByText(SearchCriteria);
             }
 
             SearchTextField.Set(ProfileName);
@@ -208,8 +202,8 @@ namespace Modules.Channel.B2B.Core.Pages
                     {
                         webDriver.FindElement(By.XPath(locator)).Click();
                     }
-                    
-                    Flag = false;                   
+
+                    Flag = false;
                 }
                 else
                 {
@@ -222,7 +216,6 @@ namespace Modules.Channel.B2B.Core.Pages
                     {
                         Flag = false;
                         status = false;
-                        
                     }
                 }
             } while (Flag == true);

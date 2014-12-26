@@ -29,67 +29,98 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
         /// </summary>
         private B2BHomePage B2BHomePage
         {
-            get { return new B2BHomePage(webDriver); }
+            get
+            {
+                return new B2BHomePage(webDriver);
+            }
         }
 
         private B2BQaToolsPage B2BQaToolsPage
         {
-            get { return new B2BQaToolsPage(webDriver); }
+            get
+            {
+                return new B2BQaToolsPage(webDriver);
+            }
         }
 
         private B2BDashBoardPage DashBoardPage
         {
-            get { return new B2BDashBoardPage(webDriver); }
+            get
+            {
+                return new B2BDashBoardPage(webDriver);
+            }
         }
 
         private B2BStandardConfigurationPage StandardConfigurationPage
         {
-            get { return new B2BStandardConfigurationPage(webDriver); }
+            get
+            {
+                return new B2BStandardConfigurationPage(webDriver);
+            }
         }
 
         private B2BShopingCartPage ShopingCartPage
         {
-            get { return new B2BShopingCartPage(webDriver); }
+            get
+            {
+                return new B2BShopingCartPage(webDriver);
+            }
         }
 
         private B2BEQuoteDetailsPage eQuoteDetailsPage
         {
-            get { return new B2BEQuoteDetailsPage(webDriver); }
+            get
+            {
+                return new B2BEQuoteDetailsPage(webDriver);
+            }
         }
 
         private B2BEQuoteSummaryPage eQuoteSummaryPage
         {
-            get { return new B2BEQuoteSummaryPage(webDriver); }
+            get
+            {
+                return new B2BEQuoteSummaryPage(webDriver);
+            }
         }
 
         private B2BFinalEquoteSummaryPage finalEquoteSummaryPage
         {
             get
-            { return new B2BFinalEquoteSummaryPage(webDriver);}
+            {
+                return new B2BFinalEquoteSummaryPage(webDriver);
+            }
         }
 
         private B2BEQuoteGenerationPage eQuoteGenerationPage
         {
             get
-            { return new B2BEQuoteGenerationPage(webDriver); }
+            {
+                return new B2BEQuoteGenerationPage(webDriver);
+            }
         }
 
         private B2BSecureCheckoutPage b2BSecureCheckoutPage
         {
             get
-            { return new B2BSecureCheckoutPage(webDriver); }
+            {
+                return new B2BSecureCheckoutPage(webDriver);
+            }
         }
 
         private B2BTermsOfSalesPage b2BTermsOfSalesPage
         {
             get
-            { return new B2BTermsOfSalesPage(webDriver); }
+            {
+                return new B2BTermsOfSalesPage(webDriver);
+            }
         }
 
         private B2BOrQuoteGenerationPage b2BOrQuoteGenerationPage
         {
             get
-            { return new B2BOrQuoteGenerationPage(webDriver); }
+            {
+                return new B2BOrQuoteGenerationPage(webDriver);
+            }
         }
 
         /* How to create 'E-Quote' or 'OrQuote'
@@ -101,7 +132,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
          * v) email - any email     <- will be used in equote        
          */
 
-        public String CompleteEQuoteGeneration(string quoteType,string env, string profileId, string name, string email)
+        public String CompleteEQuoteGeneration(string quoteType, string env, string profileId, string name, string email)
         {
             string eQuoteType = "equote";
             string orType = "OrQuote";
@@ -121,14 +152,14 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
             B2BQaToolsPage.Profile_For_UserIdIdentity(profileId);
             B2BQaToolsPage.Click_ApplyParameter();
             B2BQaToolsPage.ClickSubmitMessage();
-            responseCode = B2BQaToolsPage.SubmissionResult.Text;
+            responseCode = B2BQaToolsPage.GetSubmissionResult();
             Console.WriteLine("Response Code is :- " + responseCode);
 
             if (responseCode.Contains("200"))
             {
-                String temp = B2BQaToolsPage.StoreLinkElement.Text;
+                String temp = B2BQaToolsPage.GetStoreLinkText();
                 Console.WriteLine("Link value is " + temp);
-                B2BQaToolsPage.StoreLinkElement.Click();
+                B2BQaToolsPage.ClickStoreLink();
                 webDriver.WaitForPageLoad(TimeSpan.FromSeconds(40));
                 String newWindow = webDriver.WindowHandles.LastOrDefault();
                 webDriver.SwitchTo().Window(newWindow);
@@ -178,11 +209,6 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
             }
 
             return quote_num;
-
         }
-
-        
-
-
     }
 }

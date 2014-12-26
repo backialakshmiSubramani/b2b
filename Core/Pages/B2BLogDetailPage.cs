@@ -67,11 +67,10 @@ namespace Modules.Channel.B2B.Core.Pages
             throw new NotImplementedException();
         }
 
-        public IWebElement LogDetailData
+        private IWebElement LogDetailData
         {
             get
             {
-                webDriver.WaitForElement(By.Id("ContentPageHolder_TxtLogMessage"), new TimeSpan(0, 0, 20));
                 return webDriver.FindElement(By.Id("ContentPageHolder_TxtLogMessage"));
             }
         }

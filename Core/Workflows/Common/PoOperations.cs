@@ -32,9 +32,9 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
 
         private ArrayList crtDetails;
 
-        public PoOperations(IWebDriver Driver)
+        public PoOperations(IWebDriver driver)
         {
-            webDriver = Driver;
+            this.webDriver = driver;
             excelApplication = new Excel.Application();
             crtDetails = new ArrayList();
         }
@@ -144,9 +144,9 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
             string gcmUrl,
             string baseItemPrice)
         {
-            poNumber = "CBLORPRODdec192";
-            crtEndUserId = "2";
-            baseItemPrice = "3.99";
+            ////poNumber = "CBLORPRODdec192";
+            ////crtEndUserId = "2";
+            ////baseItemPrice = "3.99";
 
             this.GetCrtDetails(crtFilePath, crtEndUserId);
             bool isDpidFound = false;
@@ -180,6 +180,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
                 }
 
                 webDriver.Navigate().Back();
+                webDriver.WaitForPageLoad(new TimeSpan(0, 0, 10));
 
                 // 3. "CBL PO: sendPurchaseOrder" Message, click on the link,verify the enduser details against the CRT file data.
                 B2BLogReportPage.FindMessageAndCheckEndUserInfoInLogDetailPage(expectedPurchaseOderMessage);
@@ -192,14 +193,21 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
                 }
 
                 webDriver.Navigate().Back();
+                webDriver.WaitForPageLoad(new TimeSpan(0, 0, 10));
             }
 
             // 4. "Continue Purchase Order: Purchase Order Success: <DPID>" - capture DPID & verify in GCM
 
             var dellPurchaseId = this.B2BLogReportPage.FindDellPurchaseId(expectedDpidMessage);
-            if (!string.IsNullOrEmpty(dellPurchaseId))
+
+            int dpid;
+            
+            if (int.TryParse(dellPurchaseId.Trim(), out dpid))
             {
-                isDpidFound = true;
+                if (!dpid.Equals(-1))
+                {
+                    isDpidFound = true;
+                }
             }
 
             if (!isDpidFound)
@@ -211,7 +219,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
                 }
 
                 Console.WriteLine("DP ID is not generated. Stopping verfication. Not continuing with GCM verification");
-                return false;
+                return true;
             }
 
             Console.WriteLine("Now going to start GCM verification");
@@ -222,6 +230,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
             GcmFindEOrderPage.SelectSearchCriteria();
             GcmFindEOrderPage.ProvideValueForSearch(dellPurchaseId);
             GcmFindEOrderPage.ClickSearchButton();
+
             // Checking the status, if COMPLETE or not
             var status = GcmFindEOrderPage.FindOrderStaus();
             Console.WriteLine("Status of the order :- " + status);
@@ -232,7 +241,6 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
             }
 
             // GCM verification for EUDC
-
             if (workflow == Workflow.Eudc)
             {
                 if (!GcmVerificationsForEudc(dellPurchaseId, baseItemPrice))
@@ -246,21 +254,21 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
 
         private bool CheckEndUserInfo(List<string> endUserDetails)
         {
-            if (endUserDetails[0] == crtDetails[0].ToString()
-                && endUserDetails[1] == crtDetails[1].ToString()
-                && endUserDetails[2] == crtDetails[2].ToString()
-                && endUserDetails[3] == crtDetails[3].ToString()
-                && endUserDetails[4] == crtDetails[4].ToString()
-                && endUserDetails[5] == crtDetails[5].ToString()
-                && endUserDetails[6] == crtDetails[6].ToString())
+            if (endUserDetails != null && endUserDetails.Count() != 0)
             {
-                return true;
+                if (endUserDetails[0] == crtDetails[0].ToString() && endUserDetails[1] == crtDetails[1].ToString()
+                    && endUserDetails[2] == crtDetails[2].ToString() && endUserDetails[3] == crtDetails[3].ToString()
+                    && endUserDetails[4] == crtDetails[4].ToString() && endUserDetails[5] == crtDetails[5].ToString()
+                    && endUserDetails[6] == crtDetails[6].ToString())
+                {
+                    return true;
+                }
             }
 
             return false;
         }
 
-       public void GetCrtDetails(string crtFilePath, string crtEndUserId)
+        public void GetCrtDetails(string crtFilePath, string crtEndUserId)
         {
             Excel.Workbook workbook =
                 excelApplication.Workbooks.Open(
@@ -347,7 +355,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
             return true;
         }
 
-        public bool SubmitXmlForPoCreation(IEnumerable<string> poXml, string environment, string targetUrl, out string poNumber)
+        public bool SubmitXmlForPoCreation(string poXml, string environment, string targetUrl, out string poNumber)
         {
             B2BQaToolsPage.ClickLocationEnvironment(environment);
             B2BQaToolsPage.ClickLocationEnvironmentLink(environment);
@@ -355,7 +363,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
             B2BQaToolsPage.PasteInputXml(poXml);
             B2BQaToolsPage.ClickSubmitMessage();
 
-            var submissionResult = B2BQaToolsPage.SubmissionResult.Text;
+            var submissionResult = B2BQaToolsPage.GetSubmissionResult();
             Console.WriteLine("Submission Result is: " + submissionResult);
 
             if (!submissionResult.Contains("200"))
@@ -370,6 +378,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
             return true;
         }
     }
+
     public enum Workflow
     {
         Asn,
@@ -382,6 +391,10 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
         Production
     }
 
-
+    public enum PoXmlFormat
+    {
+        Cxml,
+        Cbl
+    }
 
 }

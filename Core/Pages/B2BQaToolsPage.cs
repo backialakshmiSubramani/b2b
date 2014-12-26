@@ -68,7 +68,7 @@ namespace Modules.Channel.B2B.Core.Pages
             throw new NotImplementedException();
         }
 
-        # region Element
+        #region Element
 
         // Find Location + Environment, like 'B2BPreview - SIT - GE1'/'B2BDirect - SIT - GE1'
         private IWebElement LocationEnvironmentPreview
@@ -79,7 +79,7 @@ namespace Modules.Channel.B2B.Core.Pages
             }
         }
 
-        public IWebElement LocationEnvironmentProduction
+        private IWebElement LocationEnvironmentProduction
         {
             get
             {
@@ -158,19 +158,22 @@ namespace Modules.Channel.B2B.Core.Pages
             get { return webDriver.FindElement(By.XPath("//input[@value='Submit Message']")); }
         }
 
-        public IWebElement SubmissionResult
+        private IWebElement SubmissionResult
         {
             get { return webDriver.FindElement(By.XPath("//div[@id='Output']/fieldset/div/div[1]/div")); }
         }
 
-        public IWebElement StoreLinkElement
+        private IWebElement StoreLink
         {
-            get { return webDriver.FindElement(By.LinkText("Click here to go to the store")); }
+            get
+            {
+                return webDriver.FindElement(By.LinkText("Click here to go to the store"));
+            }
         }
 
-        # endregion
+        #endregion
 
-        # region Element Actions
+        #region Element Actions
 
         public void Wait_For_Title()
         {
@@ -263,17 +266,15 @@ namespace Modules.Channel.B2B.Core.Pages
             webDriver.WaitForElementDisplayed(By.XPath("//div[@id='Output']/fieldset/div/div[1]/h3"), TimeSpan.FromSeconds(60));
         }
 
-        # endregion
+        #endregion
 
-        public void PasteInputXml(IEnumerable<string> poXml)
+        ////public void PasteInputXml(IEnumerable<string> poXml)
+        public void PasteInputXml(string poXml)
         {
-            foreach (var chunk in poXml)
-            {
-                InputXmlTextArea.SendKeys(chunk);
-            }
+            javaScriptExecutor.ExecuteScript("arguments[0].value = arguments[1];", InputXmlTextArea, poXml);
         }
 
-        public IWebElement InputXmlTextArea
+        private IWebElement InputXmlTextArea
         {
             get
             {
@@ -285,6 +286,21 @@ namespace Modules.Channel.B2B.Core.Pages
         {
             TargetUrl.Clear();
             TargetUrl.SendKeys(targetUrl);
+        }
+
+        public string GetSubmissionResult()
+        {
+            return SubmissionResult.Text;
+        }
+
+        public string GetStoreLinkText()
+        {
+            return StoreLink.Text;
+        }
+
+        public void ClickStoreLink()
+        {
+            StoreLink.Click();
         }
     }
 }

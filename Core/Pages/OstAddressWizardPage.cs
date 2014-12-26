@@ -135,7 +135,7 @@ namespace Modules.Channel.B2B.Core.Pages
         {
             get
             {
-               
+
                 return webDriver.FindElement(By.XPath("//table[@id='TabContainerAddress_TabPanelBilltoAddress_AffinityBillAddress_gvAffinityAddress']/thead/tr/th[5]"));
             }
         }
@@ -149,8 +149,7 @@ namespace Modules.Channel.B2B.Core.Pages
             }
         }
 
-     
-        public IWebElement Hyperlink
+        private IWebElement Hyperlink
         {
             get
             {
@@ -185,7 +184,7 @@ namespace Modules.Channel.B2B.Core.Pages
         public string ChannelNumberColumnText()
         {
             return ChannelNumberColumnPosition.Text;
-            
+
 
         }
 
@@ -220,13 +219,14 @@ namespace Modules.Channel.B2B.Core.Pages
         {
             webDriver.FindElement(By.XPath("//input[@id='TabContainerAddress_TabPanelBilltoAddress_AffinityBillAddress_img_Add_New_BLG_OMS_Address']")).Click();
         }
-        
+
         public string AddOmsAddressNewWindow()
         {
             webDriver.WaitForElementDisplayed(By.XPath("//h2[contains(text(),'Add')]"), TimeSpan.FromSeconds(30));
 
             return webDriver.FindElement(By.XPath("//h2[contains(text(),'Add')]")).Text;
         }
+
         /// <summary>
         /// method to check Local Channel # coloumn in Grid by Xpath.
         /// no other unique identifier is present.
