@@ -84,7 +84,7 @@ namespace Modules.Channel.B2B.Core.Workflows.EUDC
         }
         public string CrossTypeLabel()
         {
-            return CrossReferenceMaintenancePage.crosstyperefText();
+            return CrossReferenceMaintenancePage.CrossReferenceTypeText();
         }
         public string FileUploadLabel()
         {

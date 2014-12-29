@@ -21,7 +21,7 @@ using DCSG.ADEPT.Framework.Core.Extensions.WebDriver;
 using DCSG.ADEPT.Framework.Core.Extensions.WebElement;
 using DCSG.ADEPT.Framework.Core.Extensions.Locators;
 using DCSG.ADEPT.Framework.Core.Page;
-
+using System.Linq;
 
 namespace Modules.Channel.B2B.Core.Pages
 {
@@ -136,6 +136,15 @@ namespace Modules.Channel.B2B.Core.Pages
             }
         }
 
+        private IWebElement CrossReferenceListLink
+        {
+            get
+            {
+                webDriver.WaitForElement(By.XPath("//a[contains(text(),'Cross Reference List')]"), new TimeSpan(0, 0, 10));
+                return webDriver.FindElement(By.XPath("//a[contains(text(),'Cross Reference List')]"));
+            }
+        }
+
         private IWebElement CrtUploadErrorMsg
         {
             get
@@ -191,7 +200,7 @@ namespace Modules.Channel.B2B.Core.Pages
             return false;
         }
 
-        public string crosstyperefText()
+        public string CrossReferenceTypeText()
         {
             return CrossReferneceTypeLabel.Text;
         }
@@ -204,6 +213,17 @@ namespace Modules.Channel.B2B.Core.Pages
         public string DescriptionText()
         {
             return DescriptionLabel.Text;
+        }
+
+        public string GetCrId()
+        {
+            return CrtUploadSuccessMsg.Text.Trim().Split(' ').Last();
+        }
+
+        public void GoToCrossReferenceListPage()
+        {
+            javaScriptExecutor.ExecuteScript("arguments[0].click();", CrossReferenceListLink);
+            webDriver.WaitForPageLoad(new TimeSpan(0, 0, 10));
         }
 
         #endregion

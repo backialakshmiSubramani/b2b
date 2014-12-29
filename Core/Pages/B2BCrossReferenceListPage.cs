@@ -77,23 +77,23 @@ namespace Modules.Channel.B2B.Core.Pages
                 return new SelectElement(webDriver.FindElement(By.Id("ContentPageHolder_drp_CRTType")));
             }
         }
-        
+
         private IWebElement ViewCrList
         {
             get
             {
                 return webDriver.FindElement(By.Id("ContentPageHolder_lnk_btnSearch"));
-
             }
         }
 
-
-        private IWebElement CrossReferenceTable
+        private IEnumerable<IWebElement> CrossReferenceTableRows
         {
             get
             {
-                return webDriver.FindElement(By.Id("ContentPageHolder_CRTGridCRTList_grdVwCrossReferenceList"));
-
+                return
+                    webDriver.FindElements(
+                        By.XPath("//table[@id='ContentPageHolder_CRTGridCRTList_grdVwCrossReferenceList']/tbody/tr"))
+                        .Skip(1);
             }
         }
 
@@ -130,7 +130,6 @@ namespace Modules.Channel.B2B.Core.Pages
         {
             ////ViewCrList.Click();
             javaScriptExecutor.ExecuteScript("arguments[0].click();", ViewCrList);
-
         }
 
         public IList<IWebElement> GetTypeColumnValues()
@@ -149,6 +148,15 @@ namespace Modules.Channel.B2B.Core.Pages
             // Both CrossReferenceList page and CrossReferenceMaintenance page have same element Cross Reference Type List
             // hence wait for page load after click
             webDriver.WaitForPageLoad(TimeSpan.FromSeconds(10));
+        }
+
+        public void ViewXmlForCrId(string crId)
+        {
+            var rowWithCrId = CrossReferenceTableRows.FirstOrDefault(e => e.FindElements(By.TagName("td"))[1].Text.Trim().Equals(crId));
+            javaScriptExecutor.ExecuteScript("arguments[0].click();", rowWithCrId.FindElement(By.XPath("//td[6]/a")));
+            webDriver.WaitForPageLoad(new TimeSpan(0, 0, 10));
+            var newWindow = webDriver.WindowHandles.LastOrDefault();
+            webDriver.SwitchTo().Window(newWindow);
         }
 
         # endregion
