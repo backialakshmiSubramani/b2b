@@ -5,12 +5,10 @@ using System.Text;
 using System.Threading.Tasks;
 using OpenQA.Selenium;
 using Modules.Channel.B2B.Core.Pages;
-
+using Microsoft.SharePoint.Client;
 
 namespace Modules.Channel.B2B.Core.Workflows.Common
 {
-    using Microsoft.SharePoint.Client;
-
     public class CrtUpload
     {
         private IWebDriver webDriver;
@@ -38,7 +36,6 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
         private B2BCrossReferenceMaintenancePage B2BCrossReferenceMaintenencePage
         {
             get
-
             {
                 return new B2BCrossReferenceMaintenancePage(webDriver);
             }
@@ -64,7 +61,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
         public bool IsErrorMessageDisplayed()
         {
             return B2BCrossReferenceMaintenencePage.IsErrorMessageDisplayed();
-            
+
         }
 
         public bool IsSuccessfulMessageDisplayed()

@@ -21,12 +21,10 @@ using DCSG.ADEPT.Framework.Core.Extensions.WebElement;
 using DCSG.ADEPT.Framework.Core.Extensions.Locators;
 using OpenQA.Selenium.Support.UI;
 using DCSG.ADEPT.Framework.Core.Page;
-
+using OpenQA.Selenium.Interactions;
 
 namespace Modules.Channel.B2B.Core.Pages
 {
-    using OpenQA.Selenium.Interactions;
-
     /// <summary>
     /// This base class is the where all specific page classes will be derived.
     /// </summary>
@@ -163,32 +161,35 @@ namespace Modules.Channel.B2B.Core.Pages
             ValidityEnd.SendKeys(validityEnd);
             EmailAddress.SendKeys(emailAddress);
 
-            if (configurationType.Equals("Standard Configurations"))
+            if (!string.IsNullOrEmpty(configurationType))
             {
-                if (!StandardConfigurationCheckBox.Selected)
+                if (configurationType.Equals("Standard Configurations"))
                 {
-                    ////StandardConfigurationCheckBox.Click();
-                    javaScriptExecutor.ExecuteScript("arguments[0].click();", StandardConfigurationCheckBox);
-                }
+                    if (!StandardConfigurationCheckBox.Selected)
+                    {
+                        ////StandardConfigurationCheckBox.Click();
+                        javaScriptExecutor.ExecuteScript("arguments[0].click();", StandardConfigurationCheckBox);
+                    }
 
-                if (SnpCheckBox.Selected)
-                {
-                    ////SnpCheckBox.Click();
-                    javaScriptExecutor.ExecuteScript("arguments[0].click();", SnpCheckBox);
+                    if (SnpCheckBox.Selected)
+                    {
+                        ////SnpCheckBox.Click();
+                        javaScriptExecutor.ExecuteScript("arguments[0].click();", SnpCheckBox);
+                    }
                 }
-            }
-            else if (configurationType.Equals("SNP"))
-            {
-                if (!SnpCheckBox.Selected)
+                else if (configurationType.Equals("SNP"))
                 {
-                    ////SnpCheckBox.Click();
-                    javaScriptExecutor.ExecuteScript("arguments[0].click();", SnpCheckBox);
-                }
+                    if (!SnpCheckBox.Selected)
+                    {
+                        ////SnpCheckBox.Click();
+                        javaScriptExecutor.ExecuteScript("arguments[0].click();", SnpCheckBox);
+                    }
 
-                if (StandardConfigurationCheckBox.Selected)
-                {
-                    ////StandardConfigurationCheckBox.Click();
-                    javaScriptExecutor.ExecuteScript("arguments[0].click();", StandardConfigurationCheckBox);
+                    if (StandardConfigurationCheckBox.Selected)
+                    {
+                        ////StandardConfigurationCheckBox.Click();
+                        javaScriptExecutor.ExecuteScript("arguments[0].click();", StandardConfigurationCheckBox);
+                    }
                 }
             }
 
