@@ -154,12 +154,14 @@ namespace Modules.Channel.B2B.Core.Pages
         {
             ////CrossReferenceListLink.Click();
             javaScriptExecutor.ExecuteScript("arguments[0].click();", CrossReferenceListLink);
+            webDriver.WaitForPageLoad(new TimeSpan(0, 0, 10));
         }
 
         public void ClickCrAssociationList()
         {
             ////CrAssociationlist.Click();
             javaScriptExecutor.ExecuteScript("arguments[0].click();", CrAssociationlist);
+            webDriver.WaitForPageLoad(new TimeSpan(0, 0, 10));
         }
 
         public void ClickQaTools3()

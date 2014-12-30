@@ -32,6 +32,7 @@ namespace Modules.Channel.B2B.Core.Pages
     public class OstAddressWizardPage : DCSGPageBase
     {
         IWebDriver webDriver;
+        IJavaScriptExecutor javaScriptExecutor;
 
         /// <summary>
         /// Constructor to hand off webDriver
@@ -41,6 +42,7 @@ namespace Modules.Channel.B2B.Core.Pages
             : base(ref webDriver)
         {
             this.webDriver = webDriver;
+            javaScriptExecutor = (IJavaScriptExecutor)this.webDriver;
             //populate the following variables with the appropriate value
             //Name = "";
             //Url = "";
@@ -114,15 +116,6 @@ namespace Modules.Channel.B2B.Core.Pages
             }
         }
 
-        private IWebElement SelecttLocalChannel
-        {
-            get
-            {
-                return webDriver.FindElement(By.XPath("//select[@id='TabContainerAddress_TabPanelBilltoAddress_AffinityBillAddress_ddlSearchParams']"));
-
-            }
-        }
-
         private SelectElement SelectLocalChannelDropdown
         {
             get
@@ -164,7 +157,6 @@ namespace Modules.Channel.B2B.Core.Pages
 
         public void SelectLocalChannelOption()
         {
-            SelecttLocalChannel.Click();
             SelectLocalChannelDropdown.SelectByText("Local Channel #");
 
         }
@@ -172,7 +164,9 @@ namespace Modules.Channel.B2B.Core.Pages
         public void LocalChannelNumberValue(string localchannelvalue)
         {
             BillToAddressOption.SendKeys(localchannelvalue);
-            SelectButton.Click();
+            ////SelectButton.Click();
+            javaScriptExecutor.ExecuteScript("arguments[0].click();", SelectButton);
+            webDriver.WaitForPageLoad(new TimeSpan(0, 0, 10));
         }
 
         public bool FindLocalChannel(string localchannelvalue)
@@ -195,12 +189,16 @@ namespace Modules.Channel.B2B.Core.Pages
 
         public void ShipToAddress()
         {
-            ShipToAddressOption.Click();
+            ////ShipToAddressOption.Click();
+            javaScriptExecutor.ExecuteScript("arguments[0].click();", ShipToAddressOption);
+            webDriver.WaitForPageLoad(new TimeSpan(0, 0, 10));
         }
 
         public void BillToAddHyperLinkClick()
         {
-            Hyperlink.Click();
+            ////Hyperlink.Click();
+            javaScriptExecutor.ExecuteScript("arguments[0].click();", Hyperlink);
+            webDriver.WaitForPageLoad(new TimeSpan(0, 0, 10));
         }
 
         public string BillToAddUpdateTextCValidate()
@@ -234,13 +232,22 @@ namespace Modules.Channel.B2B.Core.Pages
         /// <returns>true,if Local channel # is displayed </returns>
         public bool ChannelNumberColumnTextExist()
         {
+            bool exist = true;
+
             if (webDriver.ElementExists(
                 By.XPath(
                     "//table[@class='affinityAddress']/tbody/tr[1]/th[6]")))
             {
-                return true;
+                if (!(webDriver.FindElement(By.XPath(
+                    "//table[@class='affinityAddress']/tbody/tr[1]/th[6]")).Text.Length > 1))
+                    exist = false;
             }
-            return false;
+            else
+            {
+                exist = false;
+            }
+
+            return exist;
         }
     }
 }

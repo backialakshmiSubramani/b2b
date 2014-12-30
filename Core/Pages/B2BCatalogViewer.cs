@@ -135,6 +135,7 @@ namespace Modules.Channel.B2B.Core.Pages
         public void GoToHomePage()
         {
             javaScriptExecutor.ExecuteScript("arguments[0].click();", DellImageLink);
+            webDriver.WaitForPageLoad(new TimeSpan(0, 0, 10));
         }
 
         #endregion

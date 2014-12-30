@@ -263,7 +263,7 @@ namespace Modules.Channel.B2B.Core.Pages
         {
             ////SubmitMessage.Click();
             javaScriptExecutor.ExecuteScript("arguments[0].click();", SubmitMessage);
-            webDriver.WaitForElementDisplayed(By.XPath("//div[@id='Output']/fieldset/div/div[1]/h3"), TimeSpan.FromSeconds(60));
+            webDriver.WaitForElementDisplayed(By.XPath("//div[@id='Output']/fieldset/div/div[1]/h3"), TimeSpan.FromSeconds(120));
         }
 
         #endregion

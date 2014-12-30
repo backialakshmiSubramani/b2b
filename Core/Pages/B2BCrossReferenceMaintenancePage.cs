@@ -178,6 +178,7 @@ namespace Modules.Channel.B2B.Core.Pages
         {
             ////SaveButton.Click();
             javaScriptExecutor.ExecuteScript("arguments[0].click();", SaveButton);
+            webDriver.WaitForPageLoad(new TimeSpan(0, 0, 10));
         }
 
         public bool IsSuccessfulMessageDisplayed()

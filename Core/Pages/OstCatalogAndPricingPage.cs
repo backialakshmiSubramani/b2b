@@ -30,6 +30,7 @@ namespace Modules.Channel.B2B.Core.Pages
     public class OstCatalogAndPricingPage : DCSGPageBase
     {
         IWebDriver webDriver;
+        IJavaScriptExecutor javaScriptExecutor;
 
         /// <summary>
         /// Constructor to hand off webDriver
@@ -39,7 +40,7 @@ namespace Modules.Channel.B2B.Core.Pages
             : base(ref webDriver)
         {
             this.webDriver = webDriver;
-
+            javaScriptExecutor = (IJavaScriptExecutor)this.webDriver;
         }
 
         /// <summary>
@@ -153,13 +154,16 @@ namespace Modules.Channel.B2B.Core.Pages
         /// </summary>
         public void UpdateAffinityId()
         {
-            UpdateButton.Click();
+            ////UpdateButton.Click();
+            javaScriptExecutor.ExecuteScript("arguments[0].click();", UpdateButton);
             webDriver.WaitForElementDisplayed(By.Id("ctl00_ContentPageHolder_lbl_Error"), TimeSpan.FromSeconds(20));
         }
 
         public void GoToAdressWizardPage()
         {
-            AddressWizardLink.Click();
+            ////AddressWizardLink.Click();
+            javaScriptExecutor.ExecuteScript("arguments[0].click();", AddressWizardLink);
+            webDriver.WaitForPageLoad(new TimeSpan(0, 0, 10));
         }
 
         #endregion

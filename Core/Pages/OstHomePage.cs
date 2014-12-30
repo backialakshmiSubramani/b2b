@@ -30,6 +30,7 @@ namespace Modules.Channel.B2B.Core.Pages
     public class OstHomePage : DCSGPageBase
     {
         IWebDriver webDriver;
+        private IJavaScriptExecutor javaScriptExecutor;
 
         /// <summary>
         /// Constructor to hand off webDriver
@@ -39,6 +40,7 @@ namespace Modules.Channel.B2B.Core.Pages
             : base(ref webDriver)
         {
             this.webDriver = webDriver;
+            javaScriptExecutor = (IJavaScriptExecutor)this.webDriver;
             //populate the following variables with the appropriate value
             //Name = "";
             //Url = "";
@@ -94,7 +96,8 @@ namespace Modules.Channel.B2B.Core.Pages
         {
             webDriver.WaitForPageLoad(TimeSpan.FromSeconds(20));
             AccountId.SendKeys(accountId);
-            GoButton.Click();
+            ////GoButton.Click();
+            javaScriptExecutor.ExecuteScript("arguments[0].click();", GoButton);
             webDriver.WaitForElementDisplayed(By.Id("ctl00_brdcrbControl_lbl_PageMigrationinfo"), TimeSpan.FromSeconds(30));
         }
     }
