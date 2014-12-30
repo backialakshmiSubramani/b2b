@@ -72,7 +72,7 @@ namespace Modules.Channel.B2B.Core.Pages
             get
             {
                 webDriver.WaitForElement(By.XPath("//a[contains(text(),'Create New Profile')]"), TimeSpan.FromSeconds(30));
-                return webDriver.FindElement(By.XPath("//a[contains(text(),'Create New Profile')]"));
+                return  webDriver.FindElement(By.XPath("//a[contains(text(),'Create New Profile')]"));
             }
         }
 
@@ -89,7 +89,7 @@ namespace Modules.Channel.B2B.Core.Pages
             get
             {
                 webDriver.WaitForElement(By.LinkText("Advance Search"), TimeSpan.FromSeconds(30));
-                return webDriver.FindElement(By.LinkText("Advance Search"));
+                 return webDriver.FindElement(By.LinkText("Advance Search"));
             }
 
         }
@@ -102,11 +102,11 @@ namespace Modules.Channel.B2B.Core.Pages
             }
         }
 
-        private SelectElement SearchCriteriaList
+        private IWebElement SearchCriteriaList
         {
             get
             {
-                return new SelectElement(webDriver.FindElement(By.Id("ContentPageHolder_ddlSearchType")));
+                 return webDriver.FindElement(By.Id("ContentPageHolder_ddlSearchType"));
 
             }
         }
@@ -115,17 +115,28 @@ namespace Modules.Channel.B2B.Core.Pages
         {
             get
             {
-                return webDriver.FindElement(By.XPath("//a[contains(text(),'›')]"));
+                return webDriver.FindElement(By.XPath("//a[@class='command'][contains(text(),'›')]"));
             }
         }
 
+        private bool IsPaginationDisplayed
+        {
+            get
+            {
+                return webDriver.ElementExists(AdeptBy.XPath("//a[@class='command'][contains(text(),'›')]"));
+            }
+        }
+            
+                      
+            
         private IWebElement ChannelASNChkBox
         {
             get
             {
-                return webDriver.FindElement(By.XPath("//input[@id='ContentPageHolder_chkIsChannelASNEnabled']"));
+             return webDriver.FindElement(By.XPath("//input[@id='ContentPageHolder_chkIsChannelASNEnabled']"));
             }
         }
+
 
         #endregion
 
@@ -145,7 +156,7 @@ namespace Modules.Channel.B2B.Core.Pages
             if (ChannelASNChkBox.GetAttribute("checked") != "checked")
             {
                 ChannelASNChkBox.Click();
-            }
+            }       
         }
 
         public void ClickSearchLink()
@@ -155,34 +166,36 @@ namespace Modules.Channel.B2B.Core.Pages
 
         public void ClickSearchedProfile()
         {
-
+            
             webDriver.WaitForElement(By.XPath("//a[contains(@id,'hypCustomerName')]"), TimeSpan.FromSeconds(60));
             webDriver.FindElement(By.XPath("//a[contains(@id,'hypCustomerName')]")).Click();
 
         }
-
+      
         #endregion
 
         #region ReUsable Methods
-        public void SearchProfile(string SearchCriteria, string ProfileName)
+        public void SearchProfile(string SearchCriteria , string ProfileName)
         {
-
+           
             if (SearchCriteria != null)
             {
-                SearchCriteriaList.SelectByText(SearchCriteria);
+                SelectElement criteria = new SelectElement(SearchCriteriaList);
+                criteria.SelectByText(SearchCriteria);
             }
 
             SearchTextField.Set(ProfileName);
             SearchLink.Click();
+            webDriver.WaitForPageLoad(TimeSpan.FromSeconds(20));
         }
 
         public void AdvanceSearchAsnEnabledProfile()
         {
             AdvancedSearchLink.Click();
-            webDriver.WaitForPageLoad(TimeSpan.FromSeconds(20));
+            webDriver.WaitForPageLoad(TimeSpan.FromSeconds(10));
             ChannelASNChkBox.Click();
             webDriver.FindElement(By.XPath("//a[contains(@id,'lnkAdvanceSearch')]")).Click();
-            webDriver.WaitForPageLoad(TimeSpan.FromSeconds(20));
+            webDriver.WaitForPageLoad(TimeSpan.FromSeconds(10));
         }
 
 
@@ -202,22 +215,24 @@ namespace Modules.Channel.B2B.Core.Pages
                     {
                         webDriver.FindElement(By.XPath(locator)).Click();
                     }
-
-                    Flag = false;
+                    
+                    Flag = false;                   
                 }
                 else
                 {
-                    if (webDriver.ElementExists(By.XPath("//a[contains(text(),'›')]")))
+                    if (IsPaginationDisplayed)
                     {
-                        webDriver.FindElement(By.XPath("//a[contains(text(),'›')]")).Click();
+                        PaginationArrow.Click();
                         webDriver.WaitForPageLoad(TimeSpan.FromSeconds(20));
                     }
                     else
                     {
                         Flag = false;
                         status = false;
+                        
                     }
                 }
+
             } while (Flag == true);
 
             return status;
