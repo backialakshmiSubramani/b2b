@@ -200,9 +200,9 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
 
             var dellPurchaseId = this.B2BLogReportPage.FindDellPurchaseId(expectedDpidMessage);
 
-            int dpid;
-            
-            if (int.TryParse(dellPurchaseId.Trim(), out dpid))
+            long dpid;
+
+            if (long.TryParse(dellPurchaseId, out dpid))
             {
                 if (!dpid.Equals(-1))
                 {

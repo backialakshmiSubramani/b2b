@@ -186,7 +186,7 @@ namespace Modules.Channel.B2B.Core.Pages
 
             Console.WriteLine("DP ID is generated with message -> {0}", dellPurchaseIdMessage);
 
-            return dellPurchaseIdMessage.Split(' ').LastOrDefault();
+            return dellPurchaseIdMessage.Trim().Split(' ').LastOrDefault();
         }
 
         #endregion
