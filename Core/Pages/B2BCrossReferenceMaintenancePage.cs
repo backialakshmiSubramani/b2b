@@ -183,22 +183,12 @@ namespace Modules.Channel.B2B.Core.Pages
 
         public bool IsSuccessfulMessageDisplayed()
         {
-            if (CrtUploadSuccessMsg.Displayed)
-            {
-                return true;
-            }
-
-            return false;
+            return this.CrtUploadSuccessMsg.IsElementVisible();
         }
 
         public bool IsErrorMessageDisplayed()
         {
-            if (CrtUploadErrorMsg.Displayed)
-            {
-                return true;
-            }
-
-            return false;
+            return this.CrtUploadErrorMsg.IsElementVisible();
         }
 
         public string CrossReferenceTypeText()

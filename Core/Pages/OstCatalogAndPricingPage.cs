@@ -102,15 +102,24 @@ namespace Modules.Channel.B2B.Core.Pages
                 return webDriver.FindElement(By.XPath("//span[@id='ctl00_ContentPageHolder_lbl_Error']"));
             }
         }
+
         private IWebElement AddressWizardLink
         {
             get
             {
                 this.webDriver.WaitForElementDisplayed(By.LinkText("Address Wizard"), TimeSpan.FromSeconds(30));
                 return webDriver.FindElement(By.LinkText("Address Wizard"));
-
             }
         }
+
+        private IWebElement FeaturesSetupLink
+        {
+            get
+            {
+                return webDriver.FindElement(By.LinkText("Features Setup"));
+            }
+        }
+
         #endregion
 
         #region Elements Actions
@@ -164,6 +173,13 @@ namespace Modules.Channel.B2B.Core.Pages
             ////AddressWizardLink.Click();
             javaScriptExecutor.ExecuteScript("arguments[0].click();", AddressWizardLink);
             webDriver.WaitForPageLoad(new TimeSpan(0, 0, 10));
+        }
+
+        public void GoToFeatureSetupPage()
+        {
+            ////FeaturesSetupLink.Click();
+            javaScriptExecutor.ExecuteScript("arguments[0].click();", FeaturesSetupLink);
+            webDriver.WaitForPageLoad(new TimeSpan(0, 0, 60));
         }
 
         #endregion

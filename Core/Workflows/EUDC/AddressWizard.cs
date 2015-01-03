@@ -61,14 +61,14 @@ namespace Modules.Channel.B2B.Core.Workflows.EUDC
             return AddressWizardPage.CheckLocalChannelNumber();
         }
 
-        public bool BillToAddSearchOption(string accountId, string localchannelvalue)
+        public bool BillToAddSearchOption(string accountId, string localChannelNumber)
         {
             HomePage.GoToCatalogAndPricingPage(accountId);
             CatalogAndPricingPage.GoToAdressWizardPage();
             webDriver.SwitchTo().Frame(0);
             AddressWizardPage.SelectLocalChannelOption();
-            AddressWizardPage.LocalChannelNumberValue(localchannelvalue);
-            return AddressWizardPage.FindLocalChannel(localchannelvalue);
+            AddressWizardPage.SearchByLocalChannelNumber(localChannelNumber);
+            return AddressWizardPage.FindLocalChannel(localChannelNumber);
         }
 
         public bool CustomerAndLocalChnNumDisplay(string accountId)
@@ -97,14 +97,14 @@ namespace Modules.Channel.B2B.Core.Workflows.EUDC
             return AddressWizardPage.BillToAddUpdateTextCValidate();
         }
 
-        public string CheckOmsAdd(string accountId, string localchannelvalue)
+        public string CheckOmsAdd(string accountId, string localChannelNumber)
         {
             HomePage.GoToCatalogAndPricingPage(accountId);
             CatalogAndPricingPage.GoToAdressWizardPage();
             webDriver.SwitchTo().Frame(0);
             AddressWizardPage.SelectLocalChannelOption();
-            AddressWizardPage.LocalChannelNumberValue(localchannelvalue);
-            string p = AddressWizardPage.OmsAdd(localchannelvalue);
+            AddressWizardPage.SearchByLocalChannelNumber(localChannelNumber);
+            string p = AddressWizardPage.OmsAdd(localChannelNumber);
             return p;
         }
 
@@ -112,17 +112,26 @@ namespace Modules.Channel.B2B.Core.Workflows.EUDC
         /// method to select Local Channel # from Drop Down and passing the value in search field 
         /// </summary>
         /// <param name="accountId"></param>
-        /// <param name="localchannelvalue"></param>
+        /// <param name="localChannelValue"></param>
         /// <returns>false,if local channel # is not displayed</returns>
-        public bool CheckLocalChannelNumber(string accountId, string localchannelvalue)
+        public bool CheckLocalChannelNumber(string accountId, string localChannelValue)
         {
             HomePage.GoToCatalogAndPricingPage(accountId);
             CatalogAndPricingPage.GoToAdressWizardPage();
             webDriver.SwitchTo().Frame(0);
             AddressWizardPage.SelectLocalChannelOption();
-            AddressWizardPage.LocalChannelNumberValue(localchannelvalue);
+            AddressWizardPage.SearchByLocalChannelNumber(localChannelValue);
             return AddressWizardPage.ChannelNumberColumnTextExist();
+        }
 
+        public bool SearchByAlphaNumericLocalChannelNumber(string accountId, string localChannelNumber)
+        {
+            HomePage.GoToCatalogAndPricingPage(accountId);
+            CatalogAndPricingPage.GoToAdressWizardPage();
+            webDriver.SwitchTo().Frame(0);
+            AddressWizardPage.SelectLocalChannelOption();
+            AddressWizardPage.SearchByLocalChannelNumber(localChannelNumber);
+            return AddressWizardPage.CheckIfResultsTableIsAvailable();
         }
     }
 }

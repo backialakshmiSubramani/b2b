@@ -94,7 +94,7 @@ namespace Modules.Channel.B2B.Core.Pages
         /// <param name="accountId"></param>
         public void GoToCatalogAndPricingPage(string accountId)
         {
-            webDriver.WaitForPageLoad(TimeSpan.FromSeconds(20));
+            webDriver.WaitForPageLoad(TimeSpan.FromSeconds(30));
             AccountId.SendKeys(accountId);
             ////GoButton.Click();
             javaScriptExecutor.ExecuteScript("arguments[0].click();", GoButton);

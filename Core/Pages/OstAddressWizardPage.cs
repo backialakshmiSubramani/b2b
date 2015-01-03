@@ -124,6 +124,14 @@ namespace Modules.Channel.B2B.Core.Pages
             }
         }
 
+        private IWebElement AddressResultsTable
+        {
+            get
+            {
+                return webDriver.FindElement(By.Id("TabContainerAddress_TabPanelBilltoAddress_AffinityBillAddress_gvAffinityAddress"));
+            }
+        }
+
         private IWebElement CustomerNumberColumnPosition
         {
             get
@@ -158,28 +166,25 @@ namespace Modules.Channel.B2B.Core.Pages
         public void SelectLocalChannelOption()
         {
             SelectLocalChannelDropdown.SelectByText("Local Channel #");
-
         }
 
-        public void LocalChannelNumberValue(string localchannelvalue)
+        public void SearchByLocalChannelNumber(string localChannelValue)
         {
-            BillToAddressOption.SendKeys(localchannelvalue);
+            BillToAddressOption.SendKeys(localChannelValue);
             ////SelectButton.Click();
             javaScriptExecutor.ExecuteScript("arguments[0].click();", SelectButton);
             webDriver.WaitForPageLoad(new TimeSpan(0, 0, 10));
         }
 
-        public bool FindLocalChannel(string localchannelvalue)
+        public bool FindLocalChannel(string localChannelNumber)
         {
             String columnPath = "//table[@id='TabContainerAddress_TabPanelBilltoAddress_AffinityBillAddress_gvAffinityAddress']/tbody/tr/td[6]";
-            return webDriver.FindElements(By.XPath(columnPath)).All(e => e.Text.Contains(localchannelvalue));
+            return webDriver.FindElements(By.XPath(columnPath)).All(e => e.Text.Contains(localChannelNumber));
         }
 
         public string ChannelNumberColumnText()
         {
             return ChannelNumberColumnPosition.Text;
-
-
         }
 
         public string CustomerNumberColumnText()
@@ -207,7 +212,7 @@ namespace Modules.Channel.B2B.Core.Pages
             return webDriver.FindElement(By.XPath("//span[@id='TabContainerAddress_TabPanelBilltoAddress_AffinityBillAddress_lbl_Error']")).Text;
         }
 
-        public string OmsAdd(string localchannelvalue)
+        public string OmsAdd(string localChannelNumber)
         {
             string AddressPath = "//span[@id='TabContainerAddress_TabPanelBilltoAddress_AffinityBillAddress_gvAffinityAddress_lblAddressAffinity1_0']";
             return webDriver.FindElement(By.XPath(AddressPath)).Text;
@@ -248,6 +253,19 @@ namespace Modules.Channel.B2B.Core.Pages
             }
 
             return exist;
+        }
+
+        public bool CheckIfResultsTableIsAvailable()
+        {
+            try
+            {
+                return AddressResultsTable.IsElementVisible();
+            }
+            catch (NoSuchElementException)
+            {
+                Console.WriteLine("Address Wizard Results Table not found");
+                return false;
+            }
         }
     }
 }

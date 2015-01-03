@@ -43,11 +43,11 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
             }
         }
 
-        private B2BDashBoardPage DashBoardPage
+        private B2BPremierDashBoardPage B2BPremierDashBoardPage
         {
             get
             {
-                return new B2BDashBoardPage(webDriver);
+                return new B2BPremierDashBoardPage(webDriver);
             }
         }
 
@@ -163,10 +163,10 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
                 webDriver.WaitForPageLoad(TimeSpan.FromSeconds(40));
                 String newWindow = webDriver.WindowHandles.LastOrDefault();
                 webDriver.SwitchTo().Window(newWindow);
-                DashBoardPage.Wait_For_Title();
+                B2BPremierDashBoardPage.Wait_For_Title();
 
-                DashBoardPage.Open_Shop();
-                DashBoardPage.Click_Standard_Config();
+                B2BPremierDashBoardPage.Open_Shop();
+                B2BPremierDashBoardPage.Click_Standard_Config();
 
                 StandardConfigurationPage.Select_First_Config();
                 StandardConfigurationPage.ClickAddSelectedToCartButton();

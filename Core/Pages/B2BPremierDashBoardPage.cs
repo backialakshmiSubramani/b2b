@@ -27,18 +27,21 @@ namespace Modules.Channel.B2B.Core.Pages
     /// <summary>
     /// This base class is the where all specific page classes will be derived.
     /// </summary>
-    public class B2BDashBoardPage : DCSGPageBase
+    public class B2BPremierDashBoardPage : DCSGPageBase
     {
         IWebDriver webDriver;
+
+        private IJavaScriptExecutor javaScriptExecutor;
 
         /// <summary>
         /// Constructor to hand off webDriver
         /// </summary>
         /// <param name="webDriver"></param>
-        public B2BDashBoardPage(IWebDriver webDriver)
+        public B2BPremierDashBoardPage(IWebDriver webDriver)
             : base(ref webDriver)
         {
             this.webDriver = webDriver;
+            javaScriptExecutor = (IJavaScriptExecutor)this.webDriver;
             //populate the following variables with the appropriate value
             //Name = "";
             //Url = "";
@@ -64,36 +67,56 @@ namespace Modules.Channel.B2B.Core.Pages
             throw new NotImplementedException();
         }
 
-        # region Element
+        #region Element
         private IWebElement Title
         {
             get
-            { return webDriver.FindElement(By.XPath("//div[@class='uif_mhFooterWrap clearfix']/h1")); }
+            {
+                return webDriver.FindElement(By.XPath("//div[@class='uif_mhFooterWrap clearfix']/h1"));
+            }
         }
 
         private IWebElement ShopElement
         {
             get
-            { return webDriver.FindElement(By.XPath("//li[@id='ShopMenu']/div/a")); }
+            {
+                return webDriver.FindElement(By.XPath("//li[@id='ShopMenu']/div/a"));
+            }
         }
 
         private IWebElement StandardConfigElement
         {
             get
-            { return webDriver.FindElement(By.XPath("//li[@id='ShopMenu1']/div/a")); }
+            {
+                return webDriver.FindElement(By.XPath("//li[@id='ShopMenu1']/div/a"));
+            }
         }
 
+        private IWebElement AccountMenuLink
+        {
+            get
+            {
+                return webDriver.FindElement(By.LinkText("Account"));
+            }
+        }
 
-        # endregion
+        private IWebElement MyCustomersLinkUnderAccountMenu
+        {
+            get
+            {
+                return webDriver.FindElement(By.LinkText("My Customers"));
+            }
+        }
+        #endregion
 
-        # region Element Actions
+        #region Element Actions
 
         public void Wait_For_Title()
         {
             webDriver.WaitForPageLoad(TimeSpan.FromSeconds(120));
         }
 
-        public String Return_Title()
+        public string Return_Title()
         {
             return Title.Text;
         }
@@ -109,7 +132,21 @@ namespace Modules.Channel.B2B.Core.Pages
             webDriver.WaitForPageLoad(TimeSpan.FromSeconds(60));
         }
 
-        # endregion
+        public bool CheckIfMyCustomersLinkIsAvailable()
+        {
+            ////AccountMenuLink.Click();
+            javaScriptExecutor.ExecuteScript("arguments[0].click();", AccountMenuLink);
+            try
+            {
+                return MyCustomersLinkUnderAccountMenu.IsElementVisible();
+            }
+            catch (NoSuchElementException)
+            {
+                Console.WriteLine("My Customers link not found");
+                return false;
+            }
+        }
+        #endregion
     }
 }
 
