@@ -68,7 +68,9 @@ namespace Modules.Channel.B2B.Core.Pages
         private IWebElement ExportOption
         {
             get
-            { return webDriver.FindElement(By.Id("exportNo")); }
+            {
+                return webDriver.FindElement(By.Id("exportNo"), new TimeSpan(0, 0, 10));
+            }
         }
 
         private IWebElement Continue_Button

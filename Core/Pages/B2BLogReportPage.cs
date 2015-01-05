@@ -20,12 +20,14 @@ using DCSG.ADEPT.Framework.Core.Extensions.WebDriver;
 using DCSG.ADEPT.Framework.Core.Extensions.WebElement;
 using DCSG.ADEPT.Framework.Core.Extensions.Locators;
 using DCSG.ADEPT.Framework.Core.Page;
-
+using Excel = Microsoft.Office.Interop.Excel;
+using System.IO;
+using System.Reflection;
+using System.Collections.ObjectModel;
+using System.Linq;
 
 namespace Modules.Channel.B2B.Core.Pages
 {
-    using System.Collections.ObjectModel;
-    using System.Linq;
 
     /// <summary>
     /// This base class is the where all specific page classes will be derived.
@@ -137,17 +139,30 @@ namespace Modules.Channel.B2B.Core.Pages
             }
         }
 
+        private IWebElement LogTable
+        {
+            get
+            {
+                webDriver.WaitForElement(By.Id("DetailedGridView_grdMain"), TimeSpan.FromSeconds(20));
+                return webDriver.FindElement(By.Id("DetailedGridView_grdMain"));
+            }
+        }
+
+        private IWebElement LogTextMsgBox
+        {
+            get
+            {
+                return webDriver.FindElement(By.Id("ContentPageHolder_TxtLogMessage"));
+            }
+        }
+
         #endregion
 
         #region Element Actions
 
-        public void ProvidePO(string poNumber)
+        public void SearchByPoNumber(string poNumber)
         {
             PoNumberElement.SendKeys(poNumber);
-        }
-
-        public void ClickSubmit()
-        {
             ////IncludeInsertLogCheckBox.Click();
             javaScriptExecutor.ExecuteScript("arguments[0].click();", IncludeInsertLogCheckBox);
             ////SubmitLink.Click();
@@ -189,13 +204,78 @@ namespace Modules.Channel.B2B.Core.Pages
             return dellPurchaseIdMessage.Trim().Split(' ').LastOrDefault();
         }
 
-        #endregion
+        public void SelectCifQuoteLog(string threadId, string message, string profileName)
+        {
+            ThreadIdElement.SendKeys(threadId);
+            SubmitLink.Click();
+            webDriver.WaitForPageLoad(TimeSpan.FromSeconds(30));
+
+            IList<IWebElement> rows = LogTable.FindElements(By.TagName("tr"));
+
+            for (int i = 0; i < rows.Count; i++)
+            {
+                if (rows[i].Text.Replace(" ", "").Contains(message.Replace(" ", "")) && (rows[i].Text.Replace(" ", "").Contains(profileName.Replace(" ", ""))))
+                {
+                    webDriver.FindElement(By.CssSelector("table#DetailedGridView_grdMain tr:nth-child(" + (i + 1) + ") td:nth-child(1)")).Click();
+                    System.Threading.Thread.Sleep(5000);
+                    break;
+                }
+            }
+
+        }
+
+        public void FetchQuotes(string path)
+        {
+            Microsoft.Office.Interop.Excel.Workbook mWorkBook;
+            Microsoft.Office.Interop.Excel.Sheets mWorkSheets;
+            Microsoft.Office.Interop.Excel.Worksheet mWSheet1;
+            Microsoft.Office.Interop.Excel.Application objXL;
+
+            string[] logTxt = (LogTextMsgBox.Text.Split(new string[] { "DATA" }, StringSplitOptions.None))[1].Split(',');
+
+            string quoteId = logTxt[1];
+            string manufacturerPartId = logTxt[2];
+            string productDescription = logTxt[3];
+            string price = logTxt[5];
+
+            Console.WriteLine(quoteId);
+            Console.WriteLine(manufacturerPartId);
+            Console.WriteLine(productDescription);
+            Console.WriteLine(price);
+
+            objXL = new Microsoft.Office.Interop.Excel.Application();
+            objXL.Visible = true;
+            objXL.DisplayAlerts = false;
+
+            mWorkBook = objXL.Workbooks.Open(path, 0, false, 5, "", "", false, Microsoft.Office.Interop.Excel.XlPlatform.xlWindows, "", true, false, 0, true, false, false);
+            mWorkSheets = mWorkBook.Worksheets;
+            mWSheet1 = (Microsoft.Office.Interop.Excel.Worksheet)mWorkSheets.get_Item("Sheet1");
+            Microsoft.Office.Interop.Excel.Range range = mWSheet1.UsedRange;
+
+            mWSheet1.Cells[2, 1] = manufacturerPartId;
+            mWSheet1.Cells[2, 2] = quoteId;
+            mWSheet1.Cells[2, 3] = price;
+            mWSheet1.Cells[2, 4] = "B2B Quote";
+
+            mWorkBook.Save();
+            mWorkBook.Close(Missing.Value, Missing.Value, Missing.Value);
+            mWSheet1 = null;
+            mWorkBook = null;
+
+            objXL.Quit();
+            GC.WaitForPendingFinalizers();
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+            GC.Collect();
+
+
+        }
 
         /// <summary>
         /// Looks for a specific message in the table, clicks on the timestamp link.
         /// </summary>
         /// <param name="purchaseOderMessage">Message to look for</param>
-        public void FindMessageAndCheckEndUserInfoInLogDetailPage(string purchaseOderMessage)
+        public void FindMessageAndGoToLogDetailPage(string purchaseOderMessage)
         {
             var purchaseOrderMessageRow =
                 PoLogReportRows.FirstOrDefault(
@@ -204,5 +284,7 @@ namespace Modules.Channel.B2B.Core.Pages
             javaScriptExecutor.ExecuteScript("arguments[0].click();", purchaseOrderMessageRow.FindElements(By.TagName("td"))[0].FindElement(By.TagName("a")));
             webDriver.WaitForPageLoad(new TimeSpan(0, 0, 10));
         }
+
+        #endregion
     }
 }

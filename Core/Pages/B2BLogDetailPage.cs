@@ -75,7 +75,7 @@ namespace Modules.Channel.B2B.Core.Pages
             }
         }
 
-        public List<string> GetLogDetailData()
+        public List<string> GetEndUserDetailsFromLogDetail()
         {
             var endUserDetailElement =
                 XDocument.Parse(LogDetailData.Text).XPathSelectElement("//EndUserParty/Party/EndUserDetail");
@@ -92,6 +92,38 @@ namespace Modules.Channel.B2B.Core.Pages
                                endUserDetailElement.Element("EULocalChannel").Value,
                                endUserDetailElement.Element("EUPartyID").Value
                            };
+            }
+
+            return null;
+        }
+
+        public List<string> GetPoLineItemsFromMapperRequestXml()
+        {
+            var poLineItem =
+                XDocument.Parse(LogDetailData.Text).XPathSelectElement("//LineItems/MapperRequestPOLine");
+            if (poLineItem != null)
+            {
+                return new List<string>
+                           {
+                               poLineItem.Element("Quantity").Value,
+                               poLineItem.Element("UnitPrice").Value
+                           };
+            }
+            return null;
+        }
+
+        public string GetLogDetail()
+        {
+            return LogDetailData.Text;
+        }
+
+        public string GetDpidFromMapperRequestXml()
+        {
+            var dpid = XDocument.Parse(LogDetailData.Text).XPathSelectElement("//DPID");
+
+            if (dpid != null)
+            {
+                return dpid.Value;
             }
 
             return null;

@@ -128,7 +128,32 @@ namespace Modules.Channel.B2B.Core.Pages
         {
             get
             {
-                return webDriver.FindElement(By.XPath("//a[normalize-space(.)='QA Tools 3.0']"));
+                return webDriver.FindElement(By.XPath("//a[normalize-space(.)='QA Tools 3.0']"), TimeSpan.FromSeconds(10));
+            }
+        }
+
+        private IWebElement BuyerCatalogAdminLink
+        {
+            get
+            {
+                return webDriver.FindElement(By.XPath("//a[normalize-space(.)='Buyer Catalog Admin']"));
+            }
+        }
+
+        private IWebElement ManageUserLink
+        {
+            get
+            {
+                return webDriver.FindElement(By.XPath("//a[contains(text(),'Manage Users')]"), TimeSpan.FromSeconds(10));
+            }
+        }
+
+        private IWebElement CifCatalogLink
+        {
+            get
+            {
+                webDriver.WaitForElement(By.XPath("//a[contains(text(),'CIF Catalog')]"), TimeSpan.FromSeconds(10));
+                return webDriver.FindElement(By.XPath("//a[contains(text(),'CIF Catalog')]"));
             }
         }
 
@@ -186,6 +211,21 @@ namespace Modules.Channel.B2B.Core.Pages
             ////BuyerCatalogLink.Click();
             javaScriptExecutor.ExecuteScript("arguments[0].click();", BuyerCatalogLink);
             webDriver.WaitForPageLoad(new TimeSpan(0, 0, 10));
+        }
+
+        public void ClickBuyerCatalogAdmin()
+        {
+            BuyerCatalogAdminLink.Click();
+        }
+
+        public void ClickManageUser()
+        {
+            ManageUserLink.Click();
+        }
+
+        public void ClickCifCatalog()
+        {
+            CifCatalogLink.Click();
         }
 
         #endregion

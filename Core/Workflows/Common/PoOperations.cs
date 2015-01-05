@@ -155,8 +155,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
 
             // Log Report page operations. Provide po number and search
             B2BHomePage.ClickLogReport();
-            B2BLogReportPage.ProvidePO(poNumber);
-            B2BLogReportPage.ClickSubmit();
+            B2BLogReportPage.SearchByPoNumber(poNumber);
 
             // 1. Capture Thread Id & Quote Id
             Console.WriteLine(
@@ -183,8 +182,8 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
                 webDriver.WaitForPageLoad(new TimeSpan(0, 0, 10));
 
                 // 3. "CBL PO: sendPurchaseOrder" Message, click on the link,verify the enduser details against the CRT file data.
-                B2BLogReportPage.FindMessageAndCheckEndUserInfoInLogDetailPage(expectedPurchaseOderMessage);
-                var logDetail = B2BLogDetailPage.GetLogDetailData();
+                B2BLogReportPage.FindMessageAndGoToLogDetailPage(expectedPurchaseOderMessage);
+                var logDetail = B2BLogDetailPage.GetEndUserDetailsFromLogDetail();
 
                 if (!CheckEndUserInfo(logDetail))
                 {
@@ -377,6 +376,72 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
             Console.WriteLine("PO Created: " + poNumber);
             return true;
         }
+
+        /// <summary>
+        /// Verification points for Sprint16_570456_P1 & Sprint16_570456_P2
+        /// </summary>
+        /// <param name="mapperRequestMessage"></param>
+        public bool VerifyMapperRequestXmlDataInLogDetailPage(string mapperRequestMessage)
+        {
+            //mapperRequestMessage = "Continue Purchase Order: ASN Process Start MapperRequest xml";
+            B2BLogReportPage.FindMessageAndGoToLogDetailPage(mapperRequestMessage);
+            var poLineItems = B2BLogDetailPage.GetPoLineItemsFromMapperRequestXml();
+            return VerifyMapperRequestDetailsAgainstPoTemplate(poLineItems);
+        }
+
+        private bool VerifyMapperRequestDetailsAgainstPoTemplate(List<string> poLineItems)
+        {
+            var poTemplate = XDocument.Load("CblTemplate.xml");
+
+            if (!poLineItems[0].Equals(poTemplate.XPathSelectElement("//OrderDetail/BaseItemDetail/Quantity/Qty")))
+            {
+                return false;
+            }
+
+            if (!poLineItems[1].Equals(poTemplate.XPathSelectElement("//OrderDetail/BuyerExpectedUnitPrice/Price/UnitPrice")))
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Verification points for Sprint17_565299_P1 & Sprint17_565299_P2
+        /// </summary>
+        /// <param name="asnLogEventMessages"></param>
+        /// <param name="asnLogDetailMessages"></param>
+        /// <returns></returns>
+        public bool VerifyMappingEntriesForChannelAsnEnabledProfile(List<string> asnLogEventMessages, List<string> asnLogDetailMessages)
+        {
+            for (int i = 0; i < asnLogEventMessages.Count; i++)
+            {
+                B2BLogReportPage.FindMessageAndGoToLogDetailPage(asnLogEventMessages[i]);
+                if (!B2BLogDetailPage.GetLogDetail().Equals(asnLogDetailMessages[i]))
+                {
+                    return false;
+                }
+
+                webDriver.Navigate().Back();
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Verification points for Sprint18_P1 & Sprint18_P2 --> 532584 : Channel B2B :: ASN :: Get / Store DPID
+        /// </summary>
+        /// <param name="expectedDpidMessage"></param>
+        /// <param name="mapperRequestMessage"></param>
+        /// <returns></returns>
+        public bool VerifyDpidInMapperXml(string expectedDpidMessage, string mapperRequestMessage)
+        {
+            var dellPurchaseId = B2BLogReportPage.FindDellPurchaseId(expectedDpidMessage);
+            B2BLogReportPage.FindMessageAndGoToLogDetailPage(mapperRequestMessage);
+            return B2BLogDetailPage.GetDpidFromMapperRequestXml().Equals(dellPurchaseId);
+
+            // add db validations too
+        }
     }
 
     public enum Workflow
@@ -396,5 +461,4 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
         Cxml,
         Cbl
     }
-
 }

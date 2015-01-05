@@ -75,7 +75,7 @@ namespace Modules.Channel.B2B.Core.Pages
         {
             get
             {
-                return webDriver.FindElement(By.XPath("//ul[@id='environmentTree']/li[7]/div"));
+                return webDriver.FindElement(By.XPath("//ul[@id='environmentTree']/li[7]/div"), new TimeSpan(0, 0, 10));
             }
         }
 

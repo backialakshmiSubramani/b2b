@@ -5,11 +5,10 @@ using System.Text;
 using System.Threading.Tasks;
 using OpenQA.Selenium;
 using Modules.Channel.B2B.Core.Pages;
-using Modules.Channel.B2B.Core.Workflows.Common;
 using Modules.Channel.B2B.Common;
 using System.Xml.Linq;
 
-namespace Modules.Channel.B2B.Core.Workflows.EUDC
+namespace Modules.Channel.B2B.Core.Workflows.Common
 {
     public class BuyerCatalog
     {

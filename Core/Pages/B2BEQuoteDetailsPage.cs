@@ -73,7 +73,10 @@ namespace Modules.Channel.B2B.Core.Pages
 
         private IWebElement Equote_Name
         {
-            get { return webDriver.FindElement(By.Id("EquoteDetails_Name")); }
+            get
+            {
+                return webDriver.FindElement(By.Id("EquoteDetails_Name"), new TimeSpan(0, 0, 10));
+            }
         }
 
         private IWebElement Saved_By
