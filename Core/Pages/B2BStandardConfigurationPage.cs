@@ -31,6 +31,8 @@ namespace Modules.Channel.B2B.Core.Pages
     {
         IWebDriver webDriver;
 
+        private IJavaScriptExecutor javaScriptExecutor;
+
         /// <summary>
         /// Constructor to hand off webDriver
         /// </summary>
@@ -39,6 +41,7 @@ namespace Modules.Channel.B2B.Core.Pages
             : base(ref webDriver)
         {
             this.webDriver = webDriver;
+            javaScriptExecutor = (IJavaScriptExecutor)this.webDriver;
             //populate the following variables with the appropriate value
             //Name = "";
             //Url = "";
@@ -64,34 +67,41 @@ namespace Modules.Channel.B2B.Core.Pages
             throw new NotImplementedException();
         }
 
-        # region Element
-        private IWebElement FirstConfigCheckBox
+        #region Element
+        private IWebElement FirstConfigurationCheckbox
         {
             get
-            { return webDriver.FindElement(By.XPath("//table[@class='uif_table gsd_bodyCopyMedium']/tbody/tr[1]/td[2]")); }
+            {
+                return
+                    webDriver.FindElement(By.XPath("//table[@class='uif_table gsd_bodyCopyMedium']/tbody/tr[1]/td[2]"));
+            }
         }
 
         private IWebElement AddSelectedToCartButton
         {
             get
-            { return webDriver.FindElement(By.XPath("//a[@id='btnAddSelectedToCart']/span")); }
+            {
+                return webDriver.FindElement(By.XPath("//a[@id='btnAddSelectedToCart']/span"));
+            }
         }
 
-        # endregion
+        #endregion
 
-        # region Element Actions
+        #region Element Actions
 
-        public void Select_First_Config()
+        public void SelectFirstConfiguration()
         {
-            FirstConfigCheckBox.Click();
+            ////FirstConfigurationCheckbox.Click();
+            javaScriptExecutor.ExecuteScript("arguments[0].click();", FirstConfigurationCheckbox);
         }
 
         public void ClickAddSelectedToCartButton()
         {
-            AddSelectedToCartButton.Click();
+            ////AddSelectedToCartButton.Click();
+            javaScriptExecutor.ExecuteScript("arguments[0].click();", AddSelectedToCartButton);
             webDriver.WaitForPageLoad(TimeSpan.FromSeconds(50));
         }
 
-        # endregion
+        #endregion
     }
 }

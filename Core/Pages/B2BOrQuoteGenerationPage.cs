@@ -67,35 +67,37 @@ namespace Modules.Channel.B2B.Core.Pages
             throw new NotImplementedException();
         }
 
-        # region Element
+        #region Element
         private IWebElement CreatePoElement
         {
             get
             { return webDriver.FindElement(By.XPath("//div[@id='tabs']/form/table/tbody/tr[3]/td[1]/input")); }
         }
 
-        private IWebElement Xml_Document
+        private IWebElement XmlDocument
         {
             get
-            { return webDriver.FindElement(By.Id("IncommingMessage")); }
+            {
+                return webDriver.FindElement(By.Id("IncommingMessage"));
+            }
         }
-        # endregion
+        #endregion
 
-        # region Element Actions
+        #region Element Actions
 
-        public String Create_PO_Button_Text()
+        public String GetCreatePoButtonText()
         {
             return CreatePoElement.Text;
         }
 
-        public void Find_OrQuote()
+        public void FindOrQuote()
         {
-            XDocument doc = XDocument.Parse(Xml_Document.Text);
+            XDocument doc = XDocument.Parse(XmlDocument.Text);
             Console.WriteLine(doc.XPathSelectElement("//OrderRequest/ListOfOrderRequestDetail/OrderRequestDetail/BaseItemDetail/SupplierPartNum/PartNum/PartIDExt").Value);
             //var xElement = doc.Element("PartIDExt");
             //if (xElement != null) Console.WriteLine(xElement.Value);
         }
 
-        # endregion
+        #endregion
     }
 }

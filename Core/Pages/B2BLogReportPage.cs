@@ -106,12 +106,12 @@ namespace Modules.Channel.B2B.Core.Pages
                 return webDriver.FindElement(By.Id("btn_Submit"));
             }
         }
+
         private IWebElement ThreadIdInTable
         {
             get
             {
                 return webDriver.FindElement(By.XPath("//table[@id='DetailedGridView_grdMain']/tbody/tr[2]/td[5]/span"));
-
             }
         }
 
@@ -172,12 +172,12 @@ namespace Modules.Channel.B2B.Core.Pages
 
         public string FindThreadIdInTable()
         {
-            return ThreadIdInTable.Text;
+            return ThreadIdInTable.Text.Trim();
         }
 
         public string FindQuoteIdInTable()
         {
-            return QuoteIdInTable.Text;
+            return QuoteIdInTable.Text.Trim();
         }
 
         public void ClickPoNumberInTable()
@@ -221,7 +221,6 @@ namespace Modules.Channel.B2B.Core.Pages
                     break;
                 }
             }
-
         }
 
         public void FetchQuotes(string path)
@@ -267,22 +266,38 @@ namespace Modules.Channel.B2B.Core.Pages
             GC.Collect();
             GC.WaitForPendingFinalizers();
             GC.Collect();
-
-
         }
 
         /// <summary>
         /// Looks for a specific message in the table, clicks on the timestamp link.
         /// </summary>
-        /// <param name="purchaseOderMessage">Message to look for</param>
-        public void FindMessageAndGoToLogDetailPage(string purchaseOderMessage)
+        /// <param name="messageToLookFor">Message to look for</param>
+        public void FindMessageAndGoToLogDetailPage(string messageToLookFor)
         {
-            var purchaseOrderMessageRow =
-                PoLogReportRows.FirstOrDefault(
-                    e => e.FindElements(By.TagName("td"))[5].Text.Contains(purchaseOderMessage));
-            ////purchaseOrderMessageRow.FindElements(By.TagName("td"))[0].Click();
-            javaScriptExecutor.ExecuteScript("arguments[0].click();", purchaseOrderMessageRow.FindElements(By.TagName("td"))[0].FindElement(By.TagName("a")));
+            var messageRow =
+                PoLogReportRows.FirstOrDefault(e => e.FindElements(By.TagName("td"))[5].Text.Contains(messageToLookFor));
+            ////messageRow.FindElements(By.TagName("td"))[0].Click();
+            javaScriptExecutor.ExecuteScript("arguments[0].click();", messageRow.FindElements(By.TagName("td"))[0].FindElement(By.TagName("a")));
             webDriver.WaitForPageLoad(new TimeSpan(0, 0, 10));
+        }
+
+        public void FindMessageAndGoToQuoteViewerPage(string messageToLookFor)
+        {
+            var messageRow =
+                PoLogReportRows.FirstOrDefault(
+                    e => e.FindElements(By.TagName("td"))[5].Text.Contains(messageToLookFor));
+            ////messageRow.FindElements(By.TagName("td"))[7].Click();
+            javaScriptExecutor.ExecuteScript("arguments[0].click();", messageRow.FindElements(By.TagName("td"))[7].FindElement(By.TagName("a")));
+        }
+
+        public bool FindQuoteRetrievalMessage(string messagePrefix, string messageSuffix)
+        {
+            var messageRow =
+                PoLogReportRows.FirstOrDefault(
+                    e =>
+                    e.FindElements(By.TagName("td"))[5].Text.Contains(
+                        messagePrefix + FindQuoteIdInTable() + messageSuffix));
+            return messageRow != null;
         }
 
         #endregion

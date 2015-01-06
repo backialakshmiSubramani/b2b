@@ -64,14 +64,14 @@ namespace Modules.Channel.B2B.Core.Pages
             throw new NotImplementedException();
         }
 
-        # region Element
+        #region Element
         private IWebElement SaveQuoteTitle
         {
             get
             { return webDriver.FindElement(By.XPath("//div[@class='uif_mhFooterWrap clearfix']/h1")); }
         }
 
-        private IWebElement Equote_Name
+        private IWebElement EquoteName
         {
             get
             {
@@ -79,44 +79,44 @@ namespace Modules.Channel.B2B.Core.Pages
             }
         }
 
-        private IWebElement Saved_By
+        private IWebElement SavedBy
         {
             get { return webDriver.FindElement(By.Id("EquoteDetails_Creator")); }
 
         }
 
-        private IWebElement Continue_Button
+        private IWebElement ContinueButton
         {
             get { return webDriver.FindElement(By.Id("EQuoteDetailsContinue")); }
 
         }
 
 
-        # endregion
+        #endregion
 
-        # region Element Actions
+        #region Element Actions
 
-        public String Return_Title()
+        public String ReturnTitle()
         {
             return SaveQuoteTitle.Text;
         }
 
-        public void Equote_Name_Setting(String name)
+        public void EquoteNameSetting(String name)
         {
-            Equote_Name.SendKeys(name);
+            EquoteName.SendKeys(name);
         }
 
-        public void Saved_By_Setting(String email1)
+        public void SavedBySetting(String email1)
         {
-            Saved_By.SendKeys(email1);
+            SavedBy.SendKeys(email1);
         }
 
-        public void Click_Continue_Button()
+        public void ClickContinueButton()
         {
-            Continue_Button.Click();
+            ContinueButton.Click();
             webDriver.WaitForPageLoad(TimeSpan.FromSeconds(40));
         }
 
-        # endregion
+        #endregion
     }
 }

@@ -79,6 +79,14 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
             }
         }
 
+        private B2BQuoteViewerPage B2BQuoteViewerPage
+        {
+            get
+            {
+                return new B2BQuoteViewerPage(webDriver);
+            }
+        }
+
         private GcmMainPage GcmMainPage
         {
             get
@@ -197,7 +205,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
 
             // 4. "Continue Purchase Order: Purchase Order Success: <DPID>" - capture DPID & verify in GCM
 
-            var dellPurchaseId = this.B2BLogReportPage.FindDellPurchaseId(expectedDpidMessage);
+            var dellPurchaseId = B2BLogReportPage.FindDellPurchaseId(expectedDpidMessage);
 
             long dpid;
 
@@ -378,11 +386,41 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
         }
 
         /// <summary>
+        /// Verification points for Sprint16_563614_P1 & Sprint16_563614_P2
+        /// </summary>
+        /// <param name="quoteRetrievedMessagePrefix"></param>
+        /// <param name="quoteRetrievedMessageSuffix"></param>
+        /// <param name="enteringMasterOrderGroupMessage"></param>
+        /// <param name="description"></param>
+        /// <param name="quantity"></param>
+        /// <param name="unitPrice"></param>
+        /// <returns></returns>
+        public bool VerifyQmsQuoteCreation(
+            string quoteRetrievedMessagePrefix,
+            string quoteRetrievedMessageSuffix,
+            string enteringMasterOrderGroupMessage,
+            string description,
+            string quantity,
+            string unitPrice)
+        {
+            quoteRetrievedMessagePrefix = "Continue Purchase Order: ";
+            quoteRetrievedMessageSuffix = " retrieved";
+            if (!B2BLogReportPage.FindQuoteRetrievalMessage(quoteRetrievedMessagePrefix, quoteRetrievedMessageSuffix))
+            {
+                return false;
+            }
+
+            B2BLogReportPage.FindMessageAndGoToQuoteViewerPage(enteringMasterOrderGroupMessage);
+            return B2BQuoteViewerPage.CheckItemDetails(description, quantity, unitPrice);
+        }
+
+        /// <summary>
         /// Verification points for Sprint16_570456_P1 & Sprint16_570456_P2
         /// </summary>
         /// <param name="mapperRequestMessage"></param>
         public bool VerifyMapperRequestXmlDataInLogDetailPage(string mapperRequestMessage)
         {
+            // TODO: check for multiple lines too
             //mapperRequestMessage = "Continue Purchase Order: ASN Process Start MapperRequest xml";
             B2BLogReportPage.FindMessageAndGoToLogDetailPage(mapperRequestMessage);
             var poLineItems = B2BLogDetailPage.GetPoLineItemsFromMapperRequestXml();
@@ -414,7 +452,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
         /// <returns></returns>
         public bool VerifyMappingEntriesForChannelAsnEnabledProfile(List<string> asnLogEventMessages, List<string> asnLogDetailMessages)
         {
-            for (int i = 0; i < asnLogEventMessages.Count; i++)
+            for (var i = 0; i < asnLogEventMessages.Count; i++)
             {
                 B2BLogReportPage.FindMessageAndGoToLogDetailPage(asnLogEventMessages[i]);
                 if (!B2BLogDetailPage.GetLogDetail().Equals(asnLogDetailMessages[i]))
@@ -429,7 +467,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
         }
 
         /// <summary>
-        /// Verification points for Sprint18_P1 & Sprint18_P2 --> 532584 : Channel B2B :: ASN :: Get / Store DPID
+        /// Verification points for Sprint18_P1 & Sprint18_P2 --> 532584
         /// </summary>
         /// <param name="expectedDpidMessage"></param>
         /// <param name="mapperRequestMessage"></param>
@@ -440,7 +478,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
             B2BLogReportPage.FindMessageAndGoToLogDetailPage(mapperRequestMessage);
             return B2BLogDetailPage.GetDpidFromMapperRequestXml().Equals(dellPurchaseId);
 
-            // add db validations too
+            // TODO: add db validations too
         }
     }
 

@@ -21,13 +21,12 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
     public class CreateQuote
     {
         private IWebDriver webDriver;
-        private IJavaScriptExecutor javaScriptExecutor;
-        private PoOperations poOperation;
-        private BuyerCatalog buyerCatalog;
+        private PoOperations poOperations;
 
         public CreateQuote(IWebDriver Driver)
         {
-            webDriver = Driver;
+            this.webDriver = Driver;
+            poOperations = new PoOperations(webDriver);
         }
 
         /// <summary>
@@ -35,92 +34,108 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
         /// </summary>
         private B2BHomePage B2BHomePage
         {
-            get { return new B2BHomePage(webDriver); }
+            get
+            {
+                return new B2BHomePage(webDriver);
+            }
         }
 
         private B2BQaToolsPage B2BQaToolsPage
         {
-            get { return new B2BQaToolsPage(webDriver); }
+            get
+            {
+                return new B2BQaToolsPage(webDriver);
+            }
         }
 
-        private B2BPremierDashBoardPage B2BPremierDashBoardPage
+        private B2BPremierDashboardPage B2BPremierDashboardPage
         {
-            get { return new B2BPremierDashBoardPage(webDriver); }
+            get
+            {
+                return new B2BPremierDashboardPage(webDriver);
+            }
         }
 
-        private B2BStandardConfigurationPage StandardConfigurationPage
+        private B2BStandardConfigurationPage B2BStandardConfigurationPage
         {
-            get { return new B2BStandardConfigurationPage(webDriver); }
+            get
+            {
+                return new B2BStandardConfigurationPage(webDriver);
+            }
         }
 
         private B2BShopingCartPage ShopingCartPage
         {
-            get { return new B2BShopingCartPage(webDriver); }
+            get
+            {
+                return new B2BShopingCartPage(webDriver);
+            }
         }
 
         private B2BEQuoteDetailsPage eQuoteDetailsPage
         {
-            get { return new B2BEQuoteDetailsPage(webDriver); }
+            get
+            {
+                return new B2BEQuoteDetailsPage(webDriver);
+            }
         }
 
         private B2BEQuoteSummaryPage eQuoteSummaryPage
         {
-            get { return new B2BEQuoteSummaryPage(webDriver); }
+            get
+            {
+                return new B2BEQuoteSummaryPage(webDriver);
+            }
         }
 
         private B2BFinalEquoteSummaryPage finalEquoteSummaryPage
         {
             get
-            { return new B2BFinalEquoteSummaryPage(webDriver);}
+            {
+                return new B2BFinalEquoteSummaryPage(webDriver);
+            }
         }
 
         private B2BEQuoteGenerationPage eQuoteGenerationPage
         {
             get
-            { return new B2BEQuoteGenerationPage(webDriver); }
-        }
-
-        private B2BSecureCheckoutPage b2BSecureCheckoutPage
-        {
-            get
-            { return new B2BSecureCheckoutPage(webDriver); }
-        }
-
-        private B2BTermsOfSalesPage b2BTermsOfSalesPage
-        {
-            get
-            { return new B2BTermsOfSalesPage(webDriver); }
-        }
-
-        private B2BOrQuoteGenerationPage b2BOrQuoteGenerationPage
-        {
-            get
-            { return new B2BOrQuoteGenerationPage(webDriver); }
-        }
-
-        private B2BCatalogViewer b2bCatalogViewerPage
-        {
-            get
             {
-                return new B2BCatalogViewer(webDriver);
+                return new B2BEQuoteGenerationPage(webDriver);
             }
         }
 
-        private PoOperations poOperations
+        private B2BSecureCheckoutPage B2BSecureCheckoutPage
         {
             get
             {
-                return new PoOperations(webDriver);
+                return new B2BSecureCheckoutPage(webDriver);
             }
         }
 
-        private B2BCatalogViewer b2bCatalogViewer
+        private B2BTermsOfSalesPage B2BTermsOfSalesPage
         {
             get
             {
-                return new B2BCatalogViewer(webDriver);
+                return new B2BTermsOfSalesPage(webDriver);
             }
         }
+
+        private B2BOrQuoteGenerationPage B2BOrQuoteGenerationPage
+        {
+            get
+            {
+                return new B2BOrQuoteGenerationPage(webDriver);
+            }
+        }
+
+        private B2BCatalogViewerPage B2BCatalogViewerPage
+        {
+            get
+            {
+                return new B2BCatalogViewerPage(webDriver);
+            }
+        }
+
 
         /* How to create 'E-Quote' or 'OrQuote'
          * Call CompleteEQuoteGeneration() with 5 arguments -
@@ -133,8 +148,8 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
 
         public bool CompleteEQuoteGeneration(string quoteType,
             string env,
-            string profileId, 
-            string name, 
+            string profileId,
+            string name,
             string email,
             RunEnvironment environment,
             Workflow workflow,
@@ -149,7 +164,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
             string eQuoteType = "eQuote";
             string orType = "OrQuote";
             string responseCode = "0";
-            string quote_num = "0";
+            string quoteNumber = "0";
             string price = "0";
 
 
@@ -168,11 +183,11 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
             B2BQaToolsPage.ClickLocationEnvironment(env);
             B2BQaToolsPage.ClickLocationEnvironmentLink(env);
             B2BQaToolsPage.ClickPunchoutCreate();
-            B2BQaToolsPage.Click_Cxml();
+            B2BQaToolsPage.ClickCxml();
             B2BQaToolsPage.ClickCxmlMainCreate();
-            B2BQaToolsPage.Profile_For_ProfileCorrelator(profileId);
-            B2BQaToolsPage.Profile_For_UserIdIdentity(profileId);
-            B2BQaToolsPage.Click_ApplyParameter();
+            B2BQaToolsPage.IdentityForProfileCorrelator(profileId);
+            B2BQaToolsPage.IdentityForUserId(profileId);
+            B2BQaToolsPage.ClickApplyParameter();
             B2BQaToolsPage.ClickSubmitMessage();
             responseCode = B2BQaToolsPage.GetSubmissionResult();
             Console.WriteLine("Response Code is :- " + responseCode);
@@ -192,35 +207,35 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
                 Console.WriteLine("premier window {0}", premierWindow);
 
                 webDriver.Manage().Window.Maximize();
-                B2BPremierDashBoardPage.Wait_For_Title();
+                B2BPremierDashboardPage.WaitForTitle();
 
-                B2BPremierDashBoardPage.Open_Shop();
-                B2BPremierDashBoardPage.Click_Standard_Config();
+                B2BPremierDashboardPage.OpenShop();
+                B2BPremierDashboardPage.ClickStandardConfiguration();
 
-                StandardConfigurationPage.Select_First_Config();
-                StandardConfigurationPage.ClickAddSelectedToCartButton();
+                B2BStandardConfigurationPage.SelectFirstConfiguration();
+                B2BStandardConfigurationPage.ClickAddSelectedToCartButton();
 
-                Console.WriteLine("Shoping Cart Page Title is :- " + ShopingCartPage.Return_Shoping_Cart_Title());
+                Console.WriteLine("Shoping Cart Page Title is :- " + ShopingCartPage.ReturnShopingCartTitle());
 
-                ShopingCartPage.Click_SaveQuote(quoteType);
+                ShopingCartPage.ClickSaveQuote(quoteType);
 
                 // Starting EQuote Generation
                 if (quoteType.Equals(eQuoteType))
                 {
-                    Console.WriteLine("EQuote Page Details Page Title is :-" + eQuoteDetailsPage.Return_Title());
-                    eQuoteDetailsPage.Equote_Name_Setting(name);
-                    eQuoteDetailsPage.Saved_By_Setting(email);
-                    eQuoteDetailsPage.Click_Continue_Button();
+                    Console.WriteLine("EQuote Page Details Page Title is :-" + eQuoteDetailsPage.ReturnTitle());
+                    eQuoteDetailsPage.EquoteNameSetting(name);
+                    eQuoteDetailsPage.SavedBySetting(email);
+                    eQuoteDetailsPage.ClickContinueButton();
                     webDriver.WaitForPageLoad(TimeSpan.FromSeconds(40));
-                    eQuoteSummaryPage.Click_Continue_Button();
+                    eQuoteSummaryPage.ClickContinueButton();
                     webDriver.WaitForPageLoad(TimeSpan.FromSeconds(40));
-                    finalEquoteSummaryPage.Click_Save_Button();
+                    finalEquoteSummaryPage.ClickSaveButton();
                     webDriver.WaitForPageLoad(TimeSpan.FromSeconds(40));
 
-                    quote_num = eQuoteGenerationPage.Return_Number();
-                    price = eQuoteGenerationPage.Return_Price().Replace("$", "");
-                    quote_num = "EQ:" + quote_num;
-                    Console.WriteLine("Your Equote Number is :- " + quote_num);
+                    quoteNumber = eQuoteGenerationPage.ReturnNumber();
+                    price = eQuoteGenerationPage.ReturnPrice().Replace("$", "");
+                    quoteNumber = "EQ:" + quoteNumber;
+                    Console.WriteLine("Your Equote Number is :- " + quoteNumber);
 
                     Console.WriteLine("Price is :- " + price);
                 }
@@ -228,20 +243,20 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
                 // Starting OrQuote Generation 
                 if (quoteType.Equals(orType))
                 {
-                    b2BSecureCheckoutPage.Click_ExportOption();
-                    b2BSecureCheckoutPage.Click_Continue_Button();
-                    price = b2BTermsOfSalesPage.Find_Price().Replace("$", "");
-                    b2BTermsOfSalesPage.Click_Submit_Button();
+                    B2BSecureCheckoutPage.ClickExportOption();
+                    B2BSecureCheckoutPage.ClickContinueButton();
+                    price = B2BTermsOfSalesPage.FindPrice().Replace("$", "");
+                    B2BTermsOfSalesPage.ClickSubmitButton();
                     //String poQuoteText = b2BOrQuoteGenerationPage.Create_PO_Button_Text();
                     //Console.WriteLine("Po Button text is :-" + poQuoteText);
                     Console.WriteLine("Price is :- " + price);
-                    b2BOrQuoteGenerationPage.Find_OrQuote();
+                    B2BOrQuoteGenerationPage.FindOrQuote();
                 }
             }
             webDriver.Close();
 
             //quote_num ="EQ:1000017642306"; // preview
-           // quote_num = "EQ:1000017643106"; // prod
+            // quote_num = "EQ:1000017643106"; // prod
             price = "1,668.99";
 
             // Generates PO cXml Template
@@ -252,18 +267,18 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
                 deploymentMode,
                 orderId,
                 price,
-                quote_num,
+                quoteNumber,
                 endUserId);
 
             // Submits PO
             webDriver.SwitchTo().Window(parentWindow);
-            b2bCatalogViewer.GoToHomePage();
+            B2BCatalogViewerPage.GoToHomePage();
 
             //string poNumber = "B2BAuto20141226031458"; //preview
             //string poNumber ="B2BAuto20141226050246"; // Prod
             string poNumber;
 
-            b2bCatalogViewerPage.ClickQaTools3();
+            B2BCatalogViewerPage.ClickQaTools3();
             if (!poOperations.SubmitXmlForPoCreation(poXml, env, poTargetUrl, out poNumber))
             {
                 return false;
@@ -272,7 +287,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
             // verifies all validation after submiting PO
             webDriver.SwitchTo().Window(parentWindow);
             System.Threading.Thread.Sleep(1000);
-            b2bCatalogViewer.GoToHomePage();
+            B2BCatalogViewerPage.GoToHomePage();
             Console.WriteLine(parentWindow);
             Console.WriteLine(webDriver.CurrentWindowHandle);
             if (!poOperations.AllOperations(poNumber, workflow, environment, crtFilePath, endUserId, gcmUrl, price))

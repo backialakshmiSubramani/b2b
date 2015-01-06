@@ -64,7 +64,7 @@ namespace Modules.Channel.B2B.Core.Pages
             throw new NotImplementedException();
         }
 
-        # region Element
+        #region Element
         private IWebElement ExportOption
         {
             get
@@ -73,28 +73,30 @@ namespace Modules.Channel.B2B.Core.Pages
             }
         }
 
-        private IWebElement Continue_Button
+        private IWebElement ContinueButton
         {
-            get { return webDriver.FindElement(By.Id("ShippingContinue")); }
+            get
+            {
+                return webDriver.FindElement(By.Id("ShippingContinue"));
+            }
         }
 
-        # endregion
+        #endregion
 
-        # region Element Actions
+        #region Element Actions
 
-        public void Click_ExportOption()
+        public void ClickExportOption()
         {
             ExportOption.Click();
         }
 
-        public void Click_Continue_Button()
+        public void ClickContinueButton()
         {
-            Continue_Button.Click();
+            ContinueButton.Click();
             webDriver.WaitForPageLoad(TimeSpan.FromSeconds(40));
         }
 
-
-        # endregion
+        #endregion
 
     }
 }

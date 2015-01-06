@@ -44,7 +44,6 @@ namespace Modules.Channel.B2B.Core.Pages
             //Name = "";
             //Url = "";
             //ProductUnit = "";
-
         }
 
         /// <summary>
@@ -64,7 +63,7 @@ namespace Modules.Channel.B2B.Core.Pages
         {
             throw new NotImplementedException();
         }
-        # region Elements
+        #region Elements
 
         private SelectElement AccountName
         {
@@ -88,8 +87,8 @@ namespace Modules.Channel.B2B.Core.Pages
                 return webDriver.FindElement(By.Id("ContentPageHolder_CRTGridAssoList_grdVwCrossReferenceAssociationsList"));
             }
         }
-        # endregion
-        # region Element Actions
+        #endregion
+        #region Element Actions
         public void SelectAccountName(string AccountName)
         {
             this.AccountName.SelectByValue(AccountName);
@@ -103,6 +102,6 @@ namespace Modules.Channel.B2B.Core.Pages
             const string rowPath = "//table[@id='ContentPageHolder_CRTGridAssoList_grdVwCrossReferenceAssociationsList']/tbody/tr[1]";
             return webDriver.FindElement(By.XPath(rowPath)).Text;
         }
-        # endregion
+        #endregion
     }
 }

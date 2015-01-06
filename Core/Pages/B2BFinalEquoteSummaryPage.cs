@@ -31,6 +31,8 @@ namespace Modules.Channel.B2B.Core.Pages
     {
         IWebDriver webDriver;
 
+        private IJavaScriptExecutor javaScriptExecutor;
+
         /// <summary>
         /// Constructor to hand off webDriver
         /// </summary>
@@ -39,6 +41,8 @@ namespace Modules.Channel.B2B.Core.Pages
             : base(ref webDriver)
         {
             this.webDriver = webDriver;
+            javaScriptExecutor = (IJavaScriptExecutor)this.webDriver;
+
             //populate the following variables with the appropriate value
             //Name = "";
             //Url = "";
@@ -64,23 +68,28 @@ namespace Modules.Channel.B2B.Core.Pages
             throw new NotImplementedException();
         }
 
-        # region Element
-        private IWebElement Save_Equote_Button
-        {
-            get { return webDriver.FindElement(By.XPath("//a[@id='ReviewSaveEQuote']/span")); }
+        #region Element
 
+        private IWebElement SaveEquoteButton
+        {
+            get
+            {
+                return webDriver.FindElement(By.XPath("//a[@id='ReviewSaveEQuote']/span"));
+            }
         }
 
-        # endregion
+        #endregion
 
-        # region Element Actions
+        #region Element Actions
 
-        public void Click_Save_Button()
+        public void ClickSaveButton()
         {
-            Save_Equote_Button.Click();
+            ////SaveEquoteButton.Click();
+            javaScriptExecutor.ExecuteScript("arguments[0].click();", SaveEquoteButton);
             webDriver.WaitForPageLoad(TimeSpan.FromSeconds(40));
         }
-        # endregion
+
+        #endregion
 
     }
 }

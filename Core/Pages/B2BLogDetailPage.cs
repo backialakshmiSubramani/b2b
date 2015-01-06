@@ -109,6 +109,7 @@ namespace Modules.Channel.B2B.Core.Pages
                                poLineItem.Element("UnitPrice").Value
                            };
             }
+
             return null;
         }
 
@@ -121,12 +122,7 @@ namespace Modules.Channel.B2B.Core.Pages
         {
             var dpid = XDocument.Parse(LogDetailData.Text).XPathSelectElement("//DPID");
 
-            if (dpid != null)
-            {
-                return dpid.Value;
-            }
-
-            return null;
+            return dpid != null ? dpid.Value : null;
         }
     }
 }

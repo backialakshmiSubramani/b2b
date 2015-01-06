@@ -46,7 +46,6 @@ namespace Modules.Channel.B2B.Core.Pages
             //Name = "";
             //Url = "";
             //ProductUnit = "";
-
         }
 
         /// <summary>
@@ -100,7 +99,7 @@ namespace Modules.Channel.B2B.Core.Pages
             }
         }
 
-        private IWebElement StandardConfigurationCheckBox
+        private IWebElement StandardConfigurationCheckbox
         {
             get
             {
@@ -108,7 +107,7 @@ namespace Modules.Channel.B2B.Core.Pages
             }
         }
 
-        private IWebElement SnpCheckBox
+        private IWebElement SnpCheckbox
         {
             get
             {
@@ -165,30 +164,30 @@ namespace Modules.Channel.B2B.Core.Pages
             {
                 if (configurationType.Equals("Standard Configurations"))
                 {
-                    if (!StandardConfigurationCheckBox.Selected)
+                    if (!StandardConfigurationCheckbox.Selected)
                     {
-                        ////StandardConfigurationCheckBox.Click();
-                        javaScriptExecutor.ExecuteScript("arguments[0].click();", StandardConfigurationCheckBox);
+                        ////StandardConfigurationCheckbox.Click();
+                        javaScriptExecutor.ExecuteScript("arguments[0].click();", StandardConfigurationCheckbox);
                     }
 
-                    if (SnpCheckBox.Selected)
+                    if (SnpCheckbox.Selected)
                     {
-                        ////SnpCheckBox.Click();
-                        javaScriptExecutor.ExecuteScript("arguments[0].click();", SnpCheckBox);
+                        ////SnpCheckbox.Click();
+                        javaScriptExecutor.ExecuteScript("arguments[0].click();", SnpCheckbox);
                     }
                 }
                 else if (configurationType.Equals("SNP"))
                 {
-                    if (!SnpCheckBox.Selected)
+                    if (!SnpCheckbox.Selected)
                     {
-                        ////SnpCheckBox.Click();
-                        javaScriptExecutor.ExecuteScript("arguments[0].click();", SnpCheckBox);
+                        ////SnpCheckbox.Click();
+                        javaScriptExecutor.ExecuteScript("arguments[0].click();", SnpCheckbox);
                     }
 
-                    if (StandardConfigurationCheckBox.Selected)
+                    if (StandardConfigurationCheckbox.Selected)
                     {
-                        ////StandardConfigurationCheckBox.Click();
-                        javaScriptExecutor.ExecuteScript("arguments[0].click();", StandardConfigurationCheckBox);
+                        ////StandardConfigurationCheckbox.Click();
+                        javaScriptExecutor.ExecuteScript("arguments[0].click();", StandardConfigurationCheckbox);
                     }
                 }
             }

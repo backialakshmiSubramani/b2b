@@ -66,7 +66,7 @@ namespace Modules.Channel.B2B.Core.Pages
             throw new NotImplementedException();
         }
 
-        # region Element
+        #region Element
         private IWebElement ShopingCartTitle
         {
             get
@@ -85,19 +85,19 @@ namespace Modules.Channel.B2B.Core.Pages
             { return webDriver.FindElement(By.XPath("//a[@id='CartCheckout']/span")); }
         }
 
-        # endregion
+        #endregion
 
-        # region Element Actions
+        #region Element Actions
 
 
 
-        public String Return_Shoping_Cart_Title()
+        public String ReturnShopingCartTitle()
         {
             return ShopingCartTitle.Text;
         }
 
 
-        public void Click_SaveQuote(string quoteType)
+        public void ClickSaveQuote(string quoteType)
         {
             if (quoteType.Equals(eQuoteType))
             {
@@ -112,6 +112,6 @@ namespace Modules.Channel.B2B.Core.Pages
             }
         }
 
-        # endregion
+        #endregion
     }
 }

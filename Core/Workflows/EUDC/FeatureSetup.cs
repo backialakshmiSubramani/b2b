@@ -5,16 +5,13 @@ using System.Text;
 using System.Threading.Tasks;
 using Modules.Channel.B2B.Core.Pages;
 using OpenQA.Selenium;
+using System.Data.Linq.Mapping;
+using System.Security.Policy;
+using DCSG.ADEPT.Framework.Core.Extensions.WebDriver;
+using Microsoft.SharePoint.Client;
 
 namespace Modules.Channel.B2B.Core.Workflows.EUDC
 {
-    using System.Data.Linq.Mapping;
-    using System.Security.Policy;
-
-    using DCSG.ADEPT.Framework.Core.Extensions.WebDriver;
-
-    using Microsoft.SharePoint.Client;
-
     public class FeatureSetup
     {
         private IWebDriver webDriver;
@@ -48,11 +45,11 @@ namespace Modules.Channel.B2B.Core.Workflows.EUDC
             }
         }
 
-        private B2BPremierDashBoardPage B2BPremierDashBoardPage
+        private B2BPremierDashboardPage B2BPremierDashboardPage
         {
             get
             {
-                return new B2BPremierDashBoardPage(webDriver);
+                return new B2BPremierDashboardPage(webDriver);
             }
         }
 
@@ -76,7 +73,7 @@ namespace Modules.Channel.B2B.Core.Workflows.EUDC
             var newWindow = webDriver.WindowHandles.LastOrDefault();
             webDriver.SwitchTo().Window(newWindow);
             Console.WriteLine("Url after switching is: {0}", webDriver.Url);
-            return B2BPremierDashBoardPage.CheckIfMyCustomersLinkIsAvailable();
+            return B2BPremierDashboardPage.CheckIfMyCustomersLinkIsAvailable();
         }
     }
 }

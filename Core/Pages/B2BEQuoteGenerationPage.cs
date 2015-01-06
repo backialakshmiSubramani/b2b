@@ -64,35 +64,39 @@ namespace Modules.Channel.B2B.Core.Pages
             throw new NotImplementedException();
         }
 
-        # region Element
+        #region Element
         private IWebElement EquoteNum
         {
             get
-            { return webDriver.FindElement(By.XPath("//div[@id='EquoteDetailsPageSummary']/section/div/div/div[2]")); }
+            {
+                return webDriver.FindElement(By.XPath("//div[@id='EquoteDetailsPageSummary']/section/div/div/div[2]"));
+            }
         }
 
-        private IWebElement Price_Val
+        private IWebElement PriceVal
         {
             get
-            { return webDriver.FindElement(By.XPath("//div[@class='price']/span")); }
+            {
+                return webDriver.FindElement(By.XPath("//div[@class='price']/span"));
+            }
         }
 
 
-        # endregion
+        #endregion
 
-        # region Element Actions
+        #region Element Actions
 
-        public string Return_Number()
+        public string ReturnNumber()
         {
             return EquoteNum.Text;
         }
 
-        public string Return_Price()
+        public string ReturnPrice()
         {
-            return Price_Val.Text;
+            return PriceVal.Text;
         }
 
-        # endregion
+        #endregion
 
     }
 }

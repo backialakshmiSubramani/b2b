@@ -1,11 +1,11 @@
 // ***********************************************************************
-// Author           : AMERICAS\Gaurav_Bhardwaj3
-// Created          : 12/8/2014 2:34:17 PM
+// Author           : AMERICAS\Nethra_Pandappilav
+// Created          : 12/12/2014 11:46:04 AM
 //
-// Last Modified By : AMERICAS\Gaurav_Bhardwaj3
-// Last Modified On : 12/8/2014 2:34:17 PM
+// Last Modified By : AMERICAS\Nethra_Pandappilav
+// Last Modified On : 12/12/2014 11:46:04 AM
 // ***********************************************************************
-// <copyright file="DashBoardPage.cs" company="Dell">
+// <copyright file="B2BCatalogViewer.cs" company="Dell">
 //     Copyright (c) Dell 2014. All rights reserved.
 // </copyright>
 // <summary>Provide a summary of the page class here.</summary>
@@ -24,20 +24,23 @@ using DCSG.ADEPT.Framework.Core.Page;
 
 namespace Modules.Channel.B2B.Core.Pages
 {
+    using System.Linq;
+
+    using OpenQA.Selenium.Interactions;
+
     /// <summary>
     /// This base class is the where all specific page classes will be derived.
     /// </summary>
-    public class B2BPremierDashBoardPage : DCSGPageBase
+    public class B2BCatalogViewerPage : DCSGPageBase
     {
         IWebDriver webDriver;
-
         private IJavaScriptExecutor javaScriptExecutor;
 
         /// <summary>
         /// Constructor to hand off webDriver
         /// </summary>
         /// <param name="webDriver"></param>
-        public B2BPremierDashBoardPage(IWebDriver webDriver)
+        public B2BCatalogViewerPage(IWebDriver webDriver)
             : base(ref webDriver)
         {
             this.webDriver = webDriver;
@@ -67,87 +70,73 @@ namespace Modules.Channel.B2B.Core.Pages
             throw new NotImplementedException();
         }
 
-        #region Element
-        private IWebElement Title
+        #region Elements
+        private IWebElement CatalogPartId
         {
             get
             {
-                return webDriver.FindElement(By.XPath("//div[@class='uif_mhFooterWrap clearfix']/h1"));
+                return webDriver.FindElement(
+                                            By.XPath(
+                                                "//table[@id='G_ContentPageHolderxuwGrdCatlogDetailsxuwGrdCatlogDetails']/tbody/tr[1]/td[2]"));
             }
         }
 
-        private IWebElement ShopElement
+        private IWebElement BaseItemPrice
         {
             get
             {
-                return webDriver.FindElement(By.XPath("//li[@id='ShopMenu']/div/a"));
+                return webDriver.FindElement(
+                          By.XPath(
+                              "//table[@id='G_ContentPageHolderxuwGrdCatlogDetailsxuwGrdCatlogDetails']/tbody/tr[1]/td[10]"));
             }
         }
 
-        private IWebElement StandardConfigElement
+        private IWebElement QATools3
         {
             get
             {
-                return webDriver.FindElement(By.XPath("//li[@id='ShopMenu1']/div/a"));
+                return webDriver.FindElement(By.XPath("//a[normalize-space(.)='QA Tools 3.0']"));
             }
         }
 
-        private IWebElement AccountMenuLink
+        private IWebElement DellImageLink
         {
             get
             {
-                return webDriver.FindElement(By.LinkText("Account"));
+                return webDriver.FindElement(By.Id("HyplnkDellLogo"));
             }
         }
 
-        private IWebElement MyCustomersLinkUnderAccountMenu
-        {
-            get
-            {
-                return webDriver.FindElement(By.LinkText("My Customers"));
-            }
-        }
         #endregion
 
         #region Element Actions
 
-        public void Wait_For_Title()
+        /// <summary>
+        /// Fetches the Catalog Part Id and the Base Item Price of the first item in the catalog
+        /// </summary>
+        /// <param name="baseItemPrice">out parameter - has the Base Item Price</param>
+        /// <returns>Catalog Part Id</returns>
+        public string GetCatalogPartIdAndBaseUnitPrice(out string baseItemPrice)
         {
-            webDriver.WaitForPageLoad(TimeSpan.FromSeconds(120));
+            baseItemPrice = BaseItemPrice.Text.Split(' ')[0];
+            return CatalogPartId.Text;
         }
 
-        public string Return_Title()
+        public void ClickQaTools3()
         {
-            return Title.Text;
+            ////QATools3.Click();
+            javaScriptExecutor.ExecuteScript("arguments[0].click();", QATools3);
+            webDriver.WaitForPageLoad(new TimeSpan(0, 0, 10));
+            String newWindow = webDriver.WindowHandles.LastOrDefault();
+            webDriver.SwitchTo().Window(newWindow);
         }
 
-        public void Open_Shop()
+        public void GoToHomePage()
         {
-            ShopElement.Click();
+            javaScriptExecutor.ExecuteScript("arguments[0].click();", DellImageLink);
+            webDriver.WaitForPageLoad(new TimeSpan(0, 0, 10));
         }
 
-        public void Click_Standard_Config()
-        {
-            StandardConfigElement.Click();
-            webDriver.WaitForPageLoad(TimeSpan.FromSeconds(60));
-        }
-
-        public bool CheckIfMyCustomersLinkIsAvailable()
-        {
-            ////AccountMenuLink.Click();
-            javaScriptExecutor.ExecuteScript("arguments[0].click();", AccountMenuLink);
-            try
-            {
-                return MyCustomersLinkUnderAccountMenu.IsElementVisible();
-            }
-            catch (NoSuchElementException)
-            {
-                Console.WriteLine("My Customers link not found");
-                return false;
-            }
-        }
         #endregion
     }
 }
-
-

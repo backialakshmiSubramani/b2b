@@ -1,12 +1,12 @@
 // ***********************************************************************
-// Author           : AMERICAS\Gaurav_Bhardwaj3
-// Created          : 12/8/2014 6:59:16 PM
+// Author           : AMERICAS\Nethra_Pandappilav
+// Created          : 1/6/2015 5:10:46 PM
 //
-// Last Modified By : AMERICAS\Gaurav_Bhardwaj3
-// Last Modified On : 12/8/2014 6:59:16 PM
+// Last Modified By : AMERICAS\Nethra_Pandappilav
+// Last Modified On : 1/6/2015 5:10:46 PM
 // ***********************************************************************
-// <copyright file="EQuoteSummaryPage.cs" company="Dell">
-//     Copyright (c) Dell 2014. All rights reserved.
+// <copyright file="B2BQuoteViewerPage.cs" company="Dell">
+//     Copyright (c) Dell 2015. All rights reserved.
 // </copyright>
 // <summary>Provide a summary of the page class here.</summary>
 // ***********************************************************************
@@ -24,10 +24,12 @@ using DCSG.ADEPT.Framework.Core.Page;
 
 namespace Modules.Channel.B2B.Core.Pages
 {
+    using System.Security.Cryptography;
+
     /// <summary>
     /// This base class is the where all specific page classes will be derived.
     /// </summary>
-    public class B2BEQuoteSummaryPage : DCSGPageBase
+    public class B2BQuoteViewerPage : DCSGPageBase
     {
         IWebDriver webDriver;
 
@@ -35,7 +37,7 @@ namespace Modules.Channel.B2B.Core.Pages
         /// Constructor to hand off webDriver
         /// </summary>
         /// <param name="webDriver"></param>
-        public B2BEQuoteSummaryPage(IWebDriver webDriver)
+        public B2BQuoteViewerPage(IWebDriver webDriver)
             : base(ref webDriver)
         {
             this.webDriver = webDriver;
@@ -64,23 +66,25 @@ namespace Modules.Channel.B2B.Core.Pages
             throw new NotImplementedException();
         }
 
-        #region Element
-        private IWebElement ContinueButton
+        #region Elements
+
+        private IWebElement FirstItemRow
         {
             get
             {
-                return webDriver.FindElement(By.Id("EQuoteContactContinue"));
+                return webDriver.FindElement(By.XPath("//table[@id='ContentPageHolder_dg_QV_Items']/tbody/tr[2]"));
             }
         }
 
         #endregion
 
-        #region Element Actions
+        #region Reusable Methods
 
-        public void ClickContinueButton()
+        public bool CheckItemDetails(string description, string quantity, string unitPrice)
         {
-            ContinueButton.Click();
-            webDriver.WaitForPageLoad(TimeSpan.FromSeconds(40));
+            return FirstItemRow.FindElements(By.TagName("td"))[2].Text.Trim().ToLower().Equals(description.ToLower())
+                   && FirstItemRow.FindElements(By.TagName("td"))[6].Text.Trim().ToLower().Equals(quantity.ToLower())
+                   && FirstItemRow.FindElements(By.TagName("td"))[7].Text.Trim().ToLower().Equals(unitPrice.ToLower());
         }
 
         #endregion

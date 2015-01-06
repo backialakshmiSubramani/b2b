@@ -64,33 +64,33 @@ namespace Modules.Channel.B2B.Core.Pages
             throw new NotImplementedException();
         }
 
-        # region Element
-        private IWebElement Price_Element
+        #region Element
+        private IWebElement PriceElement
         {
             get
             { return webDriver.FindElement(By.XPath("//div[@class='price']/span")); }
         }
 
-        private IWebElement Submit_Order_Button
+        private IWebElement SubmitOrderButton
         {
             get { return webDriver.FindElement(By.Id("ReviewSubmitOrder")); }
         }
 
-        # endregion
+        #endregion
 
-        # region Element Actions
-        public string Find_Price()
+        #region Element Actions
+        public string FindPrice()
         {
-            return Price_Element.Text;
+            return PriceElement.Text;
         }
 
-        public void Click_Submit_Button()
+        public void ClickSubmitButton()
         {
-            Submit_Order_Button.Click();
+            SubmitOrderButton.Click();
             webDriver.WaitForPageLoad(TimeSpan.FromSeconds(40));
         }
 
-        # endregion
+        #endregion
 
     }
 }

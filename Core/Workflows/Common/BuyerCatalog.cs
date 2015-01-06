@@ -63,11 +63,11 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
             }
         }
 
-        private B2BCatalogViewer B2BCatalogViewer
+        private B2BCatalogViewerPage B2BCatalogViewer
         {
             get
             {
-                return new B2BCatalogViewer(webDriver);
+                return new B2BCatalogViewerPage(webDriver);
             }
         }
 

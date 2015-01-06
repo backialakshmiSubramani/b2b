@@ -132,19 +132,27 @@ namespace Modules.Channel.B2B.Core.Pages
         {
             //get { return webDriver.FindElement(By.XPath("//ul[@id='OperationAndSampleTree']/li[1]/ul/li[6]/ul/li[2]/a")); }
             get
-            { return webDriver.FindElement(By.LinkText("cXML Punchout (WM) - QA cXML Main Cred PunchOut (Create)")); }
+            {
+                return webDriver.FindElement(By.LinkText("cXML Punchout (WM) - QA cXML Main Cred PunchOut (Create)"));
+            }
         }
 
         // Find Element for Profile Correlator to pass profile ID
-        private IWebElement ProfileCorrelator
+        private IWebElement ProfileCorrelatorIdentity
         {
-            get { return webDriver.FindElement(By.XPath("//div[@id='dynamicParams']/table/tbody/tr[3]/td[2]/input")); }
+            get
+            {
+                return webDriver.FindElement(By.XPath("//div[@id='dynamicParams']/table/tbody/tr[3]/td[2]/input"));
+            }
         }
 
         // Find Element for User ID Identity to pass profile ID
-        private IWebElement UserIDIdentity
+        private IWebElement UserIdIdentity
         {
-            get { return webDriver.FindElement(By.XPath("//div[@id='dynamicParams']/table/tbody/tr[4]/td[2]/input")); }
+            get
+            {
+                return webDriver.FindElement(By.XPath("//div[@id='dynamicParams']/table/tbody/tr[4]/td[2]/input"));
+            }
         }
 
 
@@ -175,7 +183,7 @@ namespace Modules.Channel.B2B.Core.Pages
 
         #region Element Actions
 
-        public void Wait_For_Title()
+        public void WaitForTitle()
         {
             webDriver.WaitForPageLoad(TimeSpan.FromSeconds(20));
         }
@@ -222,39 +230,43 @@ namespace Modules.Channel.B2B.Core.Pages
         // click System Type- PunchoutCreate
         public void ClickPunchoutCreate()
         {
-            PunchoutCreate.Click();
+            ////PunchoutCreate.Click();
+            javaScriptExecutor.ExecuteScript("arguments[0].click();", PunchoutCreate);
             webDriver.WaitForElementDisplayed(By.XPath("//ul[@id='OperationAndSampleTree']/li[1]/ul/li[6]/div"), TimeSpan.FromSeconds(20));
         }
 
         // Click cxml 
-        public void Click_Cxml()
+        public void ClickCxml()
         {
-            CxmlElement.Click();
+            ////CxmlElement.Click();
+            javaScriptExecutor.ExecuteScript("arguments[0].click();", CxmlElement);
             webDriver.WaitForElementDisplayed(By.XPath("//ul[@id='OperationAndSampleTree']/li[1]/ul/li[6]/ul/li[2]/a"), TimeSpan.FromSeconds(20));
         }
 
         public void ClickCxmlMainCreate()
         {
-            CxmlMainCreate.Click();
+            ////CxmlMainCreate.Click();
+            javaScriptExecutor.ExecuteScript("arguments[0].click();", CxmlMainCreate);
             webDriver.WaitForElementVisible(By.XPath("//div[@id='dynamicParams']/table/tbody/tr[2]/td[1]/label"), TimeSpan.FromSeconds(20));
         }
 
         // Provide ID to Profile Correlator
-        public void Profile_For_ProfileCorrelator(String profileId)
+        public void IdentityForProfileCorrelator(String profileId)
         {
-            ProfileCorrelator.SendKeys(profileId);
+            ProfileCorrelatorIdentity.SendKeys(profileId);
         }
 
         // Provide ID to User Id Identity
-        public void Profile_For_UserIdIdentity(String profileId)
+        public void IdentityForUserId(String profileId)
         {
-            UserIDIdentity.SendKeys(profileId);
+            UserIdIdentity.SendKeys(profileId);
         }
 
         // Click on ApplyParameter button
-        public void Click_ApplyParameter()
+        public void ClickApplyParameter()
         {
-            ApplyParameter.Click();
+            ////ApplyParameter.Click();
+            javaScriptExecutor.ExecuteScript("arguments[0].click();", ApplyParameter);
             webDriver.WaitForPageLoad(TimeSpan.FromSeconds(25));
         }
 
@@ -300,7 +312,8 @@ namespace Modules.Channel.B2B.Core.Pages
 
         public void ClickStoreLink()
         {
-            StoreLink.Click();
+            ////StoreLink.Click();
+            javaScriptExecutor.ExecuteScript("arguments[0].click();", StoreLink);
         }
     }
 }
