@@ -27,15 +27,11 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
     public class PoOperations
     {
         private IWebDriver webDriver;
-
-        private Excel.Application excelApplication;
-
         private ArrayList crtDetails;
 
         public PoOperations(IWebDriver driver)
         {
             this.webDriver = driver;
-            excelApplication = new Excel.Application();
             crtDetails = new ArrayList();
         }
 
@@ -277,6 +273,8 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
 
         public void GetCrtDetails(string crtFilePath, string crtEndUserId)
         {
+            var excelApplication = new Excel.Application();
+
             Excel.Workbook workbook =
                 excelApplication.Workbooks.Open(
                     System.IO.Directory.GetCurrentDirectory() + "\\" + crtFilePath,
@@ -295,8 +293,8 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
                     Type.Missing,
                     Type.Missing);
 
-            var worksheet = (Excel.Worksheet)workbook.Worksheets.get_Item(1);
-            worksheet.Activate();
+            var worksheet = (Excel.Worksheet)workbook.Worksheets.Item[1];
+            ((Excel._Worksheet)worksheet).Activate();
 
             for (int i = 2; ; i++)
             {

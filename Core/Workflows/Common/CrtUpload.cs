@@ -15,8 +15,6 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
     {
         private IWebDriver webDriver;
 
-        private Excel.Application excelApplication;
-
         public CrtUpload(IWebDriver driver)
         {
             this.webDriver = driver;
@@ -109,7 +107,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
                 return false;
             }
 
-            excelApplication = new Excel.Application();
+            var excelApplication = new Excel.Application();
             var crtEndUserId = crtValues.XPathSelectElement("//Item[@Id='ID']").Value;
             Excel.Workbook workbook =
                  excelApplication.Workbooks.Open(
@@ -129,8 +127,9 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
                      Type.Missing,
                      Type.Missing);
 
-            var worksheet = (Excel.Worksheet)workbook.Worksheets.get_Item(1);
-            worksheet.Activate();
+            var worksheet = (Excel.Worksheet)workbook.Worksheets.Item[1];
+            ////worksheet.Activate();
+            ((Excel._Worksheet)worksheet).Activate();
 
             for (var i = 2; ; i++)
             {
