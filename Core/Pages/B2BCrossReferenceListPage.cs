@@ -45,9 +45,10 @@ namespace Modules.Channel.B2B.Core.Pages
             this.webDriver = webDriver;
             javaScriptExecutor = (IJavaScriptExecutor)this.webDriver;
             //populate the following variables with the appropriate value
-            //Name = "";
-            //Url = "";
-            //ProductUnit = "";
+            Name = "B2B Preview Cross Reference List Page";
+            Url = webDriver.Url;
+            ProductUnit = "Channel";
+            webDriver.WaitForPageLoad(new TimeSpan(0, 0, 10));
 
         }
 
@@ -57,7 +58,7 @@ namespace Modules.Channel.B2B.Core.Pages
         /// <returns>validated</returns>
         public override bool Validate()
         {
-            throw new NotImplementedException();
+            return PageTitleHeader.Displayed;
         }
 
         /// <summary>
@@ -66,10 +67,22 @@ namespace Modules.Channel.B2B.Core.Pages
         /// <returns>active</returns>
         public override bool IsActive()
         {
-            throw new NotImplementedException();
+            return webDriver.Url.Contains("/B2BToolsCE");
         }
 
         #region Elements
+
+
+        private IWebElement _pageTitleHeader;
+        private IWebElement PageTitleHeader
+        {
+            get
+            {
+                if (_pageTitleHeader == null)
+                    _pageTitleHeader = webDriver.FindElement(By.Id("ucBreadCrumb_lblPageTitle"), new TimeSpan(0, 0, 10));
+                return _pageTitleHeader;
+            }
+        }
         private SelectElement ChooseCrossReferenceTypeList
         {
             get

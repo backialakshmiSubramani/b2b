@@ -44,11 +44,12 @@ namespace Modules.Channel.B2B.Core.Workflows.EUDC
                 return new B2BPreviewAssociatedCrossReferenceListPage(_webDriver);
             }
         }
-        public ViewCrList(IWebDriver driver)
+        public ViewCrList(IWebDriver driver, string environment)
         {
             _webDriver = driver;
+            B2BhomePage.SelectEnvironment(environment);
         }
-        public void OpenCrossReferenceList()
+        private void OpenCrossReferenceList()
         {
             B2BhomePage.ClickCrossReferenceListLink();
         }
@@ -68,31 +69,105 @@ namespace Modules.Channel.B2B.Core.Workflows.EUDC
             return B2BCrossReferenceListPage.GetTypeColumnValues().All(e => e.Text.Contains(columnText));
         }
 
-        public string TableRowChecking()
-        {
-            return PreviewAssociatedCrossReferenceList.RowText();
-        }
         public bool ChannelSegmentBookingDropDownCheck(string listOptions)
         {
+            OpenCrossReferenceList();
             return B2BCrossReferenceListPage.CheckChannelSegmentBookingDropDown(listOptions);
         }
-        public string OpenCrossRefMaintenancePage()
+        private void OpenCrossRefMaintenancePage()
         {
             B2BCrossReferenceListPage.ClickNewCrossReference();
             _webDriver.WaitForPageLoad(TimeSpan.FromSeconds(10));
-            return _webDriver.Url;
         }
-        public string CrossTypeLabel()
+
+        public bool CheckMaintainCrossReferenceLabelsInPage(string crossReferenceType, string fileToUpload, string descriptionText)
         {
-            return CrossReferenceMaintenancePage.CrossReferenceTypeText();
+            OpenCrossReferenceList();
+            OpenCrossRefMaintenancePage();
+
+            if (!CrossReferenceMaintenancePage.CrossReferenceTypeText().Contains(crossReferenceType))
+            {
+
+                return false;
+            }
+
+            if (!CrossReferenceMaintenancePage.FileUploadText().Contains(fileToUpload))
+            {
+                return false;
+            }
+
+            if (!CrossReferenceMaintenancePage.DescriptionText().Contains(descriptionText))
+            {
+                return false;
+            }
+
+            return true;
         }
-        public string FileUploadLabel()
+
+        public bool FilterResults(string dropDownText, string environment)
         {
-            return CrossReferenceMaintenancePage.FileUploadText();
+            B2BhomePage.SelectEnvironment(environment);
+            OpenCrossReferenceList();
+            DispalyCrList(dropDownText);
+            return CheckTypeColumnValue(dropDownText);
         }
-        public string DescriptionLabel()
+
+        public bool ViewAssociatedCrossRefTableAttributeCheck(string accountname, string crossReferenceType, string cRId, string type, string description, string userid, string association, string viewxml, string tableAccountName)
         {
-            return CrossReferenceMaintenancePage.DescriptionText();
+            OpenCrAssociationList();
+            PreviewAssociatedCrossReferenceList.SelectAccountName(accountname);
+            DispalyCrList(crossReferenceType);
+            var crossRefRow = PreviewAssociatedCrossReferenceList.RowText();
+
+            if (!crossRefRow.Contains(cRId))
+            {
+
+                return false;
+            }
+
+            if (!crossRefRow.Contains(type))
+            {
+
+                return false;
+            }
+            if (!crossRefRow.Contains(description))
+            {
+
+                return false;
+            }
+            if (!crossRefRow.Contains(userid))
+            {
+
+                return false;
+            }
+            if (!crossRefRow.Contains(association))
+            {
+
+                return false;
+            }
+            if (!crossRefRow.Contains(type))
+            {
+
+                return false;
+            }
+            if (!crossRefRow.Contains(viewxml))
+            {
+
+                return false;
+            }
+            if (!crossRefRow.Contains(tableAccountName))
+            {
+
+                return false;
+            }
+            return true;
+
+
         }
+
+
+
+
+
     }
 }
