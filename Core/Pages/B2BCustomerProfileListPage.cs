@@ -178,6 +178,12 @@ namespace Modules.Channel.B2B.Core.Pages
 
         }
 
+        public void ClickSearchedProfile(string linkText)
+        {
+            webDriver.WaitForElementDisplayed(By.LinkText(linkText), TimeSpan.FromSeconds(10));
+            webDriver.FindElement(By.LinkText(linkText)).Click();
+        }
+
         #endregion
 
         #region ReUsable Methods
