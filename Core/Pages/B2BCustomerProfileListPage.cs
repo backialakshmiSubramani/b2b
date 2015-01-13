@@ -108,6 +108,7 @@ namespace Modules.Channel.B2B.Core.Pages
         {
             get
             {
+                webDriver.WaitForElement(By.Id("ContentPageHolder_ddlSearchType"), TimeSpan.FromSeconds(30));
                 return webDriver.FindElement(By.Id("ContentPageHolder_ddlSearchType"));
 
             }
