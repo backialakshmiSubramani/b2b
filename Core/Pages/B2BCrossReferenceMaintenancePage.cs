@@ -84,8 +84,8 @@ namespace Modules.Channel.B2B.Core.Pages
         {
             get
             {
-                webDriver.WaitForElementDisplayed(By.XPath("//select[contains(@id,'CRTType')]"), TimeSpan.FromSeconds(60));
-                return new SelectElement(webDriver.FindElement(By.XPath("//select[contains(@id,'CRTType')]")));
+                webDriver.WaitForElementDisplayed(By.Id("ContentPageHolder_drp_CRTType"), TimeSpan.FromSeconds(60));
+                return new SelectElement(webDriver.FindElement(By.Id("ContentPageHolder_drp_CRTType")));
             }
         }
 
@@ -132,7 +132,7 @@ namespace Modules.Channel.B2B.Core.Pages
         {
             get
             {
-                return webDriver.FindElement(By.XPath("//a[contains(text(),'Save')]"));
+                return webDriver.FindElement(By.Id("ContentPageHolder_lnk_btnSave"));
             }
         }
 
@@ -140,8 +140,8 @@ namespace Modules.Channel.B2B.Core.Pages
         {
             get
             {
-                webDriver.WaitForElement(By.XPath("//span[contains(text(),'Cross Reference details saved successfully')]"), TimeSpan.FromSeconds(30));
-                return webDriver.FindElement(By.XPath("//span[contains(text(),'Cross Reference details saved successfully')]"));
+                webDriver.WaitForElement(By.Id("ContentPageHolder_lblMsgSave"), TimeSpan.FromSeconds(30));
+                return webDriver.FindElement(By.Id("ContentPageHolder_lblMsgSave"));
             }
         }
 
@@ -158,8 +158,8 @@ namespace Modules.Channel.B2B.Core.Pages
         {
             get
             {
-                webDriver.WaitForElement(By.XPath("//span[contains(text(),'*Select valid .xls file for upload')]"), TimeSpan.FromSeconds(30));
-                return webDriver.FindElement(By.XPath("//span[contains(text(),'*Select valid .xls file for upload')]"));
+                webDriver.WaitForElement(By.Id("ContentPageHolder_lbl_CRT_Error1"), TimeSpan.FromSeconds(30));
+                return webDriver.FindElement(By.Id("ContentPageHolder_lbl_CRT_Error1"));
             }
         }
 

@@ -81,8 +81,8 @@ namespace Modules.Channel.B2B.Core.Pages
         {
             get
             {
-                webDriver.WaitForElementDisplayed(By.XPath("//input[contains(@id,'txtUserName')]"), TimeSpan.FromSeconds(10));
-                return webDriver.FindElement(By.XPath("//input[contains(@id,'txtUserName')]"));
+                webDriver.WaitForElementDisplayed(By.Id("ContentPageHolder_tabUsers_tabManageUsers_txtUserName"), TimeSpan.FromSeconds(10));
+                return webDriver.FindElement(By.Id("ContentPageHolder_tabUsers_tabManageUsers_txtUserName"));
             }
         }
 
@@ -90,7 +90,7 @@ namespace Modules.Channel.B2B.Core.Pages
         {
             get
             {
-                return webDriver.FindElement(By.XPath("//select[contains(@id,'ddlUserType')]"));
+                return webDriver.FindElement(By.Id("ContentPageHolder_tabUsers_tabManageUsers_ddlUserType"));
             }
         }
 
@@ -98,7 +98,7 @@ namespace Modules.Channel.B2B.Core.Pages
         {
             get
             {
-                return webDriver.FindElement(By.XPath("//a[contains(@id,'lnkBtnSearch')]"));
+                return webDriver.FindElement(By.Id("ContentPageHolder_tabUsers_tabManageUsers_lnkBtnSearch"));
             }
         }
 
@@ -106,8 +106,8 @@ namespace Modules.Channel.B2B.Core.Pages
         {
             get
             {
-                webDriver.WaitForElementDisplayed(By.XPath("//a[contains(@id,'lnkManageUserUpdate')]"), TimeSpan.FromSeconds(10));
-                return webDriver.FindElement(By.XPath("//a[contains(@id,'lnkManageUserUpdate')]"));
+                webDriver.WaitForElementDisplayed(By.Id("ContentPageHolder_tabUsers_tabManageUsers_lnkManageUserUpdate"), TimeSpan.FromSeconds(10));
+                return webDriver.FindElement(By.Id("ContentPageHolder_tabUsers_tabManageUsers_lnkManageUserUpdate"));
             }
         }
 
@@ -115,8 +115,8 @@ namespace Modules.Channel.B2B.Core.Pages
         {
             get
             {
-                webDriver.WaitForElementDisplayed(By.XPath("//span[contains(text(),'User saved successfully')]"), TimeSpan.FromSeconds(10));
-                return webDriver.FindElement(By.XPath("//span[contains(text(),'User saved successfully')]"));
+                webDriver.WaitForElementDisplayed(By.Id("ContentPageHolder_tabUsers_tabManageUsers_lblManageUsersOKMessage"), TimeSpan.FromSeconds(10));
+                return webDriver.FindElement(By.Id("ContentPageHolder_tabUsers_tabManageUsers_lblManageUsersOKMessage"));
             }
         }
 
@@ -124,8 +124,8 @@ namespace Modules.Channel.B2B.Core.Pages
         {
             get
             {
-                webDriver.WaitForElementDisplayed(By.XPath("//span[contains(@id,'lblUserType_0')]"), TimeSpan.FromSeconds(5));
-                return webDriver.FindElement(By.XPath("//span[contains(@id,'lblUserType_0')]"));
+                webDriver.WaitForElementDisplayed(By.Id("ContentPageHolder_tabUsers_tabManageUsers_gvUserLists_lblUserType_0"), TimeSpan.FromSeconds(5));
+                return webDriver.FindElement(By.Id("ContentPageHolder_tabUsers_tabManageUsers_gvUserLists_lblUserType_0"));
             }
         }
         # endregion
@@ -141,7 +141,7 @@ namespace Modules.Channel.B2B.Core.Pages
             UserNameText.Set(UserName);
             SearchBtn.Click();
             webDriver.WaitForPageLoad(TimeSpan.FromSeconds(5));
-            WebDriver.FindElement(By.XPath("//a[contains(text(),'" + UserName + "')]")).Click();
+            WebDriver.FindElement(By.XPath("//a[contains(text(),'" + UserName + "')]")).Click(); // Searched Username is dynamic
             webDriver.WaitForPageLoad(TimeSpan.FromSeconds(5));
             SelectElement userType = new SelectElement(UserTypeList);
             userType.SelectByText(UserType);
@@ -150,7 +150,7 @@ namespace Modules.Channel.B2B.Core.Pages
             {
                 UserNameText.Set(UserName);
                 SearchBtn.Click();
-                System.Threading.Thread.Sleep(3000);
+                webDriver.WaitForPageLoad(TimeSpan.FromSeconds(20));
                 if (UserTypeValue.Text.Trim() == UserType)
                 {
                     Console.WriteLine("User Type is changed Successfully");

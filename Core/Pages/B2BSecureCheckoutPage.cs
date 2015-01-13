@@ -20,6 +20,7 @@ using DCSG.ADEPT.Framework.Core.Extensions.WebDriver;
 using DCSG.ADEPT.Framework.Core.Extensions.WebElement;
 using DCSG.ADEPT.Framework.Core.Extensions.Locators;
 using DCSG.ADEPT.Framework.Core.Page;
+using OpenQA.Selenium.Interactions;
 
 
 namespace Modules.Channel.B2B.Core.Pages
@@ -30,7 +31,7 @@ namespace Modules.Channel.B2B.Core.Pages
     public class B2BSecureCheckoutPage : DCSGPageBase
     {
         IWebDriver webDriver;
-
+        private IJavaScriptExecutor javaScriptExecutor;
         /// <summary>
         /// Constructor to hand off webDriver
         /// </summary>
@@ -39,6 +40,7 @@ namespace Modules.Channel.B2B.Core.Pages
             : base(ref webDriver)
         {
             this.webDriver = webDriver;
+            javaScriptExecutor = (IJavaScriptExecutor)webDriver;
             //populate the following variables with the appropriate value
             //Name = "";
             //Url = "";
@@ -73,11 +75,92 @@ namespace Modules.Channel.B2B.Core.Pages
             }
         }
 
-        private IWebElement ContinueButton
+        private IWebElement ShippingContinueButton
         {
             get
             {
                 return webDriver.FindElement(By.Id("ShippingContinue"));
+            }
+        }
+
+        private IWebElement FirstName
+        {
+            get
+            {
+                return webDriver.FindElement(By.Id("OrderContactInformation_Contact_FirstName"));
+            }
+        }
+
+        private IWebElement LastName
+        {
+            get
+            {
+                return webDriver.FindElement(By.Id("OrderContactInformation_Contact_LastName"));
+            }
+        }
+
+        private IWebElement CompanyName
+        {
+            get
+            {
+                return webDriver.FindElement(By.Id("OrderContactInformation_Contact_CompanyName"));
+            }
+        }
+
+        private IWebElement Email
+        {
+            get
+            {
+                return webDriver.FindElement(By.Id("OrderContactInformation_Contact_Email"));
+            }
+        }
+
+        private IWebElement PhoneNumber
+        {
+            get
+            {
+                return webDriver.FindElement(By.Id("OrderContactInformation_Contact_PhoneNumber"));
+            }
+        }
+
+        private IWebElement AddressBookLink
+        {
+            get
+            {
+                return webDriver.FindElement(By.ClassName("address_book"));
+            }
+        }
+
+        private IWebElement SelectBtn
+        {
+            get
+            {
+                // No unique Id is present hence Xpath is used.
+                return webDriver.FindElement(By.XPath("//form[@id='addressBookForm']/table/tbody/tr[1]/td[5]/a"));
+            }
+        }
+
+        private IWebElement PurchaseOrderSelectBtn
+        {
+            get
+            {
+                return webDriver.FindElement(By.Id("btnAddPayment_PURCHASEORDER"));
+            }
+        }
+
+        private IWebElement EquoteContactContinueBtn
+        {
+            get
+            {
+                return webDriver.FindElement(By.Id("EQuoteContactContinue"));
+            }
+        }
+
+        private IWebElement PaymentContinueBtn
+        {
+            get
+            {
+                return webDriver.FindElement(By.Id("PaymentContinue"));
             }
         }
 
@@ -92,8 +175,42 @@ namespace Modules.Channel.B2B.Core.Pages
 
         public void ClickContinueButton()
         {
-            ContinueButton.Click();
+            ShippingContinueButton.Click();
             webDriver.WaitForPageLoad(TimeSpan.FromSeconds(40));
+        }
+
+        public void EnterContactAndBillingInfo()
+        {
+            string firstName = DCSG.ADEPT.Framework.Data.Generator.RandomString(5,0);
+            string lastName = DCSG.ADEPT.Framework.Data.Generator.RandomString(5,0);
+            string companyName = DCSG.ADEPT.Framework.Data.Generator.RandomString(5,0);
+            string phoneNumber = DCSG.ADEPT.Framework.Data.Generator.RandomInt(0, 999999).ToString() +DCSG.ADEPT.Framework.Data.Generator.RandomInt(0, 999999).ToString();
+            string email = DCSG.ADEPT.Framework.Data.Generator.RandomString(5,0) + "@test.com";
+
+            FirstName.SendKeys(firstName);
+            LastName.SendKeys(lastName);
+            CompanyName.SendKeys(companyName);
+            Email.SendKeys(email);
+            PhoneNumber.SendKeys("0");
+            PhoneNumber.Clear();
+            PhoneNumber.Set(phoneNumber);
+
+            //select Billing address;
+            javaScriptExecutor.ExecuteScript("arguments[0].click();", AddressBookLink);
+            System.Threading.Thread.Sleep(3000);
+            webDriver.SwitchTo().Frame(webDriver.FindElement(By.Id("billing_address_wizard_modal_iframe")));
+            javaScriptExecutor.ExecuteScript("arguments[0].click();", SelectBtn);
+            webDriver.SwitchTo().DefaultContent();
+            javaScriptExecutor.ExecuteScript("arguments[0].click();", EquoteContactContinueBtn);
+            webDriver.WaitForPageLoad(TimeSpan.FromSeconds(30));
+            javaScriptExecutor.ExecuteScript("arguments[0].click();", ExportOption);
+            javaScriptExecutor.ExecuteScript("arguments[0].click();", ShippingContinueButton);
+            webDriver.WaitForPageLoad(TimeSpan.FromSeconds(30));
+            javaScriptExecutor.ExecuteScript("arguments[0].click();", PurchaseOrderSelectBtn);
+            webDriver.WaitForPageLoad(TimeSpan.FromSeconds(30));
+            javaScriptExecutor.ExecuteScript("arguments[0].click();", PaymentContinueBtn);
+            webDriver.WaitForPageLoad(TimeSpan.FromSeconds(30));
+            
         }
 
         #endregion

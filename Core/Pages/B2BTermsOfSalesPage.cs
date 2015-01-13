@@ -68,7 +68,7 @@ namespace Modules.Channel.B2B.Core.Pages
         private IWebElement PriceElement
         {
             get
-            { return webDriver.FindElement(By.XPath("//div[@class='price']/span")); }
+            { return webDriver.FindElement(By.XPath("//div[@class='position_cart_total clearfix']/span[2]/span[@class='decimal']")); }
         }
 
         private IWebElement SubmitOrderButton

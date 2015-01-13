@@ -82,7 +82,7 @@ namespace Modules.Channel.B2B.Core.Pages
         private IWebElement CreateOrQuoteElement
         {
             get
-            { return webDriver.FindElement(By.XPath("//a[@id='CartCheckout']/span")); }
+            { return webDriver.FindElement(By.Id("CartCheckout")); }
         }
 
         #endregion

@@ -128,15 +128,6 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
             }
         }
 
-        private B2BCatalogViewerPage B2BCatalogViewerPage
-        {
-            get
-            {
-                return new B2BCatalogViewerPage(webDriver);
-            }
-        }
-
-
         /* How to create 'E-Quote' or 'OrQuote'
          * Call CompleteEQuoteGeneration() with 5 arguments -
          * i) quoteType(equote/OrQuote)     <-- Note pass only "equote" for E-Quote and "OrQuote" for OR-Quote
@@ -146,7 +137,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
          * v) email - any email     <- will be used in equote        
          */
 
-        public bool CompleteEQuoteGeneration(string quoteType,
+        public bool CompleteQuoteGeneration(string quoteType,
             string env,
             string profileId,
             string name,
@@ -162,24 +153,18 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
             string endUserId)
         {
             string eQuoteType = "eQuote";
-            string orType = "OrQuote";
+            string orType = "orQuote";
             string responseCode = "0";
             string quoteNumber = "0";
             string price = "0";
 
 
-            // Creates Equote / OR Quote
             var parentWindow = webDriver.CurrentWindowHandle;
-            Console.WriteLine("parent window {0}", parentWindow);
-
             B2BHomePage.SelectEnvironment(env);
             B2BHomePage.ClickQaTools3();
             System.Threading.Thread.Sleep(3000);
-
             webDriver.SwitchTo().Window(webDriver.WindowHandles.Last());
             var QaToolsWindow = webDriver.CurrentWindowHandle;
-            Console.WriteLine("Qa Tools window {0}", QaToolsWindow);
-
             B2BQaToolsPage.ClickLocationEnvironment(env);
             B2BQaToolsPage.ClickLocationEnvironmentLink(env);
             B2BQaToolsPage.ClickPunchoutCreate();
@@ -197,26 +182,21 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
                 String temp = B2BQaToolsPage.GetStoreLinkText();
                 Console.WriteLine("Link value is " + temp);
                 B2BQaToolsPage.ClickStoreLink();
-
                 webDriver.WaitForPageLoad(TimeSpan.FromSeconds(40));
                 webDriver.Close();
-                //String newWindow = webDriver.WindowHandles.LastOrDefault();
-                //webDriver.SwitchTo().Window(newWindow);
-                webDriver.SwitchTo().Window(webDriver.WindowHandles.Last());
+                string newwindow = webDriver.WindowHandles.LastOrDefault();
+                webDriver.SwitchTo().Window(newwindow);
+                //webDriver.SwitchTo().Window(webDriver.WindowHandles.Last());
                 var premierWindow = webDriver.CurrentWindowHandle;
-                Console.WriteLine("premier window {0}", premierWindow);
 
                 webDriver.Manage().Window.Maximize();
                 B2BPremierDashboardPage.WaitForTitle();
-
                 B2BPremierDashboardPage.OpenShop();
                 B2BPremierDashboardPage.ClickStandardConfiguration();
-
                 B2BStandardConfigurationPage.SelectFirstConfiguration();
+                System.Threading.Thread.Sleep(5000);
                 B2BStandardConfigurationPage.ClickAddSelectedToCartButton();
-
                 Console.WriteLine("Shoping Cart Page Title is :- " + ShopingCartPage.ReturnShopingCartTitle());
-
                 ShopingCartPage.ClickSaveQuote(quoteType);
 
                 // Starting EQuote Generation
@@ -231,33 +211,32 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
                     webDriver.WaitForPageLoad(TimeSpan.FromSeconds(40));
                     finalEquoteSummaryPage.ClickSaveButton();
                     webDriver.WaitForPageLoad(TimeSpan.FromSeconds(40));
-
                     quoteNumber = eQuoteGenerationPage.ReturnNumber();
                     price = eQuoteGenerationPage.ReturnPrice().Replace("$", "");
                     quoteNumber = "EQ:" + quoteNumber;
                     Console.WriteLine("Your Equote Number is :- " + quoteNumber);
-
                     Console.WriteLine("Price is :- " + price);
                 }
 
                 // Starting OrQuote Generation 
-                if (quoteType.Equals(orType))
+                else if (quoteType.Equals(orType))
                 {
-                    B2BSecureCheckoutPage.ClickExportOption();
-                    B2BSecureCheckoutPage.ClickContinueButton();
+                    B2BSecureCheckoutPage.EnterContactAndBillingInfo();
+                    webDriver.WaitForPageLoad(TimeSpan.FromSeconds(40));
                     price = B2BTermsOfSalesPage.FindPrice().Replace("$", "");
                     B2BTermsOfSalesPage.ClickSubmitButton();
-                    //String poQuoteText = b2BOrQuoteGenerationPage.Create_PO_Button_Text();
-                    //Console.WriteLine("Po Button text is :-" + poQuoteText);
+                    webDriver.WaitForPageLoad(TimeSpan.FromSeconds(40));
                     Console.WriteLine("Price is :- " + price);
-                    B2BOrQuoteGenerationPage.FindOrQuote();
+                    quoteNumber = B2BOrQuoteGenerationPage.FindOrQuote();
+                }
+
+                else
+                {
+                    Console.WriteLine("Quote Type is not Specified");
+                    return false;
                 }
             }
-            webDriver.Close();
 
-            //quote_num ="EQ:1000017642306"; // preview
-            // quote_num = "EQ:1000017643106"; // prod
-            price = "1,668.99";
 
             // Generates PO cXml Template
             var orderId = orderIdBase + DateTime.Today.ToString("yyyyMMdd") + DateTime.Now.ToString("hhmmss");
@@ -272,13 +251,8 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
 
             // Submits PO
             webDriver.SwitchTo().Window(parentWindow);
-            B2BCatalogViewerPage.GoToHomePage();
-
-            //string poNumber = "B2BAuto20141226031458"; //preview
-            //string poNumber ="B2BAuto20141226050246"; // Prod
             string poNumber;
-
-            B2BCatalogViewerPage.ClickQaTools3();
+            B2BHomePage.ClickQaTools3();
             if (!poOperations.SubmitXmlForPoCreation(poXml, env, poTargetUrl, out poNumber))
             {
                 return false;
@@ -287,7 +261,6 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
             // verifies all validation after submiting PO
             webDriver.SwitchTo().Window(parentWindow);
             System.Threading.Thread.Sleep(1000);
-            B2BCatalogViewerPage.GoToHomePage();
             Console.WriteLine(parentWindow);
             Console.WriteLine(webDriver.CurrentWindowHandle);
             if (!poOperations.AllOperations(poNumber, workflow, environment, crtFilePath, endUserId, gcmUrl, price))

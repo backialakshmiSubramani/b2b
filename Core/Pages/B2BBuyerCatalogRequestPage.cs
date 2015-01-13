@@ -131,13 +131,11 @@ namespace Modules.Channel.B2B.Core.Pages
             RecipientEmailIdText.SendKeys(email);
             SelectElement selectCustomer = new SelectElement(SelectCustomerList);
             selectCustomer.SelectByText(profileName);
-            System.Threading.Thread.Sleep(5000);
             SelectElement selectProfileIdentity = new SelectElement(SelectProfileList);
             selectProfileIdentity.SelectByText(profileName.ToUpper());
             SelectElement regionList = new SelectElement(SelectRegionList);
             regionList.SelectByText(region);
             RequestCatalogLink.Click();
-            System.Threading.Thread.Sleep(5000);
             Console.WriteLine("Generated Thread Id is - {0}", ThreadId.Text);
             return ThreadId.Text;
         }

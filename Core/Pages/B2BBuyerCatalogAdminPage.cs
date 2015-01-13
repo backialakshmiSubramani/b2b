@@ -90,7 +90,7 @@ namespace Modules.Channel.B2B.Core.Pages
         {
             get
             {
-               return webDriver.FindElement(By.XPath("//input[@title='Save the changes']"));
+                return webDriver.FindElement(By.Id("ContentPageHolder_imgbtnSave"));
             }
         }
 

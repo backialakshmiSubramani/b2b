@@ -135,10 +135,26 @@ namespace Modules.Channel.B2B.Core.Pages
         {
             get
             {
-                return webDriver.FindElement(By.XPath("//input[@id='ContentPageHolder_chkIsChannelASNEnabled']"));
+                return webDriver.FindElement(By.Id("ContentPageHolder_chkIsChannelASNEnabled"));
             }
         }
 
+        private IWebElement AdvanceSearchBtn
+        {
+            get
+            {
+                return webDriver.FindElement(By.XPath("//a[contains(@id,'lnkAdvanceSearch')]"));
+            }
+        }
+
+        private IWebElement SearchedProfile
+        {
+            get
+            {
+                webDriver.WaitForElement(By.XPath("//a[contains(@id,'hypCustomerName')]"), TimeSpan.FromSeconds(60));
+                return webDriver.FindElement(By.XPath("//a[contains(@id,'hypCustomerName')]"));
+            }
+        }
 
         #endregion
 
@@ -173,8 +189,8 @@ namespace Modules.Channel.B2B.Core.Pages
         public void ClickSearchedProfile()
         {
 
-            webDriver.WaitForElement(By.XPath("//a[contains(@id,'hypCustomerName')]"), TimeSpan.FromSeconds(60));
-            webDriver.FindElement(By.XPath("//a[contains(@id,'hypCustomerName')]")).Click();
+          //  SearchedProfile.Click();
+            javaScriptExecutor.ExecuteScript("arguments[0].click();", SearchedProfile);
 
         }
 
@@ -209,7 +225,7 @@ namespace Modules.Channel.B2B.Core.Pages
             webDriver.WaitForPageLoad(TimeSpan.FromSeconds(10));
             ////ChannelASNChkBox.Click();
             javaScriptExecutor.ExecuteScript("arguments[0].click();", ChannelASNChkBox);
-            webDriver.FindElement(By.XPath("//a[contains(@id,'lnkAdvanceSearch')]")).Click();
+            AdvanceSearchBtn.Click();
             webDriver.WaitForPageLoad(TimeSpan.FromSeconds(10));
         }
 
@@ -217,7 +233,7 @@ namespace Modules.Channel.B2B.Core.Pages
         {
             bool Flag = true;
             bool status = false;
-            string locator = "//a[contains(text(),'" + ProfileName + "')]";
+            string locator = "//a[contains(text(),'" + ProfileName + "')]";  // Searched profile name is dynamic
 
             do
             {

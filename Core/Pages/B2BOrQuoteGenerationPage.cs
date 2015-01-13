@@ -90,10 +90,11 @@ namespace Modules.Channel.B2B.Core.Pages
             return CreatePoElement.Text;
         }
 
-        public void FindOrQuote()
+        public string FindOrQuote()
         {
             XDocument doc = XDocument.Parse(XmlDocument.Text);
             Console.WriteLine(doc.XPathSelectElement("//OrderRequest/ListOfOrderRequestDetail/OrderRequestDetail/BaseItemDetail/SupplierPartNum/PartNum/PartIDExt").Value);
+            return doc.XPathSelectElement("//OrderRequest/ListOfOrderRequestDetail/OrderRequestDetail/BaseItemDetail/SupplierPartNum/PartNum/PartIDExt").Value;
             //var xElement = doc.Element("PartIDExt");
             //if (xElement != null) Console.WriteLine(xElement.Value);
         }
