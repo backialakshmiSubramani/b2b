@@ -68,7 +68,19 @@ namespace Modules.Channel.B2B.Common
             return inputXml;
         }
 
+        /// <summary>
+        /// Use this method to generate the PO CBL for B2B ASN
+        /// </summary>
+        /// <param name="quoteType"></param>
+        /// <param name="poXmlFormat"></param>
+        /// <param name="orderId"></param>
+        /// <param name="identityName"></param>
+        /// <param name="supplierPartId"></param>
+        /// <param name="quantity"></param>
+        /// <param name="unitPrice"></param>
+        /// <returns></returns>
         public static string GeneratePoCblForAsn(
+            QuoteType quoteType,
             PoXmlFormat poXmlFormat,
             string orderId,
             string identityName,
@@ -86,12 +98,24 @@ namespace Modules.Channel.B2B.Common
             // TODO: Scale it up for multiple <OrderDetail> - Ask Amulya
             // ********************************************************************************
             doc.XPathSelectElement("//BaseItemDetail/LineItemNum").SetValue("01");
-            doc.XPathSelectElement("//SupplierPartNum/PartNum/PartID").SetValue(supplierPartId);
-            doc.XPathSelectElement("//SupplierPartNum/PartNum/PartIDExt").SetValue(supplierPartId);
-            doc.XPathSelectElement("//BuyerPartNum/PartNum/PartID").SetValue(supplierPartId);
-            doc.XPathSelectElement("//BuyerPartNum/PartNum/PartIDExt").SetValue(supplierPartId);
-            doc.XPathSelectElement("//ManufacturerPartNum/PartNum/PartID").SetValue(supplierPartId);
-            doc.XPathSelectElement("//ManufacturerPartNum/PartNum/PartIDExt").SetValue(supplierPartId);
+
+            if (quoteType == QuoteType.Doms || quoteType == QuoteType.EQuote)
+            {
+                doc.XPathSelectElement("//SupplierPartNum/PartNum/PartID").SetValue(supplierPartId);
+            }
+            else if (quoteType == QuoteType.Bhc || quoteType == QuoteType.OrQuote)
+            {
+                doc.XPathSelectElement("//SupplierPartNum/PartNum/PartIDExt").SetValue(supplierPartId);
+            }
+            ////else if (quoteType == QuoteType.Cif)
+            ////{
+            ////    doc.XPathSelectElement("//SupplierPartNum/PartNum/PartID").SetValue(supplierPartId);
+            ////    doc.XPathSelectElement("//SupplierPartNum/PartNum/PartIDExt").SetValue(supplierPartId);
+            ////}
+
+            ////doc.XPathSelectElement("//BuyerPartNum/PartNum/PartID").SetValue(supplierPartId);
+            ////doc.XPathSelectElement("//ManufacturerPartNum/PartNum/PartID").SetValue(supplierPartId);
+
             doc.XPathSelectElement("//BaseItemDetail/Quantity/Qty").SetValue(quantity);
             doc.XPathSelectElement("//BuyerExpectedUnitPrice/Price/UnitPrice").SetValue(unitPrice);
             // ********************************************************************************

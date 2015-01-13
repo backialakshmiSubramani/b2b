@@ -137,7 +137,8 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
          * v) email - any email     <- will be used in equote        
          */
 
-        public bool CompleteQuoteGeneration(string quoteType,
+        public bool CompleteQuoteGeneration(
+            QuoteType quoteType,
             string env,
             string profileId,
             string name,
@@ -155,8 +156,6 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
             string expectedPurchaseOderMessage,
             string quantity)
         {
-            string eQuoteType = "eQuote";
-            string orType = "orQuote";
             string responseCode = "0";
             string quoteNumber = "0";
             string price = "0";
@@ -200,10 +199,10 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
                 System.Threading.Thread.Sleep(5000);
                 B2BStandardConfigurationPage.ClickAddSelectedToCartButton();
                 Console.WriteLine("Shoping Cart Page Title is :- " + ShopingCartPage.ReturnShopingCartTitle());
-                ShopingCartPage.ClickSaveQuote(quoteType);
+                ShopingCartPage.ClickSaveQuote(quoteType.ToString());
 
                 // Starting EQuote Generation
-                if (quoteType.Equals(eQuoteType))
+                if (quoteType == QuoteType.EQuote)
                 {
                     Console.WriteLine("EQuote Page Details Page Title is :-" + eQuoteDetailsPage.ReturnTitle());
                     eQuoteDetailsPage.EquoteNameSetting(name);
@@ -221,8 +220,8 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
                     Console.WriteLine("Price is :- " + price);
                 }
 
-                // Starting OrQuote Generation 
-                else if (quoteType.Equals(orType))
+                    // Starting OrQuote Generation 
+                else if (quoteType == QuoteType.OrQuote)
                 {
                     B2BSecureCheckoutPage.EnterContactAndBillingInfo();
                     webDriver.WaitForPageLoad(TimeSpan.FromSeconds(40));
@@ -257,7 +256,14 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
             }
             else
             {
-                poXml = PoXmlGenerator.GeneratePoCblForAsn(format, orderId, profileId, quoteNumber, quantity, price);
+                poXml = PoXmlGenerator.GeneratePoCblForAsn(
+                    quoteType,
+                    format,
+                    orderId,
+                    profileId,
+                    quoteNumber,
+                    quantity,
+                    price);
             }
 
             // Submits PO

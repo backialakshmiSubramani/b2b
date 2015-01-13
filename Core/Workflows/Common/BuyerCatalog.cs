@@ -39,6 +39,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
         public PoXmlFormat PoXmlFormat { get; set; }
         public string GcmUrl { get; set; }
         public string Quantity { get; set; }
+        public QuoteType QuoteType { get; set; }
         ////************************************************************
 
         private B2BHomePage B2BHomePage
@@ -127,7 +128,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
             }
             else
             {
-                poXml = PoXmlGenerator.GeneratePoCblForAsn(PoXmlFormat, orderId, IdentityName, catalogPartId, Quantity, baseItemPrice);
+                poXml = PoXmlGenerator.GeneratePoCblForAsn(QuoteType, PoXmlFormat, orderId, IdentityName, catalogPartId, Quantity, baseItemPrice);
             }
 
             var parentWindow = webDriver.CurrentWindowHandle;
