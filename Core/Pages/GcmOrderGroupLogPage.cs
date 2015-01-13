@@ -20,12 +20,11 @@ using DCSG.ADEPT.Framework.Core.Extensions.WebDriver;
 using DCSG.ADEPT.Framework.Core.Extensions.WebElement;
 using DCSG.ADEPT.Framework.Core.Extensions.Locators;
 using DCSG.ADEPT.Framework.Core.Page;
-
+using System.Linq;
+using Microsoft.SharePoint.Client;
 
 namespace Modules.Channel.B2B.Core.Pages
 {
-    using System.Linq;
-
     /// <summary>
     /// This base class is the where all specific page classes will be derived.
     /// </summary>
@@ -105,6 +104,14 @@ namespace Modules.Channel.B2B.Core.Pages
             }
         }
 
+        private IWebElement ContinueButton
+        {
+            get
+            {
+                return webDriver.FindElement(By.Id("btn_continue.gif"));
+            }
+        }
+
         public void GoToPrintFaxViewPage()
         {
             ////PrintFaxViewLink.Click();
@@ -127,6 +134,13 @@ namespace Modules.Channel.B2B.Core.Pages
         {
             ////CustomerLink.Click();
             javaScriptExecutor.ExecuteScript("arguments[0].click();", CustomerLink);
+        }
+
+        public void GoToOrderGroupSummaryPage()
+        {
+            ////ContinueButton.Click();
+            javaScriptExecutor.ExecuteScript("arguments[0].click();", ContinueButton);
+            webDriver.WaitForPageLoad(new TimeSpan(0, 0, 20));
         }
     }
 }

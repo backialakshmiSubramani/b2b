@@ -146,31 +146,18 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
             string crtFilePath,
             string crtEndUserId,
             string gcmUrl,
-            string baseItemPrice)
+            string baseItemPrice, string expectedDpidMessage, string expectedPurchaseOderMessage)
         {
             ////poNumber = "CBLORPRODdec192";
             ////crtEndUserId = "2";
             ////baseItemPrice = "3.99";
 
             this.GetCrtDetails(crtFilePath, crtEndUserId);
-            bool isDpidFound = false;
-            string expectedDpidMessage = "Continue Purchase Order: Purchase Order Success:";
-            string expectedPurchaseOderMessage = "CBL PO: sendPurchaseOrder";
 
-            // Log Report page operations. Provide po number and search
-            B2BHomePage.ClickLogReport();
-            B2BLogReportPage.SearchByPoNumber(poNumber);
-
-            // 1. Capture Thread Id & Quote Id
-            Console.WriteLine(
-                "Thread Id for this PO number {0} is :- {1}",
-                poNumber,
-                B2BLogReportPage.FindThreadIdInTable());
-            Console.WriteLine(
-                "Quote Id for this PO number {0} is :- {1}",
-                poNumber,
-                B2BLogReportPage.FindQuoteIdInTable());
-
+            if (!SearchPoInLogReportPage(poNumber))
+            {
+                return false;
+            }
 
             if (workflow == Workflow.Eudc)
             {
@@ -186,7 +173,12 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
                 webDriver.WaitForPageLoad(new TimeSpan(0, 0, 10));
 
                 // 3. "CBL PO: sendPurchaseOrder" Message, click on the link,verify the enduser details against the CRT file data.
-                B2BLogReportPage.FindMessageAndGoToLogDetailPage(expectedPurchaseOderMessage);
+
+                if (!B2BLogReportPage.FindMessageAndGoToLogDetailPage(expectedPurchaseOderMessage))
+                {
+                    return false;
+                }
+
                 var logDetail = B2BLogDetailPage.GetEndUserDetailsFromLogDetail();
 
                 if (!CheckEndUserInfo(logDetail))
@@ -203,43 +195,21 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
 
             var dellPurchaseId = B2BLogReportPage.FindDellPurchaseId(expectedDpidMessage);
 
-            long dpid;
-
-            if (long.TryParse(dellPurchaseId, out dpid))
-            {
-                if (!dpid.Equals(-1))
-                {
-                    isDpidFound = true;
-                }
-            }
-
-            if (!isDpidFound)
+            if (string.IsNullOrEmpty(dellPurchaseId))
             {
                 if (environment == RunEnvironment.Production)
                 {
-                    Console.WriteLine("DP ID is not generated in Production Environment. Stopping the test");
+                    Console.WriteLine("DP Id is not generated in Production Environment. Stopping the test");
                     return false;
                 }
 
-                Console.WriteLine("DP ID is not generated. Stopping verfication. Not continuing with GCM verification");
+                Console.WriteLine("DP Id is not generated. Stopping verfication. Not continuing with GCM verification");
                 return true;
             }
 
-            Console.WriteLine("Now going to start GCM verification");
-            webDriver.Navigate().GoToUrl(gcmUrl);
-
-            // GCM verifcation start
-            GcmMainPage.ClickDomsElement();
-            GcmFindEOrderPage.SelectSearchCriteria();
-            GcmFindEOrderPage.ProvideValueForSearch(dellPurchaseId);
-            GcmFindEOrderPage.ClickSearchButton();
-
-            // Checking the status, if COMPLETE or not
-            var status = GcmFindEOrderPage.FindOrderStaus();
-            Console.WriteLine("Status of the order :- " + status);
-            if (!status.ToUpper().Trim().Equals("COMPLETE"))
+            Console.WriteLine("Starting GCM verification");
+            if (!VerifyOrderStatusInGcm(gcmUrl, dellPurchaseId))
             {
-                Console.WriteLine("Aborting test. Status is ** {0} **", status);
                 return false;
             }
 
@@ -253,22 +223,6 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
             }
 
             return true;
-        }
-
-        private bool CheckEndUserInfo(List<string> endUserDetails)
-        {
-            if (endUserDetails != null && endUserDetails.Count() != 0)
-            {
-                if (endUserDetails[0] == crtDetails[0].ToString() && endUserDetails[1] == crtDetails[1].ToString()
-                    && endUserDetails[2] == crtDetails[2].ToString() && endUserDetails[3] == crtDetails[3].ToString()
-                    && endUserDetails[4] == crtDetails[4].ToString() && endUserDetails[5] == crtDetails[5].ToString()
-                    && endUserDetails[6] == crtDetails[6].ToString())
-                {
-                    return true;
-                }
-            }
-
-            return false;
         }
 
         public void GetCrtDetails(string crtFilePath, string crtEndUserId)
@@ -352,6 +306,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
                 return false;
             }
 
+            GcmEmailFaxViewPage.GoToXmlResultsPage();
             if (!CheckEndUserInfo(GcmXmlResultsPage.GetEndUserDetails()))
             {
                 return false;
@@ -475,8 +430,73 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
             var dellPurchaseId = B2BLogReportPage.FindDellPurchaseId(expectedDpidMessage);
             B2BLogReportPage.FindMessageAndGoToLogDetailPage(mapperRequestMessage);
             return B2BLogDetailPage.GetDpidFromMapperRequestXml().Equals(dellPurchaseId);
+        }
 
-            // TODO: add db validations too
+        private bool VerifyOrderStatusInGcm(string gcmUrl, string dellPurchaseId)
+        {
+            webDriver.Navigate().GoToUrl(gcmUrl);
+            webDriver.WaitForPageLoad(new TimeSpan(0, 0, 10));
+            // GCM verifcation start
+            GcmMainPage.ClickDomsElement();
+
+            // Checking the status, if COMPLETE or not
+            var status = GcmFindEOrderPage.SearchByDpidAndGetOrderStatus(dellPurchaseId);
+            if (status.ToUpper().Trim().Equals("COMPLETE"))
+            {
+                return true;
+            }
+
+            Console.WriteLine("Aborting test. Status is ** {0} **", status);
+            return false;
+        }
+
+        private bool SearchPoInLogReportPage(string poNumber)
+        {
+            // Log Report page operations. Provide po number and search
+            B2BHomePage.ClickLogReport();
+
+            return B2BLogReportPage.SearchByPoNumber(poNumber);
+        }
+
+        private bool CheckEndUserInfo(List<string> endUserDetails)
+        {
+            if (endUserDetails != null && endUserDetails.Count() != 0)
+            {
+                if (endUserDetails[0] == crtDetails[0].ToString() && endUserDetails[1] == crtDetails[1].ToString()
+                    && endUserDetails[2] == crtDetails[2].ToString() && endUserDetails[3] == crtDetails[3].ToString()
+                    && endUserDetails[4] == crtDetails[4].ToString() && endUserDetails[5] == crtDetails[5].ToString()
+                    && endUserDetails[6] == crtDetails[6].ToString())
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private bool VerifyMapperRequestDetailsAgainstPoTemplate(List<XElement> poLineItems)
+        {
+            var orderDetails = XDocument.Load("CblTemplate.xml").XPathSelectElements("//OrderDetail").ToList();
+
+            if (poLineItems.Count != orderDetails.Count)
+            {
+                return false;
+            }
+
+            for (var i = 0; i < poLineItems.Count; i++)
+            {
+                if (
+                    !(poLineItems[i].Element("Quantity")
+                          .Value.Equals(orderDetails[i].XPathSelectElement("//BaseItemDetail/Quantity/Qty").Value)
+                      && poLineItems[i].Element("UnitPrice")
+                             .Value.Equals(
+                                 orderDetails[i].XPathSelectElement("//BuyerExpectedUnitPrice/Price/UnitPrice").Value)))
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
     }
 

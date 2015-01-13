@@ -83,6 +83,7 @@ namespace Modules.Channel.B2B.Core.Pages
                 return webDriver.FindElement(By.Id("tBox_PONum"));
             }
         }
+
         private IWebElement QuoteIdElement
         {
             get
@@ -160,7 +161,7 @@ namespace Modules.Channel.B2B.Core.Pages
 
         #region Element Actions
 
-        public void SearchByPoNumber(string poNumber)
+        public bool SearchByPoNumber(string poNumber)
         {
             PoNumberElement.SendKeys(poNumber);
             ////IncludeInsertLogCheckBox.Click();
@@ -168,16 +169,24 @@ namespace Modules.Channel.B2B.Core.Pages
             ////SubmitLink.Click();
             javaScriptExecutor.ExecuteScript("arguments[0].click();", SubmitLink);
             webDriver.WaitForPageLoad(new TimeSpan(0, 0, 10));
-        }
 
-        public string FindThreadIdInTable()
-        {
-            return ThreadIdInTable.Text.Trim();
-        }
+            if (!PoLogReportRows.Any())
+            {
+                Console.WriteLine("Log Events are not retrieved for PO: {0}", poNumber);
+                return false;
+            }
 
-        public string FindQuoteIdInTable()
-        {
-            return QuoteIdInTable.Text.Trim();
+            // 1. Capture Thread Id & Quote Id - EUDC verification
+            Console.WriteLine(
+                "Thread Id for this PO number {0} is :- {1}",
+                poNumber,
+                ThreadIdInTable.Text.Trim());
+            Console.WriteLine(
+                "Quote Id for this PO number {0} is :- {1}",
+                poNumber,
+                QuoteIdInTable.Text.Trim());
+
+            return true;
         }
 
         public void ClickPoNumberInTable()
@@ -187,21 +196,30 @@ namespace Modules.Channel.B2B.Core.Pages
             webDriver.WaitForPageLoad(new TimeSpan(0, 0, 10));
         }
 
-        /// <summary>
-        /// Common
-        /// </summary>
-        /// <param name="expectedLogEntry"></param>
-        /// <returns></returns>
         public string FindDellPurchaseId(string expectedLogEntry)
         {
             var dellPurchaseIdEntry =
                 PoLogReportRows.FirstOrDefault(e => e.FindElements(By.TagName("td"))[5].Text.Contains(expectedLogEntry));
 
+            if (dellPurchaseIdEntry == null)
+            {
+                return string.Empty;
+            }
+
             var dellPurchaseIdMessage = dellPurchaseIdEntry.FindElements(By.TagName("td"))[5].Text;
-
             Console.WriteLine("DP ID is generated with message -> {0}", dellPurchaseIdMessage);
+            var dellPurchaseId = dellPurchaseIdMessage.Trim().Split(' ').LastOrDefault();
 
-            return dellPurchaseIdMessage.Trim().Split(' ').LastOrDefault();
+            long dpid;
+            if (long.TryParse(dellPurchaseId, out dpid))
+            {
+                if (!dpid.Equals(-1))
+                {
+                    return dellPurchaseId;
+                }
+            }
+
+            return string.Empty;
         }
 
         public void SelectCifQuoteLog(string threadId, string message, string profileName)
@@ -225,10 +243,10 @@ namespace Modules.Channel.B2B.Core.Pages
 
         public void FetchQuotes(string path)
         {
-            Microsoft.Office.Interop.Excel.Workbook mWorkBook;
-            Microsoft.Office.Interop.Excel.Sheets mWorkSheets;
-            Microsoft.Office.Interop.Excel.Worksheet mWSheet1;
-            Microsoft.Office.Interop.Excel.Application objXL;
+            Excel.Workbook mWorkBook;
+            Excel.Sheets mWorkSheets;
+            Excel.Worksheet mWSheet1;
+            Excel.Application objXL;
 
             string[] logTxt = (LogTextMsgBox.Text.Split(new string[] { "DATA" }, StringSplitOptions.None))[1].Split(',');
 
@@ -242,14 +260,14 @@ namespace Modules.Channel.B2B.Core.Pages
             Console.WriteLine(productDescription);
             Console.WriteLine(price);
 
-            objXL = new Microsoft.Office.Interop.Excel.Application();
+            objXL = new Excel.Application();
             objXL.Visible = true;
             objXL.DisplayAlerts = false;
 
-            mWorkBook = objXL.Workbooks.Open(path, 0, false, 5, "", "", false, Microsoft.Office.Interop.Excel.XlPlatform.xlWindows, "", true, false, 0, true, false, false);
+            mWorkBook = objXL.Workbooks.Open(path, 0, false, 5, "", "", false, Excel.XlPlatform.xlWindows, "", true, false, 0, true, false, false);
             mWorkSheets = mWorkBook.Worksheets;
-            mWSheet1 = (Microsoft.Office.Interop.Excel.Worksheet)mWorkSheets.get_Item("Sheet1");
-            Microsoft.Office.Interop.Excel.Range range = mWSheet1.UsedRange;
+            mWSheet1 = (Excel.Worksheet)mWorkSheets.get_Item("Sheet1");
+            Excel.Range range = mWSheet1.UsedRange;
 
             mWSheet1.Cells[2, 1] = manufacturerPartId;
             mWSheet1.Cells[2, 2] = quoteId;
@@ -272,13 +290,21 @@ namespace Modules.Channel.B2B.Core.Pages
         /// Looks for a specific message in the table, clicks on the timestamp link.
         /// </summary>
         /// <param name="messageToLookFor">Message to look for</param>
-        public void FindMessageAndGoToLogDetailPage(string messageToLookFor)
+        public bool FindMessageAndGoToLogDetailPage(string messageToLookFor)
         {
             var messageRow =
                 PoLogReportRows.FirstOrDefault(e => e.FindElements(By.TagName("td"))[5].Text.Contains(messageToLookFor));
+
+            if (messageRow == null)
+            {
+                Console.WriteLine("Message not found: {0}", messageToLookFor);
+                return false;
+            }
+
             ////messageRow.FindElements(By.TagName("td"))[0].Click();
-            javaScriptExecutor.ExecuteScript("arguments[0].click();", messageRow.FindElements(By.TagName("td"))[0].FindElement(By.TagName("a")));
-            webDriver.WaitForPageLoad(new TimeSpan(0, 0, 10));
+            this.javaScriptExecutor.ExecuteScript("arguments[0].click();", messageRow.FindElements(By.TagName("td"))[0].FindElement(By.TagName("a")));
+            this.webDriver.WaitForPageLoad(new TimeSpan(0, 0, 10));
+            return true;
         }
 
         public void FindMessageAndGoToQuoteViewerPage(string messageToLookFor)
@@ -288,6 +314,7 @@ namespace Modules.Channel.B2B.Core.Pages
                     e => e.FindElements(By.TagName("td"))[5].Text.Contains(messageToLookFor));
             ////messageRow.FindElements(By.TagName("td"))[7].Click();
             javaScriptExecutor.ExecuteScript("arguments[0].click();", messageRow.FindElements(By.TagName("td"))[7].FindElement(By.TagName("a")));
+            webDriver.WaitForPageLoad(new TimeSpan(0, 0, 10));
         }
 
         public bool FindQuoteRetrievalMessage(string messagePrefix, string messageSuffix)
@@ -296,7 +323,7 @@ namespace Modules.Channel.B2B.Core.Pages
                 PoLogReportRows.FirstOrDefault(
                     e =>
                     e.FindElements(By.TagName("td"))[5].Text.Contains(
-                        messagePrefix + FindQuoteIdInTable() + messageSuffix));
+                        messagePrefix + QuoteIdInTable.Text.Trim() + messageSuffix));
             return messageRow != null;
         }
 

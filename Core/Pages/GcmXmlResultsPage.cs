@@ -79,10 +79,14 @@ namespace Modules.Channel.B2B.Core.Pages
 
         public List<string> GetEndUserDetails()
         {
-            ////OgXmlAuditLink.Click();
-            javaScriptExecutor.ExecuteScript("arguments[0].click();", OgXmlAuditLink);
-            webDriver.WaitForPageLoad(new TimeSpan(0, 0, 10));
-            var endUserDetailElement = XDocument.Parse(webDriver.PageSource).XPathSelectElement("//EndUserInfo");
+            var ogXml = this.GetOgXml();
+
+            if (ogXml == null)
+            {
+                return null;
+            }
+
+            var endUserDetailElement = ogXml.XPathSelectElement("//EndUserInfo");
 
             if (endUserDetailElement != null)
             {
@@ -99,6 +103,32 @@ namespace Modules.Channel.B2B.Core.Pages
             }
 
             return null;
+        }
+
+        public XDocument GetOgXml()
+        {
+            ////OgXmlAuditLink.Click();
+            javaScriptExecutor.ExecuteScript("arguments[0].click();", OgXmlAuditLink);
+            webDriver.WaitForPageLoad(new TimeSpan(0, 0, 10));
+
+            XDocument pageSourceXml;
+            string bodyContent;
+            try
+            {
+                bodyContent = webDriver.FindElement(By.TagName("body")).Text;
+            }
+            catch
+            {
+                bodyContent = (string)((IJavaScriptExecutor)this.webDriver).ExecuteScript("return document.getElementsByTagName('body')[0].innerText;");
+            }
+
+            bodyContent = bodyContent.Trim()
+                .Replace("- ", string.Empty)
+                .Replace("\n", string.Empty)
+                .Replace("\r", string.Empty);
+            pageSourceXml = XDocument.Parse(bodyContent);
+
+            return pageSourceXml;
         }
     }
 }

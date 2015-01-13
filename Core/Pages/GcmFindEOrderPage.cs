@@ -69,7 +69,7 @@ namespace Modules.Channel.B2B.Core.Pages
         }
 
 
-        #region "Elements"
+        #region Elements
 
         private SelectElement SearchCriteriaElement
         {
@@ -107,27 +107,22 @@ namespace Modules.Channel.B2B.Core.Pages
 
         #region Element Actions
 
-        public void SelectSearchCriteria()
+        public string SearchByDpidAndGetOrderStatus(string dpid)
         {
             SearchCriteriaElement.SelectByText("Dell Purchase Id");
             webDriver.WaitForElementDisplayed(By.Id("txtSearch"), TimeSpan.FromSeconds(10));
-        }
-
-        public void ProvideValueForSearch(string val)
-        {
-            SearchTextBox.SendKeys(val);
-        }
-
-        public void ClickSearchButton()
-        {
+            SearchTextBox.SendKeys(dpid);
             ////SearchButton.Click();
             javaScriptExecutor.ExecuteScript("arguments[0].click();", SearchButton);
             webDriver.WaitForPageLoad(TimeSpan.FromSeconds(10));
-        }
-
-        public String FindOrderStaus()
-        {
-            return OrderStatusElement.Text;
+            try
+            {
+                return OrderStatusElement.Text;
+            }
+            catch (NoSuchElementException)
+            {
+                return string.Format("DP Id {0} not reflecting in GCM", dpid);
+            }
         }
 
         public void ClickViewButton(string dellPurchaseId)
@@ -135,9 +130,9 @@ namespace Modules.Channel.B2B.Core.Pages
             javaScriptExecutor.ExecuteScript(
                 "arguments[0].click();",
                 webDriver.FindElement(By.Id("_Vw" + dellPurchaseId + "CMP")));
-            webDriver.WaitForPageLoad(new TimeSpan(0, 0, 10));
+            webDriver.WaitForPageLoad(new TimeSpan(0, 0, 20));
         }
-        
+
         #endregion
     }
 }

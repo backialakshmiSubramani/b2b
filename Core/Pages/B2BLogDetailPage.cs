@@ -20,13 +20,12 @@ using DCSG.ADEPT.Framework.Core.Extensions.WebDriver;
 using DCSG.ADEPT.Framework.Core.Extensions.WebElement;
 using DCSG.ADEPT.Framework.Core.Extensions.Locators;
 using DCSG.ADEPT.Framework.Core.Page;
-
+using System.Linq;
+using System.Xml.Linq;
+using System.Xml.XPath;
 
 namespace Modules.Channel.B2B.Core.Pages
 {
-    using System.Xml.Linq;
-    using System.Xml.XPath;
-
     /// <summary>
     /// This base class is the where all specific page classes will be derived.
     /// </summary>
@@ -97,20 +96,11 @@ namespace Modules.Channel.B2B.Core.Pages
             return null;
         }
 
-        public List<string> GetPoLineItemsFromMapperRequestXml()
+        public List<XElement> GetPoLineItemsFromMapperRequestXml()
         {
-            var poLineItem =
-                XDocument.Parse(LogDetailData.Text).XPathSelectElement("//LineItems/MapperRequestPOLine");
-            if (poLineItem != null)
-            {
-                return new List<string>
-                           {
-                               poLineItem.Element("Quantity").Value,
-                               poLineItem.Element("UnitPrice").Value
-                           };
-            }
-
-            return null;
+            List<XElement> poLineItems =
+                XDocument.Parse(LogDetailData.Text).XPathSelectElements("//LineItems/MapperRequestPOLine").ToList();
+            return poLineItems.Any() ? poLineItems : null;
         }
 
         public string GetLogDetail()
@@ -122,7 +112,13 @@ namespace Modules.Channel.B2B.Core.Pages
         {
             var dpid = XDocument.Parse(LogDetailData.Text).XPathSelectElement("//DPID");
 
-            return dpid != null ? dpid.Value : null;
+            return dpid != null ? dpid.Value : string.Empty;
+        }
+
+        public IEnumerable<XElement> GetItemIdsFromMapperRequestXml()
+        {
+            var itemIds = XDocument.Parse(LogDetailData.Text).XPathSelectElements("//LineItems/MapperRequestPOLine/FulfillmentItems/Id");
+            return itemIds;
         }
     }
 }

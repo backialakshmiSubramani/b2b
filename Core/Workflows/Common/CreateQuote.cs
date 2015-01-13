@@ -150,7 +150,10 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
             string crtFilePath,
             string poTargetUrl,
             string gcmUrl,
-            string endUserId)
+            string endUserId,
+            string expectedDpidMessage,
+            string expectedPurchaseOderMessage,
+            string quantity)
         {
             string eQuoteType = "eQuote";
             string orType = "orQuote";
@@ -239,15 +242,23 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
 
 
             // Generates PO cXml Template
-            var orderId = orderIdBase + DateTime.Today.ToString("yyyyMMdd") + DateTime.Now.ToString("hhmmss");
-            var poXml = PoXmlGenerator.GeneratePoXml(
-                format,
-                profileId,
-                deploymentMode,
-                orderId,
-                price,
-                quoteNumber,
-                endUserId);
+            var orderId = orderIdBase + DateTime.Today.ToString("yyMMdd") + DateTime.Now.ToString("hhmmss");
+            string poXml;
+            if (workflow == Workflow.Eudc)
+            {
+                poXml = PoXmlGenerator.GeneratePoCxmlCblForEudc(
+                    format,
+                    profileId,
+                    deploymentMode,
+                    orderId,
+                    price,
+                    quoteNumber,
+                    endUserId);
+            }
+            else
+            {
+                poXml = PoXmlGenerator.GeneratePoCblForAsn(format, orderId, profileId, quoteNumber, quantity, price);
+            }
 
             // Submits PO
             webDriver.SwitchTo().Window(parentWindow);
@@ -263,7 +274,17 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
             System.Threading.Thread.Sleep(1000);
             Console.WriteLine(parentWindow);
             Console.WriteLine(webDriver.CurrentWindowHandle);
-            if (!poOperations.AllOperations(poNumber, workflow, environment, crtFilePath, endUserId, gcmUrl, price))
+            if (
+                !poOperations.AllOperations(
+                    poNumber,
+                    workflow,
+                    environment,
+                    crtFilePath,
+                    endUserId,
+                    gcmUrl,
+                    price,
+                    expectedDpidMessage,
+                    expectedPurchaseOderMessage))
             {
                 return false;
             }

@@ -20,12 +20,10 @@ using DCSG.ADEPT.Framework.Core.Extensions.WebDriver;
 using DCSG.ADEPT.Framework.Core.Extensions.WebElement;
 using DCSG.ADEPT.Framework.Core.Extensions.Locators;
 using DCSG.ADEPT.Framework.Core.Page;
-
+using System.Linq;
 
 namespace Modules.Channel.B2B.Core.Pages
 {
-    using System.Security.Cryptography;
-
     /// <summary>
     /// This base class is the where all specific page classes will be derived.
     /// </summary>
@@ -83,8 +81,8 @@ namespace Modules.Channel.B2B.Core.Pages
         public bool CheckItemDetails(string description, string quantity, string unitPrice)
         {
             return FirstItemRow.FindElements(By.TagName("td"))[2].Text.Trim().ToLower().Equals(description.ToLower())
-                   && FirstItemRow.FindElements(By.TagName("td"))[6].Text.Trim().ToLower().Equals(quantity.ToLower())
-                   && FirstItemRow.FindElements(By.TagName("td"))[7].Text.Trim().ToLower().Equals(unitPrice.ToLower());
+                   && FirstItemRow.FindElements(By.TagName("td"))[6].Text.Trim().Equals(quantity)
+                   && FirstItemRow.FindElements(By.TagName("td"))[7].Text.Trim().Split(' ').Last().Equals(unitPrice);
         }
 
         #endregion

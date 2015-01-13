@@ -33,6 +33,8 @@ namespace Modules.Channel.B2B.Core.Pages
     {
         IWebDriver webDriver;
 
+        private IJavaScriptExecutor javaScriptExecutor;
+
         /// <summary>
         /// Constructor to hand off webDriver
         /// </summary>
@@ -41,6 +43,7 @@ namespace Modules.Channel.B2B.Core.Pages
             : base(ref webDriver)
         {
             this.webDriver = webDriver;
+            javaScriptExecutor = (IJavaScriptExecutor)this.webDriver;
             //populate the following variables with the appropriate value
             //Name = "";
             //Url = "";
@@ -89,7 +92,7 @@ namespace Modules.Channel.B2B.Core.Pages
         {
             get
             {
-                return webDriver.FindElement(By.XPath("//a[img/@src='/GCM/GCMGlobal/Images/xml.gif']"));
+                return webDriver.FindElement(By.XPath("//a[img[@src='/GCM/GCMGlobal/Images/xml.gif']]"));
             }
         }
 
@@ -103,5 +106,12 @@ namespace Modules.Channel.B2B.Core.Pages
             return EndUserDetailsTable.Select(e => e.Text).Skip(1).Take(7).ToList();
         }
 
+        public void GoToXmlResultsPage()
+        {
+            ////ViewXmlLink.Click();
+            javaScriptExecutor.ExecuteScript("arguments[0].click();", ViewXmlLink);
+            var newWindow = webDriver.WindowHandles.LastOrDefault();
+            webDriver.SwitchTo().Window(newWindow);
+        }
     }
 }

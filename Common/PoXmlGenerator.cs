@@ -12,7 +12,7 @@ namespace Modules.Channel.B2B.Common
 {
     public static class PoXmlGenerator
     {
-        public static string GeneratePoXml(PoXmlFormat poXmlFormat, string identityName, string deploymentMode, string orderId, string unitPrice, string supplierPartId, string b2BCrtEndUserId)
+        public static string GeneratePoCxmlCblForEudc(PoXmlFormat poXmlFormat, string identityName, string deploymentMode, string orderId, string unitPrice, string supplierPartId, string b2BCrtEndUserId)
         {
             var fileName = poXmlFormat + "Template.xml";
             if (poXmlFormat == PoXmlFormat.Cxml)
@@ -50,7 +50,7 @@ namespace Modules.Channel.B2B.Common
             return inputXml;
         }
 
-        public static string GeneratePoCxml(string fileName, string identityName, string deploymentMode, string orderId, string unitPrice, string supplierPartId, string b2BCrtEndUserId)
+        private static string GeneratePoCxml(string fileName, string identityName, string deploymentMode, string orderId, string unitPrice, string supplierPartId, string b2BCrtEndUserId)
         {
             XDocument doc = XDocument.Load(fileName);
             doc.XPathSelectElements("//Identity").First().SetValue(identityName);
@@ -65,6 +65,38 @@ namespace Modules.Channel.B2B.Common
             doc.XPathSelectElement("//Request/OrderRequest/OrderRequestHeader/Extrinsic").SetValue(b2BCrtEndUserId);
 
             var inputXml = "<?xml version='1.0' encoding='utf-8'?>" + doc.ToString();
+            return inputXml;
+        }
+
+        public static string GeneratePoCblForAsn(
+            PoXmlFormat poXmlFormat,
+            string orderId,
+            string identityName,
+            string supplierPartId,
+            string quantity,
+            string unitPrice)
+        {
+            var fileName = poXmlFormat + "Template.xml";
+            XDocument doc = XDocument.Load(fileName);
+            doc.XPathSelectElement("//BuyerRefNum/Reference/RefNum").SetValue(orderId);
+            doc.XPathSelectElement("//BuyerParty/Party/ListOfIdentifier/Identifier/Agency")
+                .Attribute("AgencyOther")
+                .SetValue(identityName);
+
+            // TODO: Scale it up for multiple <OrderDetail> - Ask Amulya
+            // ********************************************************************************
+            doc.XPathSelectElement("//BaseItemDetail/LineItemNum").SetValue("01");
+            doc.XPathSelectElement("//SupplierPartNum/PartNum/PartID").SetValue(supplierPartId);
+            doc.XPathSelectElement("//SupplierPartNum/PartNum/PartIDExt").SetValue(supplierPartId);
+            doc.XPathSelectElement("//BuyerPartNum/PartNum/PartID").SetValue(supplierPartId);
+            doc.XPathSelectElement("//BuyerPartNum/PartNum/PartIDExt").SetValue(supplierPartId);
+            doc.XPathSelectElement("//ManufacturerPartNum/PartNum/PartID").SetValue(supplierPartId);
+            doc.XPathSelectElement("//ManufacturerPartNum/PartNum/PartIDExt").SetValue(supplierPartId);
+            doc.XPathSelectElement("//BaseItemDetail/Quantity/Qty").SetValue(quantity);
+            doc.XPathSelectElement("//BuyerExpectedUnitPrice/Price/UnitPrice").SetValue(unitPrice);
+            // ********************************************************************************
+
+            var inputXml = "<?xml version='1.0' encoding='iso-8859-1'?>" + doc.ToString();
             return inputXml;
         }
     }
