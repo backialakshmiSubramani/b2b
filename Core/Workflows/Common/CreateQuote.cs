@@ -139,7 +139,6 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
 
         public bool CompleteQuoteGeneration(
             QuoteType quoteType,
-            string env,
             string profileId,
             string name,
             string email,
@@ -148,27 +147,24 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
             PoXmlFormat format,
             string deploymentMode,
             string orderIdBase,
-            string crtFilePath,
             string poTargetUrl,
-            string gcmUrl,
             string endUserId,
-            string expectedDpidMessage,
-            string expectedPurchaseOderMessage,
-            string quantity)
+            string quantity,
+            out string poNumber,
+            out string price)
         {
             string responseCode = "0";
             string quoteNumber = "0";
-            string price = "0";
-
+            price = string.Empty;
 
             var parentWindow = webDriver.CurrentWindowHandle;
-            B2BHomePage.SelectEnvironment(env);
+            B2BHomePage.SelectEnvironment(environment.ToString());
             B2BHomePage.ClickQaTools3();
             System.Threading.Thread.Sleep(3000);
             webDriver.SwitchTo().Window(webDriver.WindowHandles.Last());
             var QaToolsWindow = webDriver.CurrentWindowHandle;
-            B2BQaToolsPage.ClickLocationEnvironment(env);
-            B2BQaToolsPage.ClickLocationEnvironmentLink(env);
+            B2BQaToolsPage.ClickLocationEnvironment(environment.ToString());
+            B2BQaToolsPage.ClickLocationEnvironmentLink(environment.ToString());
             B2BQaToolsPage.ClickPunchoutCreate();
             B2BQaToolsPage.ClickCxml();
             B2BQaToolsPage.ClickCxmlMainCreate();
@@ -235,12 +231,14 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
                 else
                 {
                     Console.WriteLine("Quote Type is not Specified");
+                    poNumber = string.Empty;
+                    price = string.Empty;
                     return false;
                 }
             }
 
 
-            // Generates PO cXml Template
+            // Generates PO Template
             var orderId = orderIdBase + DateTime.Today.ToString("yyMMdd") + DateTime.Now.ToString("hhmmss");
             string poXml;
             if (workflow == Workflow.Eudc)
@@ -268,10 +266,10 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
 
             // Submits PO
             webDriver.SwitchTo().Window(parentWindow);
-            string poNumber;
             B2BHomePage.ClickQaTools3();
-            if (!poOperations.SubmitXmlForPoCreation(poXml, env, poTargetUrl, out poNumber))
+            if (!poOperations.SubmitXmlForPoCreation(poXml, environment.ToString(), poTargetUrl, out poNumber))
             {
+                price = string.Empty;
                 return false;
             }
 
@@ -280,24 +278,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
             System.Threading.Thread.Sleep(1000);
             Console.WriteLine(parentWindow);
             Console.WriteLine(webDriver.CurrentWindowHandle);
-            if (
-                !poOperations.AllOperations(
-                    poNumber,
-                    workflow,
-                    environment,
-                    crtFilePath,
-                    endUserId,
-                    gcmUrl,
-                    price,
-                    expectedDpidMessage,
-                    expectedPurchaseOderMessage))
-            {
-                return false;
-            }
-            else
-            {
-                return true;
-            }
+            return true;
         }
     }
 }
