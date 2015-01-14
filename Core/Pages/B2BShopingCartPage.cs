@@ -30,8 +30,6 @@ namespace Modules.Channel.B2B.Core.Pages
     public class B2BShopingCartPage : DCSGPageBase
     {
         IWebDriver webDriver;
-        string eQuoteType = "equote";
-        string orType = "orQuote";
 
         /// <summary>
         /// Constructor to hand off webDriver
@@ -99,13 +97,13 @@ namespace Modules.Channel.B2B.Core.Pages
 
         public void ClickSaveQuote(string quoteType)
         {
-            if (quoteType.Equals(eQuoteType))
+            if (quoteType.Equals("EQuote"))
             {
                 SaveEQuoteElement.Click();
                 webDriver.WaitForPageLoad(TimeSpan.FromSeconds(50));
             }
 
-            if (quoteType.Equals(orType))
+            if (quoteType.Equals("OrQuote"))
             {
                 CreateOrQuoteElement.Click();
                 webDriver.WaitForPageLoad(TimeSpan.FromSeconds(50));
