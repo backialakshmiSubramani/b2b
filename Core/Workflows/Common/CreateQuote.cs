@@ -195,7 +195,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
                 System.Threading.Thread.Sleep(5000);
                 B2BStandardConfigurationPage.ClickAddSelectedToCartButton();
                 Console.WriteLine("Shoping Cart Page Title is :- " + ShopingCartPage.ReturnShopingCartTitle());
-                ShopingCartPage.ClickSaveQuote(quoteType.ToString());
+                ShopingCartPage.ClickSaveQuote(quoteType);
 
                 // Starting EQuote Generation
                 if (quoteType == QuoteType.EQuote)

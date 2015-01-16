@@ -20,7 +20,7 @@ using DCSG.ADEPT.Framework.Core.Extensions.WebDriver;
 using DCSG.ADEPT.Framework.Core.Extensions.WebElement;
 using DCSG.ADEPT.Framework.Core.Extensions.Locators;
 using DCSG.ADEPT.Framework.Core.Page;
-
+using Modules.Channel.B2B.Core.Workflows.Common;
 
 namespace Modules.Channel.B2B.Core.Pages
 {
@@ -95,15 +95,15 @@ namespace Modules.Channel.B2B.Core.Pages
         }
 
 
-        public void ClickSaveQuote(string quoteType)
+        public void ClickSaveQuote(QuoteType quoteType)
         {
-            if (quoteType.Equals("EQuote"))
+            if (quoteType == QuoteType.EQuote)
             {
                 SaveEQuoteElement.Click();
                 webDriver.WaitForPageLoad(TimeSpan.FromSeconds(50));
             }
 
-            if (quoteType.Equals("OrQuote"))
+            if (quoteType == QuoteType.OrQuote)
             {
                 CreateOrQuoteElement.Click();
                 webDriver.WaitForPageLoad(TimeSpan.FromSeconds(50));
