@@ -239,7 +239,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
 
 
             // Generates PO Template
-            var orderId = orderIdBase + DateTime.Today.ToString("yyMMdd") + DateTime.Now.ToString("hhmmss");
+            var orderId = orderIdBase + DateTime.Today.ToString("yyMMdd") + DateTime.Now.ToString("HHmmss");
             string poXml;
             if (workflow == Workflow.Eudc)
             {

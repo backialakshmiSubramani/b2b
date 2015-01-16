@@ -138,19 +138,16 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
             }
         }
 
-        public bool AllOperations(
+        public bool VerifyEudcPoCreation(
             string poNumber,
-            Workflow workflow,
             RunEnvironment environment,
             string crtFilePath,
             string crtEndUserId,
             string gcmUrl,
-            string baseItemPrice, string expectedDpidMessage, string expectedPurchaseOderMessage)
+            string baseItemPrice,
+            string expectedDpidMessage,
+            string expectedPurchaseOderMessage)
         {
-            ////poNumber = "CBLORPRODdec192";
-            ////crtEndUserId = "2";
-            ////baseItemPrice = "3.99";
-
             this.GetCrtDetails(crtFilePath, crtEndUserId);
 
             if (!SearchPoInLogReportPage(poNumber))
@@ -158,40 +155,35 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
                 return false;
             }
 
-            if (workflow == Workflow.Eudc)
+            // 2. Click on PONumber, PO Viewer page viewed. Verify the enduser details against the CRT File data.
+            B2BLogReportPage.ClickPoNumberInTable();
+            if (!CheckEndUserInfo(B2BPoViewerPage.GetEndUserDetails()))
             {
-                // 2. Click on PONumber, PO Viewer page viewed. Verify the enduser details against the CRT File data.
-                B2BLogReportPage.ClickPoNumberInTable();
-                if (!CheckEndUserInfo(B2BPoViewerPage.GetEndUserDetails()))
-                {
-                    Console.WriteLine("PO Viewer Page does not contain End User Info. Workflow {0}", workflow);
-                    return false;
-                }
-
-                webDriver.Navigate().Back();
-                webDriver.WaitForPageLoad(new TimeSpan(0, 0, 10));
-
-                // 3. "CBL PO: sendPurchaseOrder" Message, click on the link,verify the enduser details against the CRT file data.
-
-                if (!B2BLogReportPage.FindMessageAndGoToLogDetailPage(expectedPurchaseOderMessage))
-                {
-                    return false;
-                }
-
-                var logDetail = B2BLogDetailPage.GetEndUserDetailsFromLogDetail();
-
-                if (!CheckEndUserInfo(logDetail))
-                {
-                    Console.WriteLine("Log Detail does not contain End User Info. Workflow {0}", workflow);
-                    return false;
-                }
-
-                webDriver.Navigate().Back();
-                webDriver.WaitForPageLoad(new TimeSpan(0, 0, 10));
+                Console.WriteLine("PO Viewer Page does not contain End User Info. Workflow {0}", Workflow.Eudc);
+                return false;
             }
 
-            // 4. "Continue Purchase Order: Purchase Order Success: <DPID>" - capture DPID & verify in GCM
+            webDriver.Navigate().Back();
+            webDriver.WaitForPageLoad(new TimeSpan(0, 0, 10));
 
+            // 3. "CBL PO: sendPurchaseOrder" Message, click on the link,verify the enduser details against the CRT file data.
+            if (!B2BLogReportPage.FindMessageAndGoToLogDetailPage(expectedPurchaseOderMessage))
+            {
+                return false;
+            }
+
+            var logDetail = B2BLogDetailPage.GetEndUserDetailsFromLogDetail();
+
+            if (!CheckEndUserInfo(logDetail))
+            {
+                Console.WriteLine("Log Detail does not contain End User Info. Workflow {0}", Workflow.Eudc);
+                return false;
+            }
+
+            webDriver.Navigate().Back();
+            webDriver.WaitForPageLoad(new TimeSpan(0, 0, 10));
+
+            // 4. "Continue Purchase Order: Purchase Order Success: <DPID>" - capture DPID & verify in GCM
             var dellPurchaseId = B2BLogReportPage.FindDellPurchaseId(expectedDpidMessage);
 
             if (string.IsNullOrEmpty(dellPurchaseId))
@@ -213,18 +205,38 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
             }
 
             // GCM verification for EUDC
-            if (workflow == Workflow.Eudc)
+            if (!GcmVerificationsForEudc(dellPurchaseId, baseItemPrice))
             {
-                if (!GcmVerificationsForEudc(dellPurchaseId, baseItemPrice))
-                {
-                    return false;
-                }
+                return false;
             }
 
             return true;
         }
 
-        public void GetCrtDetails(string crtFilePath, string crtEndUserId)
+        public bool SubmitXmlForPoCreation(string poXml, string environment, string targetUrl, out string poNumber)
+        {
+            B2BQaToolsPage.ClickLocationEnvironment(environment);
+            B2BQaToolsPage.ClickLocationEnvironmentLink(environment);
+            B2BQaToolsPage.PasteTargetUrl(targetUrl);
+            B2BQaToolsPage.PasteInputXml(poXml);
+            B2BQaToolsPage.ClickSubmitMessage();
+
+            var submissionResult = B2BQaToolsPage.GetSubmissionResult();
+            Console.WriteLine("Submission Result is: " + submissionResult);
+
+            if (!submissionResult.Contains("200"))
+            {
+                Console.WriteLine("The status is not 200. The submission result: {0} ", submissionResult);
+                poNumber = string.Empty;
+                return false;
+            }
+
+            poNumber = submissionResult.Split(' ').Last();
+            Console.WriteLine("PO Created: " + poNumber);
+            return true;
+        }
+
+        private void GetCrtDetails(string crtFilePath, string crtEndUserId)
         {
             var excelApplication = new Excel.Application();
 
@@ -274,7 +286,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
             excelApplication.Quit();
         }
 
-        public bool GcmVerificationsForEudc(string dellPurchaseId, string baseItemPrice)
+        private bool GcmVerificationsForEudc(string dellPurchaseId, string baseItemPrice)
         {
             GcmFindEOrderPage.ClickViewButton(dellPurchaseId);
             if (!GcmOrderGroupLogPage.DoCustomerNumbersMatch())
@@ -313,63 +325,6 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
             }
 
             return true;
-        }
-
-        public bool SubmitXmlForPoCreation(string poXml, string environment, string targetUrl, out string poNumber)
-        {
-            B2BQaToolsPage.ClickLocationEnvironment(environment);
-            B2BQaToolsPage.ClickLocationEnvironmentLink(environment);
-            B2BQaToolsPage.PasteTargetUrl(targetUrl);
-            B2BQaToolsPage.PasteInputXml(poXml);
-            B2BQaToolsPage.ClickSubmitMessage();
-
-            var submissionResult = B2BQaToolsPage.GetSubmissionResult();
-            Console.WriteLine("Submission Result is: " + submissionResult);
-
-            if (!submissionResult.Contains("200"))
-            {
-                Console.WriteLine("The status is not 200. The submission result: {0} ", submissionResult);
-                poNumber = string.Empty;
-                return false;
-            }
-
-            poNumber = submissionResult.Split(' ').Last();
-            Console.WriteLine("PO Created: " + poNumber);
-            return true;
-        }
-
-        /// <summary>
-        /// Verification points for Sprint16_563614_P1 & Sprint16_563614_P2
-        /// </summary>
-        /// <param name="poNumber"></param>
-        /// <param name="quoteRetrievedMessagePrefix"></param>
-        /// <param name="quoteRetrievedMessageSuffix"></param>
-        /// <param name="enteringMasterOrderGroupMessage"></param>
-        /// <param name="itemDescription"></param>
-        /// <param name="quantity"></param>
-        /// <param name="unitPrice"></param>
-        /// <returns></returns>
-        public bool VerifyQmsQuoteCreation(
-            string poNumber,
-            string quoteRetrievedMessagePrefix,
-            string quoteRetrievedMessageSuffix,
-            string enteringMasterOrderGroupMessage,
-            string itemDescription,
-            string quantity,
-            string unitPrice)
-        {
-            if (!SearchPoInLogReportPage(poNumber))
-            {
-                return false;
-            }
-
-            if (!B2BLogReportPage.FindQuoteRetrievalMessage(quoteRetrievedMessagePrefix, quoteRetrievedMessageSuffix))
-            {
-                return false;
-            }
-
-            B2BLogReportPage.FindMessageAndGoToQuoteViewerPage(enteringMasterOrderGroupMessage);
-            return B2BQuoteViewerPage.CheckItemDetails(itemDescription, quantity, unitPrice);
         }
 
         private bool VerifyOrderStatusInGcm(string gcmUrl, string dellPurchaseId)
@@ -412,31 +367,6 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
             }
 
             return false;
-        }
-
-        private bool VerifyMapperRequestDetailsAgainstPoTemplate(List<XElement> poLineItems)
-        {
-            var orderDetails = XDocument.Load("CblTemplate.xml").XPathSelectElements("//OrderDetail").ToList();
-
-            if (poLineItems.Count != orderDetails.Count)
-            {
-                return false;
-            }
-
-            for (var i = 0; i < poLineItems.Count; i++)
-            {
-                if (
-                    !(poLineItems[i].Element("Quantity")
-                          .Value.Equals(orderDetails[i].XPathSelectElement("//BaseItemDetail/Quantity/Qty").Value)
-                      && poLineItems[i].Element("UnitPrice")
-                             .Value.Equals(
-                                 orderDetails[i].XPathSelectElement("//BuyerExpectedUnitPrice/Price/UnitPrice").Value)))
-                {
-                    return false;
-                }
-            }
-
-            return true;
         }
     }
 

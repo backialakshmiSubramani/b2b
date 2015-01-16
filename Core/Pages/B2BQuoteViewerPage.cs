@@ -82,7 +82,7 @@ namespace Modules.Channel.B2B.Core.Pages
         {
             return FirstItemRow.FindElements(By.TagName("td"))[2].Text.Trim().ToLower().Equals(description.ToLower())
                    && FirstItemRow.FindElements(By.TagName("td"))[6].Text.Trim().Equals(quantity)
-                   && FirstItemRow.FindElements(By.TagName("td"))[7].Text.Trim().Split(' ').Last().Equals(unitPrice);
+                   && FirstItemRow.FindElements(By.TagName("td"))[8].Text.Trim().Split(' ').Last().Equals(unitPrice);
         }
 
         #endregion

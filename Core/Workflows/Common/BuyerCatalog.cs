@@ -16,6 +16,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
         private PoOperations poOperations;
         private string poNumber;
         private string baseItemPrice;
+        private string itemDescription;
 
         public BuyerCatalog(IWebDriver driver)
         {
@@ -39,7 +40,13 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
         public PoXmlFormat PoXmlFormat { get; set; }
         public string GcmUrl { get; set; }
         public string Quantity { get; set; }
-        public QuoteType QuoteType { get; set; }
+        public QuoteType QuoteType
+        {
+            get
+            {
+                return QuoteType.Bhc;
+            }
+        }
         ////************************************************************
 
         private B2BHomePage B2BHomePage
@@ -108,9 +115,8 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
                 }
             }
 
-            var orderId = OrderIdBase + DateTime.Today.ToString("yyMMdd") + DateTime.Now.ToString("hhmmss");
-            ////string baseItemPrice;
-            var catalogPartId = B2BCatalogViewer.GetCatalogPartIdAndBaseUnitPrice(out baseItemPrice);
+            var orderId = OrderIdBase + DateTime.Today.ToString("yyMMdd") + DateTime.Now.ToString("HHmmss");
+            var catalogPartId = B2BCatalogViewer.GetCatalogPartIdAndBaseUnitPrice(out baseItemPrice, out itemDescription);
             catalogPartId = "BHC:" + catalogPartId;
 
             string poXml;
@@ -133,8 +139,6 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
 
             var parentWindow = webDriver.CurrentWindowHandle;
 
-            ////string poNumber;
-
             B2BCatalogViewer.ClickQaTools3();
 
             if (!poOperations.SubmitXmlForPoCreation(poXml, RunEnvironment.ToString(), TargetUrl, out poNumber))
@@ -149,12 +153,20 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
 
             webDriver.SwitchTo().Window(parentWindow);
             B2BCatalogViewer.GoToHomePage();
-            ////return this.VerifyEudcPoCreation(poNumber, baseItemPrice);
         }
 
         public bool VerifyEudcPoCreation(string expectedDpidMessage, string expectedPurchaseOderMessage)
         {
-            return !string.IsNullOrEmpty(this.poNumber) && this.poOperations.AllOperations(this.poNumber, this.Workflow, this.RunEnvironment, this.CrtFilePath, this.B2BCrtEndUserId, this.GcmUrl, this.baseItemPrice, expectedDpidMessage, expectedPurchaseOderMessage);
+            return !string.IsNullOrEmpty(this.poNumber)
+                   && this.poOperations.VerifyEudcPoCreation(
+                       this.poNumber,
+                       this.RunEnvironment,
+                       this.CrtFilePath,
+                       this.B2BCrtEndUserId,
+                       this.GcmUrl,
+                       this.baseItemPrice,
+                       expectedDpidMessage,
+                       expectedPurchaseOderMessage);
         }
     }
 }

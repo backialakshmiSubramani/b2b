@@ -205,15 +205,16 @@ namespace Modules.Channel.B2B.Core.Pages
             javaScriptExecutor.ExecuteScript("arguments[0].click();", QaTools3);
 
             webDriver.WaitForPageLoad(new TimeSpan(0, 0, 10));
-            String newWindow = webDriver.WindowHandles.LastOrDefault();
+            var newWindow = webDriver.WindowHandles.LastOrDefault();
             webDriver.SwitchTo().Window(newWindow);
+            webDriver.Manage().Window.Maximize();
         }
 
         public void ClickLogReport()
         {
             ////LogReport.Click();
             javaScriptExecutor.ExecuteScript("arguments[0].click();", LogReport);
-            webDriver.WaitForElementDisplayed(By.Id("ucBreadCrumb_lblPageTitle"), new TimeSpan(0, 0, 10));
+            webDriver.WaitForPageLoad(new TimeSpan(0, 0, 10));
         }
 
         public void ClickOnBuyerCatalogLink()
@@ -248,7 +249,7 @@ namespace Modules.Channel.B2B.Core.Pages
             javaScriptExecutor.ExecuteScript("arguments[0].click();", GoButton);
             webDriver.WaitForPageLoad(new TimeSpan(0, 0, 10));
         }
-        #endregion
 
+        #endregion
     }
 }
