@@ -1,3 +1,4 @@
+
 // ***********************************************************************
 // Author           : AMERICAS\Gaurav_Bhardwaj3
 // Created          : 12/8/2014 4:48:16 PM
@@ -73,7 +74,7 @@ namespace Modules.Channel.B2B.Core.Pages
         {
             get
             {
-               // return webDriver.FindElement(By.XPath("//table[@class='uif_table gsd_bodyCopyMedium']/tbody/tr[1]/td[2]"));
+                // return webDriver.FindElement(By.XPath("//table[@class='uif_table gsd_bodyCopyMedium']/tbody/tr[1]/td[2]"));
                 return webDriver.FindElement(By.Id("SelectedResults"));
             }
         }
@@ -116,8 +117,8 @@ namespace Modules.Channel.B2B.Core.Pages
 
         public void SelectFirstConfiguration()
         {
-           FirstConfigurationCheckbox.Click();
-          // javaScriptExecutor.ExecuteScript("arguments[0].click();", FirstConfigurationCheckbox);
+            FirstConfigurationCheckbox.Click();
+            // javaScriptExecutor.ExecuteScript("arguments[0].click();", FirstConfigurationCheckbox);
         }
 
         public void SelectSpecificConfiguration(string filterValue, string ItemName)
@@ -128,7 +129,7 @@ namespace Modules.Channel.B2B.Core.Pages
             SelectElement filter = new SelectElement(FilterList);
             filter.SelectByText(filterValue);
             System.Threading.Thread.Sleep(2000);
-            for (int i =0; i<StandardConfigTableRows.Count;i++)
+            for (int i = 0; i < StandardConfigTableRows.Count; i++)
             {
                 if (StandardConfigTableRows[i].Text.Contains(ItemName))
                 {

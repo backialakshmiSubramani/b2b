@@ -138,23 +138,22 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
          */
 
         public bool CompleteQuoteGeneration(
-            QuoteType quoteType,
-            string profileId,
-            string name,
-            string email,
-            RunEnvironment environment,
-            Workflow workflow,
-            PoXmlFormat format,
-            string deploymentMode,
-            string orderIdBase,
-            string poTargetUrl,
-            string endUserId,
-            string quantity,
-            string configFilterVal,
-            string itemDesc,
-            out string poNumber,
-            out string price)
-           
+             QuoteType quoteType,
+             string profileId,
+             string name,
+             string email,
+             RunEnvironment environment,
+             Workflow workflow,
+             PoXmlFormat format,
+             string deploymentMode,
+             string orderIdBase,
+             string poTargetUrl,
+             string endUserId,
+             string quantity,
+             string configFilterVal,
+             string itemDesc,
+             out string poNumber,
+             out string price)
         {
             string responseCode = "0";
             string quoteNumber = "0";
@@ -196,7 +195,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
                 B2BPremierDashboardPage.ClickStandardConfiguration();
                 if (workflow == Workflow.Asn)
                 {
-                    B2BStandardConfigurationPage.SelectSpecificConfiguration(configFilterVal,itemDesc);
+                    B2BStandardConfigurationPage.SelectSpecificConfiguration(configFilterVal, itemDesc);
                 }
                 else
                 {
