@@ -383,7 +383,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
             {
                 Console.WriteLine(itemId + "\n");
             }
-
+            //Have to update by Nethra as page not navigating to the previous page
             webDriver.Navigate().Back();
             if (!B2BLogReportPage.FindMessageAndGoToLogDetailPage(mapperRequestMessage))
             {

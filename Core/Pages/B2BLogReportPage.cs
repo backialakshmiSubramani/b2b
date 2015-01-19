@@ -168,7 +168,7 @@ namespace Modules.Channel.B2B.Core.Pages
             javaScriptExecutor.ExecuteScript("arguments[0].click();", IncludeInsertLogCheckBox);
             ////SubmitLink.Click();
             javaScriptExecutor.ExecuteScript("arguments[0].click();", SubmitLink);
-            webDriver.WaitForPageLoad(new TimeSpan(0, 0, 10));
+            webDriver.WaitForPageLoad(new TimeSpan(0, 0, 20));
 
             if (!PoLogReportRows.Any())
             {
