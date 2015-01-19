@@ -1,0 +1,46 @@
+﻿<?xml version="1.0" encoding="utf-8"?><Database Name="ASNDB" Class="AsnDatamodelDataContext" xmlns="http://schemas.microsoft.com/linqtosql/dbml/2007">
+  <Connection Mode="AppSettings" ConnectionString="Data Source=G1VMDBEUDM01.OLQA.PREOL.DELL.COM;Initial Catalog=ASNDB;User ID=ASN_WRtesters" SettingsObjectName="Modules.Channel.Properties.Settings" SettingsPropertyName="ASNDBConnectionString" Provider="System.Data.SqlClient" />
+  <Table Name="dbo.ASNQueue" Member="ASNQueues">
+    <Type Name="ASNQueue">
+      <Column Name="DocId" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="ThreadId" Type="System.String" DbType="NVarChar(30)" CanBeNull="true" />
+      <Column Name="DPID" Type="System.String" DbType="NVarChar(30)" CanBeNull="true" />
+      <Column Name="PONumber" Type="System.String" DbType="NVarChar(30)" CanBeNull="true" />
+      <Column Name="LineNumber" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="Status" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="Quantity" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="UnitPrice" Type="System.Decimal" DbType="Decimal(18,2)" CanBeNull="true" />
+      <Column Name="Partner" Type="System.String" DbType="NVarChar(25)" CanBeNull="true" />
+      <Column Name="VendorPartNumber" Type="System.String" DbType="NVarChar(30)" CanBeNull="true" />
+      <Column Name="BuyerSKU" Type="System.String" DbType="NVarChar(15)" CanBeNull="true" />
+      <Column Name="CreatedDate" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="ModifiedDate" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="AttemptCount" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="LastAttemptedDate" Type="System.DateTime" DbType="DateTime NOT NULL" CanBeNull="false" />
+      <Column Name="OGStatus" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="RowVersion" Type="System.Data.Linq.Binary" DbType="rowversion NOT NULL" CanBeNull="false" IsVersion="true" />
+      <Column Name="Locked" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="LockedBy" Type="System.String" DbType="NVarChar(20)" CanBeNull="true" />
+      <Column Name="InternalVendorNumber" Type="System.String" DbType="VarChar(255) NOT NULL" CanBeNull="false" />
+      <Column Name="DeliveryPreference" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Association Name="ASNQueue_ASNItemMapping" Member="ASNItemMappings" ThisKey="DocId" OtherKey="DocId" Type="ASNItemMapping" />
+    </Type>
+  </Table>
+  <Table Name="dbo.ASNItemMapping" Member="ASNItemMappings">
+    <Type Name="ASNItemMapping">
+      <Column Name="MapItemId" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="DocId" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="FulfillmentItemId" Type="System.Guid" DbType="UniqueIdentifier" CanBeNull="true" />
+      <Association Name="ASNItemMapping_ASNOrderMapping" Member="ASNOrderMappings" ThisKey="MapItemId" OtherKey="MapItemId" Type="ASNOrderMapping" />
+      <Association Name="ASNQueue_ASNItemMapping" Member="ASNQueue" ThisKey="DocId" OtherKey="DocId" Type="ASNQueue" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.ASNOrderMapping" Member="ASNOrderMappings">
+    <Type Name="ASNOrderMapping">
+      <Column Name="OrderId" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="MapItemId" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="OrderNumber" Type="System.String" DbType="VarChar(20)" CanBeNull="true" />
+      <Association Name="ASNItemMapping_ASNOrderMapping" Member="ASNItemMapping" ThisKey="MapItemId" OtherKey="MapItemId" Type="ASNItemMapping" IsForeignKey="true" />
+    </Type>
+  </Table>
+</Database>

@@ -53,7 +53,6 @@ namespace Modules.Channel.B2B.Core.Pages
             //Name = "";
             //Url = "";
             //ProductUnit = "";
-
         }
 
         /// <summary>
@@ -62,7 +61,7 @@ namespace Modules.Channel.B2B.Core.Pages
         /// <returns>validated</returns>
         public override bool Validate()
         {
-            throw new NotImplementedException();
+            return SearchCatalogLink.IsElementVisible();
         }
 
         /// <summary>
@@ -71,24 +70,17 @@ namespace Modules.Channel.B2B.Core.Pages
         /// <returns>active</returns>
         public override bool IsActive()
         {
-            throw new NotImplementedException();
+            return webDriver.Url.ToLower().Contains("buyercataloglist.aspx");
         }
 
         #region Elements
+
         private SelectElement SelectCustomer
         {
             get
             {
                 webDriver.WaitForElementDisplayed(By.Id("ContentPageHolder_cboCustomer"), TimeSpan.FromSeconds(30));
                 return new SelectElement(webDriver.FindElement(By.Id("ContentPageHolder_cboCustomer")));
-            }
-        }
-
-        private SelectElement IdentityName
-        {
-            get
-            {
-                return new SelectElement(webDriver.FindElement(By.Id("ContentPageHolder_cboIdentity")));
             }
         }
 
@@ -107,14 +99,13 @@ namespace Modules.Channel.B2B.Core.Pages
                 return webDriver.FindElements(By.XPath("//table[@id='G_ContentPageHolderxgrdCatalogListxgrdCatList']/tbody/tr"));
             }
         }
+
         #endregion
 
-        #region Element Actions
         /// <summary>
         /// Call this method to search for a Buyer Catalog providing the profile name and identity
         /// </summary>
         /// <param name="profileName">Customer/Profile name</param>
-        /// <param name="identityName">Identity associated</param>
         public void SearchForBuyerCatalog(string profileName)
         {
             SelectCustomer.SelectByText(profileName);
@@ -148,6 +139,5 @@ namespace Modules.Channel.B2B.Core.Pages
 
             return true;
         }
-        #endregion
     }
 }

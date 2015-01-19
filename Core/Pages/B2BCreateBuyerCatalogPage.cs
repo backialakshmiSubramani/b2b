@@ -54,7 +54,7 @@ namespace Modules.Channel.B2B.Core.Pages
         /// <returns>validated</returns>
         public override bool Validate()
         {
-            throw new NotImplementedException();
+            return GenerateCatalogLink.IsElementVisible();
         }
 
         /// <summary>
@@ -63,10 +63,11 @@ namespace Modules.Channel.B2B.Core.Pages
         /// <returns>active</returns>
         public override bool IsActive()
         {
-            throw new NotImplementedException();
+            return webDriver.Url.ToLower().Contains("createbuyercatalog.aspx");
         }
 
         #region Elements
+
         private SelectElement SelectCustomer
         {
             get
@@ -142,8 +143,6 @@ namespace Modules.Channel.B2B.Core.Pages
 
         #endregion
 
-        #region Element Actions
-
         public string GenerateCatalog(
             string profileName,
             string identityName,
@@ -205,7 +204,5 @@ namespace Modules.Channel.B2B.Core.Pages
             javaScriptExecutor.ExecuteScript("arguments[0].click();", BuyerCatalogListLink);
             webDriver.WaitForPageLoad(new TimeSpan(0, 0, 10));
         }
-
-        #endregion
     }
 }

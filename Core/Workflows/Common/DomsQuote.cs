@@ -110,5 +110,92 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
                         expectedDpidMessage,
                         expectedPurchaseOderMessage);
         }
+
+        public bool VerifyQmsQuoteCreationForAsn(
+            string quoteRetrievedMessagePrefix,
+            string quoteRetrievedMessageSuffix,
+            string enteringMasterOrderGroupMessage,
+            string itemDescription)
+        {
+            return !string.IsNullOrEmpty(this.poNumber)
+                   && this.poOperations.VerifyQmsQuoteCreation(
+                       this.poNumber,
+                       quoteRetrievedMessagePrefix,
+                       quoteRetrievedMessageSuffix,
+                       enteringMasterOrderGroupMessage,
+                       itemDescription,
+                       Quantity,
+                       Price);
+        }
+
+        public bool VerifyMapperRequestXmlDataInLogDetailPageForAsn(string mapperRequestMessage)
+        {
+            //this.poNumber = "POTestPQV1";
+
+            return !string.IsNullOrEmpty(this.poNumber)
+                   && this.poOperations.VerifyMapperRequestXmlDataInLogDetailPage(this.poNumber, mapperRequestMessage);
+        }
+
+        public bool VerifyDpidInMapperXmlAndDbForAsn(string expectedDpidMessage, string mapperRequestMessage)
+        {
+            //this.poNumber = "POTestPQV1";
+
+            return !string.IsNullOrEmpty(this.poNumber)
+                   && this.poOperations.VerifyDpidInMapperXmlAndDb(
+                       this.poNumber,
+                       expectedDpidMessage,
+                       mapperRequestMessage);
+        }
+
+        public bool MatchItemIdInOgXmlAndMapperRequestAndDbForAsn(string ogXmlMessage, string mapperRequestMessage)
+        {
+            //this.poNumber = "DCS0201E2ETestJan7";
+
+            return !string.IsNullOrEmpty(this.poNumber)
+                   && this.poOperations.MatchItemIdInOgXmlAndMapperRequestAndDb(
+                       this.poNumber,
+                       ogXmlMessage,
+                       mapperRequestMessage);
+        }
+
+        public bool CaptureBackendOrderNumberFromOgXmlAndDbForAsn(string ogXmlMessage, string gcmUrl, string expectedDpidMessage)
+        {
+            //this.poNumber = "DCS0201E2ETest3";
+
+            return !string.IsNullOrEmpty(this.poNumber)
+                   && this.poOperations.CaptureBackendOrderNumberFromOgXmlAndDb(
+                       this.poNumber,
+                       ogXmlMessage,
+                       gcmUrl,
+                       expectedDpidMessage);
+        }
+
+        public bool VerifyFulfillmentUnitsForAsn(
+            string expectedDpidMessage,
+            string mapperRequestMessage,
+            string ogXmlMessage,
+            string gcmUrl)
+        {
+            //this.poNumber = "DCS0201E2ETest3";
+
+            return !string.IsNullOrEmpty(this.poNumber)
+                   && this.poOperations.VerifyFulfillmentUnits(
+                       this.poNumber,
+                       expectedDpidMessage,
+                       mapperRequestMessage,
+                       ogXmlMessage,
+                       gcmUrl);
+        }
+
+        public bool MatchValuesInPoXmlAndMapperXml(string expectedDpidMessage, string mapperRequestMessage)
+        {
+            //this.poNumber = "DCS0201E2ETest3";
+
+            return !string.IsNullOrEmpty(this.poNumber)
+                   && this.poOperations.MatchValuesInPoXmlAndMapperXml(
+                       this.poNumber,
+                       expectedDpidMessage,
+                       mapperRequestMessage);
+        }
     }
 }

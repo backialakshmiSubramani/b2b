@@ -1,0 +1,38 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ordesignerObjectsDiagram dslVersion="1.0.0.0" absoluteBounds="0, 0, 11, 8.5" name="AsnDatamodel">
+  <DataContextMoniker Name="/AsnDatamodelDataContext" />
+  <nestedChildShapes>
+    <classShape Id="4668c2b0-762f-421c-add1-740d066fb33e" absoluteBounds="1.125, 1.25, 2, 4.8477197265625">
+      <DataClassMoniker Name="/AsnDatamodelDataContext/ASNQueue" />
+      <nestedChildShapes>
+        <elementListCompartment Id="49a5ea0c-cb16-4d25-9841-69550d919c5b" absoluteBounds="1.1399999999999997, 1.71, 1.9700000000000002, 4.2877197265625" name="DataPropertiesCompartment" titleTextColor="Black" itemTextColor="Black" />
+      </nestedChildShapes>
+    </classShape>
+    <classShape Id="446749e7-f8a1-456a-afe8-0440b960c6ce" absoluteBounds="4.5, 1.25, 2, 1.3862939453125">
+      <DataClassMoniker Name="/AsnDatamodelDataContext/ASNItemMapping" />
+      <nestedChildShapes>
+        <elementListCompartment Id="961be657-f342-450c-bb4f-2f16e8a0ae56" absoluteBounds="4.515, 1.71, 1.9700000000000002, 0.8262939453125" name="DataPropertiesCompartment" titleTextColor="Black" itemTextColor="Black" />
+      </nestedChildShapes>
+    </classShape>
+    <associationConnector edgePoints="[(3.125 : 1.94314697265625); (4.5 : 1.94314697265625)]" fixedFrom="Algorithm" fixedTo="Algorithm">
+      <AssociationMoniker Name="/AsnDatamodelDataContext/ASNQueue/ASNQueue_ASNItemMapping" />
+      <nodes>
+        <classShapeMoniker Id="4668c2b0-762f-421c-add1-740d066fb33e" />
+        <classShapeMoniker Id="446749e7-f8a1-456a-afe8-0440b960c6ce" />
+      </nodes>
+    </associationConnector>
+    <classShape Id="af289844-5e40-4c95-81b8-744c3c4a8767" absoluteBounds="4.625, 4.625, 2, 1.3862939453125">
+      <DataClassMoniker Name="/AsnDatamodelDataContext/ASNOrderMapping" />
+      <nestedChildShapes>
+        <elementListCompartment Id="aa1ad301-83e1-4d8b-b7fa-7616b9b0aa46" absoluteBounds="4.64, 5.085, 1.9700000000000002, 0.8262939453125" name="DataPropertiesCompartment" titleTextColor="Black" itemTextColor="Black" />
+      </nestedChildShapes>
+    </classShape>
+    <associationConnector edgePoints="[(5.5625 : 2.6362939453125); (5.5625 : 4.625)]" fixedFrom="Algorithm" fixedTo="Algorithm">
+      <AssociationMoniker Name="/AsnDatamodelDataContext/ASNItemMapping/ASNItemMapping_ASNOrderMapping" />
+      <nodes>
+        <classShapeMoniker Id="446749e7-f8a1-456a-afe8-0440b960c6ce" />
+        <classShapeMoniker Id="af289844-5e40-4c95-81b8-744c3c4a8767" />
+      </nodes>
+    </associationConnector>
+  </nestedChildShapes>
+</ordesignerObjectsDiagram>

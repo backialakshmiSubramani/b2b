@@ -47,7 +47,6 @@ namespace Modules.Channel.B2B.Core.Pages
             //Name = "";
             //Url = "";
             //ProductUnit = "";
-
         }
 
         /// <summary>
@@ -56,7 +55,7 @@ namespace Modules.Channel.B2B.Core.Pages
         /// <returns>validated</returns>
         public override bool Validate()
         {
-            throw new NotImplementedException();
+            return CatalogDetailsTableRow.Any();
         }
 
         /// <summary>
@@ -65,10 +64,11 @@ namespace Modules.Channel.B2B.Core.Pages
         /// <returns>active</returns>
         public override bool IsActive()
         {
-            throw new NotImplementedException();
+            return webDriver.Url.ToLower().Contains("b2bcatalogviewer.aspx");
         }
 
         #region Elements
+
         private ReadOnlyCollection<IWebElement> CatalogDetailsTableRow
         {
             get
@@ -97,12 +97,11 @@ namespace Modules.Channel.B2B.Core.Pages
 
         #endregion
 
-        #region Element Actions
-
         /// <summary>
         /// Fetches the Catalog Part Id and the Base Item Price of the first item in the catalog
         /// </summary>
         /// <param name="baseItemPrice">out parameter - has the Base Item Price</param>
+        /// <param name="itemDescription">out parameter - contains the Item Description</param>
         /// <returns>Catalog Part Id</returns>
         public string GetCatalogPartIdAndBaseUnitPrice(out string baseItemPrice, out string itemDescription)
         {
@@ -117,7 +116,7 @@ namespace Modules.Channel.B2B.Core.Pages
             ////QATools3.Click();
             javaScriptExecutor.ExecuteScript("arguments[0].click();", QATools3);
             webDriver.WaitForPageLoad(new TimeSpan(0, 0, 10));
-            String newWindow = webDriver.WindowHandles.LastOrDefault();
+            var newWindow = webDriver.WindowHandles.LastOrDefault();
             webDriver.SwitchTo().Window(newWindow);
             webDriver.Manage().Window.Maximize();
         }
@@ -127,7 +126,5 @@ namespace Modules.Channel.B2B.Core.Pages
             javaScriptExecutor.ExecuteScript("arguments[0].click();", DellImageLink);
             webDriver.WaitForPageLoad(new TimeSpan(0, 0, 10));
         }
-
-        #endregion
     }
 }
