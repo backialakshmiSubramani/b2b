@@ -78,6 +78,7 @@ namespace Modules.Channel.B2B.Common
         /// <param name="supplierPartId"></param>
         /// <param name="quantity"></param>
         /// <param name="unitPrice"></param>
+        /// <param name="crtId"></param>
         /// <returns></returns>
         public static string GeneratePoCblForAsn(
             QuoteType quoteType,
@@ -86,10 +87,11 @@ namespace Modules.Channel.B2B.Common
             string identityName,
             string supplierPartId,
             string quantity,
-            string unitPrice)
+            string unitPrice,
+            string crtId)
         {
             var fileName = poXmlFormat + "Template.xml";
-            XDocument doc = XDocument.Load(fileName);
+            var doc = XDocument.Load(fileName);
             doc.XPathSelectElement("//BuyerRefNum/Reference/RefNum").SetValue(orderId);
             doc.XPathSelectElement("//BuyerParty/Party/ListOfIdentifier/Identifier/Agency")
                 .Attribute("AgencyOther")
@@ -107,20 +109,21 @@ namespace Modules.Channel.B2B.Common
             {
                 doc.XPathSelectElement("//SupplierPartNum/PartNum/PartIDExt").SetValue(supplierPartId);
             }
-            ////else if (quoteType == QuoteType.Cif)
-            ////{
-            ////    doc.XPathSelectElement("//SupplierPartNum/PartNum/PartID").SetValue(supplierPartId);
-            ////    doc.XPathSelectElement("//SupplierPartNum/PartNum/PartIDExt").SetValue(supplierPartId);
-            ////}
+            else if (quoteType == QuoteType.Cif)
+            {
+                doc.XPathSelectElement("//SupplierPartNum/PartNum/PartID").SetValue(supplierPartId);
+                doc.XPathSelectElement("//SupplierPartNum/PartNum/PartIDExt").SetValue(supplierPartId);
+            }
 
-            ////doc.XPathSelectElement("//BuyerPartNum/PartNum/PartID").SetValue(supplierPartId);
-            ////doc.XPathSelectElement("//ManufacturerPartNum/PartNum/PartID").SetValue(supplierPartId);
+            doc.XPathSelectElement("//BuyerPartNum/PartNum/PartID").SetValue(crtId);
+            doc.XPathSelectElement("//ManufacturerPartNum/PartNum/PartID").SetValue(crtId);
 
             doc.XPathSelectElement("//BaseItemDetail/Quantity/Qty").SetValue(quantity);
             doc.XPathSelectElement("//BuyerExpectedUnitPrice/Price/UnitPrice").SetValue(unitPrice);
+
             // ********************************************************************************
 
-            var inputXml = "<?xml version='1.0' encoding='iso-8859-1'?>" + doc.ToString();
+            var inputXml = "<?xml version='1.0' encoding='utf-8'?>" + doc.ToString();
             return inputXml;
         }
     }

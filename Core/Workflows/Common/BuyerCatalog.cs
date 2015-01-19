@@ -32,7 +32,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
         public string ConfigurationType { get; set; }
         public string DeploymentMode { get; set; }
         public string OrderIdBase { get; set; }
-        public string B2BCrtEndUserId { get; set; }
+        public string CrtId { get; set; }
         public RunEnvironment RunEnvironment { get; set; }
         public string TargetUrl { get; set; }
         public Workflow Workflow { get; set; }
@@ -47,6 +47,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
                 return QuoteType.Bhc;
             }
         }
+
         ////************************************************************
 
         private B2BHomePage B2BHomePage
@@ -87,6 +88,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
             B2BHomePage.SelectEnvironment(RunEnvironment.ToString());
             B2BHomePage.ClickOnBuyerCatalogLink();
             var threadId = B2BCreateBuyerCatalogPage.GenerateCatalog(
+                Workflow,
                 ProfileName,
                 IdentityName,
                 ValidityEnd,
@@ -99,7 +101,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
                 Console.WriteLine("The catalog status is not = 'Available'. Retrying....");
                 for (var i = 0; i < 3; i++)
                 {
-                    System.Threading.Thread.Sleep(10000);
+                    System.Threading.Thread.Sleep(20000);
                     Console.WriteLine("Retry No. {0}", i + 1);
                     B2BBuyerCatalogListPage.SearchForBuyerCatalog(ProfileName);
                     if (B2BBuyerCatalogListPage.CheckCatalogAvailabilityAndAct(threadId))
@@ -130,11 +132,19 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
                      orderId,
                      baseItemPrice,
                      catalogPartId,
-                     B2BCrtEndUserId);
+                     CrtId);
             }
             else
             {
-                poXml = PoXmlGenerator.GeneratePoCblForAsn(QuoteType, PoXmlFormat, orderId, IdentityName, catalogPartId, Quantity, baseItemPrice);
+                poXml = PoXmlGenerator.GeneratePoCblForAsn(
+                    QuoteType,
+                    PoXmlFormat,
+                    orderId,
+                    IdentityName,
+                    catalogPartId,
+                    Quantity,
+                    baseItemPrice,
+                    CrtId);
             }
 
             var parentWindow = webDriver.CurrentWindowHandle;
@@ -162,7 +172,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
                        this.poNumber,
                        this.RunEnvironment,
                        this.CrtFilePath,
-                       this.B2BCrtEndUserId,
+                       this.CrtId,
                        this.GcmUrl,
                        this.baseItemPrice,
                        expectedDpidMessage,

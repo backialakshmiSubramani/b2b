@@ -35,7 +35,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
         public string Price { get; set; }
         public string IdentityName { get; set; }
         public string DeploymentMode { get; set; }
-        public string B2BCrtEndUserId { get; set; }
+        public string CrtId { get; set; }
         public string Quantity { get; set; }
         public Workflow Workflow { get; set; }
         public PoXmlFormat PoXmlFormat { get; set; }
@@ -65,7 +65,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
                     orderId,
                     Price,
                     partId,
-                    B2BCrtEndUserId);
+                    CrtId);
             }
             else
             {
@@ -76,7 +76,8 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
                     IdentityName,
                     partId,
                     Quantity,
-                    Price);
+                    Price,
+                    CrtId);
             }
 
             var parentWindow = webDriver.CurrentWindowHandle;
@@ -104,7 +105,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
                         this.poNumber,
                         this.RunEnvironment,
                         crtFilePath,
-                        this.B2BCrtEndUserId,
+                        this.CrtId,
                         gcmUrl,
                         this.Price,
                         expectedDpidMessage,

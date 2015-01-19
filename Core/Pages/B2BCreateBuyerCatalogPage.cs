@@ -22,6 +22,9 @@ using DCSG.ADEPT.Framework.Core.Extensions.Locators;
 using OpenQA.Selenium.Support.UI;
 using DCSG.ADEPT.Framework.Core.Page;
 using OpenQA.Selenium.Interactions;
+using System.Collections.ObjectModel;
+using System.Linq;
+using Modules.Channel.B2B.Core.Workflows.Common;
 
 namespace Modules.Channel.B2B.Core.Pages
 {
@@ -116,6 +119,14 @@ namespace Modules.Channel.B2B.Core.Pages
             }
         }
 
+        private ReadOnlyCollection<IWebElement> ConfigurationTypes
+        {
+            get
+            {
+                return webDriver.FindElements(By.Id("mytable"))[1].FindElements(By.XPath("//input[@type='checkbox']"));
+            }
+        }
+
         private IWebElement GenerateCatalogLink
         {
             get
@@ -144,6 +155,7 @@ namespace Modules.Channel.B2B.Core.Pages
         #endregion
 
         public string GenerateCatalog(
+            Workflow workflow,
             string profileName,
             string identityName,
             string validityEnd,
@@ -159,43 +171,74 @@ namespace Modules.Channel.B2B.Core.Pages
             ValidityEnd.SendKeys(validityEnd);
             EmailAddress.SendKeys(emailAddress);
 
-            if (!string.IsNullOrEmpty(configurationType))
+            if (workflow == Workflow.Eudc)
             {
+                if (!string.IsNullOrEmpty(configurationType))
+                {
+                    Console.WriteLine("Configuration Type not provided");
+                }
+
+                ClearConfigurationTypes();
+
                 if (configurationType.Equals("Standard Configurations"))
                 {
-                    if (!StandardConfigurationCheckbox.Selected)
-                    {
-                        ////StandardConfigurationCheckbox.Click();
-                        javaScriptExecutor.ExecuteScript("arguments[0].click();", StandardConfigurationCheckbox);
-                    }
-
-                    if (SnpCheckbox.Selected)
-                    {
-                        ////SnpCheckbox.Click();
-                        javaScriptExecutor.ExecuteScript("arguments[0].click();", SnpCheckbox);
-                    }
+                    ////ConfigurationTypes.ElementAt(0).Click();
+                    javaScriptExecutor.ExecuteScript("arguments[0].click();", ConfigurationTypes.ElementAt(0));
                 }
                 else if (configurationType.Equals("SNP"))
                 {
-                    if (!SnpCheckbox.Selected)
-                    {
-                        ////SnpCheckbox.Click();
-                        javaScriptExecutor.ExecuteScript("arguments[0].click();", SnpCheckbox);
-                    }
+                    ////ConfigurationTypes.ElementAt(2).Click();
+                    javaScriptExecutor.ExecuteScript("arguments[0].click();", ConfigurationTypes.ElementAt(2));
+                }
+            }
 
-                    if (StandardConfigurationCheckbox.Selected)
-                    {
-                        ////StandardConfigurationCheckbox.Click();
-                        javaScriptExecutor.ExecuteScript("arguments[0].click();", StandardConfigurationCheckbox);
-                    }
+            if (workflow == Workflow.Asn)
+            {
+                if (!ConfigurationTypes.ElementAt(0).Selected)
+                {
+                    ////ConfigurationTypes.ElementAt(0).Click();
+                    javaScriptExecutor.ExecuteScript("arguments[0].click();", ConfigurationTypes.ElementAt(0));
+                }
+
+                if (!ConfigurationTypes.ElementAt(7).Selected)
+                {
+                    ////ConfigurationTypes.ElementAt(7).Click();
+                    javaScriptExecutor.ExecuteScript("arguments[0].click();", ConfigurationTypes.ElementAt(7));
+                }
+
+                if (!ConfigurationTypes.ElementAt(2).Selected)
+                {
+                    ////ConfigurationTypes.ElementAt(2).Click();
+                    javaScriptExecutor.ExecuteScript("arguments[0].click();", ConfigurationTypes.ElementAt(2));
+                }
+
+                if (!ConfigurationTypes.ElementAt(3).Selected)
+                {
+                    ////ConfigurationTypes.ElementAt(3).Click();
+                    javaScriptExecutor.ExecuteScript("arguments[0].click();", ConfigurationTypes.ElementAt(3));
+                }
+
+                if (!ConfigurationTypes.ElementAt(6).Selected)
+                {
+                    ////ConfigurationTypes.ElementAt(6).Click();
+                    javaScriptExecutor.ExecuteScript("arguments[0].click();", ConfigurationTypes.ElementAt(6));
                 }
             }
 
             ////GenerateCatalogLink.Click();
-
             javaScriptExecutor.ExecuteScript("arguments[0].click();", GenerateCatalogLink);
+            webDriver.WaitForElementDisplayed(By.Id("ContentPageHolder_lbl_TY_ThreadId"), new TimeSpan(0, 0, 10));
 
             return ThreadId.Text;
+        }
+
+        private void ClearConfigurationTypes()
+        {
+            foreach (var e in this.ConfigurationTypes.Where(e => e.Selected))
+            {
+                ////e.Click();
+                this.javaScriptExecutor.ExecuteScript("arguments[0].click();", e);
+            }
         }
 
         public void GoToBuyerCatalogListPage()

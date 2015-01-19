@@ -261,7 +261,8 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
                     profileId,
                     quoteNumber,
                     quantity,
-                    price);
+                    price,
+                    endUserId);
             }
 
             // Submits PO
