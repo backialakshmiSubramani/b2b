@@ -150,8 +150,11 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
             string poTargetUrl,
             string endUserId,
             string quantity,
+            string configFilterVal,
+            string itemDesc,
             out string poNumber,
             out string price)
+           
         {
             string responseCode = "0";
             string quoteNumber = "0";
@@ -160,7 +163,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
             var parentWindow = webDriver.CurrentWindowHandle;
             B2BHomePage.SelectEnvironment(environment.ToString());
             B2BHomePage.ClickQaTools3();
-            System.Threading.Thread.Sleep(3000);
+            webDriver.WaitForPageLoad(TimeSpan.FromSeconds(40));
             webDriver.SwitchTo().Window(webDriver.WindowHandles.Last());
             var QaToolsWindow = webDriver.CurrentWindowHandle;
             B2BQaToolsPage.ClickLocationEnvironment(environment.ToString());
@@ -191,8 +194,15 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
                 B2BPremierDashboardPage.WaitForTitle();
                 B2BPremierDashboardPage.OpenShop();
                 B2BPremierDashboardPage.ClickStandardConfiguration();
-                B2BStandardConfigurationPage.SelectFirstConfiguration();
-                System.Threading.Thread.Sleep(5000);
+                if (workflow == Workflow.Asn)
+                {
+                    B2BStandardConfigurationPage.SelectSpecificConfiguration(configFilterVal,itemDesc);
+                }
+                else
+                {
+                    B2BStandardConfigurationPage.SelectFirstConfiguration();
+                }
+                webDriver.WaitForPageLoad(TimeSpan.FromSeconds(40));
                 B2BStandardConfigurationPage.ClickAddSelectedToCartButton();
                 Console.WriteLine("Shoping Cart Page Title is :- " + ShopingCartPage.ReturnShopingCartTitle());
                 ShopingCartPage.ClickSaveQuote(quoteType);
@@ -276,9 +286,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
 
             // verifies all validation after submiting PO
             webDriver.SwitchTo().Window(parentWindow);
-            System.Threading.Thread.Sleep(1000);
-            Console.WriteLine(parentWindow);
-            Console.WriteLine(webDriver.CurrentWindowHandle);
+            webDriver.WaitForPageLoad(TimeSpan.FromSeconds(40));
             return true;
         }
     }
