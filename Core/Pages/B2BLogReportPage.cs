@@ -80,6 +80,7 @@ namespace Modules.Channel.B2B.Core.Pages
         {
             get
             {
+                webDriver.WaitForElement(By.Id("tBox_PONum"), new TimeSpan(0, 0, 10));
                 return webDriver.FindElement(By.Id("tBox_PONum"));
             }
         }
