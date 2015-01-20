@@ -120,10 +120,10 @@ namespace Modules.Channel.B2B.Common
 
             doc.XPathSelectElement("//BaseItemDetail/Quantity/Qty").SetValue(quantity);
             doc.XPathSelectElement("//BuyerExpectedUnitPrice/Price/UnitPrice").SetValue(unitPrice);
-            // ********************************************************************************
 
-            var inputXml = "<?xml version='1.0' encoding='utf-8'?>" + doc.ToString();
+            // ********************************************************************************
             doc.Save(fileName);
+            var inputXml = "<?xml version='1.0' encoding='utf-8'?>" + doc.ToString();
             return inputXml;
         }
     }
