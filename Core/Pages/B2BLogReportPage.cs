@@ -327,6 +327,11 @@ namespace Modules.Channel.B2B.Core.Pages
             return messageRow != null;
         }
 
+        public string GetThreadId()
+        {
+            return ThreadIdInTable.Text.Trim();
+        }
+
         #endregion
     }
 }
