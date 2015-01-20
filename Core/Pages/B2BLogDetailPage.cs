@@ -105,7 +105,7 @@ namespace Modules.Channel.B2B.Core.Pages
 
         public string GetLogDetail()
         {
-            return LogDetailData.Text;
+            return LogDetailData.Text.Replace("&", "&amp;");
         }
 
         public string GetDpidFromMapperRequestXml()

@@ -105,7 +105,7 @@ namespace Modules.Channel.B2B.Core.Pages
         /// <returns>Catalog Part Id</returns>
         public string GetCatalogPartIdAndBaseUnitPrice(out string baseItemPrice, out string itemDescription)
         {
-            itemDescription = CatalogDetailsTableRow.ElementAt(8).Text.Trim();
+            itemDescription = CatalogDetailsTableRow.ElementAt(8).Text.Trim().Split(',')[0];
             baseItemPrice = CatalogDetailsTableRow.ElementAt(9).Text.Trim().Split(' ')[0];
             //baseItemPrice = BaseItemPrice.Text.Split(' ')[0];
             return CatalogDetailsTableRow.ElementAt(1).Text.Trim();

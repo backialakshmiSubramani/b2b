@@ -80,7 +80,7 @@ namespace Modules.Channel.B2B.Core.Pages
 
         public bool CheckItemDetails(string description, string quantity, string unitPrice)
         {
-            return FirstItemRow.FindElements(By.TagName("td"))[2].Text.Trim().ToLower().Equals(description.ToLower())
+            return FirstItemRow.FindElements(By.TagName("td"))[2].Text.Trim().ToLower().Contains(description.ToLower())
                    && FirstItemRow.FindElements(By.TagName("td"))[6].Text.Trim().Equals(quantity)
                    && FirstItemRow.FindElements(By.TagName("td"))[8].Text.Trim().Split(' ').Last().Equals(unitPrice);
         }
