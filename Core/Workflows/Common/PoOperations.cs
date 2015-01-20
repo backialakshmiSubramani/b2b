@@ -305,8 +305,13 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
         /// <param name="asnLogEventMessages"></param>
         /// <param name="asnLogDetailMessages"></param>
         /// <returns></returns>
-        public bool VerifyMappingEntriesForChannelAsnEnabledProfile(List<string> asnLogEventMessages, List<string> asnLogDetailMessages)
+        public bool VerifyMappingEntriesForChannelAsnEnabledProfile(string poNumber, List<string> asnLogEventMessages, List<string> asnLogDetailMessages, string mapperRequestMessage)
         {
+            if (!SearchPoInLogReportPage(poNumber))
+            {
+                return false;
+            }
+
             for (var i = 0; i < asnLogEventMessages.Count; i++)
             {
                 if (!B2BLogReportPage.FindMessageAndGoToLogDetailPage(asnLogEventMessages[i]))
@@ -320,6 +325,21 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
                 }
 
                 webDriver.Navigate().Back();
+            }
+
+            if (!B2BLogReportPage.FindMessageAndGoToLogDetailPage(mapperRequestMessage))
+            {
+                return false;
+            }
+
+            try
+            {
+                var mapperXml = XDocument.Parse(B2BLogDetailPage.GetLogDetail());
+                return true;
+            }
+            catch
+            {
+                return false;
             }
 
             return true;
@@ -567,7 +587,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
             }
 
             XDocument ogXml = XDocument.Parse(B2BLogDetailPage.GetLogDetail());
-
+            //To Be change by Nethra as page not navigating to previous page
             webDriver.Navigate().Back();
 
             var itemId =
@@ -638,7 +658,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
             }
 
             XDocument ogXml = XDocument.Parse(B2BLogDetailPage.GetLogDetail());
-
+            //Code to be changed by Nethra as page not navigating to the previous page.
             webDriver.Navigate().Back();
 
             var itemId = ogXml.XPathSelectElements("//OrderGroup/OrderForms/OrderForm/Items/Item/Id").FirstOrDefault();
