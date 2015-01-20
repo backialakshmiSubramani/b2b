@@ -475,6 +475,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
                 return false;
             }
 
+            var threadId = B2BLogReportPage.GetThreadId();
             var dellPurchaseId = B2BLogReportPage.FindDellPurchaseId(expectedDpidMessage);
             if (string.IsNullOrEmpty(dellPurchaseId))
             {
@@ -489,7 +490,58 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
 
             var mapperXml = XDocument.Parse(B2BLogDetailPage.GetLogDetail());
 
-            throw new NotImplementedException();
+            if (!mapperXml.XPathSelectElement("//ThreadId").Value.Equals(threadId))
+            {
+                return false;
+            }
+
+            var savedPoCbl = XDocument.Load("CblTemplate.xml");
+
+            if (
+                !mapperXml.XPathSelectElement("//PONumber")
+                     .Value.Equals(savedPoCbl.XPathSelectElement("//BuyerRefNum/Reference/RefNum").Value))
+            {
+                return false;
+            }
+
+            if (
+                !mapperXml.XPathSelectElement("//Partner")
+                     .Value.ToUpper()
+                     .Equals(
+                         savedPoCbl.XPathSelectElement("//BuyerParty/Party/ListOfIdentifier/Identifier/Agency")
+                     .Attribute("AgencyOther")
+                     .Value.ToUpper()))
+            {
+                return false;
+            }
+
+            if (
+                !mapperXml.XPathSelectElements("//LineItems/MapperRequestPOLine/VendorPartNumber")
+                     .FirstOrDefault()
+                     .Value.Equals(
+                         savedPoCbl.XPathSelectElements(
+                             "//ListOfOrderDetail/OrderDetail/BaseItemDetail/ManufacturerPartNum/PartNum/PartID")
+                     .FirstOrDefault()
+                     .Value))
+            {
+                return false;
+            }
+
+            if (
+                !mapperXml.XPathSelectElements("//LineItems/MapperRequestPOLine/BuyerSKU")
+                     .FirstOrDefault()
+                     .Value.Equals(
+                         savedPoCbl.XPathSelectElements(
+                             "//ListOfOrderDetail/OrderDetail/BaseItemDetail/BuyerPartNum/PartNum/PartID")
+                     .FirstOrDefault()
+                     .Value))
+            {
+                return false;
+            }
+
+            Console.WriteLine("Delivery Preference is: {0}", mapperXml.XPathSelectElement("//DeliveryPreference").Value);
+
+            return true;
         }
 
         /// <summary>
