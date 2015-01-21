@@ -104,12 +104,12 @@ namespace Modules.Channel.B2B.Core.Pages
             }
         }
 
-        private IWebElement SearchCriteriaList
+        private SelectElement SearchCriteriaList
         {
             get
             {
                 webDriver.WaitForElement(By.Id("ContentPageHolder_ddlSearchType"), TimeSpan.FromSeconds(30));
-                return webDriver.FindElement(By.Id("ContentPageHolder_ddlSearchType"));
+                return new SelectElement(webDriver.FindElement(By.Id("ContentPageHolder_ddlSearchType")));
 
             }
         }
@@ -137,6 +137,14 @@ namespace Modules.Channel.B2B.Core.Pages
             get
             {
                 return webDriver.FindElement(By.Id("ContentPageHolder_chkIsChannelASNEnabled"));
+            }
+        }
+
+        private IWebElement ValueAfterSearch
+        {
+            get
+            {
+                return webDriver.FindElement(By.Id("ContentPageHolder_grdCustomerProfilelists_hypCustomerName_0"));
             }
         }
 
@@ -190,9 +198,16 @@ namespace Modules.Channel.B2B.Core.Pages
         public void ClickSearchedProfile()
         {
 
-          //  SearchedProfile.Click();
+            ////SearchedProfile.Click();
             javaScriptExecutor.ExecuteScript("arguments[0].click();", SearchedProfile);
 
+        }
+
+        public void ClickValueAfterSearch()
+        {
+            ////ValueAfterSearch.Click();
+            javaScriptExecutor.ExecuteScript("arguments[0].click();", ValueAfterSearch);
+            webDriver.WaitForElementDisplayed(By.Id("ContentPageHolder_ProfileHeader_hyp_PH_Authentication"), TimeSpan.FromSeconds(30));
         }
 
         public void ClickSearchedProfile(string linkText)
@@ -206,11 +221,9 @@ namespace Modules.Channel.B2B.Core.Pages
         #region ReUsable Methods
         public void SearchProfile(string SearchCriteria, string ProfileName)
         {
-
             if (SearchCriteria != null)
             {
-                SelectElement criteria = new SelectElement(SearchCriteriaList);
-                criteria.SelectByText(SearchCriteria);
+                SearchCriteriaList.SelectByText(SearchCriteria);
             }
 
             SearchTextField.Set(ProfileName);

@@ -66,7 +66,7 @@ namespace Modules.Channel.B2B.Core.Pages
         {
             get
             {
-                return webDriver.FindElement(By.XPath("//span[@id='ctl00_topHeaderControl_lblSiteHeading']"));
+               return webDriver.FindElement(By.Id("ctl00_topHeaderControl_lblSiteHeading"));
             }
         }
 
@@ -99,7 +99,7 @@ namespace Modules.Channel.B2B.Core.Pages
         {
             get
             {
-                return webDriver.FindElement(By.XPath("//span[@id='ctl00_ContentPageHolder_lbl_Error']"));
+               return webDriver.FindElement(By.Id("ctl00_ContentPageHolder_lbl_Error"));
             }
         }
 
@@ -109,6 +109,14 @@ namespace Modules.Channel.B2B.Core.Pages
             {
                 this.webDriver.WaitForElementDisplayed(By.LinkText("Address Wizard"), TimeSpan.FromSeconds(30));
                 return webDriver.FindElement(By.LinkText("Address Wizard"));
+            }
+        }
+
+        public IWebElement AffinityAccountName
+        {
+            get
+            {
+                return webDriver.FindElement(By.Id("ctl00_ContentPageHolder_lblAffAccount"));
             }
         }
 
@@ -127,7 +135,7 @@ namespace Modules.Channel.B2B.Core.Pages
         /// <summary>
         /// Pass alphabets as AffinityID .
         /// </summary>
-        public void AlphabetAffinityNegative(String accountId)
+        public void AlphabetAffinityNegative(string accountId)
         {
             AffinityId.SendKeys(accountId);
         }
@@ -135,7 +143,7 @@ namespace Modules.Channel.B2B.Core.Pages
         /// <summary>
         /// Pass Alpha Numeric value as AffinityID .
         /// </summary>
-        public void AlphaNumericAffinityNegative(String accountId)
+        public void AlphaNumericAffinityNegative(string accountId)
         {
             AffinityId.Clear();
             AffinityId.SendKeys(accountId);
@@ -144,7 +152,7 @@ namespace Modules.Channel.B2B.Core.Pages
         /// <summary>
         /// Pass Zero as AffinityID .
         /// </summary>
-        public void ZeroAffinityNegative(String num)
+        public void ZeroAffinityNegative(string num)
         {
             AffinityId.Clear();
             AffinityId.SendKeys(num);
@@ -153,9 +161,15 @@ namespace Modules.Channel.B2B.Core.Pages
         /// <summary>
         /// Pass Special Character as AffinityID .
         /// </summary>
-        public void SpecialCharAffinityNegative(String accountId)
+        public void SpecialCharAffinityNegative(string accountId)
         {
             AffinityId.SendKeys(accountId);
+        }
+
+        public void NumericAffinityPositive(string numeric)
+        {
+            AffinityId.Clear();
+            AffinityId.SendKeys(numeric);
         }
 
         /// <summary>

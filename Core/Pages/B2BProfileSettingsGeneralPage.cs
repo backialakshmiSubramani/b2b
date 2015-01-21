@@ -134,6 +134,14 @@ namespace Modules.Channel.B2B.Core.Pages
             }
         }
 
+        private IWebElement AffinityAccountId
+        {
+            get
+            {
+                return webDriver.FindElement(By.Id("ContentPageHolder_lblAffinityId"));
+            }
+        }
+
         private IWebElement Header
         {
             get
@@ -189,6 +197,10 @@ namespace Modules.Channel.B2B.Core.Pages
             CreateNewProfileButton.Click();
         }
 
+        public string FindAffinityAccountId()
+        {
+            return AffinityAccountId.Text;
+        }
     }
 
 }

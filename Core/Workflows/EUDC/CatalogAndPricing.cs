@@ -48,6 +48,21 @@ namespace Modules.Channel.B2B.Core.Workflows.EUDC
             get { return new OstHomePage(webDriver); }
         }
 
+        private B2BHomePage b2BHomePage
+        {
+            get { return new B2BHomePage(webDriver); }
+        }
+
+        private B2BCustomerProfileListPage b2BCustomerProfileListPage
+        {
+            get { return new B2BCustomerProfileListPage(webDriver); }
+        }
+
+        private B2BProfileSettingsGeneralPage b2BProfileSettingsGeneralPage
+        {
+            get { return new B2BProfileSettingsGeneralPage(webDriver); }
+        }
+
         public CatalogAndPricing(IWebDriver Driver)
         {
             webDriver = Driver;
@@ -56,65 +71,101 @@ namespace Modules.Channel.B2B.Core.Workflows.EUDC
         /// <summary>
         /// Find current Affinity ID, which we can use to match during verification
         /// </summary>
-        public String FindCurrentAffinityId()
+        public string FindCurrentAffinityId()
         {
             return CatalogAndPricingPage.AffinityId.GetAttribute("value");
         }
 
+        public string FindCurrentAffinityAccountName()
+        {
+            return CatalogAndPricingPage.AffinityAccountName.Text;
+        }
+
         /// <summary>
-        /// Find current Affinity ID, which we can use to match during verification
+        /// Open catalog page with an account name
         /// </summary>
-        public void OpenCatalog(String accountId)
+        public void OpenCatalog(string accountId)
         {
             OstHomePage.GoToCatalogAndPricingPage(accountId);
+            webDriver.WaitForElementVisible(By.Id("ctl00_ContentPageHolder_txt_AffAccountID"), TimeSpan.FromSeconds(30));
+            //webDriver.WaitForPageLoad(TimeSpan.FromSeconds(30));
         }
 
         /// <summary>
         /// Find Affinity ID after providing alphabets as affinity id
         /// </summary>
-        public String AlphabetsAffinityIdNegativeTest(String alphaAffinity)
+        public string AlphabetsAffinityIdNegativeTest(string alphaAffinity)
         {
             CatalogAndPricingPage.AlphabetAffinityNegative(alphaAffinity);
-            String AffinityIdAfterProvidingAlphabet = CatalogAndPricingPage.AffinityId.GetAttribute("value");
-            return AffinityIdAfterProvidingAlphabet;
+            string affinityIdAfterProvidingAlphabet = CatalogAndPricingPage.AffinityId.GetAttribute("value");
+            return affinityIdAfterProvidingAlphabet;
         }
 
         /// <summary>
         /// Find Affinity ID after providing alpha numeric value as affinity id
         /// </summary>
-        public String AlphaNumericAffinityIdNegativeTest(String alphaNumericAffinity)
+        public string AlphaNumericAffinityIdNegativeTest(string alphaNumericAffinity)
         {
             CatalogAndPricingPage.AlphaNumericAffinityNegative(alphaNumericAffinity);
-            String AffinityIdAfterProvidingAlphaNumeric = CatalogAndPricingPage.AffinityId.GetAttribute("value");
-            return AffinityIdAfterProvidingAlphaNumeric;
+            string affinityIdAfterProvidingAlphaNumeric = CatalogAndPricingPage.AffinityId.GetAttribute("value");
+            return affinityIdAfterProvidingAlphaNumeric;
         }
 
         /// <summary>
         /// Find Affinity ID after providing Zero as affinity id
         /// </summary>
-        public void ZeroAffinityIdNegativeTest(String num)
+        public void ZeroAffinityIdNegativeTest(string num)
         {
             CatalogAndPricingPage.ZeroAffinityNegative(num);
             // Try to update Affinity ID with zero value
             CatalogAndPricingPage.UpdateAffinityId();
         }
 
-        /// </summary>
+        /// <summary>
         /// Find Affinity ID after providing special character as affinity id
         /// </summary>
-        public String SpecialCharAffinityIdNegativeTest(String SpecialChAffinity)
+        public String SpecialCharAffinityIdNegativeTest(string SpecialChAffinity)
         {
             CatalogAndPricingPage.SpecialCharAffinityNegative(SpecialChAffinity);
-            String AffinityIdAfterProvidingSpecialChar = CatalogAndPricingPage.AffinityId.GetAttribute("value");
-            return AffinityIdAfterProvidingSpecialChar;
+            string affinityIdAfterProvidingSpecialChar = CatalogAndPricingPage.AffinityId.GetAttribute("value");
+            return affinityIdAfterProvidingSpecialChar;
         }
 
+        /// <summary>
+        /// Find Affinity ID after providing alphabets as affinity id
         /// </summary>
+        public string NumericAffinityId(string NumericVal)
+        {
+            webDriver.WaitForElementVisible(By.Id("ctl00_ContentPageHolder_txt_AffAccountID"), TimeSpan.FromSeconds(20));
+            CatalogAndPricingPage.NumericAffinityPositive(NumericVal);
+            string affinityIdAfterProvidingNumeric = CatalogAndPricingPage.AffinityId.GetAttribute("value");
+            return affinityIdAfterProvidingNumeric;
+        }
+
+        /// <summary>
         /// Find error message after updating affinity id with Zero
         /// </summary>
-        public String ErrorMsg()
+        public string Msg()
         {
             return CatalogAndPricingPage.ErrorLabel.Text;
+        }
+
+        public void UpdateAffinity()
+        {
+            CatalogAndPricingPage.UpdateAffinityId();
+        }
+
+        // searchCriteria - "Customer Name"
+        public string CheckProduction(string url, string searchCriteria, string custName)
+        {
+            webDriver.Navigate().GoToUrl(url);
+            webDriver.WaitForPageLoad(TimeSpan.FromSeconds(30));
+            b2BHomePage.ClickB2BProfileList();
+            webDriver.WaitForElementDisplayed(By.Id("ContentPageHolder_ImgBtnUpdate_Top"), TimeSpan.FromSeconds(30));
+            b2BCustomerProfileListPage.SearchProfile(searchCriteria, custName);
+            webDriver.WaitForPageLoad(TimeSpan.FromSeconds(20));
+            b2BCustomerProfileListPage.ClickValueAfterSearch();
+            return b2BProfileSettingsGeneralPage.FindAffinityAccountId();
         }
     }
 }
