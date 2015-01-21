@@ -187,7 +187,8 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
         public bool VerifyQmsQuoteCreationForAsn(
             string quoteRetrievedMessagePrefix,
             string quoteRetrievedMessageSuffix,
-            string enteringMasterOrderGroupMessage)
+            string enteringMasterOrderGroupMessage,
+            List<QuoteDetail> listOfQuoteDetail)
         {
             return !string.IsNullOrEmpty(this.poNumber)
                    && this.poOperations.VerifyQmsQuoteCreation(
@@ -195,9 +196,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
                        quoteRetrievedMessagePrefix,
                        quoteRetrievedMessageSuffix,
                        enteringMasterOrderGroupMessage,
-                       itemDescription,
-                       Quantity,
-                       baseItemPrice);
+                       listOfQuoteDetail);
         }
 
         public bool VerifyMapperRequestXmlDataInLogDetailPageForAsn(string mapperRequestMessage)

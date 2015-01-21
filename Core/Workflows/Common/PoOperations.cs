@@ -6,6 +6,7 @@ using DCSG.ADEPT.Framework.Core.Extensions.WebElement;
 using DCSG.ADEPT.Framework.Core.Page;
 using Microsoft.SharePoint.Client;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Modules.Channel.B2B.Common;
 using Modules.Channel.B2B.Core.Pages;
 using Modules.Channel.B2B.DAL;
 using OpenQA.Selenium;
@@ -261,9 +262,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
             string quoteRetrievedMessagePrefix,
             string quoteRetrievedMessageSuffix,
             string enteringMasterOrderGroupMessage,
-            string itemDescription,
-            string quantity,
-            string unitPrice)
+            List<QuoteDetail> listOfQuoteDetail)
         {
             if (!SearchPoInLogReportPage(poNumber))
             {
@@ -274,9 +273,11 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
             {
                 return false;
             }
+            
+            var quoteDetail = listOfQuoteDetail.FirstOrDefault();
 
             B2BLogReportPage.FindMessageAndGoToQuoteViewerPage(enteringMasterOrderGroupMessage);
-            return B2BQuoteViewerPage.CheckItemDetails(itemDescription, quantity, unitPrice);
+            return B2BQuoteViewerPage.CheckItemDetails(quoteDetail.ItemDescription, quoteDetail.Quantity, quoteDetail.Price);
         }
 
         /// <summary>

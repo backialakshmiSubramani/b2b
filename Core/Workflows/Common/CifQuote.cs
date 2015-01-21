@@ -31,43 +31,20 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
 
         public RunEnvironment RunEnvironment { get; set; }
         public string OrderIdBase { get; set; }
-        public string QuoteId { get; set; }
-        public string Price { get; set; }
         public string IdentityName { get; set; }
         public string DeploymentMode { get; set; }
-        public string CrtId { get; set; }
-        public string Quantity { get; set; }
         public Workflow Workflow { get; set; }
         public PoXmlFormat PoXmlFormat { get; set; }
-        public QuoteType QuoteType
-        {
-            get
-            {
-                return QuoteType.Cif;
-            }
-        }
         public string TargetUrl { get; set; }
 
-        public bool CreateCifPo()
+        public bool CreateCifPo(List<QuoteDetail> listOfQuoteDetail)
         {
             B2BHomePage.SelectEnvironment(RunEnvironment.ToString());
             var orderId = OrderIdBase + DateTime.Today.ToString("yyMMdd") + DateTime.Now.ToString("HHmmss");
 
             string poXml;
 
-            var quoteDetails = new List<QuoteDetail>
-                                   {
-                                       new QuoteDetail()
-                                           {
-                                               CrtId = this.CrtId,
-                                               Price = this.Price,
-                                               Quantity = this.Quantity,
-                                               QuoteType = this.QuoteType,
-                                               SupplierPartId = this.QuoteId
-                                           }
-                                   };
-
-            poXml = PoXmlGenerator.GeneratePoCblForAsn(PoXmlFormat, orderId, IdentityName, quoteDetails);
+            poXml = PoXmlGenerator.GeneratePoCblForAsn(PoXmlFormat, orderId, IdentityName, listOfQuoteDetail);
 
             var parentWindow = webDriver.CurrentWindowHandle;
 
@@ -91,7 +68,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
             string quoteRetrievedMessagePrefix,
             string quoteRetrievedMessageSuffix,
             string enteringMasterOrderGroupMessage,
-            string itemDescription)
+            List<QuoteDetail> listOfQuoteDetail)
         {
             return !string.IsNullOrEmpty(this.poNumber)
                    && this.poOperations.VerifyQmsQuoteCreation(
@@ -99,9 +76,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
                        quoteRetrievedMessagePrefix,
                        quoteRetrievedMessageSuffix,
                        enteringMasterOrderGroupMessage,
-                       itemDescription,
-                       Quantity,
-                       Price);
+                       listOfQuoteDetail);
         }
 
         public bool VerifyMapperRequestXmlDataInLogDetailPageForAsn(string mapperRequestMessage)

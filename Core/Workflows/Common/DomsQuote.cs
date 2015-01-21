@@ -14,6 +14,8 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
         private IWebDriver webDriver;
         private PoOperations poOperations;
         private string poNumber;
+        private string crtId;
+        private string price;
 
         public DomsQuote(IWebDriver driver)
         {
@@ -31,29 +33,18 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
 
         public RunEnvironment RunEnvironment { get; set; }
         public string OrderIdBase { get; set; }
-        public string QuoteId { get; set; }
-        public string Price { get; set; }
         public string IdentityName { get; set; }
         public string DeploymentMode { get; set; }
-        public string CrtId { get; set; }
-        public string Quantity { get; set; }
         public Workflow Workflow { get; set; }
         public PoXmlFormat PoXmlFormat { get; set; }
-        public QuoteType QuoteType
-        {
-            get
-            {
-                return QuoteType.Doms;
-            }
-        }
         public string TargetUrl { get; set; }
 
-        public bool CreateDomsPo()
+        public bool CreateDomsPo(List<QuoteDetail> listOfQuoteDetail)
         {
             B2BHomePage.SelectEnvironment(RunEnvironment.ToString());
             var orderId = OrderIdBase + DateTime.Today.ToString("yyMMdd") + DateTime.Now.ToString("HHmmss");
-            var partId = "Q:" + QuoteId;
-
+            crtId = listOfQuoteDetail.FirstOrDefault().CrtId;
+            price = listOfQuoteDetail.FirstOrDefault().Price;
             string poXml;
 
             if (Workflow == Workflow.Eudc)
@@ -63,25 +54,13 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
                     IdentityName,
                     DeploymentMode,
                     orderId,
-                    Price,
-                    partId,
-                    CrtId);
+                    price,
+                    listOfQuoteDetail.FirstOrDefault().SupplierPartId,
+                    crtId);
             }
             else
             {
-                var quoteDetails = new List<QuoteDetail>
-                                       {
-                                           new QuoteDetail()
-                                               {
-                                                   CrtId = this.CrtId,
-                                                   Price = this.Price,
-                                                   Quantity = this.Quantity,
-                                                   QuoteType = this.QuoteType,
-                                                   SupplierPartId = partId
-                                               }
-                                       };
-
-                poXml = PoXmlGenerator.GeneratePoCblForAsn(PoXmlFormat, orderId, IdentityName, quoteDetails);
+                poXml = PoXmlGenerator.GeneratePoCblForAsn(PoXmlFormat, orderId, IdentityName, listOfQuoteDetail);
 
             }
 
@@ -110,9 +89,9 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
                         this.poNumber,
                         this.RunEnvironment,
                         crtFilePath,
-                        this.CrtId,
+                        crtId,
                         gcmUrl,
-                        this.Price,
+                        price,
                         expectedDpidMessage,
                         expectedPurchaseOderMessage);
         }
@@ -121,7 +100,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
             string quoteRetrievedMessagePrefix,
             string quoteRetrievedMessageSuffix,
             string enteringMasterOrderGroupMessage,
-            string itemDescription)
+            List<QuoteDetail> listOfQuoteDetail)
         {
             return !string.IsNullOrEmpty(this.poNumber)
                    && this.poOperations.VerifyQmsQuoteCreation(
@@ -129,9 +108,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
                        quoteRetrievedMessagePrefix,
                        quoteRetrievedMessageSuffix,
                        enteringMasterOrderGroupMessage,
-                       itemDescription,
-                       Quantity,
-                       Price);
+                       listOfQuoteDetail);
         }
 
         public bool VerifyMapperRequestXmlDataInLogDetailPageForAsn(string mapperRequestMessage)

@@ -140,5 +140,6 @@ namespace Modules.Channel.B2B.Common
         public string CrtId { get; set; }
         public string Quantity { get; set; }
         public string Price { get; set; }
+        public string ItemDescription { get; set; }
     }
 }

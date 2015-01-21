@@ -138,7 +138,6 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
          */
 
         public bool CompleteQuoteGeneration(
-             QuoteType quoteType,
              string profileId,
              string name,
              string email,
@@ -148,16 +147,12 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
              string deploymentMode,
              string orderIdBase,
              string poTargetUrl,
-             string endUserId,
-             string quantity,
              string configFilterVal,
-             string itemDesc,
+            List<QuoteDetail> listOfQuoteDetail,
              out string poNumber,
-             out string price)
+             out List<QuoteDetail> quoteDetail)
         {
             string responseCode = "0";
-            string quoteNumber = "0";
-            price = string.Empty;
 
             var parentWindow = webDriver.CurrentWindowHandle;
             B2BHomePage.SelectEnvironment(environment.ToString());
@@ -195,19 +190,19 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
                 B2BPremierDashboardPage.ClickStandardConfiguration();
                 if (workflow == Workflow.Asn)
                 {
-                    B2BStandardConfigurationPage.SelectSpecificConfiguration(configFilterVal, itemDesc);
+                    B2BStandardConfigurationPage.SelectSpecificConfiguration(configFilterVal, listOfQuoteDetail.FirstOrDefault().ItemDescription);
                 }
                 else
                 {
                     B2BStandardConfigurationPage.SelectFirstConfiguration();
                 }
-                webDriver.WaitForPageLoad(TimeSpan.FromSeconds(40));
+                webDriver.WaitForPageLoad(new TimeSpan(0, 0, 20));
                 B2BStandardConfigurationPage.ClickAddSelectedToCartButton();
                 Console.WriteLine("Shoping Cart Page Title is :- " + ShopingCartPage.ReturnShopingCartTitle());
-                ShopingCartPage.ClickSaveQuote(quoteType);
+                ShopingCartPage.ClickSaveQuote(listOfQuoteDetail.FirstOrDefault().QuoteType);
 
                 // Starting EQuote Generation
-                if (quoteType == QuoteType.EQuote)
+                if (listOfQuoteDetail.FirstOrDefault().QuoteType == QuoteType.EQuote)
                 {
                     Console.WriteLine("EQuote Page Details Page Title is :-" + eQuoteDetailsPage.ReturnTitle());
                     eQuoteDetailsPage.EquoteNameSetting(name);
@@ -218,30 +213,29 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
                     webDriver.WaitForPageLoad(TimeSpan.FromSeconds(40));
                     finalEquoteSummaryPage.ClickSaveButton();
                     webDriver.WaitForPageLoad(TimeSpan.FromSeconds(40));
-                    quoteNumber = eQuoteGenerationPage.ReturnNumber();
-                    price = eQuoteGenerationPage.ReturnPrice().Replace("$", "");
-                    quoteNumber = "EQ:" + quoteNumber;
-                    Console.WriteLine("Your Equote Number is :- " + quoteNumber);
-                    Console.WriteLine("Price is :- " + price);
+                    listOfQuoteDetail.FirstOrDefault().SupplierPartId = "EQ:" + eQuoteGenerationPage.ReturnNumber();
+                    listOfQuoteDetail.FirstOrDefault().Price = eQuoteGenerationPage.ReturnPrice().Replace("$", "");
+                    Console.WriteLine("Your Equote Number is :- " + listOfQuoteDetail.FirstOrDefault().SupplierPartId);
+                    Console.WriteLine("Price is :- " + listOfQuoteDetail.FirstOrDefault().Price);
                 }
 
                     // Starting OrQuote Generation 
-                else if (quoteType == QuoteType.OrQuote)
+                else if (listOfQuoteDetail.FirstOrDefault().QuoteType == QuoteType.OrQuote)
                 {
                     B2BSecureCheckoutPage.EnterContactAndBillingInfo();
                     webDriver.WaitForPageLoad(TimeSpan.FromSeconds(40));
-                    price = B2BTermsOfSalesPage.FindPrice().Replace("$", "");
+                    listOfQuoteDetail.FirstOrDefault().Price = B2BTermsOfSalesPage.FindPrice().Replace("$", "");
                     B2BTermsOfSalesPage.ClickSubmitButton();
                     webDriver.WaitForPageLoad(TimeSpan.FromSeconds(40));
-                    Console.WriteLine("Price is :- " + price);
-                    quoteNumber = B2BOrQuoteGenerationPage.FindOrQuote();
+                    Console.WriteLine("Price is :- " + listOfQuoteDetail.FirstOrDefault().Price);
+                    listOfQuoteDetail.FirstOrDefault().SupplierPartId = B2BOrQuoteGenerationPage.FindOrQuote();
                 }
 
                 else
                 {
                     Console.WriteLine("Quote Type is not Specified");
                     poNumber = string.Empty;
-                    price = string.Empty;
+                    quoteDetail = listOfQuoteDetail;
                     return false;
                 }
             }
@@ -257,25 +251,13 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
                     profileId,
                     deploymentMode,
                     orderId,
-                    price,
-                    quoteNumber,
-                    endUserId);
+                    listOfQuoteDetail.FirstOrDefault().Price,
+                    listOfQuoteDetail.FirstOrDefault().SupplierPartId,
+                    listOfQuoteDetail.FirstOrDefault().CrtId);
             }
             else
             {
-                var quoteDetails = new List<QuoteDetail>
-                                       {
-                                           new QuoteDetail()
-                                               {
-                                                   CrtId = endUserId,
-                                                   Price = price,
-                                                   Quantity = quantity,
-                                                   QuoteType = quoteType,
-                                                   SupplierPartId = quoteNumber
-                                               }
-                                       };
-
-                poXml = PoXmlGenerator.GeneratePoCblForAsn(format, orderId, profileId, quoteDetails);
+                poXml = PoXmlGenerator.GeneratePoCblForAsn(format, orderId, profileId, listOfQuoteDetail);
             }
 
             // Submits PO
@@ -283,13 +265,14 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
             B2BHomePage.ClickQaTools3();
             if (!poOperations.SubmitXmlForPoCreation(poXml, environment.ToString(), poTargetUrl, out poNumber))
             {
-                price = string.Empty;
+                quoteDetail = listOfQuoteDetail;
                 return false;
             }
 
             // verifies all validation after submiting PO
             webDriver.SwitchTo().Window(parentWindow);
             webDriver.WaitForPageLoad(TimeSpan.FromSeconds(40));
+            quoteDetail = listOfQuoteDetail;
             return true;
         }
     }
