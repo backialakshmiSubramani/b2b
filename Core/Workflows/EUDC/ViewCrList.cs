@@ -49,10 +49,12 @@ namespace Modules.Channel.B2B.Core.Workflows.EUDC
             _webDriver = driver;
             B2BhomePage.SelectEnvironment(environment);
         }
-        private void OpenCrossReferenceList()
+        public string OpenCrossReferenceList()
         {
             B2BhomePage.ClickCrossReferenceListLink();
+            return _webDriver.Url;
         }
+
         public string OpenCrAssociationList()
         {
             B2BhomePage.ClickCrAssociationList();
