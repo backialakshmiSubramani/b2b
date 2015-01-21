@@ -600,7 +600,6 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
                 return false;
             }
 
-
             return true;
         }
 
@@ -907,11 +906,28 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
             return false;
         }
 
-        private bool VerifyMapperRequestDetailsAgainstPoTemplate(List<XElement> poLineItems)
+        private bool VerifyMapperRequestDetailsAgainstPoTemplate(List<dynamic> poLineItems)
         {
-            var orderDetails = XDocument.Load("CblTemplate.xml").XPathSelectElements("//OrderDetail").ToList();
+            var orderDetails = XDocument.Load("CblTemplate.xml").XPathSelectElements("//OrderDetail");
 
-            if (poLineItems.Count != orderDetails.Count)
+            var listOfItemInfo = new List<dynamic>();
+
+            var orderDetailCount = orderDetails.ToList().Count();
+
+            for (var i = 0; i < orderDetailCount; i++)
+            {
+                var orderDetail = orderDetails.FirstOrDefault();
+
+                listOfItemInfo.Add(new
+                {
+                    Quantity = orderDetail.XPathSelectElement("//BaseItemDetail/Quantity/Qty").Value,
+                    Price = orderDetail.XPathSelectElement("//BuyerExpectedUnitPrice/Price/UnitPrice").Value
+                });
+
+                orderDetail.Remove();
+            }
+
+            if (poLineItems.Count() != listOfItemInfo.Count())
             {
                 return false;
             }
@@ -919,11 +935,8 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
             for (var i = 0; i < poLineItems.Count; i++)
             {
                 if (
-                    !(poLineItems[i].Element("Quantity")
-                          .Value.Equals(orderDetails[i].XPathSelectElement("//BaseItemDetail/Quantity/Qty").Value)
-                      && poLineItems[i].Element("UnitPrice")
-                             .Value.Equals(
-                                 orderDetails[i].XPathSelectElement("//BuyerExpectedUnitPrice/Price/UnitPrice").Value)))
+                    !(poLineItems[i].Quantity.Equals(listOfItemInfo[i].Quantity)
+                      && poLineItems[i].Price.Equals(listOfItemInfo[i].Price)))
                 {
                     return false;
                 }

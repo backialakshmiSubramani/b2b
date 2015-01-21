@@ -174,7 +174,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
 
             if (responseCode.Contains("200"))
             {
-                String temp = B2BQaToolsPage.GetStoreLinkText();
+                string temp = B2BQaToolsPage.GetStoreLinkText();
                 Console.WriteLine("Link value is " + temp);
                 B2BQaToolsPage.ClickStoreLink();
                 webDriver.WaitForPageLoad(TimeSpan.FromSeconds(40));

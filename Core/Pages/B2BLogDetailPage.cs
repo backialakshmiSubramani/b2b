@@ -96,11 +96,29 @@ namespace Modules.Channel.B2B.Core.Pages
             return null;
         }
 
-        public List<XElement> GetPoLineItemsFromMapperRequestXml()
+        public List<dynamic> GetPoLineItemsFromMapperRequestXml()
         {
-            List<XElement> poLineItems =
-                XDocument.Parse(LogDetailData.Text).XPathSelectElements("//LineItems/MapperRequestPOLine").ToList();
-            return poLineItems.Any() ? poLineItems : null;
+            var poLineItems =
+                XDocument.Parse(LogDetailData.Text).XPathSelectElements("//LineItems/MapperRequestPOLine");
+
+            var listOfItemInfo = new List<dynamic>();
+
+            var poLineItemCount = poLineItems.ToList().Count();
+
+            for (var i = 0; i < poLineItemCount; i++)
+            {
+                var poLineItem = poLineItems.FirstOrDefault();
+
+                listOfItemInfo.Add(new
+                {
+                    Quantity = poLineItem.Element("Quantity").Value,
+                    Price = poLineItem.Element("UnitPrice").Value
+                });
+
+                poLineItem.Remove();
+            }
+
+            return listOfItemInfo.Any() ? listOfItemInfo : null;
         }
 
         public string GetLogDetail()
