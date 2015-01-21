@@ -328,6 +328,16 @@ namespace Modules.Channel.B2B.Core.Pages
             return messageRow != null;
         }
 
+        public bool FindMessageOnLogReport(string messageToLookFor)
+        {
+            var messageRow =
+                PoLogReportRows.FirstOrDefault(
+                    e =>
+                    e.FindElements(By.TagName("td"))[5].Text.Contains(
+                        messageToLookFor));
+            return messageRow != null;
+        }
+
         public string GetThreadId()
         {
             return ThreadIdInTable.Text.Trim();

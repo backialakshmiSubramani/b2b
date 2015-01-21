@@ -146,5 +146,40 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
                    asnLogDetailMessages,
                    mapperRequestMessage);
         }
+
+        public bool VerifyExceptionLogging(List<string> asnLogEventMessages, List<string> asnLogDetailMessages, string mapperRequestMessage, string asnErrorMessage)
+        {
+            if (!string.IsNullOrEmpty(this.poNumber))
+            {
+                return false;
+            }
+
+            if (!this.poOperations.VerifyMappingEntriesForChannelAsnEnabledProfile(
+                this.poNumber,
+                asnLogEventMessages,
+                asnLogDetailMessages,
+                mapperRequestMessage))
+            {
+                return false;
+            }
+
+            if (!this.poOperations.VerifyExceptionLoggingForAsn(asnErrorMessage))
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+
+
+
+
+
+
+
+
+
+
     }
 }

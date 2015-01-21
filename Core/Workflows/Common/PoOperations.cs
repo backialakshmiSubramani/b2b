@@ -273,7 +273,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
             {
                 return false;
             }
-            
+
             var quoteDetail = listOfQuoteDetail.FirstOrDefault();
 
             B2BLogReportPage.FindMessageAndGoToQuoteViewerPage(enteringMasterOrderGroupMessage);
@@ -336,14 +336,18 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
             try
             {
                 var mapperXml = XDocument.Parse(B2BLogDetailPage.GetLogDetail());
+                webDriver.Navigate().Back();
                 return true;
             }
             catch
             {
                 return false;
             }
+        }
 
-            return true;
+        public bool VerifyExceptionLoggingForAsn(string asnErrorMessage)
+        {
+            return B2BLogReportPage.FindMessageOnLogReport(asnErrorMessage);
         }
 
         /// <summary>
