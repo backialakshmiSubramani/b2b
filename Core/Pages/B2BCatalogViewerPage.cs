@@ -23,6 +23,8 @@ using DCSG.ADEPT.Framework.Core.Page;
 using System.Linq;
 using OpenQA.Selenium.Interactions;
 using System.Collections.ObjectModel;
+using Modules.Channel.B2B.Common;
+using Modules.Channel.B2B.Core.Workflows.Common;
 
 namespace Modules.Channel.B2B.Core.Pages
 {
@@ -98,17 +100,34 @@ namespace Modules.Channel.B2B.Core.Pages
         #endregion
 
         /// <summary>
-        /// Fetches the Catalog Part Id and the Base Item Price of the first item in the catalog
+        /// Fetches the quote details used for PO processing
         /// </summary>
-        /// <param name="baseItemPrice">out parameter - has the Base Item Price</param>
-        /// <param name="itemDescription">out parameter - contains the Item Description</param>
-        /// <returns>Catalog Part Id</returns>
-        public string GetCatalogPartIdAndBaseUnitPrice(out string baseItemPrice, out string itemDescription)
+        /// <param name="crtId"></param>
+        /// <param name="quantity"></param>
+        /// <param name="quoteType"></param>
+        /// <returns>Quote details</returns>
+        public List<QuoteDetail> GetQuoteDetails(string crtId, string quantity, QuoteType quoteType)
         {
-            itemDescription = CatalogDetailsTableRow.ElementAt(8).Text.Trim().Split(',')[0];
-            baseItemPrice = CatalogDetailsTableRow.ElementAt(9).Text.Trim().Split(' ')[0];
-            //baseItemPrice = BaseItemPrice.Text.Split(' ')[0];
-            return CatalogDetailsTableRow.ElementAt(1).Text.Trim();
+            return new List<QuoteDetail>()
+                       {
+                           new QuoteDetail()
+                               {
+                                   CrtId = crtId,
+                                   ItemDescription =
+                                       CatalogDetailsTableRow.ElementAt(8)
+                                       .Text.Trim()
+                                       .Split(',')[0],
+                                   Price =
+                                       CatalogDetailsTableRow.ElementAt(9)
+                                       .Text.Trim()
+                                       .Split(' ')[0],
+                                   Quantity = quantity,
+                                   QuoteType = quoteType,
+                                   SupplierPartId =
+                                       "BHC:"
+                                       + CatalogDetailsTableRow.ElementAt(1).Text.Trim()
+                               }
+                       };
         }
 
         public void ClickQaTools3()

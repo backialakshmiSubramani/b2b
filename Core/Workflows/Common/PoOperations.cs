@@ -548,7 +548,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
                 return false;
             }
 
-            if (!asnQueueEntry.Partner.ToLower().Equals(mapperXml.XPathSelectElement("//Partner").Value.ToUpper()))
+            if (!asnQueueEntry.Partner.ToUpper().Equals(mapperXml.XPathSelectElement("//Partner").Value.ToUpper()))
             {
                 return false;
             }
@@ -595,7 +595,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
 
             Console.WriteLine("Delivery Preference is: {0}", mapperXml.XPathSelectElement("//DeliveryPreference").Value);
 
-            if (!asnQueueEntry.DeliveryPreference.Equals(mapperXml.XPathSelectElement("//DeliveryPreference").Value))
+            if (!asnQueueEntry.DeliveryPreference.ToString().Equals(mapperXml.XPathSelectElement("//DeliveryPreference").Value))
             {
                 return false;
             }

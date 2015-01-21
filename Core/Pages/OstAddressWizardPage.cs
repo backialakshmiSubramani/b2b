@@ -178,7 +178,7 @@ namespace Modules.Channel.B2B.Core.Pages
 
         public bool FindLocalChannel(string localChannelNumber)
         {
-            String columnPath = "//table[@id='TabContainerAddress_TabPanelBilltoAddress_AffinityBillAddress_gvAffinityAddress']/tbody/tr/td[6]";
+            string columnPath = "//table[@id='TabContainerAddress_TabPanelBilltoAddress_AffinityBillAddress_gvAffinityAddress']/tbody/tr/td[6]";
             return webDriver.FindElements(By.XPath(columnPath)).All(e => e.Text.Contains(localChannelNumber));
         }
 

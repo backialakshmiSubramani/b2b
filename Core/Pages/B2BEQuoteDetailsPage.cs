@@ -96,17 +96,17 @@ namespace Modules.Channel.B2B.Core.Pages
 
         #region Element Actions
 
-        public String ReturnTitle()
+        public string ReturnTitle()
         {
             return SaveQuoteTitle.Text;
         }
 
-        public void EquoteNameSetting(String name)
+        public void EquoteNameSetting(string name)
         {
             EquoteName.SendKeys(name);
         }
 
-        public void SavedBySetting(String email1)
+        public void SavedBySetting(string email1)
         {
             SavedBy.SendKeys(email1);
         }

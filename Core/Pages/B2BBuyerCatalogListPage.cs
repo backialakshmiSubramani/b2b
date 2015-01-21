@@ -108,7 +108,10 @@ namespace Modules.Channel.B2B.Core.Pages
         /// <param name="profileName">Customer/Profile name</param>
         public void SearchForBuyerCatalog(string profileName)
         {
-            SelectCustomer.SelectByText(profileName);
+            if (!SelectCustomer.SelectedOption.Text.Equals(profileName))
+            {
+                SelectCustomer.SelectByText(profileName);
+            }
 
             ////SearchCatalogLink.Click();
             javaScriptExecutor.ExecuteScript("arguments[0].click();", SearchCatalogLink);

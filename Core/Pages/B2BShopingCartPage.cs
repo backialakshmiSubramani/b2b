@@ -89,7 +89,7 @@ namespace Modules.Channel.B2B.Core.Pages
 
 
 
-        public String ReturnShopingCartTitle()
+        public string ReturnShopingCartTitle()
         {
             return ShopingCartTitle.Text;
         }

@@ -251,13 +251,13 @@ namespace Modules.Channel.B2B.Core.Pages
         }
 
         // Provide ID to Profile Correlator
-        public void IdentityForProfileCorrelator(String profileId)
+        public void IdentityForProfileCorrelator(string profileId)
         {
             ProfileCorrelatorIdentity.SendKeys(profileId);
         }
 
         // Provide ID to User Id Identity
-        public void IdentityForUserId(String profileId)
+        public void IdentityForUserId(string profileId)
         {
             UserIdIdentity.SendKeys(profileId);
         }

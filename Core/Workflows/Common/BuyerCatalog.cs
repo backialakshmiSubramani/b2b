@@ -15,8 +15,6 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
         private IWebDriver webDriver;
         private PoOperations poOperations;
         private string poNumber;
-        private string baseItemPrice;
-        private string itemDescription;
 
         public BuyerCatalog(IWebDriver driver)
         {
@@ -47,6 +45,8 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
                 return QuoteType.Bhc;
             }
         }
+
+        public List<QuoteDetail> ListOfQuoteDetail { get; set; }
 
         ////************************************************************
 
@@ -85,42 +85,46 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
         // Creates Buyer Catalog and generates XML for PO submission
         public void CreateBhcPo()
         {
-            const int NumberOfRetries = 10;
-            B2BHomePage.SelectEnvironment(RunEnvironment.ToString());
-            B2BHomePage.ClickOnBuyerCatalogLink();
-            var threadId = B2BCreateBuyerCatalogPage.GenerateCatalog(
-                Workflow,
-                ProfileName,
-                IdentityName,
-                ValidityEnd,
-                NotificationEmail,
-                ConfigurationType);
-            B2BCreateBuyerCatalogPage.GoToBuyerCatalogListPage();
-            B2BBuyerCatalogListPage.SearchForBuyerCatalog(ProfileName);
-            if (!B2BBuyerCatalogListPage.CheckCatalogAvailabilityAndAct(threadId))
+            if (ListOfQuoteDetail == null || !ListOfQuoteDetail.Any()
+                || string.IsNullOrEmpty(ListOfQuoteDetail.FirstOrDefault().SupplierPartId))
             {
-                Console.WriteLine("The catalog status is not = 'Available'. Retrying....");
-                for (var i = 0; i < NumberOfRetries; i++)
+                const int NumberOfRetries = 10;
+                B2BHomePage.SelectEnvironment(RunEnvironment.ToString());
+                B2BHomePage.ClickOnBuyerCatalogLink();
+                var threadId = B2BCreateBuyerCatalogPage.GenerateCatalog(
+                    Workflow,
+                    ProfileName,
+                    IdentityName,
+                    ValidityEnd,
+                    NotificationEmail,
+                    ConfigurationType);
+                B2BCreateBuyerCatalogPage.GoToBuyerCatalogListPage();
+                B2BBuyerCatalogListPage.SearchForBuyerCatalog(ProfileName);
+                if (!B2BBuyerCatalogListPage.CheckCatalogAvailabilityAndAct(threadId))
                 {
-                    System.Threading.Thread.Sleep(20000);
-                    Console.WriteLine("Retry No. {0}", i + 1);
-                    B2BBuyerCatalogListPage.SearchForBuyerCatalog(ProfileName);
-                    if (B2BBuyerCatalogListPage.CheckCatalogAvailabilityAndAct(threadId))
+                    Console.WriteLine("The catalog status is not = 'Available'. Retrying....");
+                    for (var i = 0; i < NumberOfRetries; i++)
                     {
-                        break;
-                    }
+                        System.Threading.Thread.Sleep(20000);
+                        Console.WriteLine("Retry No. {0}", i + 1);
+                        B2BBuyerCatalogListPage.SearchForBuyerCatalog(ProfileName);
+                        if (B2BBuyerCatalogListPage.CheckCatalogAvailabilityAndAct(threadId))
+                        {
+                            break;
+                        }
 
-                    if (i == (NumberOfRetries - 1))
-                    {
-                        Console.WriteLine("The catalog status is still not 'Available'. No. of retries {0}", i + 1);
-                        return;
+                        if (i == (NumberOfRetries - 1))
+                        {
+                            Console.WriteLine("The catalog status is still not 'Available'. No. of retries {0}", i + 1);
+                            return;
+                        }
                     }
                 }
+
+                ListOfQuoteDetail = B2BCatalogViewer.GetQuoteDetails(CrtId, Quantity, QuoteType);
             }
 
             var orderId = OrderIdBase + DateTime.Today.ToString("yyMMdd") + DateTime.Now.ToString("HHmmss");
-            var catalogPartId = B2BCatalogViewer.GetCatalogPartIdAndBaseUnitPrice(out baseItemPrice, out itemDescription);
-            catalogPartId = "BHC:" + catalogPartId;
 
             string poXml;
 
@@ -131,25 +135,13 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
                      IdentityName,
                      DeploymentMode,
                      orderId,
-                     baseItemPrice,
-                     catalogPartId,
-                     CrtId);
+                     ListOfQuoteDetail.FirstOrDefault().Price,
+                     ListOfQuoteDetail.FirstOrDefault().SupplierPartId,
+                     ListOfQuoteDetail.FirstOrDefault().CrtId);
             }
             else
             {
-                var quoteDetails = new List<QuoteDetail>
-                                       {
-                                           new QuoteDetail()
-                                               {
-                                                   CrtId = this.CrtId,
-                                                   Price = this.baseItemPrice,
-                                                   Quantity = this.Quantity,
-                                                   QuoteType = this.QuoteType,
-                                                   SupplierPartId = catalogPartId
-                                               }
-                                       };
-
-                poXml = PoXmlGenerator.GeneratePoCblForAsn(PoXmlFormat, orderId, IdentityName, quoteDetails);
+                poXml = PoXmlGenerator.GeneratePoCblForAsn(PoXmlFormat, orderId, IdentityName, ListOfQuoteDetail);
             }
 
             var parentWindow = webDriver.CurrentWindowHandle;
@@ -177,9 +169,9 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
                        this.poNumber,
                        this.RunEnvironment,
                        this.CrtFilePath,
-                       this.CrtId,
+                       this.ListOfQuoteDetail.FirstOrDefault().CrtId,
                        this.GcmUrl,
-                       this.baseItemPrice,
+                       this.ListOfQuoteDetail.FirstOrDefault().Price,
                        expectedDpidMessage,
                        expectedPurchaseOderMessage);
         }
@@ -187,8 +179,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
         public bool VerifyQmsQuoteCreationForAsn(
             string quoteRetrievedMessagePrefix,
             string quoteRetrievedMessageSuffix,
-            string enteringMasterOrderGroupMessage,
-            List<QuoteDetail> listOfQuoteDetail)
+            string enteringMasterOrderGroupMessage)
         {
             return !string.IsNullOrEmpty(this.poNumber)
                    && this.poOperations.VerifyQmsQuoteCreation(
@@ -196,7 +187,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
                        quoteRetrievedMessagePrefix,
                        quoteRetrievedMessageSuffix,
                        enteringMasterOrderGroupMessage,
-                       listOfQuoteDetail);
+                       ListOfQuoteDetail);
         }
 
         public bool VerifyMapperRequestXmlDataInLogDetailPageForAsn(string mapperRequestMessage)

@@ -85,7 +85,7 @@ namespace Modules.Channel.B2B.Core.Pages
 
         #region Element Actions
 
-        public String GetCreatePoButtonText()
+        public string GetCreatePoButtonText()
         {
             return CreatePoElement.Text;
         }
