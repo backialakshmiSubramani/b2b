@@ -475,7 +475,9 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
                 return false;
             }
 
-            return AsnDataAccess.FetchDpid(poNumber).Equals(dellPurchaseId);
+            var firstRow = AsnDataAccess.FetchRecordsFromAsnQueue(poNumber).FirstOrDefault();
+
+            return firstRow != null && firstRow.DPID.Equals(dellPurchaseId);
         }
 
         /// <summary>
@@ -509,13 +511,23 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
             }
 
             var mapperXml = XDocument.Parse(B2BLogDetailPage.GetLogDetail());
+            var savedPoCbl = XDocument.Load("CblTemplate.xml");
+            var asnQueueEntry = AsnDataAccess.FetchRecordsFromAsnQueue(poNumber).FirstOrDefault();
+
+            if (!asnQueueEntry.DPID.Equals(dellPurchaseId))
+            {
+                return false;
+            }
 
             if (!mapperXml.XPathSelectElement("//ThreadId").Value.Equals(threadId))
             {
                 return false;
             }
 
-            var savedPoCbl = XDocument.Load("CblTemplate.xml");
+            if (!asnQueueEntry.ThreadId.Equals(threadId))
+            {
+                return false;
+            }
 
             if (
                 !mapperXml.XPathSelectElement("//PONumber")
@@ -535,12 +547,26 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
                 return false;
             }
 
+            if (!asnQueueEntry.Partner.ToLower().Equals(mapperXml.XPathSelectElement("//Partner").Value.ToUpper()))
+            {
+                return false;
+            }
+
             if (
                 !mapperXml.XPathSelectElements("//LineItems/MapperRequestPOLine/VendorPartNumber")
                      .FirstOrDefault()
                      .Value.Equals(
                          savedPoCbl.XPathSelectElements(
                              "//ListOfOrderDetail/OrderDetail/BaseItemDetail/ManufacturerPartNum/PartNum/PartID")
+                     .FirstOrDefault()
+                     .Value))
+            {
+                return false;
+            }
+
+            if (
+                !asnQueueEntry.VendorPartNumber.Equals(
+                    mapperXml.XPathSelectElements("//LineItems/MapperRequestPOLine/VendorPartNumber")
                      .FirstOrDefault()
                      .Value))
             {
@@ -559,7 +585,20 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
                 return false;
             }
 
+            if (
+                !asnQueueEntry.BuyerSKU.Equals(
+                    mapperXml.XPathSelectElements("//LineItems/MapperRequestPOLine/BuyerSKU").FirstOrDefault().Value))
+            {
+                return false;
+            }
+
             Console.WriteLine("Delivery Preference is: {0}", mapperXml.XPathSelectElement("//DeliveryPreference").Value);
+
+            if (!asnQueueEntry.DeliveryPreference.Equals(mapperXml.XPathSelectElement("//DeliveryPreference").Value))
+            {
+                return false;
+            }
+
 
             return true;
         }

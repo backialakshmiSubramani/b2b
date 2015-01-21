@@ -85,6 +85,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
         // Creates Buyer Catalog and generates XML for PO submission
         public void CreateBhcPo()
         {
+            const int NumberOfRetries = 10;
             B2BHomePage.SelectEnvironment(RunEnvironment.ToString());
             B2BHomePage.ClickOnBuyerCatalogLink();
             var threadId = B2BCreateBuyerCatalogPage.GenerateCatalog(
@@ -99,7 +100,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
             if (!B2BBuyerCatalogListPage.CheckCatalogAvailabilityAndAct(threadId))
             {
                 Console.WriteLine("The catalog status is not = 'Available'. Retrying....");
-                for (var i = 0; i < 3; i++)
+                for (var i = 0; i < NumberOfRetries; i++)
                 {
                     System.Threading.Thread.Sleep(20000);
                     Console.WriteLine("Retry No. {0}", i + 1);
@@ -109,7 +110,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
                         break;
                     }
 
-                    if (i == 2)
+                    if (i == (NumberOfRetries - 1))
                     {
                         Console.WriteLine("The catalog status is still not 'Available'. No. of retries {0}", i + 1);
                         return;
@@ -136,15 +137,19 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
             }
             else
             {
-                poXml = PoXmlGenerator.GeneratePoCblForAsn(
-                    QuoteType,
-                    PoXmlFormat,
-                    orderId,
-                    IdentityName,
-                    catalogPartId,
-                    Quantity,
-                    baseItemPrice,
-                    CrtId);
+                var quoteDetails = new List<QuoteDetail>
+                                       {
+                                           new QuoteDetail()
+                                               {
+                                                   CrtId = this.CrtId,
+                                                   Price = this.baseItemPrice,
+                                                   Quantity = this.Quantity,
+                                                   QuoteType = this.QuoteType,
+                                                   SupplierPartId = catalogPartId
+                                               }
+                                       };
+
+                poXml = PoXmlGenerator.GeneratePoCblForAsn(PoXmlFormat, orderId, IdentityName, quoteDetails);
             }
 
             var parentWindow = webDriver.CurrentWindowHandle;
@@ -197,16 +202,12 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
 
         public bool VerifyMapperRequestXmlDataInLogDetailPageForAsn(string mapperRequestMessage)
         {
-            //this.poNumber = "POTestPQV1";
-
             return !string.IsNullOrEmpty(this.poNumber)
                    && this.poOperations.VerifyMapperRequestXmlDataInLogDetailPage(this.poNumber, mapperRequestMessage);
         }
 
         public bool VerifyDpidInMapperXmlAndDbForAsn(string expectedDpidMessage, string mapperRequestMessage)
         {
-            //this.poNumber = "POTestPQV1";
-
             return !string.IsNullOrEmpty(this.poNumber)
                    && this.poOperations.VerifyDpidInMapperXmlAndDb(
                        this.poNumber,
@@ -216,8 +217,6 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
 
         public bool MatchItemIdInOgXmlAndMapperRequestAndDbForAsn(string ogXmlMessage, string mapperRequestMessage)
         {
-            //this.poNumber = "DCS0201E2ETestJan7";
-
             return !string.IsNullOrEmpty(this.poNumber)
                    && this.poOperations.MatchItemIdInOgXmlAndMapperRequestAndDb(
                        this.poNumber,
@@ -227,8 +226,6 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
 
         public bool CaptureBackendOrderNumberFromOgXmlAndDbForAsn(string ogXmlMessage, string expectedDpidMessage)
         {
-            //this.poNumber = "DCS0201E2ETest3";
-
             return !string.IsNullOrEmpty(this.poNumber)
                    && this.poOperations.CaptureBackendOrderNumberFromOgXmlAndDb(
                        this.poNumber,
@@ -239,8 +236,6 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
 
         public bool VerifyFulfillmentUnitsForAsn(string expectedDpidMessage, string mapperRequestMessage, string ogXmlMessage)
         {
-            //this.poNumber = "DCS0201E2ETest3";
-
             return !string.IsNullOrEmpty(this.poNumber)
                    && this.poOperations.VerifyFulfillmentUnits(
                        this.poNumber,
@@ -252,8 +247,6 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
 
         public bool MatchValuesInPoXmlAndMapperXml(string expectedDpidMessage, string mapperRequestMessage)
         {
-            //this.poNumber = "DCS0201E2ETest3";
-
             return !string.IsNullOrEmpty(this.poNumber)
                    && this.poOperations.MatchValuesInPoXmlAndMapperXml(
                        this.poNumber,

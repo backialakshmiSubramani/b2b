@@ -263,15 +263,19 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
             }
             else
             {
-                poXml = PoXmlGenerator.GeneratePoCblForAsn(
-                    quoteType,
-                    format,
-                    orderId,
-                    profileId,
-                    quoteNumber,
-                    quantity,
-                    price,
-                    endUserId);
+                var quoteDetails = new List<QuoteDetail>
+                                       {
+                                           new QuoteDetail()
+                                               {
+                                                   CrtId = endUserId,
+                                                   Price = price,
+                                                   Quantity = quantity,
+                                                   QuoteType = quoteType,
+                                                   SupplierPartId = quoteNumber
+                                               }
+                                       };
+
+                poXml = PoXmlGenerator.GeneratePoCblForAsn(format, orderId, profileId, quoteDetails);
             }
 
             // Submits PO

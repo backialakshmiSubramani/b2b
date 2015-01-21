@@ -18,7 +18,7 @@ namespace Modules.Channel.B2B.DAL
             asnDatamodelDataContext = new AsnDatamodelDataContext(asnConnectionString);
         }
 
-        public static string FetchDpid(string poNumber)
+        public static List<ASNQueue> FetchRecordsFromAsnQueue(string poNumber)
         {
             try
             {
@@ -28,14 +28,14 @@ namespace Modules.Channel.B2B.DAL
                               where aq.PONumber == poNumber
                               select aq;
 
-                var row = results.FirstOrDefault();
+                return results.ToList();
 
-                return row != null ? row.DPID : string.Empty;
+                //return row != null ? row.DPID : string.Empty;
             }
             catch (Exception e)
             {
                 Console.WriteLine("Failed to get DPID from DB. Exception Message: {0}", e.Message);
-                return string.Empty;
+                return null;
             }
         }
 

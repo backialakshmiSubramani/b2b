@@ -55,15 +55,19 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
 
             string poXml;
 
-            poXml = PoXmlGenerator.GeneratePoCblForAsn(
-                QuoteType,
-                PoXmlFormat,
-                orderId,
-                IdentityName,
-                QuoteId,
-                Quantity,
-                Price,
-                CrtId);
+            var quoteDetails = new List<QuoteDetail>
+                                   {
+                                       new QuoteDetail()
+                                           {
+                                               CrtId = this.CrtId,
+                                               Price = this.Price,
+                                               Quantity = this.Quantity,
+                                               QuoteType = this.QuoteType,
+                                               SupplierPartId = this.QuoteId
+                                           }
+                                   };
+
+            poXml = PoXmlGenerator.GeneratePoCblForAsn(PoXmlFormat, orderId, IdentityName, quoteDetails);
 
             var parentWindow = webDriver.CurrentWindowHandle;
 
@@ -102,16 +106,12 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
 
         public bool VerifyMapperRequestXmlDataInLogDetailPageForAsn(string mapperRequestMessage)
         {
-            //this.poNumber = "POTestPQV1";
-
             return !string.IsNullOrEmpty(this.poNumber)
                    && this.poOperations.VerifyMapperRequestXmlDataInLogDetailPage(this.poNumber, mapperRequestMessage);
         }
 
         public bool VerifyDpidInMapperXmlAndDbForAsn(string expectedDpidMessage, string mapperRequestMessage)
         {
-            //this.poNumber = "POTestPQV1";
-
             return !string.IsNullOrEmpty(this.poNumber)
                    && this.poOperations.VerifyDpidInMapperXmlAndDb(
                        this.poNumber,
@@ -121,8 +121,6 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
 
         public bool MatchItemIdInOgXmlAndMapperRequestAndDbForAsn(string ogXmlMessage, string mapperRequestMessage)
         {
-            //this.poNumber = "DCS0201E2ETestJan7";
-
             return !string.IsNullOrEmpty(this.poNumber)
                    && this.poOperations.MatchItemIdInOgXmlAndMapperRequestAndDb(
                        this.poNumber,
@@ -132,8 +130,6 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
 
         public bool CaptureBackendOrderNumberFromOgXmlAndDbForAsn(string ogXmlMessage, string gcmUrl, string expectedDpidMessage)
         {
-            //this.poNumber = "DCS0201E2ETest3";
-
             return !string.IsNullOrEmpty(this.poNumber)
                    && this.poOperations.CaptureBackendOrderNumberFromOgXmlAndDb(
                        this.poNumber,
@@ -148,8 +144,6 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
             string ogXmlMessage,
             string gcmUrl)
         {
-            //this.poNumber = "DCS0201E2ETest3";
-
             return !string.IsNullOrEmpty(this.poNumber)
                    && this.poOperations.VerifyFulfillmentUnits(
                        this.poNumber,
@@ -161,8 +155,6 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
 
         public bool MatchValuesInPoXmlAndMapperXml(string expectedDpidMessage, string mapperRequestMessage)
         {
-            //this.poNumber = "DCS0201E2ETest3";
-
             return !string.IsNullOrEmpty(this.poNumber)
                    && this.poOperations.MatchValuesInPoXmlAndMapperXml(
                        this.poNumber,
@@ -172,8 +164,6 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
 
         public bool VerifyMappingEntriesForChannelAsnEnabledProfileForAsn(List<string> asnLogEventMessages, List<string> asnLogDetailMessages, string mapperRequestMessage)
         {
-            //this.poNumber = "BA150120183230";
-
             return !string.IsNullOrEmpty(this.poNumber)
                    && this.poOperations.VerifyMappingEntriesForChannelAsnEnabledProfile(
                    this.poNumber,

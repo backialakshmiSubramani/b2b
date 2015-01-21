@@ -167,7 +167,7 @@ namespace Modules.Channel.B2B.Core.Pages
                 By.XPath("//select[@id='ContentPageHolder_drp_CBC_Identity']/option[text()='" + identityName + "']"),
                 TimeSpan.FromSeconds(10));
             IdentityName.SelectByText(identityName);
-            System.Threading.Thread.Sleep(5000);
+            System.Threading.Thread.Sleep(10000);
             ValidityEnd.SendKeys(validityEnd);
             EmailAddress.SendKeys(emailAddress);
 

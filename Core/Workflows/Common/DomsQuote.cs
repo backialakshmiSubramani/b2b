@@ -69,15 +69,20 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
             }
             else
             {
-                poXml = PoXmlGenerator.GeneratePoCblForAsn(
-                    QuoteType,
-                    PoXmlFormat,
-                    orderId,
-                    IdentityName,
-                    partId,
-                    Quantity,
-                    Price,
-                    CrtId);
+                var quoteDetails = new List<QuoteDetail>
+                                       {
+                                           new QuoteDetail()
+                                               {
+                                                   CrtId = this.CrtId,
+                                                   Price = this.Price,
+                                                   Quantity = this.Quantity,
+                                                   QuoteType = this.QuoteType,
+                                                   SupplierPartId = partId
+                                               }
+                                       };
+
+                poXml = PoXmlGenerator.GeneratePoCblForAsn(PoXmlFormat, orderId, IdentityName, quoteDetails);
+
             }
 
             var parentWindow = webDriver.CurrentWindowHandle;

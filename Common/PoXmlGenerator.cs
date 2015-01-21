@@ -12,6 +12,70 @@ namespace Modules.Channel.B2B.Common
 {
     public static class PoXmlGenerator
     {
+        /// <summary>
+        /// Use this method to generate the PO CBL for B2B ASN
+        /// </summary>
+        /// <param name="poXmlFormat"></param>
+        /// <param name="orderId"></param>
+        /// <param name="identityName"></param>
+        /// <param name="quoteDetails"></param>
+        /// <returns></returns>
+        public static string GeneratePoCblForAsn(
+            PoXmlFormat poXmlFormat,
+            string orderId,
+            string identityName,
+            IList<QuoteDetail> quoteDetails)
+        {
+            var fileName = poXmlFormat + "Template.xml";
+            var doc = XDocument.Load(fileName);
+            doc.XPathSelectElement("//BuyerRefNum/Reference/RefNum").SetValue(orderId);
+            doc.XPathSelectElement("//BuyerParty/Party/ListOfIdentifier/Identifier/Agency")
+                .Attribute("AgencyOther")
+                .SetValue(identityName);
+
+            var orderDetailNode = doc.XPathSelectElement("//ListOfOrderDetail/OrderDetail");
+            var newDoc = new XDocument(orderDetailNode);
+            newDoc.Save("OrderDetailNode.xml");
+            orderDetailNode.Remove();
+
+            for (var i = quoteDetails.Count() - 1; i > -1; i--)
+            {
+                var orderDetailDoc = XDocument.Load("OrderDetailNode.xml");
+
+                orderDetailDoc.XPathSelectElement("//BaseItemDetail/LineItemNum").SetValue((i + 1).ToString("D2"));
+
+                switch (quoteDetails[i].QuoteType)
+                {
+                    case QuoteType.EQuote:
+                    case QuoteType.Doms:
+                        orderDetailDoc.XPathSelectElement("//SupplierPartNum/PartNum/PartID").SetValue(quoteDetails[i].SupplierPartId);
+                        break;
+                    case QuoteType.OrQuote:
+                    case QuoteType.Bhc:
+                        orderDetailDoc.XPathSelectElement("//SupplierPartNum/PartNum/PartIDExt").SetValue(quoteDetails[i].SupplierPartId);
+                        break;
+                    case QuoteType.Cif:
+                        orderDetailDoc.XPathSelectElement("//SupplierPartNum/PartNum/PartID").SetValue(quoteDetails[i].SupplierPartId);
+                        orderDetailDoc.XPathSelectElement("//SupplierPartNum/PartNum/PartIDExt").SetValue(quoteDetails[i].SupplierPartId);
+                        break;
+                    default:
+                        throw new ArgumentException("Quote type not specified");
+                }
+
+                orderDetailDoc.XPathSelectElement("//BuyerPartNum/PartNum/PartID").SetValue(quoteDetails[i].CrtId);
+                orderDetailDoc.XPathSelectElement("//ManufacturerPartNum/PartNum/PartID").SetValue(quoteDetails[i].CrtId);
+
+                orderDetailDoc.XPathSelectElement("//BaseItemDetail/Quantity/Qty").SetValue(quoteDetails[i].Quantity);
+                orderDetailDoc.XPathSelectElement("//BuyerExpectedUnitPrice/Price/UnitPrice").SetValue(quoteDetails[i].Price);
+
+                doc.XPathSelectElement("//ListOfOrderDetail").AddFirst(orderDetailDoc.XPathSelectElement("//OrderDetail"));
+            }
+
+            doc.Save(fileName);
+            var inputXml = "<?xml version='1.0' encoding='utf-8'?>" + doc.ToString();
+            return inputXml;
+        }
+
         public static string GeneratePoCxmlCblForEudc(PoXmlFormat poXmlFormat, string identityName, string deploymentMode, string orderId, string unitPrice, string supplierPartId, string b2BCrtEndUserId)
         {
             var fileName = poXmlFormat + "Template.xml";
@@ -67,64 +131,14 @@ namespace Modules.Channel.B2B.Common
             var inputXml = "<?xml version='1.0' encoding='utf-8'?>" + doc.ToString();
             return inputXml;
         }
+    }
 
-        /// <summary>
-        /// Use this method to generate the PO CBL for B2B ASN
-        /// </summary>
-        /// <param name="quoteType"></param>
-        /// <param name="poXmlFormat"></param>
-        /// <param name="orderId"></param>
-        /// <param name="identityName"></param>
-        /// <param name="supplierPartId"></param>
-        /// <param name="quantity"></param>
-        /// <param name="unitPrice"></param>
-        /// <param name="crtId"></param>
-        /// <returns></returns>
-        public static string GeneratePoCblForAsn(
-            QuoteType quoteType,
-            PoXmlFormat poXmlFormat,
-            string orderId,
-            string identityName,
-            string supplierPartId,
-            string quantity,
-            string unitPrice,
-            string crtId)
-        {
-            var fileName = poXmlFormat + "Template.xml";
-            var doc = XDocument.Load(fileName);
-            doc.XPathSelectElement("//BuyerRefNum/Reference/RefNum").SetValue(orderId);
-            doc.XPathSelectElement("//BuyerParty/Party/ListOfIdentifier/Identifier/Agency")
-                .Attribute("AgencyOther")
-                .SetValue(identityName);
-
-            // TODO: Scale it up for multiple <OrderDetail> - Ask Amulya
-            // ********************************************************************************
-            doc.XPathSelectElement("//BaseItemDetail/LineItemNum").SetValue("01");
-
-            if (quoteType == QuoteType.Doms || quoteType == QuoteType.EQuote)
-            {
-                doc.XPathSelectElement("//SupplierPartNum/PartNum/PartID").SetValue(supplierPartId);
-            }
-            else if (quoteType == QuoteType.Bhc || quoteType == QuoteType.OrQuote)
-            {
-                doc.XPathSelectElement("//SupplierPartNum/PartNum/PartIDExt").SetValue(supplierPartId);
-            }
-            else if (quoteType == QuoteType.Cif)
-            {
-                doc.XPathSelectElement("//SupplierPartNum/PartNum/PartID").SetValue(supplierPartId);
-                doc.XPathSelectElement("//SupplierPartNum/PartNum/PartIDExt").SetValue(supplierPartId);
-            }
-
-            doc.XPathSelectElement("//BuyerPartNum/PartNum/PartID").SetValue(crtId);
-            doc.XPathSelectElement("//ManufacturerPartNum/PartNum/PartID").SetValue(crtId);
-
-            doc.XPathSelectElement("//BaseItemDetail/Quantity/Qty").SetValue(quantity);
-            doc.XPathSelectElement("//BuyerExpectedUnitPrice/Price/UnitPrice").SetValue(unitPrice);
-
-            // ********************************************************************************
-            doc.Save(fileName);
-            var inputXml = "<?xml version='1.0' encoding='utf-8'?>" + doc.ToString();
-            return inputXml;
-        }
+    public class QuoteDetail
+    {
+        public QuoteType QuoteType { get; set; }
+        public string SupplierPartId { get; set; }
+        public string CrtId { get; set; }
+        public string Quantity { get; set; }
+        public string Price { get; set; }
     }
 }
