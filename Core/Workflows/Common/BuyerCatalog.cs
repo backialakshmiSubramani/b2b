@@ -113,11 +113,13 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
                             break;
                         }
 
-                        if (i == (NumberOfRetries - 1))
+                        if (i != (NumberOfRetries - 1))
                         {
-                            Console.WriteLine("The catalog status is still not 'Available'. No. of retries {0}", i + 1);
-                            return;
+                            continue;
                         }
+
+                        Console.WriteLine("The catalog status is still not 'Available'. No. of retries {0}", i + 1);
+                        return;
                     }
                 }
 

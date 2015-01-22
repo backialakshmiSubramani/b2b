@@ -873,6 +873,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
 
         private bool VerifyOrderStatusInGcm(string gcmUrl, string dellPurchaseId)
         {
+            const int NumberOfRetries = 6;
             webDriver.Navigate().GoToUrl(gcmUrl);
             webDriver.WaitForPageLoad(new TimeSpan(0, 0, 10));
             // GCM verifcation start
@@ -885,8 +886,26 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
                 return true;
             }
 
-            Console.WriteLine("Aborting test. Status is ** {0} **", status);
-            return false;
+            for (var i = 0; i < NumberOfRetries; i++)
+            {
+                System.Threading.Thread.Sleep(10000);
+                Console.WriteLine("Retry No. {0}", i + 1);
+                status = this.GcmFindEOrderPage.SearchByDpidAndGetOrderStatus(dellPurchaseId);
+                if (status.ToUpper().Trim().Equals("COMPLETE"))
+                {
+                    break;
+                }
+
+                if (i != (NumberOfRetries - 1))
+                {
+                    continue;
+                }
+
+                Console.WriteLine("Aborting test. Status is ** {0} **", status);
+                return false;
+            }
+
+            return true;
         }
 
         private bool SearchPoInLogReportPage(string poNumber)
