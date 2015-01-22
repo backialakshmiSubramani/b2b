@@ -40,23 +40,31 @@ namespace Modules.Channel.B2B.Common
 
             for (var i = quoteDetails.Count() - 1; i > -1; i--)
             {
+                if (string.IsNullOrEmpty(quoteDetails[i].SupplierPartId) || string.IsNullOrEmpty(quoteDetails[i].CrtId)
+                    || string.IsNullOrEmpty(quoteDetails[i].Quantity) || string.IsNullOrEmpty(quoteDetails[i].Price))
+                {
+                    continue;
+                }
+
                 var orderDetailDoc = XDocument.Load("OrderDetailNode.xml");
-
                 orderDetailDoc.XPathSelectElement("//BaseItemDetail/LineItemNum").SetValue((i + 1).ToString("D2"));
-
                 switch (quoteDetails[i].QuoteType)
                 {
                     case QuoteType.EQuote:
                     case QuoteType.Doms:
-                        orderDetailDoc.XPathSelectElement("//SupplierPartNum/PartNum/PartID").SetValue(quoteDetails[i].SupplierPartId);
+                        orderDetailDoc.XPathSelectElement("//SupplierPartNum/PartNum/PartID")
+                            .SetValue(quoteDetails[i].SupplierPartId);
                         break;
                     case QuoteType.OrQuote:
                     case QuoteType.Bhc:
-                        orderDetailDoc.XPathSelectElement("//SupplierPartNum/PartNum/PartIDExt").SetValue(quoteDetails[i].SupplierPartId);
+                        orderDetailDoc.XPathSelectElement("//SupplierPartNum/PartNum/PartIDExt")
+                            .SetValue(quoteDetails[i].SupplierPartId);
                         break;
                     case QuoteType.Cif:
-                        orderDetailDoc.XPathSelectElement("//SupplierPartNum/PartNum/PartID").SetValue(quoteDetails[i].SupplierPartId);
-                        orderDetailDoc.XPathSelectElement("//SupplierPartNum/PartNum/PartIDExt").SetValue(quoteDetails[i].SupplierPartId);
+                        orderDetailDoc.XPathSelectElement("//SupplierPartNum/PartNum/PartID")
+                            .SetValue(quoteDetails[i].SupplierPartId);
+                        orderDetailDoc.XPathSelectElement("//SupplierPartNum/PartNum/PartIDExt")
+                            .SetValue(quoteDetails[i].SupplierPartId);
                         break;
                     default:
                         throw new ArgumentException("Quote type not specified");
