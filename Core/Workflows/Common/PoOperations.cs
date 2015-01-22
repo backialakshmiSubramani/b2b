@@ -190,8 +190,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
                 return false;
             }
 
-            B2BLogDetailPage.ReturnToLogReportLink.Click();
-            webDriver.WaitForPageLoad(new TimeSpan(0, 0, 10));
+            B2BLogDetailPage.ReturnToLogReport();
 
             // 4. "Continue Purchase Order: Purchase Order Success: <DPID>" - capture DPID & verify in GCM
             var dellPurchaseId = B2BLogReportPage.FindDellPurchaseId(expectedDpidMessage);
@@ -325,8 +324,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
                     return false;
                 }
 
-                B2BLogDetailPage.ReturnToLogReportLink.Click();
-                webDriver.WaitForPageLoad(new TimeSpan(0, 0, 10));
+                B2BLogDetailPage.ReturnToLogReport();
             }
 
             if (!B2BLogReportPage.FindMessageAndGoToLogDetailPage(mapperRequestMessage))
@@ -410,8 +408,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
                 Console.WriteLine(itemId + "\n");
             }
 
-            B2BLogDetailPage.ReturnToLogReportLink.Click();
-            webDriver.WaitForPageLoad(new TimeSpan(0, 0, 10));
+            B2BLogDetailPage.ReturnToLogReport();
 
             if (!B2BLogReportPage.FindMessageAndGoToLogDetailPage(mapperRequestMessage))
             {
@@ -634,8 +631,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
 
             XDocument ogXml = XDocument.Parse(B2BLogDetailPage.GetLogDetail());
 
-            B2BLogDetailPage.ReturnToLogReportLink.Click();
-            webDriver.WaitForPageLoad(new TimeSpan(0, 0, 10));
+            B2BLogDetailPage.ReturnToLogReport();
 
             var itemId =
                 ogXml.XPathSelectElements("//OrderGroup/OrderForms/OrderForm/Items/Item/Id").FirstOrDefault();
@@ -706,8 +702,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
 
             XDocument ogXml = XDocument.Parse(B2BLogDetailPage.GetLogDetail());
 
-            B2BLogDetailPage.ReturnToLogReportLink.Click();
-            webDriver.WaitForPageLoad(new TimeSpan(0, 0, 10));
+            B2BLogDetailPage.ReturnToLogReport();
 
             var itemId = ogXml.XPathSelectElements("//OrderGroup/OrderForms/OrderForm/Items/Item/Id").FirstOrDefault();
 

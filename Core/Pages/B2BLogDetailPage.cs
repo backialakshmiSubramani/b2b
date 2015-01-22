@@ -32,6 +32,7 @@ namespace Modules.Channel.B2B.Core.Pages
     public class B2BLogDetailPage : DCSGPageBase
     {
         IWebDriver webDriver;
+        private IJavaScriptExecutor javaScriptExecutor;
 
         /// <summary>
         /// Constructor to hand off webDriver
@@ -41,11 +42,7 @@ namespace Modules.Channel.B2B.Core.Pages
             : base(ref webDriver)
         {
             this.webDriver = webDriver;
-            //populate the following variables with the appropriate value
-            //Name = "";
-            //Url = "";
-            //ProductUnit = "";
-
+            javaScriptExecutor = (IJavaScriptExecutor)this.webDriver;
         }
 
         /// <summary>
@@ -74,7 +71,7 @@ namespace Modules.Channel.B2B.Core.Pages
             }
         }
 
-        public IWebElement ReturnToLogReportLink
+        private IWebElement ReturnToLogReportLink
         {
             get
             {
@@ -145,6 +142,13 @@ namespace Modules.Channel.B2B.Core.Pages
         {
             var itemIds = XDocument.Parse(LogDetailData.Text).XPathSelectElements("//LineItems/MapperRequestPOLine/FulfillmentItems/Id");
             return itemIds;
+        }
+
+        public void ReturnToLogReport()
+        {
+            ////ReturnToLogReportLink.Click();
+            javaScriptExecutor.ExecuteScript("arguments[0].click();", ReturnToLogReportLink);
+            webDriver.WaitForPageLoad(new TimeSpan(0, 0, 10));
         }
     }
 }
