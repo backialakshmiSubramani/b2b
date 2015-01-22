@@ -136,7 +136,7 @@ namespace Modules.Channel.B2B.Core.Pages
             }
 
             // Click on the corresponding link to view the catalog
-            ////rowWithCatalogName.FindElements(By.TagName("td"))[1].Click();
+            ////rowWithCatalogName.FindElement(By.XPath("//td[2]/nobr/a")).Click();
             javaScriptExecutor.ExecuteScript("arguments[0].click();", rowWithCatalogName.FindElement(By.XPath("//td[2]/nobr/a")));
             webDriver.WaitForPageLoad(new TimeSpan(0, 0, 10));
 

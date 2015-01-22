@@ -31,6 +31,7 @@ namespace Modules.Channel.B2B.Core.Pages
     public class B2BBuyerCatalogRequestPage : DCSGPageBase
     {
         IWebDriver webDriver;
+        private IJavaScriptExecutor javaScriptExecutor;
 
         /// <summary>
         /// Constructor to hand off webDriver
@@ -40,11 +41,7 @@ namespace Modules.Channel.B2B.Core.Pages
             : base(ref webDriver)
         {
             this.webDriver = webDriver;
-            //populate the following variables with the appropriate value
-            //Name = "";
-            //Url = "";
-            //ProductUnit = "";
-
+            javaScriptExecutor = (IJavaScriptExecutor)this.webDriver;
         }
 
         /// <summary>
@@ -135,7 +132,8 @@ namespace Modules.Channel.B2B.Core.Pages
             selectProfileIdentity.SelectByText(profileName.ToUpper());
             SelectElement regionList = new SelectElement(SelectRegionList);
             regionList.SelectByText(region);
-            RequestCatalogLink.Click();
+            ////RequestCatalogLink.Click();
+            javaScriptExecutor.ExecuteScript("arguments[0].click();", RequestCatalogLink);
             Console.WriteLine("Generated Thread Id is - {0}", ThreadId.Text);
             return ThreadId.Text;
         }

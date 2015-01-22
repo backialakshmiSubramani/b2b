@@ -81,7 +81,7 @@ namespace Modules.Channel.B2B.Core.Pages
             }
         }
 
-        private IWebElement QATools3
+        private IWebElement QaTools3
         {
             get
             {
@@ -132,8 +132,8 @@ namespace Modules.Channel.B2B.Core.Pages
 
         public void ClickQaTools3()
         {
-            ////QATools3.Click();
-            javaScriptExecutor.ExecuteScript("arguments[0].click();", QATools3);
+            ////QaTools3.Click();
+            javaScriptExecutor.ExecuteScript("arguments[0].click();", QaTools3);
             webDriver.WaitForPageLoad(new TimeSpan(0, 0, 10));
             var newWindow = webDriver.WindowHandles.LastOrDefault();
             webDriver.SwitchTo().Window(newWindow);

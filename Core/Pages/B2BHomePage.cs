@@ -226,17 +226,20 @@ namespace Modules.Channel.B2B.Core.Pages
 
         public void ClickBuyerCatalogAdmin()
         {
-            BuyerCatalogAdminLink.Click();
+            ////BuyerCatalogAdminLink.Click();
+            javaScriptExecutor.ExecuteScript("arguments[0].click();", BuyerCatalogAdminLink);
         }
 
         public void ClickManageUser()
         {
-            ManageUserLink.Click();
+            ////ManageUserLink.Click();
+            javaScriptExecutor.ExecuteScript("arguments[0].click();", ManageUserLink);
         }
 
         public void ClickCifCatalog()
         {
-            CifCatalogLink.Click();
+            ////CifCatalogLink.Click();
+            javaScriptExecutor.ExecuteScript("arguments[0].click();", CifCatalogLink);
         }
 
         #endregion

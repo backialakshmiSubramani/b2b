@@ -226,7 +226,8 @@ namespace Modules.Channel.B2B.Core.Pages
         public void SelectCifQuoteLog(string threadId, string message, string profileName)
         {
             ThreadIdElement.SendKeys(threadId);
-            SubmitLink.Click();
+            ////SubmitLink.Click();
+            javaScriptExecutor.ExecuteScript("arguments[0].click();", SubmitLink);
             webDriver.WaitForPageLoad(TimeSpan.FromSeconds(30));
 
             IList<IWebElement> rows = LogTable.FindElements(By.TagName("tr"));
@@ -235,7 +236,9 @@ namespace Modules.Channel.B2B.Core.Pages
             {
                 if (rows[i].Text.Replace(" ", "").Contains(message.Replace(" ", "")) && (rows[i].Text.Replace(" ", "").Contains(profileName.Replace(" ", ""))))
                 {
-                    webDriver.FindElement(By.CssSelector("table#DetailedGridView_grdMain tr:nth-child(" + (i + 1) + ") td:nth-child(1)")).Click();
+                    var currentElement = webDriver.FindElement(By.CssSelector("table#DetailedGridView_grdMain tr:nth-child(" + (i + 1) + ") td:nth-child(1)"));
+                    ////currentElement.Click();
+                    javaScriptExecutor.ExecuteScript("arguments[0].click();", currentElement);
                     System.Threading.Thread.Sleep(5000);
                     break;
                 }

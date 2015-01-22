@@ -30,6 +30,7 @@ namespace Modules.Channel.B2B.Core.Pages
     public class B2BEQuoteSummaryPage : DCSGPageBase
     {
         IWebDriver webDriver;
+        private IJavaScriptExecutor javaScriptExecutor;
 
         /// <summary>
         /// Constructor to hand off webDriver
@@ -39,11 +40,7 @@ namespace Modules.Channel.B2B.Core.Pages
             : base(ref webDriver)
         {
             this.webDriver = webDriver;
-            //populate the following variables with the appropriate value
-            //Name = "";
-            //Url = "";
-            //ProductUnit = "";
-
+            javaScriptExecutor = (IJavaScriptExecutor)this.webDriver;
         }
 
         /// <summary>
@@ -79,7 +76,8 @@ namespace Modules.Channel.B2B.Core.Pages
 
         public void ClickContinueButton()
         {
-            ContinueButton.Click();
+            ////ContinueButton.Click();
+            javaScriptExecutor.ExecuteScript("arguments[0].click();", ContinueButton);
             webDriver.WaitForPageLoad(TimeSpan.FromSeconds(40));
         }
 

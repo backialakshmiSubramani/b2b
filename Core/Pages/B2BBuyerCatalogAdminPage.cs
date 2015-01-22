@@ -31,6 +31,7 @@ namespace Modules.Channel.B2B.Core.Pages
     public class B2BBuyerCatalogAdminPage : DCSGPageBase
     {
         IWebDriver webDriver;
+        private IJavaScriptExecutor javaScriptExecutor;
 
         /// <summary>
         /// Constructor to hand off webDriver
@@ -40,6 +41,7 @@ namespace Modules.Channel.B2B.Core.Pages
             : base(ref webDriver)
         {
             this.webDriver = webDriver;
+            javaScriptExecutor = (IJavaScriptExecutor)this.webDriver;
             //populate the following variables with the appropriate value
             //Name = "";
             //Url = "";
@@ -66,7 +68,7 @@ namespace Modules.Channel.B2B.Core.Pages
         }
 
 
-        # region Elements
+        #region Elements
 
         private IWebElement SalesRepresentativeList
         {
@@ -95,12 +97,9 @@ namespace Modules.Channel.B2B.Core.Pages
         }
 
 
-        # endregion
+        #endregion
 
-        #region Element Actions
-        # endregion
-
-        # region Reusable Methods
+        #region Reusable Methods
 
         public void AssociateProfileToSalesUser(string salesUser, string profileName)
         {
@@ -114,10 +113,10 @@ namespace Modules.Channel.B2B.Core.Pages
             IList<IWebElement> pageOptions = pagination.Options;
 
             // Loop to verify whether Profile Name is available in any of the pages
-            for (int i = 1; i<= pageOptions.Count ; i++)
+            for (int i = 1; i <= pageOptions.Count; i++)
             {
-               // System.Threading.Thread.Sleep(2000);
-            // Due to Stale Element Exception - Page List Element is redefined again
+                // System.Threading.Thread.Sleep(2000);
+                // Due to Stale Element Exception - Page List Element is redefined again
                 SelectElement pagesList = new SelectElement(webDriver.FindElement(By.ClassName("ig_d1468a88_r10"), TimeSpan.FromSeconds(30)));
                 pagesList.SelectByText(i.ToString());
                 webDriver.WaitForPageLoad(TimeSpan.FromSeconds(10));
@@ -128,16 +127,21 @@ namespace Modules.Channel.B2B.Core.Pages
                     IWebElement table = webDriver.FindElement(By.XPath("//table[contains(@id,'ProfileList')]"));
                     IList<IWebElement> rows = table.FindElements(By.TagName("tr"));
 
-            // Loop to Select Checkbox and save profile once profile name is identified in a page
+                    // Loop to Select Checkbox and save profile once profile name is identified in a page
                     for (int j = 3; j < rows.Count; j++)
                     {
 
                         if (rows[j].Text.Contains(profileName))
                         {
-                            if (webDriver.FindElement(By.XPath("//tr[" + (j - 2) + "][contains(@id,'ProfileList')]/td[1]/nobr/input")).GetAttribute("checked").Equals("true"))
+                            var currentElement =
+                                webDriver.FindElement(
+                                    By.XPath("//tr[" + (j - 2) + "][contains(@id,'ProfileList')]/td[1]/nobr/input"));
+                            if (currentElement.GetAttribute("checked").Equals("true"))
                             {
-                                webDriver.FindElement(By.XPath("//tr[" + (j - 2) + "][contains(@id,'ProfileList')]/td[1]/nobr/input")).Click();
-                                SaveButton.Click();
+                                ////currentElement.Click();
+                                javaScriptExecutor.ExecuteScript("arguments[0].click();", currentElement);
+                                ////SaveButton.Click();
+                                javaScriptExecutor.ExecuteScript("arguments[0].click();", SaveButton);
                                 webDriver.SwitchTo().Alert().Accept();
                                 Console.WriteLine("Successfully selcted and saved profile to Sales User");
                             }
@@ -145,7 +149,7 @@ namespace Modules.Channel.B2B.Core.Pages
                             {
                                 Console.WriteLine("Profile Already saved to Sales User");
                             }
-                           
+
                             break;
                         }
                     }
@@ -159,7 +163,7 @@ namespace Modules.Channel.B2B.Core.Pages
             }
         }
 
-        # endregion
+        #endregion
 
     }
 }

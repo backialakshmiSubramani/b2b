@@ -132,7 +132,7 @@ namespace Modules.Channel.B2B.Core.Pages
 
 
 
-        private IWebElement ChannelASNChkBox
+        private IWebElement ChannelAsnCheckbox
         {
             get
             {
@@ -182,10 +182,10 @@ namespace Modules.Channel.B2B.Core.Pages
 
         public void EnableChannelASN()
         {
-            if (ChannelASNChkBox.GetAttribute("checked") != "checked")
+            if (ChannelAsnCheckbox.GetAttribute("checked") != "checked")
             {
-                ////ChannelASNChkBox.Click();
-                javaScriptExecutor.ExecuteScript("arguments[0].click();", ChannelASNChkBox);
+                ////ChannelAsnCheckbox.Click();
+                javaScriptExecutor.ExecuteScript("arguments[0].click();", ChannelAsnCheckbox);
             }
         }
 
@@ -213,7 +213,8 @@ namespace Modules.Channel.B2B.Core.Pages
         public void ClickSearchedProfile(string linkText)
         {
             webDriver.WaitForElementDisplayed(By.LinkText(linkText), TimeSpan.FromSeconds(10));
-            webDriver.FindElement(By.LinkText(linkText)).Click();
+            ////webDriver.FindElement(By.LinkText(linkText)).Click();
+            javaScriptExecutor.ExecuteScript("arguments[0].click();", webDriver.FindElement(By.LinkText(linkText)));
         }
 
         #endregion
@@ -237,9 +238,10 @@ namespace Modules.Channel.B2B.Core.Pages
             ////AdvancedSearchLink.Click();
             javaScriptExecutor.ExecuteScript("arguments[0].click();", AdvancedSearchLink);
             webDriver.WaitForPageLoad(TimeSpan.FromSeconds(10));
-            ////ChannelASNChkBox.Click();
-            javaScriptExecutor.ExecuteScript("arguments[0].click();", ChannelASNChkBox);
-            AdvanceSearchBtn.Click();
+            ////ChannelAsnCheckbox.Click();
+            javaScriptExecutor.ExecuteScript("arguments[0].click();", ChannelAsnCheckbox);
+            ////AdvanceSearchBtn.Click();
+            javaScriptExecutor.ExecuteScript("arguments[0].click();", AdvanceSearchBtn);
             webDriver.WaitForPageLoad(TimeSpan.FromSeconds(10));
         }
 
@@ -256,7 +258,10 @@ namespace Modules.Channel.B2B.Core.Pages
                     status = webDriver.ElementExists(By.XPath(locator));
                     if (ClickProfile == "Yes")
                     {
-                        webDriver.FindElement(By.XPath(locator)).Click();
+                        ////webDriver.FindElement(By.XPath(locator)).Click();
+                        javaScriptExecutor.ExecuteScript(
+                            "arguments[0].click();",
+                            webDriver.FindElement(By.XPath(locator)));
                     }
 
                     Flag = false;
@@ -265,7 +270,8 @@ namespace Modules.Channel.B2B.Core.Pages
                 {
                     if (IsPaginationDisplayed)
                     {
-                        PaginationArrow.Click();
+                        ////PaginationArrow.Click();
+                        javaScriptExecutor.ExecuteScript("arguments[0].click();", PaginationArrow);
                         webDriver.WaitForPageLoad(TimeSpan.FromSeconds(20));
                     }
                     else
