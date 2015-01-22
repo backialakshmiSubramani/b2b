@@ -231,7 +231,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
             B2BQaToolsPage.ClickSubmitMessage();
 
             var submissionResult = B2BQaToolsPage.GetSubmissionResult();
-            Console.WriteLine("Submission Result is: " + submissionResult);
+            Console.WriteLine("Submission Result is: {0}", submissionResult);
 
             if (!submissionResult.Contains("200"))
             {
@@ -273,7 +273,17 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
                 return false;
             }
 
-            var quoteDetail = listOfQuoteDetail.FirstOrDefault();
+            var quoteDetail =
+                listOfQuoteDetail.FirstOrDefault(
+                    qd =>
+                    (!string.IsNullOrEmpty(qd.ItemDescription) && !string.IsNullOrEmpty(qd.Quantity)
+                     && !string.IsNullOrEmpty(qd.Price)));
+
+            if (quoteDetail == null)
+            {
+                Console.WriteLine("No valid item details were supplied for verification.");
+                return false;
+            }
 
             B2BLogReportPage.FindMessageAndGoToQuoteViewerPage(enteringMasterOrderGroupMessage);
             return B2BQuoteViewerPage.CheckItemDetails(quoteDetail.ItemDescription, quoteDetail.Quantity, quoteDetail.Price);
