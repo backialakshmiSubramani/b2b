@@ -109,8 +109,13 @@ namespace Modules.Channel.B2B.Core.Pages
 
         public string SearchByDpidAndGetOrderStatus(string dpid)
         {
-            SearchCriteriaElement.SelectByText("Dell Purchase Id");
+            if (!SearchCriteriaElement.SelectedOption.Text.Equals("Dell Purchase Id"))
+            {
+                SearchCriteriaElement.SelectByText("Dell Purchase Id");
+            }
+
             webDriver.WaitForElementDisplayed(By.Id("txtSearch"), TimeSpan.FromSeconds(10));
+            SearchTextBox.Clear();
             SearchTextBox.SendKeys(dpid);
             ////SearchButton.Click();
             javaScriptExecutor.ExecuteScript("arguments[0].click();", SearchButton);
