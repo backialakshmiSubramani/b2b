@@ -31,6 +31,7 @@ namespace Modules.Channel.B2B.Core.Pages
     public class B2BPreviewAssociatedCrossReferenceListPage : DCSGPageBase
     {
         IWebDriver webDriver;
+        private IJavaScriptExecutor javaScriptExecutor;
 
         /// <summary>
         /// Constructor to hand off webDriver
@@ -40,7 +41,7 @@ namespace Modules.Channel.B2B.Core.Pages
             : base(ref webDriver)
         {
             this.webDriver = webDriver;
-            //populate the following variables with the appropriate value
+            javaScriptExecutor = (IJavaScriptExecutor)this.webDriver;
             Name = "B2B Preview Associated Cross Reference Lis";
             Url = webDriver.Url;
             ProductUnit = "Channel";
@@ -64,6 +65,7 @@ namespace Modules.Channel.B2B.Core.Pages
         {
             return webDriver.Url.Contains("/B2BToolsCE");
         }
+
         #region Elements
 
         private IWebElement _pageTitleHeader;
@@ -85,6 +87,7 @@ namespace Modules.Channel.B2B.Core.Pages
                 return new SelectElement(webDriver.FindElement(By.Id("ContentPageHolder_drp_CRT_Profiles")));
             }
         }
+
         private IWebElement SearchButton
         {
             get
@@ -92,6 +95,7 @@ namespace Modules.Channel.B2B.Core.Pages
                 return webDriver.FindElement(By.Id("ContentPageHolder_lnk_btnSearch"));
             }
         }
+
         private IWebElement CrossReferenceListTable
         {
             get
@@ -99,21 +103,28 @@ namespace Modules.Channel.B2B.Core.Pages
                 return webDriver.FindElement(By.Id("ContentPageHolder_CRTGridAssoList_grdVwCrossReferenceAssociationsList"));
             }
         }
+
         #endregion
+
         #region Element Actions
+
         public void SelectAccountName(string AccountName)
         {
             this.AccountName.SelectByValue(AccountName);
         }
+
         public void ClickSearchButton()
         {
-            SearchButton.Click();
+            ////SearchButton.Click();
+            javaScriptExecutor.ExecuteScript("arguments[0].click();", SearchButton);
         }
+
         public string RowText()
         {
             const string rowPath = "//table[@id='ContentPageHolder_CRTGridAssoList_grdVwCrossReferenceAssociationsList']/tbody/tr[1]";
             return webDriver.FindElement(By.XPath(rowPath)).Text;
         }
+
         #endregion
     }
 }

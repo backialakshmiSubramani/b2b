@@ -31,7 +31,7 @@ namespace Modules.Channel.B2B.Core.Pages
     public class B2BProfileSettingsAsnPage : DCSGPageBase
     {
         IWebDriver webDriver;
-        //private IJavaScriptExecutor javaScriptExecutor;
+        private IJavaScriptExecutor javaScriptExecutor;
 
         /// <summary>
         /// Constructor to hand off webDriver
@@ -41,7 +41,7 @@ namespace Modules.Channel.B2B.Core.Pages
             : base(ref webDriver)
         {
             this.webDriver = webDriver;
-            //javaScriptExecutor = (IJavaScriptExecutor)webDriver;
+            javaScriptExecutor = (IJavaScriptExecutor)webDriver;
             //populate the following variables with the appropriate value
             //Name = "";
             //Url = "";
@@ -68,7 +68,7 @@ namespace Modules.Channel.B2B.Core.Pages
         }
 
         #region Elements
-        private IWebElement ASNTab
+        private IWebElement AsnTab
         {
             get
             {
@@ -77,7 +77,7 @@ namespace Modules.Channel.B2B.Core.Pages
             }
         }
 
-        private IWebElement EnableChannelASNChkBox
+        private IWebElement EnableChannelAsnCheckbox
         {
             get
             {
@@ -96,7 +96,7 @@ namespace Modules.Channel.B2B.Core.Pages
             }
         }
 
-        private IWebElement UpdateBtn
+        private IWebElement UpdateButton
         {
             get
             {
@@ -126,43 +126,34 @@ namespace Modules.Channel.B2B.Core.Pages
 
         public void EnableorDisableChannelAsnForProfile(string Option, string DeliveryPreference)
         {
-            ASNTab.Click();
-            //javaScriptExecutor.ExecuteScript("arguments[0].click();", ASNTab);
+            ////AsnTab.Click();
+            javaScriptExecutor.ExecuteScript("arguments[0].click();", AsnTab);
 
             switch (Option)
             {
                 case "Enable":
-                    if (EnableChannelASNChkBox.GetAttribute("checked") != "true")
+                    if (EnableChannelAsnCheckbox.GetAttribute("checked") != "true")
                     {
-                        EnableChannelASNChkBox.Click();
-                        //javaScriptExecutor.ExecuteScript("arguments[0].click();", EnableChannelASNChkBox);
+                        ////EnableChannelAsnCheckbox.Click();
+                        javaScriptExecutor.ExecuteScript("arguments[0].click();", EnableChannelAsnCheckbox);
                         DeliveryPreferenceList.SelectByText(DeliveryPreference);
-                        UpdateBtn.Click();
-                        //javaScriptExecutor.ExecuteScript("arguments[0].click();", UpdateBtn);
+                        ////UpdateButton.Click();
+                        javaScriptExecutor.ExecuteScript("arguments[0].click();", UpdateButton);
                     }
-                    else
-                    {
-                        // do Nothing
-                    }
-                    break;
 
+                    break;
 
                 case "Disable":
-                    if (EnableChannelASNChkBox.GetAttribute("checked") == "true")
+                    if (EnableChannelAsnCheckbox.GetAttribute("checked") == "true")
                     {
-                        EnableChannelASNChkBox.Click();
-                        //javaScriptExecutor.ExecuteScript("arguments[0].click();", EnableChannelASNChkBox);
-                        UpdateBtn.Click();
-                        //javaScriptExecutor.ExecuteScript("arguments[0].click();", UpdateBtn);
+                        ////EnableChannelAsnCheckbox.Click();
+                        javaScriptExecutor.ExecuteScript("arguments[0].click();", EnableChannelAsnCheckbox);
+                        ////UpdateButton.Click();
+                        javaScriptExecutor.ExecuteScript("arguments[0].click();", UpdateButton);
                     }
-                    else
-                    {
-                        // do Nothing
-                    }
+
                     break;
-
             }
-
         }
 
         public bool UpdateSuccessMsgDisplayed()
@@ -172,8 +163,8 @@ namespace Modules.Channel.B2B.Core.Pages
 
         public void ClickSelectProfile()
         {
-            SelectProfileLink.Click();
-            //javaScriptExecutor.ExecuteScript("arguments[0].click();", SelectProfileLink);
+            ////SelectProfileLink.Click();
+            javaScriptExecutor.ExecuteScript("arguments[0].click();", SelectProfileLink);
         }
 
 

@@ -44,11 +44,6 @@ namespace Modules.Channel.B2B.Core.Pages
         {
             this.webDriver = webDriver;
             javaScriptExecutor = (IJavaScriptExecutor)this.webDriver;
-            //populate the following variables with the appropriate value
-            //Name = "";
-            //Url = "";
-            //ProductUnit = "";
-
         }
 
         /// <summary>
@@ -117,8 +112,8 @@ namespace Modules.Channel.B2B.Core.Pages
 
         public void SelectFirstConfiguration()
         {
-            FirstConfigurationCheckbox.Click();
-            // javaScriptExecutor.ExecuteScript("arguments[0].click();", FirstConfigurationCheckbox);
+            ////FirstConfigurationCheckbox.Click();
+            javaScriptExecutor.ExecuteScript("arguments[0].click();", FirstConfigurationCheckbox);
         }
 
         public void SelectSpecificConfiguration(string filterValue, string ItemName)

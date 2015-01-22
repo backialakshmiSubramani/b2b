@@ -30,6 +30,7 @@ namespace Modules.Channel.B2B.Core.Pages
     public class B2BShopingCartPage : DCSGPageBase
     {
         IWebDriver webDriver;
+        private IJavaScriptExecutor javaScriptExecutor;
 
         /// <summary>
         /// Constructor to hand off webDriver
@@ -39,11 +40,7 @@ namespace Modules.Channel.B2B.Core.Pages
             : base(ref webDriver)
         {
             this.webDriver = webDriver;
-            //populate the following variables with the appropriate value
-            //Name = "";
-            //Url = "";
-            //ProductUnit = "";
-
+            javaScriptExecutor = (IJavaScriptExecutor)this.webDriver;
         }
 
         /// <summary>
@@ -99,13 +96,15 @@ namespace Modules.Channel.B2B.Core.Pages
         {
             if (quoteType == QuoteType.EQuote)
             {
-                SaveEQuoteElement.Click();
+                ////SaveEQuoteElement.Click();
+                javaScriptExecutor.ExecuteScript("arguments[0].click();", SaveEQuoteElement);
                 webDriver.WaitForPageLoad(TimeSpan.FromSeconds(50));
             }
 
             if (quoteType == QuoteType.OrQuote)
             {
-                CreateOrQuoteElement.Click();
+                ////CreateOrQuoteElement.Click();
+                javaScriptExecutor.ExecuteScript("arguments[0].click();", CreateOrQuoteElement);
                 webDriver.WaitForPageLoad(TimeSpan.FromSeconds(50));
             }
         }

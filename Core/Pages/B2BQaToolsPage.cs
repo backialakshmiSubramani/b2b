@@ -195,14 +195,12 @@ namespace Modules.Channel.B2B.Core.Pages
             if (environment.ToUpper().Equals("PREVIEW"))
             {
                 ////LocationEnvironmentPreview.Click();
-
                 javaScriptExecutor.ExecuteScript("arguments[0].click();", LocationEnvironmentPreview);
                 webDriver.WaitForElementDisplayed(By.XPath("//ul[@id='environmentTree']/li[7]/ul/li/a"), TimeSpan.FromSeconds(15));
             }
             else if (environment.ToUpper().Equals("PRODUCTION"))
             {
                 ////LocationEnvironmentProduction.Click();
-
                 javaScriptExecutor.ExecuteScript("arguments[0].click();", LocationEnvironmentProduction);
                 webDriver.WaitForElementDisplayed(By.XPath("//ul[@id='environmentTree']/li[6]/ul/li/a"), TimeSpan.FromSeconds(15));
             }

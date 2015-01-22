@@ -31,6 +31,7 @@ namespace Modules.Channel.B2B.Core.Pages
     public class B2BUserListPage : DCSGPageBase
     {
         IWebDriver webDriver;
+        private IJavaScriptExecutor javaScriptExecutor;
 
         /// <summary>
         /// Constructor to hand off webDriver
@@ -40,6 +41,7 @@ namespace Modules.Channel.B2B.Core.Pages
             : base(ref webDriver)
         {
             this.webDriver = webDriver;
+            javaScriptExecutor = (IJavaScriptExecutor)this.webDriver;
             //populate the following variables with the appropriate value
             //Name = "";
             //Url = "";
@@ -66,7 +68,7 @@ namespace Modules.Channel.B2B.Core.Pages
         }
 
 
-        # region Elements
+        #region Elements
 
         private IWebElement ManageUsersTab
         {
@@ -128,28 +130,32 @@ namespace Modules.Channel.B2B.Core.Pages
                 return webDriver.FindElement(By.Id("ContentPageHolder_tabUsers_tabManageUsers_gvUserLists_lblUserType_0"));
             }
         }
-        # endregion
+        #endregion
 
-        # region Element Action
-        # endregion
-
-        # region ReUsable Methods
+        #region ReUsable Methods
 
         public bool ChangeUserAccess(string UserName, string UserType)
         {
-            ManageUsersTab.Click();
+            ////ManageUsersTab.Click();
+            javaScriptExecutor.ExecuteScript("arguments[0].click();", ManageUsersTab);
             UserNameText.Set(UserName);
-            SearchBtn.Click();
+            ////SearchBtn.Click();
+            javaScriptExecutor.ExecuteScript("arguments[0].click();", SearchBtn);
             webDriver.WaitForPageLoad(TimeSpan.FromSeconds(5));
-            WebDriver.FindElement(By.XPath("//a[contains(text(),'" + UserName + "')]")).Click(); // Searched Username is dynamic
+            ////webDriver.FindElement(By.XPath("//a[contains(text(),'" + UserName + "')]")).Click(); // Searched Username is dynamic
+            javaScriptExecutor.ExecuteScript(
+                "arguments[0].click();",
+                webDriver.FindElement(By.XPath("//a[contains(text(),'" + UserName + "')]"))); // Searched Username is dynamic
             webDriver.WaitForPageLoad(TimeSpan.FromSeconds(5));
             SelectElement userType = new SelectElement(UserTypeList);
             userType.SelectByText(UserType);
-            UpdateUserLink.Click();
+            ////UpdateUserLink.Click();
+            javaScriptExecutor.ExecuteScript("arguments[0].click();", UpdateUserLink);
             if (UpdateSuccessMsg.Displayed)
             {
                 UserNameText.Set(UserName);
-                SearchBtn.Click();
+                ////SearchBtn.Click();
+                javaScriptExecutor.ExecuteScript("arguments[0].click();", SearchBtn);
                 webDriver.WaitForPageLoad(TimeSpan.FromSeconds(20));
                 if (UserTypeValue.Text.Trim() == UserType)
                 {
@@ -167,7 +173,8 @@ namespace Modules.Channel.B2B.Core.Pages
                 return false;
             }
         }
-        # endregion
+
+        #endregion
 
 
     }

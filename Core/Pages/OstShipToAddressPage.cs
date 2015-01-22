@@ -31,6 +31,7 @@ namespace Modules.Channel.B2B.Core.Pages
     public class OstShipToAddressPage : DCSGPageBase
     {
         IWebDriver webDriver;
+        private IJavaScriptExecutor javaScriptExecutor;
 
         /// <summary>
         /// Constructor to hand off webDriver
@@ -40,11 +41,7 @@ namespace Modules.Channel.B2B.Core.Pages
             : base(ref webDriver)
         {
             this.webDriver = webDriver;
-            //populate the following variables with the appropriate value
-            //Name = "";
-            //Url = "";
-            //ProductUnit = "";
-
+            javaScriptExecutor = (IJavaScriptExecutor)this.webDriver;
         }
 
         /// <summary>
@@ -92,7 +89,8 @@ namespace Modules.Channel.B2B.Core.Pages
 
         public bool SelectShipToAddOptions()
         {
-            SelectShipToAddlDropdown.Click();
+            ////SelectShipToAddlDropdown.Click();
+            javaScriptExecutor.ExecuteScript("arguments[0].click();", SelectShipToAddlDropdown);
             return SelectShipToAddlElement.Options.Any(e => e.Text.Contains("Local Channel #"));
         }
     }

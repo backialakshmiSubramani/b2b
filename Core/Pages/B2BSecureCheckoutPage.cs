@@ -41,11 +41,6 @@ namespace Modules.Channel.B2B.Core.Pages
         {
             this.webDriver = webDriver;
             javaScriptExecutor = (IJavaScriptExecutor)webDriver;
-            //populate the following variables with the appropriate value
-            //Name = "";
-            //Url = "";
-            //ProductUnit = "";
-
         }
 
         /// <summary>
@@ -170,22 +165,24 @@ namespace Modules.Channel.B2B.Core.Pages
 
         public void ClickExportOption()
         {
-            ExportOption.Click();
+            ////ExportOption.Click();
+            javaScriptExecutor.ExecuteScript("arguments[0].click();", ExportOption);
         }
 
         public void ClickContinueButton()
         {
-            ShippingContinueButton.Click();
+            ////ShippingContinueButton.Click();
+            javaScriptExecutor.ExecuteScript("arguments[0].click();", ShippingContinueButton);
             webDriver.WaitForPageLoad(TimeSpan.FromSeconds(40));
         }
 
         public void EnterContactAndBillingInfo()
         {
-            string firstName = DCSG.ADEPT.Framework.Data.Generator.RandomString(5,0);
-            string lastName = DCSG.ADEPT.Framework.Data.Generator.RandomString(5,0);
-            string companyName = DCSG.ADEPT.Framework.Data.Generator.RandomString(5,0);
-            string phoneNumber = DCSG.ADEPT.Framework.Data.Generator.RandomInt(0, 999999).ToString() +DCSG.ADEPT.Framework.Data.Generator.RandomInt(0, 999999).ToString();
-            string email = DCSG.ADEPT.Framework.Data.Generator.RandomString(5,0) + "@test.com";
+            string firstName = DCSG.ADEPT.Framework.Data.Generator.RandomString(5, 0);
+            string lastName = DCSG.ADEPT.Framework.Data.Generator.RandomString(5, 0);
+            string companyName = DCSG.ADEPT.Framework.Data.Generator.RandomString(5, 0);
+            string phoneNumber = DCSG.ADEPT.Framework.Data.Generator.RandomInt(0, 999999).ToString() + DCSG.ADEPT.Framework.Data.Generator.RandomInt(0, 999999).ToString();
+            string email = DCSG.ADEPT.Framework.Data.Generator.RandomString(5, 0) + "@test.com";
 
             FirstName.SendKeys(firstName);
             LastName.SendKeys(lastName);
@@ -210,7 +207,7 @@ namespace Modules.Channel.B2B.Core.Pages
             webDriver.WaitForPageLoad(TimeSpan.FromSeconds(30));
             javaScriptExecutor.ExecuteScript("arguments[0].click();", PaymentContinueBtn);
             webDriver.WaitForPageLoad(TimeSpan.FromSeconds(30));
-            
+
         }
 
         #endregion

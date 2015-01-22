@@ -218,11 +218,6 @@ namespace Modules.Channel.B2B.Core.Pages
             return webDriver.FindElement(By.XPath(AddressPath)).Text;
         }
 
-        public void AddNewOmsAddressClick()
-        {
-            webDriver.FindElement(By.XPath("//input[@id='TabContainerAddress_TabPanelBilltoAddress_AffinityBillAddress_img_Add_New_BLG_OMS_Address']")).Click();
-        }
-
         public string AddOmsAddressNewWindow()
         {
             webDriver.WaitForElementDisplayed(By.XPath("//h2[contains(text(),'Add')]"), TimeSpan.FromSeconds(30));
