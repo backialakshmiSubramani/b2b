@@ -190,7 +190,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
                 return false;
             }
 
-            webDriver.Navigate().Back();
+            B2BLogDetailPage.ReturnToLogReportLink.Click();
             webDriver.WaitForPageLoad(new TimeSpan(0, 0, 10));
 
             // 4. "Continue Purchase Order: Purchase Order Success: <DPID>" - capture DPID & verify in GCM
@@ -325,7 +325,8 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
                     return false;
                 }
 
-                webDriver.Navigate().Back();
+                B2BLogDetailPage.ReturnToLogReportLink.Click();
+                webDriver.WaitForPageLoad(new TimeSpan(0, 0, 10));
             }
 
             if (!B2BLogReportPage.FindMessageAndGoToLogDetailPage(mapperRequestMessage))
@@ -408,8 +409,10 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
             {
                 Console.WriteLine(itemId + "\n");
             }
-            //Have to update by Nethra as page not navigating to the previous page
-            webDriver.Navigate().Back();
+
+            B2BLogDetailPage.ReturnToLogReportLink.Click();
+            webDriver.WaitForPageLoad(new TimeSpan(0, 0, 10));
+
             if (!B2BLogReportPage.FindMessageAndGoToLogDetailPage(mapperRequestMessage))
             {
                 return false;
@@ -630,8 +633,9 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
             }
 
             XDocument ogXml = XDocument.Parse(B2BLogDetailPage.GetLogDetail());
-            //To Be change by Nethra as page not navigating to previous page
-            webDriver.Navigate().Back();
+
+            B2BLogDetailPage.ReturnToLogReportLink.Click();
+            webDriver.WaitForPageLoad(new TimeSpan(0, 0, 10));
 
             var itemId =
                 ogXml.XPathSelectElements("//OrderGroup/OrderForms/OrderForm/Items/Item/Id").FirstOrDefault();
@@ -701,8 +705,9 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
             }
 
             XDocument ogXml = XDocument.Parse(B2BLogDetailPage.GetLogDetail());
-            //Code to be changed by Nethra as page not navigating to the previous page.
-            webDriver.Navigate().Back();
+
+            B2BLogDetailPage.ReturnToLogReportLink.Click();
+            webDriver.WaitForPageLoad(new TimeSpan(0, 0, 10));
 
             var itemId = ogXml.XPathSelectElements("//OrderGroup/OrderForms/OrderForm/Items/Item/Id").FirstOrDefault();
 
@@ -739,8 +744,6 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
             GcmOrderGroupLogPage.GoToOrderGroupSummaryPage();
             GcmOrderGroupSummaryPage.GoToXmlResultsPage();
             var gcmOgXml = GcmXmlResultsPage.GetOgXml();
-
-            //gcmOgXml = XDocument.Load(@"C:\Nethra_Source\Channel\OgFromGcm.xml");
 
             var fulfillmentUnits = gcmOgXml.XPathSelectElements("//OrderGroup/OrderForms/OrderForm/FulfillmentUnits");
 

@@ -74,6 +74,14 @@ namespace Modules.Channel.B2B.Core.Pages
             }
         }
 
+        public IWebElement ReturnToLogReportLink
+        {
+            get
+            {
+                return webDriver.FindElement(By.Id("ContentPageHolder_LnkToList"));
+            }
+        }
+
         public List<string> GetEndUserDetailsFromLogDetail()
         {
             var endUserDetailElement =
