@@ -56,7 +56,9 @@ namespace Modules.Channel.B2B.DAL
             }
             catch (Exception e)
             {
-                Console.WriteLine("Failed to fetch FulfillmentItemId from DB. Exception Message: {0}", e.Message);
+                Console.WriteLine(
+                    "Failed to fetch FulfillmentItemId from DB. Exception Message: {0} \n InnerException: {1} \n StackTrace {2}",
+                    e.Message, e.InnerException, e.StackTrace);
                 return null;
             }
         }
