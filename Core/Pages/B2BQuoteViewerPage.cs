@@ -74,11 +74,11 @@ namespace Modules.Channel.B2B.Core.Pages
             }
         }
 
-        private IList<IWebElement> QuoteViewerTableRowList
+        private IEnumerable<IWebElement> QuoteViewerTableRowList
         {
             get
             {
-                return webDriver.FindElement(By.Id("ContentPageHolder_dg_QV_Items")).FindElements(By.TagName("tr"));
+                return webDriver.FindElement(By.Id("ContentPageHolder_dg_QV_Items")).FindElements(By.TagName("tr")).Skip(1);
             }
         }
 
@@ -88,19 +88,17 @@ namespace Modules.Channel.B2B.Core.Pages
 
         public bool CheckItemDetails(string description, string quantity, string unitPrice)
         {
-           
-            for (int i=0 ; i<QuoteViewerTableRowList.Count ; i++ )
+            foreach (var t in this.QuoteViewerTableRowList)
             {
-                Console.WriteLine(QuoteViewerTableRowList[i].Text.Trim().ToLower());
-                if (QuoteViewerTableRowList[i].Text.Trim().ToLower().Contains(description.ToLower()))
+                Console.WriteLine(t.FindElements(By.TagName("td"))[2].Text);
+                if (t.FindElements(By.TagName("td"))[2].Text.Trim().ToLower().Contains(description.ToLower()))
                 {
-                    return QuoteViewerTableRowList[i].FindElements(By.TagName("td"))[2].Text.Trim().ToLower().Contains(description.ToLower())
-                            && QuoteViewerTableRowList[i].FindElements(By.TagName("td"))[6].Text.Trim().Contains(quantity)
-                            && QuoteViewerTableRowList[i].FindElements(By.TagName("td"))[8].Text.Trim().Split(' ').Last().Contains(unitPrice);
+                    return t.FindElements(By.TagName("td"))[6].Text.Trim().Contains(quantity)
+                           && t.FindElements(By.TagName("td"))[8].Text.Trim().Split(' ').Last().Contains(unitPrice);
                 }
             }
-            return false;
 
+            return false;
         }
 
         #endregion

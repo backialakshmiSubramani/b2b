@@ -285,7 +285,11 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
                 return false;
             }
 
-            B2BLogReportPage.FindMessageAndGoToQuoteViewerPage(enteringMasterOrderGroupMessage);
+            if (!B2BLogReportPage.FindMessageAndGoToQuoteViewerPage(enteringMasterOrderGroupMessage))
+            {
+                return false;
+            }
+
             return B2BQuoteViewerPage.CheckItemDetails(quoteDetail.ItemDescription, quoteDetail.Quantity, quoteDetail.Price);
         }
 

@@ -311,14 +311,22 @@ namespace Modules.Channel.B2B.Core.Pages
             return true;
         }
 
-        public void FindMessageAndGoToQuoteViewerPage(string messageToLookFor)
+        public bool FindMessageAndGoToQuoteViewerPage(string messageToLookFor)
         {
             var messageRow =
                 PoLogReportRows.FirstOrDefault(
                     e => e.FindElements(By.TagName("td"))[5].Text.Contains(messageToLookFor));
+
+            if (messageRow == null)
+            {
+                Console.WriteLine("Message not found: {0}", messageToLookFor);
+                return false;
+            }
+
             ////messageRow.FindElements(By.TagName("td"))[7].Click();
             javaScriptExecutor.ExecuteScript("arguments[0].click();", messageRow.FindElements(By.TagName("td"))[7].FindElement(By.TagName("a")));
             webDriver.WaitForPageLoad(new TimeSpan(0, 0, 10));
+            return true;
         }
 
         public bool FindQuoteRetrievalMessage(string messagePrefix, string messageSuffix)
