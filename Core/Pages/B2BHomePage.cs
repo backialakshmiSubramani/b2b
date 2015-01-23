@@ -183,6 +183,7 @@ namespace Modules.Channel.B2B.Core.Pages
         {
             ////B2BProfileListLink.Click();
             javaScriptExecutor.ExecuteScript("arguments[0].click();", B2BProfileListLink);
+            webDriver.WaitForPageLoad(new TimeSpan(0,0,20));
         }
 
         public void ClickCrossReferenceListLink()

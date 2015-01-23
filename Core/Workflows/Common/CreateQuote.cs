@@ -277,6 +277,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
             }
 
             // verifies all validation after submiting PO
+            webDriver.Close();
             webDriver.SwitchTo().Window(parentWindow);
             webDriver.WaitForPageLoad(TimeSpan.FromSeconds(40));
             quoteDetail = listOfQuoteDetail;

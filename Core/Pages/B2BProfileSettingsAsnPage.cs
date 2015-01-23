@@ -165,6 +165,7 @@ namespace Modules.Channel.B2B.Core.Pages
         {
             ////SelectProfileLink.Click();
             javaScriptExecutor.ExecuteScript("arguments[0].click();", SelectProfileLink);
+            webDriver.WaitForPageLoad(new TimeSpan(0, 0, 10));
         }
 
 
