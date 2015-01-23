@@ -494,8 +494,9 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
                 return false;
             }
 
+            Console.WriteLine("fetching records from FetchRecordsFromAsnQueue ");
             var firstRow = AsnDataAccess.FetchRecordsFromAsnQueue(poNumber).FirstOrDefault();
-
+            Console.WriteLine("fetching records from FetchRecordsFromAsnQueue after method run ");
             return firstRow != null && firstRow.DPID.Equals(dellPurchaseId);
         }
 
