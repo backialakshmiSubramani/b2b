@@ -33,6 +33,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
 
         public RunEnvironment RunEnvironment { get; set; }
         public string OrderIdBase { get; set; }
+        public string ProfileName { get; set; }
         public string IdentityName { get; set; }
         public string DeploymentMode { get; set; }
         public Workflow Workflow { get; set; }
@@ -178,7 +179,8 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
                    && this.poOperations.MatchValuesInPoXmlAndMapperXml(
                        this.poNumber,
                        expectedDpidMessage,
-                       mapperRequestMessage);
+                       mapperRequestMessage,
+                       this.ProfileName);
         }
     }
 }

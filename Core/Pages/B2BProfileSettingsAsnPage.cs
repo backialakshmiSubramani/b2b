@@ -86,16 +86,6 @@ namespace Modules.Channel.B2B.Core.Pages
             }
         }
 
-        private SelectElement DeliveryPreferenceList
-        {
-            get
-            {
-                return
-                    new SelectElement(
-                        webDriver.FindElement(By.XPath("//select[contains(@id,'Asn_Delivery_Preference')]")));
-            }
-        }
-
         private IWebElement UpdateButton
         {
             get
@@ -120,6 +110,23 @@ namespace Modules.Channel.B2B.Core.Pages
                 return webDriver.FindElement(By.XPath("//a[contains(text(),'Select Profile')]"));
             }
         }
+
+        private SelectElement DeliveryPreferenceDropdown
+        {
+            get
+            {
+                return new SelectElement(webDriver.FindElement(By.Id("ContentPageHolder_ddl_Asn_Delivery_Preference")));
+            }
+        }
+
+        private IWebElement DellImageLink
+        {
+            get
+            {
+                return webDriver.FindElement(By.Id("HyplnkDellLogo"));
+            }
+        }
+
         #endregion
 
         #region ReUsable Methods
@@ -136,7 +143,7 @@ namespace Modules.Channel.B2B.Core.Pages
                     {
                         ////EnableChannelAsnCheckbox.Click();
                         javaScriptExecutor.ExecuteScript("arguments[0].click();", EnableChannelAsnCheckbox);
-                        DeliveryPreferenceList.SelectByText(DeliveryPreference);
+                        DeliveryPreferenceDropdown.SelectByText(DeliveryPreference);
                         ////UpdateButton.Click();
                         javaScriptExecutor.ExecuteScript("arguments[0].click();", UpdateButton);
                     }
@@ -168,6 +175,16 @@ namespace Modules.Channel.B2B.Core.Pages
             webDriver.WaitForPageLoad(new TimeSpan(0, 0, 10));
         }
 
+        public string GetDeliveryPreference()
+        {
+            return DeliveryPreferenceDropdown.SelectedOption.GetAttribute("value");
+        }
+
+        public void GoToHomePage()
+        {
+            javaScriptExecutor.ExecuteScript("arguments[0].click();", DellImageLink);
+            webDriver.WaitForPageLoad(new TimeSpan(0, 0, 10));
+        }
 
         #endregion
     }

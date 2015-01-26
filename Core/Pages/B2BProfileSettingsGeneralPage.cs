@@ -147,13 +147,19 @@ namespace Modules.Channel.B2B.Core.Pages
             }
         }
 
+        private IWebElement AsnTabLink
+        {
+            get
+            {
+                return webDriver.FindElement(By.Id("ContentPageHolder_ProfileHeader_hyp_PH_ASN"));
+            }
+        }
 
         #endregion
 
         #region Element Action
         public void EnterUserId(string UserId)
         {
-
             UserIdText.Set(UserId);
         }
 
@@ -184,7 +190,6 @@ namespace Modules.Channel.B2B.Core.Pages
             return SelectValidAccessGroupMsg.Displayed;
         }
 
-
         public void EnterAccessGroup(string AccessGroupValue)
         {
             AccessGroupList.SelectByText(AccessGroupValue);
@@ -200,6 +205,11 @@ namespace Modules.Channel.B2B.Core.Pages
         {
             return AffinityAccountId.Text;
         }
-    }
 
+        public void GoToAsnTab()
+        {
+            javaScriptExecutor.ExecuteScript("arguments[0].click();", AsnTabLink);
+            webDriver.WaitForPageLoad(new TimeSpan(0, 0, 10));
+        }
+    }
 }

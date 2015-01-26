@@ -243,7 +243,8 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
                    && this.poOperations.MatchValuesInPoXmlAndMapperXml(
                        this.poNumber,
                        expectedDpidMessage,
-                       mapperRequestMessage);
+                       mapperRequestMessage,
+                       this.ProfileName);
         }
     }
 }

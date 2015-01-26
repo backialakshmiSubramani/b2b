@@ -1,4 +1,3 @@
-
 // ***********************************************************************
 // Author           : AMERICAS\Gaurav_Bhardwaj3
 // Created          : 12/8/2014 4:48:16 PM
@@ -22,7 +21,6 @@ using DCSG.ADEPT.Framework.Core.Extensions.WebDriver;
 using DCSG.ADEPT.Framework.Core.Extensions.WebElement;
 using DCSG.ADEPT.Framework.Core.Extensions.Locators;
 using DCSG.ADEPT.Framework.Core.Page;
-
 
 namespace Modules.Channel.B2B.Core.Pages
 {

@@ -44,6 +44,30 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
             }
         }
 
+        private B2BCustomerProfileListPage B2BCustomerProfileListPage
+        {
+            get
+            {
+                return new B2BCustomerProfileListPage(webDriver);
+            }
+        }
+
+        private B2BProfileSettingsGeneralPage B2BProfileSettingsGeneralPage
+        {
+            get
+            {
+                return new B2BProfileSettingsGeneralPage(webDriver);
+            }
+        }
+
+        private B2BProfileSettingsAsnPage B2BProfileSettingsAsnPage
+        {
+            get
+            {
+                return new B2BProfileSettingsAsnPage(webDriver);
+            }
+        }
+
         private B2BQaToolsPage B2BQaToolsPage
         {
             get
@@ -392,10 +416,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
             webDriver.SwitchTo().Window(gcmWindow);
             webDriver.Manage().Window.Maximize();
 
-            if (!VerifyOrderStatusInGcm(gcmUrl, dellPurchaseId))
-            {
-                return false;
-            }
+            VerifyOrderStatusInGcm(gcmUrl, dellPurchaseId);
 
             webDriver.Close();
             webDriver.SwitchTo().Window(parentWindowHandle);
@@ -494,9 +515,9 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
                 return false;
             }
 
-            Console.WriteLine("fetching records from FetchRecordsFromAsnQueue ");
+            Console.WriteLine("Begin retrieval from ASNQueue");
             var firstRow = AsnDataAccess.FetchRecordsFromAsnQueue(poNumber).FirstOrDefault();
-            Console.WriteLine("fetching records from FetchRecordsFromAsnQueue after method run ");
+            Console.WriteLine("End retrieval from ASNQueue");
             return firstRow != null && firstRow.DPID.Equals(dellPurchaseId);
         }
 
@@ -506,12 +527,21 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
         /// <param name="poNumber"></param>
         /// <param name="expectedDpidMessage"></param>
         /// <param name="mapperRequestMessage"></param>
+        /// <param name="profileName"></param>
         /// <returns></returns>
         public bool MatchValuesInPoXmlAndMapperXml(
             string poNumber,
             string expectedDpidMessage,
-            string mapperRequestMessage)
+            string mapperRequestMessage,
+            string profileName)
         {
+            B2BHomePage.ClickB2BProfileList();
+            B2BCustomerProfileListPage.SearchProfile(null, profileName);
+            B2BCustomerProfileListPage.ClickSearchedProfile(profileName);
+            B2BProfileSettingsGeneralPage.GoToAsnTab();
+            var deliveryPreference = B2BProfileSettingsAsnPage.GetDeliveryPreference();
+            B2BProfileSettingsAsnPage.GoToHomePage();
+
             if (!SearchPoInLogReportPage(poNumber))
             {
                 return false;
@@ -612,7 +642,12 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
                 return false;
             }
 
-            Console.WriteLine("Delivery Preference is: {0}", mapperXml.XPathSelectElement("//DeliveryPreference").Value);
+            Console.WriteLine("Delivery Preference from mapper xml is: {0}", mapperXml.XPathSelectElement("//DeliveryPreference").Value);
+
+            if (!mapperXml.XPathSelectElement("//DeliveryPreference").Value.Equals(deliveryPreference))
+            {
+                return false;
+            }
 
             if (!asnQueueEntry.DeliveryPreference.ToString().Equals(mapperXml.XPathSelectElement("//DeliveryPreference").Value))
             {
@@ -644,7 +679,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
                 return false;
             }
 
-            XDocument ogXml = XDocument.Parse(B2BLogDetailPage.GetLogDetail());
+            var ogXml = XDocument.Parse(B2BLogDetailPage.GetLogDetail());
 
             B2BLogDetailPage.ReturnToLogReport();
 
@@ -911,7 +946,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
                     continue;
                 }
 
-                Console.WriteLine("Aborting test. Status is ** {0} **", status);
+                Console.WriteLine("GCM status is ** {0} **", status);
                 return false;
             }
 

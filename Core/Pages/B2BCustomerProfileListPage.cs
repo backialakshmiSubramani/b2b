@@ -22,7 +22,6 @@ using DCSG.ADEPT.Framework.Core.Extensions.WebElement;
 using DCSG.ADEPT.Framework.Core.Extensions.Locators;
 using DCSG.ADEPT.Framework.Core.Page;
 
-
 namespace Modules.Channel.B2B.Core.Pages
 {
     /// <summary>
@@ -46,7 +45,6 @@ namespace Modules.Channel.B2B.Core.Pages
             //Name = "";
             //Url = "";
             //ProductUnit = "";
-
         }
 
         /// <summary>
@@ -55,7 +53,7 @@ namespace Modules.Channel.B2B.Core.Pages
         /// <returns>validated</returns>
         public override bool Validate()
         {
-            throw new NotImplementedException();
+            return SearchTextField.IsElementVisible();
         }
 
         /// <summary>
@@ -130,8 +128,6 @@ namespace Modules.Channel.B2B.Core.Pages
             }
         }
 
-
-
         private IWebElement ChannelAsnCheckbox
         {
             get
@@ -197,10 +193,8 @@ namespace Modules.Channel.B2B.Core.Pages
 
         public void ClickSearchedProfile()
         {
-
             ////SearchedProfile.Click();
             javaScriptExecutor.ExecuteScript("arguments[0].click();", SearchedProfile);
-
         }
 
         public void ClickValueAfterSearch()
@@ -215,6 +209,7 @@ namespace Modules.Channel.B2B.Core.Pages
             webDriver.WaitForElementDisplayed(By.LinkText(linkText), TimeSpan.FromSeconds(10));
             ////webDriver.FindElement(By.LinkText(linkText)).Click();
             javaScriptExecutor.ExecuteScript("arguments[0].click();", webDriver.FindElement(By.LinkText(linkText)));
+            webDriver.WaitForPageLoad(new TimeSpan(0, 0, 20));
         }
 
         #endregion
@@ -224,7 +219,10 @@ namespace Modules.Channel.B2B.Core.Pages
         {
             if (SearchCriteria != null)
             {
-                SearchCriteriaList.SelectByText(SearchCriteria);
+                if (!SearchCriteriaList.SelectedOption.Text.Equals(SearchCriteria))
+                {
+                    SearchCriteriaList.SelectByText(SearchCriteria);
+                }
             }
 
             SearchTextField.Set(ProfileName);
