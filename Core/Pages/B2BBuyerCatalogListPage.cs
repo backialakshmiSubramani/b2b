@@ -25,13 +25,11 @@ using System.Collections;
 using System.Linq;
 using System.Runtime.InteropServices;
 using Microsoft.SharePoint.Client.WebParts;
+using System.Collections.ObjectModel;
+using OpenQA.Selenium.Interactions;
 
 namespace Modules.Channel.B2B.Core.Pages
 {
-    using System.Collections.ObjectModel;
-
-    using OpenQA.Selenium.Interactions;
-
     /// <summary>
     /// This base class is the where all specific page classes will be derived.
     /// </summary>

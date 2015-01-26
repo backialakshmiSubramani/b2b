@@ -23,7 +23,6 @@ using DCSG.ADEPT.Framework.Core.Extensions.WebElement;
 using DCSG.ADEPT.Framework.Core.Extensions.Locators;
 using DCSG.ADEPT.Framework.Core.Page;
 
-
 namespace Modules.Channel.B2B.Core.Pages
 {
     /// <summary>
@@ -32,7 +31,6 @@ namespace Modules.Channel.B2B.Core.Pages
     public class B2BCrossReferenceListPage : DCSGPageBase
     {
         IWebDriver webDriver;
-
         private IJavaScriptExecutor javaScriptExecutor;
 
         /// <summary>

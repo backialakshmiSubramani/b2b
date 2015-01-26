@@ -22,7 +22,6 @@ using DCSG.ADEPT.Framework.Core.Extensions.WebElement;
 using DCSG.ADEPT.Framework.Core.Extensions.Locators;
 using DCSG.ADEPT.Framework.Core.Page;
 
-
 namespace Modules.Channel.B2B.Core.Pages
 {
     /// <summary>
@@ -55,7 +54,7 @@ namespace Modules.Channel.B2B.Core.Pages
         /// <returns>validated</returns>
         public override bool Validate()
         {
-            throw new NotImplementedException();
+            return SalesRepresentativeList.IsElementVisible();
         }
 
         /// <summary>
@@ -64,9 +63,8 @@ namespace Modules.Channel.B2B.Core.Pages
         /// <returns>active</returns>
         public override bool IsActive()
         {
-            throw new NotImplementedException();
+            return webDriver.Url.ToLower().Contains("addprofilestocatalogmanager.aspx");
         }
-
 
         #region Elements
 
