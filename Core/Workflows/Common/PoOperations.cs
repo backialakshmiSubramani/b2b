@@ -473,7 +473,11 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
 
             Console.WriteLine("All the Item Ids fetched from <FulfillmentItemInformation> node are present in Mapper Request Xml");
 
+
+
+            Console.WriteLine("Begin retrieval from ASNItemMapping");
             var itemIdsFromDb = AsnDataAccess.FetchItemId(poNumber).Select(i => i.ToString());
+            Console.WriteLine("End retrieval from ASNItemMapping");
 
             if (!itemIdsFromDb.Any() || !itemIdsFromFulfillment.All(i => itemIdsFromDb.Contains(i)))
             {
@@ -562,7 +566,9 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
 
             var mapperXml = XDocument.Parse(B2BLogDetailPage.GetLogDetail());
             var savedPoCbl = XDocument.Load("CblTemplate.xml");
+            Console.WriteLine("Begin retrieval from ASNQueue");
             var asnQueueEntry = AsnDataAccess.FetchRecordsFromAsnQueue(poNumber).FirstOrDefault();
+            Console.WriteLine("End retrieval from ASNQueue");
 
             if (!asnQueueEntry.DPID.Equals(dellPurchaseId))
             {
@@ -715,7 +721,9 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
                 return false;
             }
 
+            Console.WriteLine("Begin retrieval from ASNItemMapping");
             var itemIdsFromDb = AsnDataAccess.FetchItemId(poNumber);
+            Console.WriteLine("End retrieval from ASNItemMapping");
 
             if ((!itemIdsFromDb.Any()) || (!itemIdsFromDb.Any(i => i.ToString().Equals(itemId.Value))))
             {
@@ -780,7 +788,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
             }
 
             Console.WriteLine("Starting GCM verification");
-            if (!VerifyOrderStatusInGcm(gcmUrl, dellPurchaseId))
+            if (!VerifyOrderStatusInGcm(gcmUrl, dellPurchaseId, true))
             {
                 return false;
             }
@@ -810,7 +818,9 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
             var orderNumber = orderNumberElement.Value;
             Console.WriteLine("Backend Order Number from OGXml for Item Id '{0}' is {1}", itemId.Value, orderNumber);
 
+            Console.WriteLine("Begin retrieval from ASNOrderMapping");
             var orderNumbersFromDb = AsnDataAccess.FetchBackendOrderNumber(poNumber);
+            Console.WriteLine("End retrieval from ASNOrderMapping");
 
             if ((!orderNumbersFromDb.Any()) || (!orderNumbersFromDb.Any(i => i.Equals(orderNumber))))
             {
@@ -916,9 +926,8 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
             return true;
         }
 
-        private bool VerifyOrderStatusInGcm(string gcmUrl, string dellPurchaseId)
+        private bool VerifyOrderStatusInGcm(string gcmUrl, string dellPurchaseId, bool retry = false)
         {
-            const int NumberOfRetries = 6;
             webDriver.Navigate().GoToUrl(gcmUrl);
             webDriver.WaitForPageLoad(new TimeSpan(0, 0, 10));
             // GCM verifcation start
@@ -931,26 +940,21 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
                 return true;
             }
 
-            for (var i = 0; i < NumberOfRetries; i++)
+            if (retry)
             {
-                System.Threading.Thread.Sleep(10000);
-                Console.WriteLine("Retry No. {0}", i + 1);
-                status = this.GcmFindEOrderPage.SearchByDpidAndGetOrderStatus(dellPurchaseId);
-                if (status.ToUpper().Trim().Equals("COMPLETE"))
+                var startTime = DateTime.UtcNow;
+                while (DateTime.UtcNow - startTime < TimeSpan.FromMinutes(15))
                 {
-                    break;
+                    status = this.GcmFindEOrderPage.SearchByDpidAndGetOrderStatus(dellPurchaseId);
+                    if (status.ToUpper().Trim().Equals("COMPLETE"))
+                    {
+                        return true;
+                    }
                 }
-
-                if (i != (NumberOfRetries - 1))
-                {
-                    continue;
-                }
-
-                Console.WriteLine("GCM status is ** {0} **", status);
-                return false;
             }
 
-            return true;
+            Console.WriteLine("GCM status is ** {0} **", status);
+            return false;
         }
 
         private bool SearchPoInLogReportPage(string poNumber)

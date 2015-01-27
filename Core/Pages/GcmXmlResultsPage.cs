@@ -113,15 +113,11 @@ namespace Modules.Channel.B2B.Core.Pages
 
             XDocument pageSourceXml;
             string bodyContent;
-            try
-            {
-                bodyContent = webDriver.FindElement(By.TagName("body")).Text;
-            }
-            catch
-            {
-                bodyContent = (string)((IJavaScriptExecutor)this.webDriver).ExecuteScript("return document.getElementsByTagName('body')[0].innerText;");
-            }
 
+            ////bodyContent = webDriver.FindElement(By.TagName("body")).Text;
+
+            bodyContent = (string)((IJavaScriptExecutor)this.webDriver).ExecuteScript("return document.getElementsByTagName('body')[0].innerText;");
+            
             bodyContent = bodyContent.Trim()
                 .Replace("- ", string.Empty)
                 .Replace("\n", string.Empty)

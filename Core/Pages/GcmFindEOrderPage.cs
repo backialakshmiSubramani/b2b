@@ -20,12 +20,10 @@ using DCSG.ADEPT.Framework.Core.Extensions.WebDriver;
 using DCSG.ADEPT.Framework.Core.Extensions.WebElement;
 using DCSG.ADEPT.Framework.Core.Extensions.Locators;
 using DCSG.ADEPT.Framework.Core.Page;
-
+using OpenQA.Selenium.Support.UI;
 
 namespace Modules.Channel.B2B.Core.Pages
 {
-    using OpenQA.Selenium.Support.UI;
-
     /// <summary>
     /// This base class is the where all specific page classes will be derived.
     /// </summary>

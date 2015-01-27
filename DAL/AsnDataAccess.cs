@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Configuration;
+using System.Reflection;
 
 namespace Modules.Channel.B2B.DAL
 {
@@ -28,9 +29,19 @@ namespace Modules.Channel.B2B.DAL
                               where aq.PONumber == poNumber
                               select aq;
 
-                return results.ToList();
 
-                //return row != null ? row.DPID : string.Empty;
+                foreach (var asnQueue in results)
+                {
+                    foreach (var prop in asnQueue.GetType().GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
+                    {
+                        var value = prop.GetValue(asnQueue, new object[] { });
+                        Console.Write("{0} = {1} \t", prop.Name, value);
+                    }
+
+                    Console.WriteLine();
+                }
+
+                return results.ToList();
             }
             catch (Exception e)
             {
@@ -50,9 +61,20 @@ namespace Modules.Channel.B2B.DAL
                                   (from aq in asnDatamodelDataContext.ASNQueues
                                    where aq.PONumber == poNumber
                                    select aq.DocId).Contains((int)im.DocId)
-                              select im.FulfillmentItemId;
+                              select im;
 
-                return results.ToList();
+                foreach (var asnItemMapping in results)
+                {
+                    foreach (var prop in asnItemMapping.GetType().GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
+                    {
+                        var value = prop.GetValue(asnItemMapping, new object[] { });
+                        Console.Write("{0} = {1} \t", prop.Name, value);
+                    }
+
+                    Console.WriteLine();
+                }
+
+                return results.Select(im => im.FulfillmentItemId).ToList();
             }
             catch (Exception e)
             {
@@ -76,9 +98,20 @@ namespace Modules.Channel.B2B.DAL
                                           where aq.PONumber == poNumber
                                           select aq.DocId).Contains((int)im.DocId)
                                      select im.MapItemId).Contains((int)om.MapItemId)
-                              select om.OrderNumber;
+                              select om;
 
-                return results.ToList();
+                foreach (var asnOrderMapping in results)
+                {
+                    foreach (var prop in asnOrderMapping.GetType().GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
+                    {
+                        var value = prop.GetValue(asnOrderMapping, new object[] { });
+                        Console.Write("{0} = {1} \t", prop.Name, value);
+                    }
+
+                    Console.WriteLine();
+                }
+
+                return results.Select(om => om.OrderNumber).ToList();
             }
             catch (Exception e)
             {
