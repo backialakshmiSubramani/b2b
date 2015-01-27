@@ -82,7 +82,9 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
             }
         }
 
-        // Creates Buyer Catalog and generates XML for PO submission
+        /// <summary>
+        /// Creates Buyer Catalog and processes PO
+        /// </summary>
         public void CreateBhcPo()
         {
             B2BHomePage.SelectEnvironment(RunEnvironment.ToString());
