@@ -208,6 +208,7 @@ namespace Modules.Channel.B2B.Core.Pages
             webDriver.WaitForPageLoad(new TimeSpan(0, 0, 10));
             var newWindow = webDriver.WindowHandles.LastOrDefault();
             webDriver.SwitchTo().Window(newWindow);
+            Console.WriteLine("Url after switching is: {0}", webDriver.Url);
             webDriver.Manage().Window.Maximize();
         }
 
