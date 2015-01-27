@@ -52,7 +52,8 @@ namespace Modules.Channel.B2B.Core.Workflows.EUDC
         public string OpenCrossReferenceList()
         {
             B2BhomePage.ClickCrossReferenceListLink();
-            return _webDriver.Url;
+            _webDriver.WaitForPageLoad(TimeSpan.FromSeconds(20));
+                        return _webDriver.Url;
         }
 
         public string OpenCrAssociationList()
