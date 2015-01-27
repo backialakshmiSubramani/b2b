@@ -334,6 +334,16 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
             }
 
             var poLineItems = B2BLogDetailPage.GetPoLineItemsFromMapperRequestXml();
+
+            for (var i = 0; i < poLineItems.Count(); i++)
+            {
+                Console.WriteLine(
+                    "Mapper XML PO Line Item {0} --> Quantity: {1}\t Price: {2}",
+                    i + 1,
+                    poLineItems[i].Quantity,
+                    poLineItems[i].Price);
+            }
+
             return VerifyMapperRequestDetailsAgainstPoTemplate(poLineItems);
         }
 
@@ -643,7 +653,9 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
                 return false;
             }
 
+            Console.WriteLine("Delivery Preference from profile settings page is: {0}", deliveryPreference);
             Console.WriteLine("Delivery Preference from mapper xml is: {0}", mapperXml.XPathSelectElement("//DeliveryPreference").Value);
+            Console.WriteLine("Delivery Preference from database is: {0}", asnQueueEntry.DeliveryPreference.ToString());
 
             if (!mapperXml.XPathSelectElement("//DeliveryPreference").Value.Equals(deliveryPreference))
             {
@@ -1000,6 +1012,15 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
             if (poLineItems.Count() != listOfItemInfo.Count())
             {
                 return false;
+            }
+
+            for (var i = 0; i < listOfItemInfo.Count(); i++)
+            {
+                Console.WriteLine(
+                    "PO Template PO Line Item {0} --> Quantity: {1}\t Price: {2}",
+                    i + 1,
+                    listOfItemInfo[i].Quantity,
+                    listOfItemInfo[i].Price);
             }
 
             for (var i = 0; i < poLineItems.Count; i++)

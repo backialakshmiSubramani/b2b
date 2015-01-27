@@ -336,6 +336,13 @@ namespace Modules.Channel.B2B.Core.Pages
                     e =>
                     e.FindElements(By.TagName("td"))[5].Text.Contains(
                         messagePrefix + QuoteIdInTable.Text.Trim() + messageSuffix));
+
+            if (messageRow == null)
+            {
+                Console.WriteLine("Message not found: {0}", messagePrefix + QuoteIdInTable.Text.Trim() + messageSuffix);
+                return false;
+            }
+
             return messageRow != null;
         }
 
