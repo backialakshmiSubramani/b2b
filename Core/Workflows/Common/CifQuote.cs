@@ -165,11 +165,6 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
                 return false;
             }
 
-            if (!this.poOperations.VerifyExceptionLoggingForAsn(asnErrorMessage))
-            {
-                return false;
-            }
-
             return true;
         }
     }

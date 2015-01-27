@@ -90,7 +90,6 @@ namespace Modules.Channel.B2B.Core.Pages
         {
             foreach (var t in this.QuoteViewerTableRowList)
             {
-                Console.WriteLine(t.FindElements(By.TagName("td"))[2].Text);
                 if (t.FindElements(By.TagName("td"))[2].Text.Trim().ToLower().Contains(description.ToLower()))
                 {
                     return t.FindElements(By.TagName("td"))[6].Text.Trim().Contains(quantity)

@@ -24,7 +24,8 @@ namespace Modules.Channel.B2B.Common
             PoXmlFormat poXmlFormat,
             string orderId,
             string identityName,
-            IList<QuoteDetail> quoteDetails)
+            IList<QuoteDetail> quoteDetails,
+            bool removeInternalVendorNumber = false)
         {
             var fileName = poXmlFormat + "Template.xml";
             var doc = XDocument.Load(fileName);
@@ -77,6 +78,11 @@ namespace Modules.Channel.B2B.Common
                 orderDetailDoc.XPathSelectElement("//BuyerExpectedUnitPrice/Price/UnitPrice").SetValue(quoteDetails[i].Price);
 
                 doc.XPathSelectElement("//ListOfOrderDetail").AddFirst(orderDetailDoc.XPathSelectElement("//OrderDetail"));
+            }
+
+            if (removeInternalVendorNumber)
+            {
+                doc.XPathSelectElement("//InternalVendorNumber").Value = string.Empty;
             }
 
             doc.Save(fileName);

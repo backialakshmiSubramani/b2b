@@ -357,7 +357,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
                     return false;
                 }
 
-                if (!B2BLogDetailPage.GetLogDetail().Equals(asnLogDetailMessages[i]))
+                if (!B2BLogDetailPage.GetLogDetail().Contains(asnLogDetailMessages[i]))
                 {
                     return false;
                 }
@@ -373,18 +373,13 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
             try
             {
                 var mapperXml = XDocument.Parse(B2BLogDetailPage.GetLogDetail());
-                webDriver.Navigate().Back();
+                B2BLogDetailPage.ReturnToLogReport();
                 return true;
             }
             catch
             {
                 return false;
             }
-        }
-
-        public bool VerifyExceptionLoggingForAsn(string asnErrorMessage)
-        {
-            return B2BLogReportPage.FindMessageOnLogReport(asnErrorMessage);
         }
 
         /// <summary>
