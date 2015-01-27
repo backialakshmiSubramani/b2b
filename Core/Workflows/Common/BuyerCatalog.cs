@@ -85,11 +85,11 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
         // Creates Buyer Catalog and generates XML for PO submission
         public void CreateBhcPo()
         {
+            B2BHomePage.SelectEnvironment(RunEnvironment.ToString());
             if (ListOfQuoteDetail == null || !ListOfQuoteDetail.Any()
                 || string.IsNullOrEmpty(ListOfQuoteDetail.FirstOrDefault().SupplierPartId))
             {
                 const int NumberOfRetries = 10;
-                B2BHomePage.SelectEnvironment(RunEnvironment.ToString());
                 B2BHomePage.ClickOnBuyerCatalogLink();
                 var threadId = B2BCreateBuyerCatalogPage.GenerateCatalog(
                     Workflow,
