@@ -38,14 +38,14 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
         public PoXmlFormat PoXmlFormat { get; set; }
         public string TargetUrl { get; set; }
 
-        public bool CreateCifPo(List<QuoteDetail> listOfQuoteDetail)
+        public bool CreateCifPo(List<QuoteDetail> listOfQuoteDetail, bool removeInternalVendorNumber = false)
         {
             B2BHomePage.SelectEnvironment(RunEnvironment.ToString());
             var orderId = OrderIdBase + DateTime.Today.ToString("yyMMdd") + DateTime.Now.ToString("HHmmss");
 
             string poXml;
 
-            poXml = PoXmlGenerator.GeneratePoCblForAsn(PoXmlFormat, orderId, IdentityName, listOfQuoteDetail);
+            poXml = PoXmlGenerator.GeneratePoCblForAsn(PoXmlFormat, orderId, IdentityName, listOfQuoteDetail, removeInternalVendorNumber);
 
             var parentWindow = webDriver.CurrentWindowHandle;
 
@@ -147,25 +147,6 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
                    asnLogEventMessages,
                    asnLogDetailMessages,
                    mapperRequestMessage);
-        }
-
-        public bool VerifyExceptionLogging(List<string> asnLogEventMessages, List<string> asnLogDetailMessages, string mapperRequestMessage, string asnErrorMessage)
-        {
-            if (!string.IsNullOrEmpty(this.poNumber))
-            {
-                return false;
-            }
-
-            if (!this.poOperations.VerifyMappingEntriesForChannelAsnEnabledProfile(
-                this.poNumber,
-                asnLogEventMessages,
-                asnLogDetailMessages,
-                mapperRequestMessage))
-            {
-                return false;
-            }
-
-            return true;
         }
     }
 }

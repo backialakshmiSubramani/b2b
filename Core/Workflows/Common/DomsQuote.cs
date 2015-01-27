@@ -182,5 +182,15 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
                        mapperRequestMessage,
                        this.ProfileName);
         }
+
+        public bool VerifyMappingEntriesForChannelAsnEnabledProfileForAsn(List<string> asnLogEventMessages, List<string> asnLogDetailMessages, string mapperRequestMessage)
+        {
+            return !string.IsNullOrEmpty(this.poNumber)
+                   && this.poOperations.VerifyMappingEntriesForChannelAsnEnabledProfile(
+                   this.poNumber,
+                   asnLogEventMessages,
+                   asnLogDetailMessages,
+                   mapperRequestMessage);
+        }
     }
 }
