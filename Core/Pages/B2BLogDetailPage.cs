@@ -138,9 +138,12 @@ namespace Modules.Channel.B2B.Core.Pages
             return dpid != null ? dpid.Value : string.Empty;
         }
 
-        public IEnumerable<XElement> GetItemIdsFromMapperRequestXml()
+        public IEnumerable<string> GetItemIdsFromMapperRequestXml()
         {
-            var itemIds = XDocument.Parse(LogDetailData.Text).XPathSelectElements("//LineItems/MapperRequestPOLine/FulfillmentItems/Id");
+            var itemIds =
+                XDocument.Parse(LogDetailData.Text)
+                    .XPathSelectElements("//LineItems/MapperRequestPOLine/FulfillmentItems/Id")
+                    .Select(i => i.Value);
             return itemIds;
         }
 

@@ -50,7 +50,7 @@ namespace Modules.Channel.B2B.DAL
             }
         }
 
-        public static List<Guid?> FetchItemId(string poNumber)
+        public static List<string> FetchItemId(string poNumber)
         {
             try
             {
@@ -74,7 +74,7 @@ namespace Modules.Channel.B2B.DAL
                     Console.WriteLine();
                 }
 
-                return results.Select(im => im.FulfillmentItemId).ToList();
+                return results.Select(im => im.FulfillmentItemId.ToString()).ToList();
             }
             catch (Exception e)
             {

@@ -426,72 +426,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
             webDriver.Close();
             webDriver.SwitchTo().Window(parentWindowHandle);
 
-            if (!B2BLogReportPage.FindMessageAndGoToLogDetailPage(ogXmlMessage))
-            {
-                return false;
-            }
-
-            XDocument ogXml = XDocument.Parse(B2BLogDetailPage.GetLogDetail());
-
-            var itemIds =
-                ogXml.XPathSelectElements("//OrderGroup/OrderForms/OrderForm/Items/Item/Id").Select(e => e.Value);
-
-            if (!itemIds.Any())
-            {
-                Console.WriteLine("Item Id not found in <Items> node");
-                return false;
-            }
-
-            Console.WriteLine("Item Ids from <Items> node are \n");
-            foreach (var itemId in itemIds)
-            {
-                Console.WriteLine(itemId + "\n");
-            }
-
-            B2BLogDetailPage.ReturnToLogReport();
-
-            if (!B2BLogReportPage.FindMessageAndGoToLogDetailPage(mapperRequestMessage))
-            {
-                return false;
-            }
-
-            var itemIdsFromMapperRequestXml = B2BLogDetailPage.GetItemIdsFromMapperRequestXml().Select(e => e.Value);
-
-            if (!itemIdsFromMapperRequestXml.Any() || !itemIds.All(i => itemIdsFromMapperRequestXml.Contains(i)))
-            {
-                Console.WriteLine("Item Ids fetched from <Items> node are not present in Mapper Request Xml");
-                return false;
-            }
-
-            Console.WriteLine("All the Item Ids fetched from <Items> node are present in Mapper Request Xml");
-
-            var itemIdsFromFulfillment =
-                ogXml.XPathSelectElements(
-                    "//OrderGroup/OrderForms/OrderForm/FulfillmentUnits/FulfillmentUnit/FulfillmentItemInformation/FulfillmentItemInformation/ItemId")
-                    .Select(e => e.Value);
-
-            if (!itemIdsFromFulfillment.Any() || !itemIdsFromFulfillment.All(i => itemIdsFromMapperRequestXml.Contains(i)))
-            {
-                Console.WriteLine("Item Ids fetched from <FulfillmentItemInformation> node are not present in Mapper Request Xml");
-                return false;
-            }
-
-            Console.WriteLine("All the Item Ids fetched from <FulfillmentItemInformation> node are present in Mapper Request Xml");
-
-
-
-            Console.WriteLine("Begin retrieval from ASNItemMapping");
-            var itemIdsFromDb = AsnDataAccess.FetchItemId(poNumber).Select(i => i.ToString());
-            Console.WriteLine("End retrieval from ASNItemMapping");
-
-            if (!itemIdsFromDb.Any() || !itemIdsFromFulfillment.All(i => itemIdsFromDb.Contains(i)))
-            {
-                Console.WriteLine("Item Ids not found in ASNItemMapping Table for PO '{0}'.", poNumber);
-                return false;
-            }
-
-            Console.WriteLine("All the Item Ids fetched from <FulfillmentItemInformation> node are found in ASNItemMapping Table");
-            return true;
+            return this.VerifyItemIdsInOgXmlMapperXmlAndDb(ogXmlMessage, mapperRequestMessage, poNumber);
         }
 
         /// <summary>
@@ -687,58 +622,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
                 return false;
             }
 
-            if (!B2BLogReportPage.FindMessageAndGoToLogDetailPage(ogXmlMessage))
-            {
-                return false;
-            }
-
-            var ogXml = XDocument.Parse(B2BLogDetailPage.GetLogDetail());
-
-            B2BLogDetailPage.ReturnToLogReport();
-
-            var itemId =
-                ogXml.XPathSelectElements("//OrderGroup/OrderForms/OrderForm/Items/Item/Id").FirstOrDefault();
-
-            if (itemId == null)
-            {
-                Console.WriteLine("Item Id not found in <Items> node");
-                return false;
-            }
-
-            var itemIdsFromFulfillment =
-                ogXml.XPathSelectElements(
-                    "//OrderGroup/OrderForms/OrderForm/FulfillmentUnits/FulfillmentUnit/FulfillmentItemInformation/FulfillmentItemInformation/ItemId");
-
-            if ((!itemIdsFromFulfillment.Any()) || (!itemIdsFromFulfillment.Any(i => i.Value.Equals(itemId.Value))))
-            {
-                Console.WriteLine("Item Id {0} not found in Fulfillment Information", itemId.Value);
-                return false;
-            }
-
-            if (!B2BLogReportPage.FindMessageAndGoToLogDetailPage(mapperRequestMessage))
-            {
-                return false;
-            }
-
-            var itemIdsFromMapperRequestXml = B2BLogDetailPage.GetItemIdsFromMapperRequestXml();
-
-            if ((!itemIdsFromMapperRequestXml.Any()) || (!itemIdsFromMapperRequestXml.Any(i => i.Value.Equals(itemId.Value))))
-            {
-                Console.WriteLine("Item Id {0} not found in Mapper Request Xml", itemId.Value);
-                return false;
-            }
-
-            Console.WriteLine("Begin retrieval from ASNItemMapping");
-            var itemIdsFromDb = AsnDataAccess.FetchItemId(poNumber);
-            Console.WriteLine("End retrieval from ASNItemMapping");
-
-            if ((!itemIdsFromDb.Any()) || (!itemIdsFromDb.Any(i => i.ToString().Equals(itemId.Value))))
-            {
-                Console.WriteLine("Item Id '{0}' not found in ASNItemMapping Table for PO '{1}'.", itemId.Value, poNumber);
-                return false;
-            }
-
-            return true;
+            return this.VerifyItemIdsInOgXmlMapperXmlAndDb(ogXmlMessage, mapperRequestMessage, poNumber);
         }
 
         /// <summary>
@@ -1031,6 +915,80 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
                 {
                     return false;
                 }
+            }
+
+            return true;
+        }
+
+        private bool VerifyItemIdsInOgXmlMapperXmlAndDb(string ogXmlMessage, string mapperRequestMessage, string poNumber)
+        {
+            if (!B2BLogReportPage.FindMessageAndGoToLogDetailPage(ogXmlMessage))
+            {
+                return false;
+            }
+
+            var ogXml = XDocument.Parse(B2BLogDetailPage.GetLogDetail());
+
+            B2BLogDetailPage.ReturnToLogReport();
+
+            var countOfOrderFormItemElements =
+                ogXml.XPathSelectElements("//OrderGroup/OrderForms/OrderForm/Items/Item").ToList().Count;
+
+            var itemIds = new List<string>();
+
+            for (var i = 0; i < countOfOrderFormItemElements; i++)
+            {
+                itemIds.Add(ogXml.XPathSelectElements("//OrderGroup/OrderForms/OrderForm/Items/Item/Id").FirstOrDefault().Value);
+
+                var firstOrDefault =
+                    ogXml.XPathSelectElements(
+                        "//OrderGroup/OrderForms/OrderForm/Items/Item/ConfigDetails/Modules/Module/Options/Option/CompositeItems/Item/Id").FirstOrDefault();
+
+                if (firstOrDefault != null)
+                {
+                    itemIds.Add(firstOrDefault.Value);
+                }
+
+                ogXml.XPathSelectElements("//OrderGroup/OrderForms/OrderForm/Items/Item").FirstOrDefault().Remove();
+            }
+
+            if (!itemIds.Any())
+            {
+                return false;
+            }
+
+            var itemIdsFromFulfillment =
+                ogXml.XPathSelectElements(
+                    "//OrderGroup/OrderForms/OrderForm/FulfillmentUnits/FulfillmentUnit/FulfillmentItemInformation/FulfillmentItemInformation/ItemId")
+                    .Select(i => i.Value);
+
+            if (!itemIdsFromFulfillment.Any()
+                || !itemIds.OrderBy(x => x).SequenceEqual(itemIdsFromFulfillment.OrderBy(x => x)))
+            {
+                return false;
+            }
+
+            if (!B2BLogReportPage.FindMessageAndGoToLogDetailPage(mapperRequestMessage))
+            {
+                return false;
+            }
+
+            var itemIdsFromMapperRequestXml = B2BLogDetailPage.GetItemIdsFromMapperRequestXml();
+
+            if (!itemIdsFromMapperRequestXml.Any()
+                || !itemIds.OrderBy(x => x).SequenceEqual(itemIdsFromMapperRequestXml.OrderBy(x => x)))
+            {
+                return false;
+            }
+
+            Console.WriteLine("Begin retrieval from ASNItemMapping");
+            var itemIdsFromDb = AsnDataAccess.FetchItemId(poNumber);
+            Console.WriteLine("End retrieval from ASNItemMapping");
+
+            if (!itemIdsFromDb.Any()
+                || !itemIds.OrderBy(x => x).SequenceEqual(itemIdsFromDb.Select(i => i.ToLower()).OrderBy(x => x)))
+            {
+                return false;
             }
 
             return true;
