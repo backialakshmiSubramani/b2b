@@ -57,8 +57,8 @@ namespace Modules.Channel.B2B.Core.Pages
             {
                 //webDriver.WaitForElementDisplayed(By.Id("ctl00_topHeaderControl_tbContrHeader_tbpnlPgSetting_txtbxAutoComplete"), new TimeSpan(0, 0, 30));
                // return webDriver.FindElement(By.Id("ctl00_topHeaderControl_tbContrHeader_tbpnlPgSetting_txtbxAutoComplete"));
-                webDriver.WaitForElementDisplayed(By.Name("ctl00$topHeaderControl$tbContrHeader$tbpnlPgSetting$txtbxAutoComplete"), new TimeSpan(0, 0, 30));
-                return webDriver.FindElement(By.Name("ctl00$topHeaderControl$tbContrHeader$tbpnlPgSetting$txtbxAutoComplete"));
+                webDriver.WaitForElementDisplayed(By.XPath("//input[@id='ctl00_topHeaderControl_tbContrHeader_tbpnlPgSetting_txtbxAutoComplete']"), new TimeSpan(0, 0, 30));
+                return webDriver.FindElement(By.XPath("//input[@id='ctl00_topHeaderControl_tbContrHeader_tbpnlPgSetting_txtbxAutoComplete']"));
             }
         }
 
