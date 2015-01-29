@@ -45,6 +45,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
                 return QuoteType.Bhc;
             }
         }
+        public List<string> ConfigTitles { get; set; }
 
         public List<QuoteDetail> ListOfQuoteDetail { get; set; }
 
@@ -125,7 +126,14 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
                     }
                 }
 
-                ListOfQuoteDetail = B2BCatalogViewer.GetQuoteDetails(CrtId, Quantity, QuoteType);
+                if (Workflow == Workflow.Eudc)
+                {
+                    ListOfQuoteDetail = B2BCatalogViewer.GetQuoteDetails(CrtId, Quantity, QuoteType);
+                }
+                else
+                {
+                    ListOfQuoteDetail = B2BCatalogViewer.GetQuoteDetails(CrtId, Quantity, QuoteType, ConfigTitles);
+                }
             }
 
             var orderId = OrderIdBase + DateTime.Today.ToString("yyMMdd") + DateTime.Now.ToString("HHmmss");

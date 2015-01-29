@@ -57,7 +57,7 @@ namespace Modules.Channel.B2B.Core.Pages
         /// <returns>validated</returns>
         public override bool Validate()
         {
-            return CatalogDetailsTableRow.Any();
+            return CatalogDetailsTableRows.Any();
         }
 
         /// <summary>
@@ -71,13 +71,13 @@ namespace Modules.Channel.B2B.Core.Pages
 
         #region Elements
 
-        private ReadOnlyCollection<IWebElement> CatalogDetailsTableRow
+        private ReadOnlyCollection<IWebElement> CatalogDetailsTableRows
         {
             get
             {
                 return webDriver.FindElements(
                                             By.XPath(
-                                                "//table[@id='G_ContentPageHolderxuwGrdCatlogDetailsxuwGrdCatlogDetails']/tbody/tr[1]/td"));
+                                                "//table[@id='G_ContentPageHolderxuwGrdCatlogDetailsxuwGrdCatlogDetails']/tbody/tr"));
             }
         }
 
@@ -106,28 +106,62 @@ namespace Modules.Channel.B2B.Core.Pages
         /// <param name="quantity"></param>
         /// <param name="quoteType"></param>
         /// <returns>Quote details</returns>
-        public List<QuoteDetail> GetQuoteDetails(string crtId, string quantity, QuoteType quoteType)
+        public List<QuoteDetail> GetQuoteDetails(string crtId, string quantity, QuoteType quoteType, List<string> configTitles = null)
         {
-            return new List<QuoteDetail>()
-                       {
-                           new QuoteDetail()
-                               {
-                                   CrtId = crtId,
-                                   ItemDescription =
-                                       CatalogDetailsTableRow.ElementAt(8)
-                                       .Text.Trim()
-                                       .Split(',')[0],
-                                   Price =
-                                       CatalogDetailsTableRow.ElementAt(9)
-                                       .Text.Trim()
-                                       .Split(' ')[0],
-                                   Quantity = quantity,
-                                   QuoteType = quoteType,
-                                   SupplierPartId =
-                                       "BHC:"
-                                       + CatalogDetailsTableRow.ElementAt(1).Text.Trim()
-                               }
-                       };
+            var listOfQuoteDetail = new List<QuoteDetail>();
+
+            if (configTitles == null)
+            {
+                var firstRow = this.CatalogDetailsTableRows.FirstOrDefault();
+                if (firstRow != null)
+                {
+                    listOfQuoteDetail.Add(
+                        new QuoteDetail()
+                            {
+                                CrtId = crtId,
+                                ItemDescription =
+                                    firstRow.FindElements(By.TagName("td"))[8].Text.Trim().Split(',')[0],
+                                Price =
+                                    firstRow.FindElements(By.TagName("td"))[9].Text.Trim().Split(' ')[0],
+                                Quantity = quantity,
+                                QuoteType = quoteType,
+                                SupplierPartId = "BHC:" + firstRow.FindElements(By.TagName("td"))[1].Text.Trim()
+                            });
+                }
+                else
+                {
+                    Console.WriteLine("No items found in Catalog Viewer page");
+                }
+            }
+            else
+            {
+                foreach (var configTitle in configTitles)
+                {
+                    var configRow = CatalogDetailsTableRows.FirstOrDefault(e => e.FindElements(By.TagName("td"))[7].Text.Contains(configTitle));
+
+                    if (configRow != null)
+                    {
+                        listOfQuoteDetail.Add(
+                            new QuoteDetail()
+                                {
+                                    CrtId = crtId,
+                                    ItemDescription =
+                                        configRow.FindElements(By.TagName("td"))[8].Text.Trim().Split(',')[0],
+                                    Price =
+                                        configRow.FindElements(By.TagName("td"))[9].Text.Trim().Split(' ')[0],
+                                    Quantity = quantity,
+                                    QuoteType = quoteType,
+                                    SupplierPartId =
+                                        "BHC:" + configRow.FindElements(By.TagName("td"))[1].Text.Trim()
+                                });
+                    }
+                    else
+                    {
+                        Console.WriteLine("Catalog Item with title **{0}** not found in Catalog Viewer page", configTitle);
+                    }
+                }
+            }
+            return listOfQuoteDetail;
         }
 
         public void ClickQaTools3()
