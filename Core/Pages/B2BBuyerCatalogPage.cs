@@ -12,6 +12,7 @@
 // ***********************************************************************
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Data;
 using System.Runtime.Remoting;
 using System.Text;
@@ -96,7 +97,7 @@ namespace Modules.Channel.B2B.Core.Pages
             get
             {
                 if (_automatedBHCCatalogProcessingRules == null)
-                _automatedBHCCatalogProcessingRules = webDriver.FindElement(By.LinkText("Automated BHC Catalog - Processing Rules"), new TimeSpan(0, 0, 30));
+                    _automatedBHCCatalogProcessingRules = webDriver.FindElement(By.LinkText("Automated BHC Catalog - Processing Rules"), new TimeSpan(0, 0, 30));
                 return _automatedBHCCatalogProcessingRules;
             }
         }
@@ -696,6 +697,20 @@ namespace Modules.Channel.B2B.Core.Pages
                         new TimeSpan(0, 0, 30));
                 }
                 return _autoCreatePublishChk;
+            }
+        }
+
+        public ReadOnlyCollection<IWebElement> _identities;
+        public ReadOnlyCollection<IWebElement> Identities
+        {
+            get
+            {
+                if (_identities == null)
+                {
+                    _identities = webDriver.FindElements(By.XPath("//input[contains(@id, 'chklistIdenties_')]"),
+                        new TimeSpan(0, 0, 30));
+                }
+                return _identities;
             }
         }
         /// <summary>
