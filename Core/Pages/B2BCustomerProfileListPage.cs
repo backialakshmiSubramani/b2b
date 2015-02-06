@@ -207,8 +207,8 @@ namespace Modules.Channel.B2B.Core.Pages
         public void ClickSearchedProfile(string linkText)
         {
             webDriver.WaitForElementDisplayed(By.LinkText(linkText), TimeSpan.FromSeconds(10));
-            ////webDriver.FindElement(By.LinkText(linkText)).Click();
-            javaScriptExecutor.ExecuteScript("arguments[0].click();", webDriver.FindElement(By.LinkText(linkText)));
+            webDriver.FindElement(By.LinkText(linkText)).Click();
+           // javaScriptExecutor.ExecuteScript("arguments[0].click();", webDriver.FindElement(By.LinkText(linkText)));
             webDriver.WaitForPageLoad(new TimeSpan(0, 0, 20));
         }
 
