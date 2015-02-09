@@ -36,16 +36,9 @@ namespace Modules.Channel.B2B.Core.Pages
     {
         IWebDriver webDriver;
         private IJavaScriptExecutor javaScriptExecutor;
-        private TestContext testContextInstance;
 
 
         #region Constructors
-        public B2BBuyerCatalogPage(IWebDriver webDriver, TestContext testContext)
-            : this(webDriver)
-        {
-            testContextInstance = testContext;
-            javaScriptExecutor = (IJavaScriptExecutor)this.webDriver;
-        }
         /// <summary>
         /// Constructor to hand off webDriver
         /// </summary>
