@@ -210,8 +210,8 @@ namespace Modules.Channel.B2B.Core.Pages
             //webDriver.FindElement(By.LinkText(linkText)).Click();
             Console.WriteLine(this.Validate());
             var elem = webDriver.FindElement(By.LinkText(linkText));
-            Console.WriteLine("Element is visible" +elem.IsElementVisible());
-           javaScriptExecutor.ExecuteScript("arguments[0].click();", webDriver.FindElement(By.LinkText(linkText)));
+            Console.WriteLine("Element is visible" + elem.IsElementVisible());
+            javaScriptExecutor.ExecuteScript("arguments[0].click();", elem);
             webDriver.WaitForPageLoad(new TimeSpan(0, 0, 30));
         }
 
