@@ -45,7 +45,7 @@ namespace Modules.Channel.B2B.Core.Pages
             javaScriptExecutor = (IJavaScriptExecutor)webDriver;
             //populate the following variables with the appropriate value
             Name = "B2B Home Page";
-            Url = webDriver.Url;
+            //Url = webDriver.Url;
             ProductUnit = "Channel";
             webDriver.WaitForPageLoad(new TimeSpan(0, 0, 10));
         }
@@ -84,7 +84,7 @@ namespace Modules.Channel.B2B.Core.Pages
         {
             get
             {
-                webDriver.WaitForElement(By.Id("ucLeftMenu_ddlEnv"), new TimeSpan(0, 0, 10));
+                webDriver.WaitForElement(By.Id("ucLeftMenu_ddlEnv"), new TimeSpan(0, 0, 30));
                 return new SelectElement(webDriver.FindElement(By.Id("ucLeftMenu_ddlEnv")));
             }
         }
