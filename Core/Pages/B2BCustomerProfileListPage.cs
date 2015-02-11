@@ -214,7 +214,7 @@ namespace Modules.Channel.B2B.Core.Pages
             var elem = webDriver.FindElement(By.LinkText(linkText));
             Console.WriteLine("Element is visible" + elem.IsElementVisible());
             javaScriptExecutor.ExecuteScript("arguments[0].click();", elem);
-            
+            Thread.Sleep(2000);
 
            webDriver.WaitForPageLoad(new TimeSpan(0, 0, 60));
         }
@@ -235,6 +235,7 @@ namespace Modules.Channel.B2B.Core.Pages
             SearchTextField.Set(ProfileName);
             ////SearchLink.Click();
             javaScriptExecutor.ExecuteScript("arguments[0].click();", SearchLink);
+            Thread.Sleep(5000);
             webDriver.WaitForPageLoad(TimeSpan.FromSeconds(20));
         }
 
