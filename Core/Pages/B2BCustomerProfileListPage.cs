@@ -13,6 +13,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Support.UI;
 using DCSG.ADEPT.Framework;
@@ -45,6 +46,7 @@ namespace Modules.Channel.B2B.Core.Pages
             //Name = "";
             //Url = "";
             //ProductUnit = "";
+            Thread.Sleep(5000);
         }
 
         /// <summary>
@@ -208,11 +210,13 @@ namespace Modules.Channel.B2B.Core.Pages
         {
             webDriver.WaitForElementDisplayed(By.LinkText(linkText), TimeSpan.FromSeconds(30));
             //webDriver.FindElement(By.LinkText(linkText)).Click();
-            Console.WriteLine(this.Validate());
+            //Console.WriteLine(this.Validate());
             var elem = webDriver.FindElement(By.LinkText(linkText));
             Console.WriteLine("Element is visible" + elem.IsElementVisible());
             javaScriptExecutor.ExecuteScript("arguments[0].click();", elem);
-            webDriver.WaitForPageLoad(new TimeSpan(0, 0, 30));
+            
+
+           webDriver.WaitForPageLoad(new TimeSpan(0, 0, 60));
         }
 
         #endregion

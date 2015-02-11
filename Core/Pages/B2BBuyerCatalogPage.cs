@@ -16,6 +16,7 @@ using System.Collections.ObjectModel;
 using System.Data;
 using System.Runtime.Remoting;
 using System.Text;
+using System.Threading;
 using Channel.PartnerDirect.Common;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OpenQA.Selenium;
@@ -48,6 +49,7 @@ namespace Modules.Channel.B2B.Core.Pages
         {
             this.webDriver = webDriver;
             javaScriptExecutor = (IJavaScriptExecutor)this.webDriver;
+            Thread.Sleep(5000);
         }
 
         #endregion
@@ -716,6 +718,7 @@ namespace Modules.Channel.B2B.Core.Pages
             {
                 if (_buyerCatalogTab == null)
                 {
+                    Thread.Sleep(1000);
                     _buyerCatalogTab =
                         webDriver.FindElement(By.Id("ContentPageHolder_ProfileHeader_hyp_PH_BuyerCatalog"),
                             new TimeSpan(0, 0, 30));
