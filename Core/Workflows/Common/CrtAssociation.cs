@@ -113,37 +113,75 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
 
         #region workflow method
         /// <summary>
-        /// Associate CRT
+        /// Associate CRT file and return CRID
         /// </summary>
         /// <param name="environment"></param>
         /// <param name="crossReferenceType"></param>
         /// <param name="filePath"></param>
         /// <param name="description"></param>
         /// <param name="profilename"></param>
-        public void AssociateCrt(
+        /// <returns></returns>
+        public string AssociateCrtFileReturnCRID(
            RunEnvironment environment,
            string crossReferenceType,
            string filePath,
            string description,
             string profilename)
         {
-            if(environment.Equals(RunEnvironment.Preview))
+            SelectEnviornment(RunEnvironment.Preview);
+            if (environment.Equals(RunEnvironment.Preview))
                 //Upload CRT file
-                crtUpload.UploadCrtFile(environment, crossReferenceType, filePath, description);
-                //Click B2B Profile List
-                B2BHomePage.ClickB2BProfileList();
-                //Search given profile and associate
-                B2BCustomerProfileListPage.SearchProfile(null, profilename);
-                B2BCustomerProfileListPage.ClickSearchedProfile();
-                //Associate CR
-                B2BManageProfileIdentitiesPage.CRAssociationLink.Click();
-                B2BManageProfileIdentitiesPage.AssociateCrossReferenceLink.Click();
-                B2BCrossReferenceAssociationPage.FilterCRT(crossReferenceType);
-                B2BCrossReferenceAssociationPage.CrtTableCheckBox.Click();
-                B2BCrossReferenceAssociationPage.AssociateLink.Click();
+                UploadCrtFile(crossReferenceType, filePath, description);
+            string Crid = B2BCrossReferenceMaintenencePage.GetCrId();
+            AssociateCrtWithProfile(crossReferenceType, Crid, profilename);
+            return Crid;
         }
 
+        /// <summary>
+        /// Select the Enviornment
+        /// </summary>
+        /// <param name="environment"></param>
+        public void SelectEnviornment(RunEnvironment environment)
+        {
+            B2BHomePage.SelectEnvironment(environment.ToString());
+        }
+        /// <summary>
+        /// Associate given crt file with given profile.
+        /// </summary>
+        /// <param name="crossReferenceType"></param>
+        /// <param name="crtId"></param>
+        /// <param name="profilename"></param>
+        public void AssociateCrtWithProfile(
+            string crossReferenceType,
+            string crtId,
+            string profilename)
+        {
+            //Click B2B Profile List
+            B2BHomePage.ClickB2BProfileList();
+            //Search given profile and associate
+            B2BCustomerProfileListPage.SearchProfile(null, profilename);
+            B2BCustomerProfileListPage.ClickSearchedProfile();
+            //Associate CR
+            B2BManageProfileIdentitiesPage.CRAssociationLink.Click();
+            B2BManageProfileIdentitiesPage.AssociateCrossReferenceLink.Click();
+            B2BCrossReferenceAssociationPage.FilterCRT(crossReferenceType);
+            B2BCrossReferenceAssociationPage.SelectCrIdfromCRList(crtId);
+            B2BCrossReferenceAssociationPage.ClickAssociationLink();
+        }
 
+        /// <summary>
+        /// upload the new crtfile and return generated crtid
+        /// </summary>
+        /// <param name="crossReferenceType"></param>
+        /// <param name="filePath"></param>
+        /// <param name="description"></param>
+        /// <returns></returns>
+        public string UploadCrtFile(string crossReferenceType, string filePath, string description)
+        {
+            crtUpload.UploadCrtFile(RunEnvironment.Preview, crossReferenceType, filePath, description);
+            string Crid = B2BCrossReferenceMaintenencePage.GetCrId();
+            return Crid;
+        }
         #endregion
     }
 }

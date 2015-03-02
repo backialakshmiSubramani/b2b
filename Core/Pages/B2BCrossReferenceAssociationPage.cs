@@ -20,7 +20,9 @@ using DCSG.ADEPT.Framework.Core.Extensions.WebElement;
 using DCSG.ADEPT.Framework.Core.Extensions.Locators;
 using DCSG.ADEPT.Framework.Core.Page;
 using Modules.Channel.EUDC.Core.Pages;
-
+using System.Linq;
+using DCSG.ADEPT.Framework.Core;
+using System.Threading;
 
 namespace Modules.Channel.B2B.Core.Pages
 {
@@ -30,6 +32,7 @@ namespace Modules.Channel.B2B.Core.Pages
     public class B2BCrossReferenceAssociationPage : DCSGPageBase
     {
         IWebDriver webDriver;
+        private IJavaScriptExecutor javaScriptExecutor;
 
         /// <summary>
         /// Constructor to hand off webDriver
@@ -39,10 +42,10 @@ namespace Modules.Channel.B2B.Core.Pages
             : base(ref webDriver)
         {
             this.webDriver = webDriver;
+            javaScriptExecutor = (IJavaScriptExecutor)this.webDriver;
             //populate the following variables with the appropriate value
-            Name = PageHeaderLabel.Text;
-            //Url = "";
-            //ProductUnit = "";
+            Url = webDriver.Url;
+            ProductUnit = "Channel";
             webDriver.WaitForPageLoad(new TimeSpan(0, 0, PageUtility.PageTimeOut));
         }
 
@@ -69,7 +72,7 @@ namespace Modules.Channel.B2B.Core.Pages
         /// <summary>
         /// Associate Link 
         /// </summary>
-        public IWebElement AssociateLink
+        private IWebElement AssociateLink
         {
             get
             {
@@ -89,9 +92,22 @@ namespace Modules.Channel.B2B.Core.Pages
         }
 
         /// <summary>
+        /// Cross Reference List Table Rows
+        /// </summary>
+        private IEnumerable<IWebElement> CrossReferenceListTableRows
+        {
+            get
+            {
+                return
+                        webDriver.FindElements(
+                        By.XPath("//table[@id='ContentPageHolder_CRTGridAssociation_grdVwCrossReferenceList']/tbody/tr"))
+                        ;
+            }
+        }
+        /// <summary>
         /// Crt Table First Row Check Box
         /// </summary>
-        public IWebElement CrtTableCheckBox
+        private IWebElement CrtTableCheckBox
         {
             get 
             { 
@@ -102,7 +118,7 @@ namespace Modules.Channel.B2B.Core.Pages
         /// <summary>
         /// Error Message for Association without Affinity Id
         /// </summary>
-        public IWebElement ProfileWithOutAffinityIdErrorMessage
+        private IWebElement ProfileWithOutAffinityIdErrorMessage
         {
             get 
             {
@@ -114,7 +130,7 @@ namespace Modules.Channel.B2B.Core.Pages
         /// <summary>
         /// Success Message for Association with Affinity Id
         /// </summary>
-        public IWebElement ProfileWithAffinityIdSuccessMessage
+        private IWebElement ProfileWithAffinityIdSuccessMessage
         {
             get
             {
@@ -123,6 +139,17 @@ namespace Modules.Channel.B2B.Core.Pages
             }
         }
 
+        /// <summary>
+        /// Success Message for Association with Diff Affinity Id
+        /// </summary>
+        private IWebElement ProfileWithDiffAffinityIdErrorMessage
+        {
+            get
+            {
+                webDriver.WaitForElement(By.XPath("//span[contains(text(),'The Affinity ID associated to this profile does not match the current Affinity ID')]"), TimeSpan.FromSeconds(20));
+                return webDriver.FindElement(By.XPath("//span[contains(text(),'The Affinity ID associated to this profile does not match the current Affinity ID')]"));
+            }
+        }
         /// <summary>
         /// CRT DropDown
         /// </summary>
@@ -181,6 +208,41 @@ namespace Modules.Channel.B2B.Core.Pages
         #endregion
 
         #region CRTAssociation Helper Methods
+
+        /// <summary>
+        /// Click on Association Link
+        /// </summary>
+        public void ClickAssociationLink()
+        {
+            AssociateLink.Click();
+        }
+        /// <summary>
+        /// Is Profile with Different Affinity Id Error Message Displayed
+        /// </summary>
+        /// <returns></returns>
+        public bool ProfileWithDiffAffinityIdErrorMessageDisplayed()
+        {
+            return ProfileWithDiffAffinityIdErrorMessage.IsElementVisible();
+        }
+
+        /// <summary>
+        /// Profile With Affinity Id Success Message Displayed
+        /// </summary>
+        /// <returns></returns>
+        public bool ProfileWithAffinityIdSuccessMessageDisplayed()
+        {
+            return ProfileWithAffinityIdSuccessMessage.IsElementVisible();
+        }
+
+        /// <summary>
+        /// Profile WithOut Affinity Id Error Message Displayed
+        /// </summary>
+        /// <returns></returns>
+        public bool ProfileWithOutAffinityIdErrorMessageDisplayed()
+        {
+            return ProfileWithOutAffinityIdErrorMessage.IsElementVisible();
+        }
+        
         /// <summary>
         ///Search based on given crt Type, by default  Channel_Cross_Segment_Booking will get filtered 
         /// </summary>
@@ -190,6 +252,17 @@ namespace Modules.Channel.B2B.Core.Pages
             this._crossReferenceTypeDropDown = crtType;
             selectCRTDropDown.Select().SelectByText(crossReferenceTypeDropDown);
             searchCRTList.Click();
+        }
+
+        /// <summary>
+        /// Select the checkbox for given CR ID in Cross reference list
+        /// </summary>
+        /// <param name="crId"></param>
+        public void SelectCrIdfromCRList(string crId)
+        {  
+            var rowWithCrId = CrossReferenceListTableRows.FirstOrDefault(e => e.FindElements(By.TagName("td"))[1].Text.Trim().Equals(crId));
+            javaScriptExecutor.ExecuteScript("arguments[0].click();", rowWithCrId.FindElement(By.TagName("//td[0]")));
+            webDriver.WaitForPageLoad(new TimeSpan(0, 0, 10));
         }
         #endregion
     }

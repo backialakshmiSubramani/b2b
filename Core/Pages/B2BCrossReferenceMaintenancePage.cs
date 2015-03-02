@@ -130,7 +130,7 @@ namespace Modules.Channel.B2B.Core.Pages
 
         private IWebElement SaveButton
         {
-            get
+            get 
             {
                 return webDriver.FindElement(By.Id("ContentPageHolder_lnk_btnSave"));
             }
@@ -163,6 +163,72 @@ namespace Modules.Channel.B2B.Core.Pages
             }
         }
 
+        private IWebElement _myCustomerSyncCheckbox;
+        private IWebElement MyCustomerSyncCheckbox
+        {
+            get
+            {
+                if (_myCustomerSyncCheckbox == null)
+                    _myCustomerSyncCheckbox = webDriver.FindElement(By.Id("ContentPageHolder_chkMyCustomerSync"));
+                return _myCustomerSyncCheckbox;
+            }
+        }
+
+        /// <summary>
+        /// Sync CRT Link
+        /// </summary>
+        private IWebElement _syncCRTLink;
+        private IWebElement SyncCRTLink
+        {
+            get
+            {
+                if (_syncCRTLink == null)
+                    _syncCRTLink = webDriver.FindElement(By.Id("ContentPageHolder_divRefreshCRT"));
+                return _syncCRTLink;
+            }
+        }
+
+        /// <summary>
+        /// Append and Save link
+        /// </summary>
+        private IWebElement _appendandSave;
+        private IWebElement AppendandSaveLink
+        {
+            get
+            {
+                if (_appendandSave == null)
+                    _appendandSave = webDriver.FindElement(By.Id("ContentPageHolder_lnk_btnAppend"));
+                return _appendandSave;
+            }
+        }
+
+        /// <summary>
+        /// Overwrite and Save link
+        /// </summary>
+        private IWebElement _overWriteandSave;
+        private IWebElement OverWriteandSaveLink
+        {
+            get
+            {
+                if (_overWriteandSave == null)
+                    _overWriteandSave = webDriver.FindElement(By.Id("ContentPageHolder_lnk_btnOverwrite"));
+                return _overWriteandSave;
+            }
+        }
+
+        /// <summary>
+        /// Button Sync CRT 
+        /// </summary>
+        private IWebElement _btnSyncCRTLink;
+        private IWebElement BtnSyncCRTLink
+        {
+            get
+            {
+                if (_btnSyncCRTLink == null)
+                    _btnSyncCRTLink = webDriver.FindElement(By.Id("ContentPageHolder_lnk_btnRefreshCRT"));
+                return _btnSyncCRTLink;
+            }
+        }
         #endregion
 
         #region Element Actions
@@ -190,6 +256,11 @@ namespace Modules.Channel.B2B.Core.Pages
             webDriver.WaitForPageLoad(new TimeSpan(0, 0, 10));
         }
 
+        public void ClickSyncCRT()
+        {
+            javaScriptExecutor.ExecuteScript("arguments[0].click();", BtnSyncCRTLink);
+            webDriver.WaitForPageLoad(new TimeSpan(0, 0, 10));
+        }
         public bool IsSuccessfulMessageDisplayed()
         {
             return this.CrtUploadSuccessMsg.IsElementVisible();
@@ -200,6 +271,41 @@ namespace Modules.Channel.B2B.Core.Pages
             return this.CrtUploadErrorMsg.IsElementVisible();
         }
 
+        /// <summary>
+        /// Is Sync CRT Link Displayed
+        /// </summary>
+        /// <returns></returns>
+        public bool IsSyncCRTDisplayed()
+        {
+            return this.SyncCRTLink.Displayed;
+        }
+
+        /// <summary>
+        /// Sync CRT Link Enabled
+        /// </summary>
+        /// <returns></returns>
+        public bool IsSyncCRTEnabled()
+        {
+            return this.SyncCRTLink.Enabled;
+        }
+        /// <summary>
+        /// Is OverWriteandSaveLink Enabled
+        /// </summary>
+        /// <returns></returns>
+        public bool IsOverWriteandSaveLinkEnabled()
+         {
+             return this.OverWriteandSaveLink.Enabled;
+         }
+
+        /// <summary>
+        /// Append and Save Link Enabled
+        /// </summary>
+        /// <returns></returns>
+        public bool IsAppendandSaveLinkEnabled()
+         {
+             return this.AppendandSaveLink.Enabled;
+         }
+        
         public string CrossReferenceTypeText()
         {
             return CrossReferneceTypeLabel.Text;
@@ -226,6 +332,51 @@ namespace Modules.Channel.B2B.Core.Pages
             webDriver.WaitForPageLoad(new TimeSpan(0, 0, 10));
         }
 
+        /// <summary>
+        /// Check Is Save button visible
+        /// </summary>
+        /// <returns></returns>
+        public bool SaveButtonDisplayed()
+        {
+            return this.SaveButton.IsElementVisible();
+        }
+        /// <summary>
+        /// My Customer Sync Checkbox display
+        /// </summary>
+        /// <returns></returns>
+        public bool MyCustomerSyncCheckboxDisplay()
+        {
+            return webDriver.ElementExists(AdeptBy.Id("ContentPageHolder_chkMyCustomerSync"));
+        }
+
+        /// <summary>
+        /// Enable or Disable My Customer Sync Checkbox
+        /// </summary>
+        /// <param name="Option">Enable or Disable</param>
+        public void EnableorDisableMyCustomerSyncCheckBox(string Option)
+        {
+
+            switch (Option)
+            {
+                case "Enable":
+                    if (MyCustomerSyncCheckbox.GetAttribute("checked") != "true")
+                    {
+                        //chkMyCustomerSyncId.Click();
+                        javaScriptExecutor.ExecuteScript("arguments[0].click();", MyCustomerSyncCheckbox);
+                    }
+
+                    break;
+
+                case "Disable":
+                    if (MyCustomerSyncCheckbox.GetAttribute("checked") == "true")
+                    {
+                        //chkMyCustomerSyncId.Click();
+                        javaScriptExecutor.ExecuteScript("arguments[0].click();", MyCustomerSyncCheckbox);
+                    }
+
+                    break;
+            }
+        }
         #endregion
     }
 }

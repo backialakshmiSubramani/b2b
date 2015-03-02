@@ -22,6 +22,8 @@ using DCSG.ADEPT.Framework.Core.Extensions.WebDriver;
 using DCSG.ADEPT.Framework.Core.Extensions.WebElement;
 using DCSG.ADEPT.Framework.Core.Extensions.Locators;
 using DCSG.ADEPT.Framework.Core.Page;
+using Modules.Channel.EUDC.Core.Pages;
+using System.Threading;
 
 namespace Modules.Channel.B2B.Core.Pages
 {
@@ -128,6 +130,61 @@ namespace Modules.Channel.B2B.Core.Pages
             }
         }
 
+        /// <summary>
+        /// Crt Reference List Table Rows
+        /// </summary>
+        private IList<IWebElement> CrtReferenceListTableRows
+        {
+            get
+            {
+                return
+                   webDriver.FindElements(
+                       By.XPath("//table[@id='ContentPageHolder_CRTGridCRTList_grdVwCrossReferenceList']/tbody/tr"));
+
+            }
+        }
+
+        /// <summary>
+        /// Cross reference type dropdown
+        /// </summary>
+        private string _crossReferenceTypeDropDown;
+        private string crossReferenceTypeDropDown
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(_crossReferenceTypeDropDown))
+                    _crossReferenceTypeDropDown = "Channel_Cross_Segment_Booking";
+                return _crossReferenceTypeDropDown;
+            }
+        }
+
+        /// <summary>
+        /// CRT DropDown
+        /// </summary>
+        private IWebElement _selectCRTDropDown;
+        private IWebElement selectCRTDropDown
+        {
+            get
+            {
+                if (_selectCRTDropDown == null)
+                    _selectCRTDropDown = webDriver.FindElement(By.Id("ContentPageHolder_drp_CRTType"));
+                return _selectCRTDropDown;
+            }
+        }
+
+        /// <summary>
+        /// Search CRT List link
+        /// </summary>
+        private IWebElement _searchCRTList;
+        private IWebElement searchCRTList
+        {
+            get
+            {
+                if (_searchCRTList == null)
+                    _searchCRTList = webDriver.FindElement(By.Id("ContentPageHolder_lnk_btnSearch"));
+                return _searchCRTList;
+            }
+        }
         #endregion
 
         # region Element Actions
@@ -171,6 +228,50 @@ namespace Modules.Channel.B2B.Core.Pages
             Console.WriteLine("Url after switching windows is: {0}", webDriver.Url);
         }
 
+        /// <summary>
+        /// click on description for given CR ID in CR List
+        /// </summary>
+        /// <param name="crId"></param>
+        /// <returns></returns>
+        public B2BCrossReferenceMaintenancePage clickonDescriptionforCrID(string crId)
+        {
+            // var rowWithCrID = CrossReferenceTableRows.FirstOrDefault(e => e.FindElements(By.TagName("td"))[1].Text.Trim().Equals(crId));
+            for (int j = 0; j < CrtReferenceListTableRows.Count; j++)
+            {
+                if (CrtReferenceListTableRows[j].Text.Contains(crId))
+                {
+                    var currentElement =
+                        CrtReferenceListTableRows[j].FindElement(By.TagName("a"));
+                    // CrtReferenceListTableRows[j].FindElement(By.TagName("/a[contains(@href,'#//CrossReferenceMaintenance.aspx?CRTID=')"));
+                    javaScriptExecutor.ExecuteScript("arguments[0].click();", currentElement);
+                }
+            }
+            this.webDriver.SwitchTo().DefaultContent();
+            return new B2BCrossReferenceMaintenancePage(this.webDriver);
+        }
+
+        /// <summary>
+        /// Get CRT ID from Cross Reference List Table
+        /// </summary>
+        public string CrossReferenceListTableCrtId
+        {
+            get
+            {
+                const string rowPath = "//table[@id='ContentPageHolder_CRTGridCRTList_grdVwCrossReferenceList']/tbody/tr[2]/td[2]";
+                return webDriver.FindElement(By.XPath(rowPath)).Text;
+            }
+        }
+
+        /// <summary>
+        ///Search based on given crt Type, by default  Channel_Cross_Segment_Booking will get filtered 
+        /// </summary>
+        /// <param name="crtType"></param>
+        public void FilterCRT(string crtType)
+        {
+            this._crossReferenceTypeDropDown = crtType;
+            selectCRTDropDown.Select().SelectByText(crossReferenceTypeDropDown);
+            searchCRTList.Click();
+        }
         # endregion
     }
 }
