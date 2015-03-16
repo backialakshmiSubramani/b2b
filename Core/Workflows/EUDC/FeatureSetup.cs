@@ -7,8 +7,17 @@ using Modules.Channel.B2B.Core.Pages;
 using OpenQA.Selenium;
 using System.Data.Linq.Mapping;
 using System.Security.Policy;
-using DCSG.ADEPT.Framework.Core.Extensions.WebDriver;
 using Microsoft.SharePoint.Client;
+
+//Adept Framework 
+using Dell.Adept.Core;
+using Dell.Adept.UI;
+using Dell.Adept.UI.Web;
+using Dell.Adept.UI.Web.Pages;
+using Dell.Adept.UI.Web.Support.Extensions.WebDriver;
+using Dell.Adept.UI.Web.Support.Extensions.WebElement;
+using Dell.Adept.UI.Web.Support.Locators;
+using Dell.Adept.UI.Web.Support;
 
 namespace Modules.Channel.B2B.Core.Workflows.EUDC
 {

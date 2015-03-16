@@ -14,21 +14,25 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using OpenQA.Selenium;
-using DCSG.ADEPT.Framework;
-using DCSG.ADEPT.Framework.Core;
-using DCSG.ADEPT.Framework.Core.Extensions.WebDriver;
-using DCSG.ADEPT.Framework.Core.Extensions.WebElement;
-using DCSG.ADEPT.Framework.Core.Extensions.Locators;
-using DCSG.ADEPT.Framework.Core.Page;
 using OpenQA.Selenium.Interactions;
 
+//Adept Framework 
+using Dell.Adept.Core;
+using Dell.Adept.UI;
+using Dell.Adept.UI.Web;
+using Dell.Adept.UI.Web.Pages;
+using Dell.Adept.UI.Web.Support.Extensions.WebDriver;
+using Dell.Adept.UI.Web.Support.Extensions.WebElement;
+using Dell.Adept.UI.Web.Support.Locators;
+using Dell.Adept.UI.Web.Support;
+using Dell.Adept.Testing.DataGenerators.Primitive;
 
 namespace Modules.Channel.B2B.Core.Pages
 {
     /// <summary>
     /// This base class is the where all specific page classes will be derived.
     /// </summary>
-    public class B2BSecureCheckoutPage : DCSGPageBase
+    public class B2BSecureCheckoutPage : PageBase
     {
         IWebDriver webDriver;
         private IJavaScriptExecutor javaScriptExecutor;
@@ -178,11 +182,11 @@ namespace Modules.Channel.B2B.Core.Pages
 
         public void EnterContactAndBillingInfo()
         {
-            string firstName = DCSG.ADEPT.Framework.Data.Generator.RandomString(5, 0);
-            string lastName = DCSG.ADEPT.Framework.Data.Generator.RandomString(5, 0);
-            string companyName = DCSG.ADEPT.Framework.Data.Generator.RandomString(5, 0);
-            string phoneNumber = DCSG.ADEPT.Framework.Data.Generator.RandomInt(0, 999999).ToString() + DCSG.ADEPT.Framework.Data.Generator.RandomInt(0, 999999).ToString();
-            string email = DCSG.ADEPT.Framework.Data.Generator.RandomString(5, 0) + "@test.com";
+            string firstName = Generator.RandomString(5, 0);
+            string lastName = Generator.RandomString(5, 0);
+            string companyName = Generator.RandomString(5, 0);
+            string phoneNumber = Generator.RandomInt(0, 999999).ToString() + Generator.RandomInt(0, 999999).ToString();
+            string email = Generator.RandomString(5, 0) + "@test.com";
 
             FirstName.SendKeys(firstName);
             LastName.SendKeys(lastName);

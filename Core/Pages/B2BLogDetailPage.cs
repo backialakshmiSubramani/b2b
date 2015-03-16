@@ -14,22 +14,26 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using OpenQA.Selenium;
-using DCSG.ADEPT.Framework;
-using DCSG.ADEPT.Framework.Core;
-using DCSG.ADEPT.Framework.Core.Extensions.WebDriver;
-using DCSG.ADEPT.Framework.Core.Extensions.WebElement;
-using DCSG.ADEPT.Framework.Core.Extensions.Locators;
-using DCSG.ADEPT.Framework.Core.Page;
 using System.Linq;
 using System.Xml.Linq;
 using System.Xml.XPath;
+
+//Adept Framework 
+using Dell.Adept.Core;
+using Dell.Adept.UI;
+using Dell.Adept.UI.Web;
+using Dell.Adept.UI.Web.Pages;
+using Dell.Adept.UI.Web.Support.Extensions.WebDriver;
+using Dell.Adept.UI.Web.Support.Extensions.WebElement;
+using Dell.Adept.UI.Web.Support.Locators;
+using Dell.Adept.UI.Web.Support;
 
 namespace Modules.Channel.B2B.Core.Pages
 {
     /// <summary>
     /// This base class is the where all specific page classes will be derived.
     /// </summary>
-    public class B2BLogDetailPage : DCSGPageBase
+    public class B2BLogDetailPage : PageBase
     {
         IWebDriver webDriver;
         private IJavaScriptExecutor javaScriptExecutor;
