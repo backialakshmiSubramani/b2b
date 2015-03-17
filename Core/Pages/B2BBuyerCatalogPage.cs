@@ -722,7 +722,7 @@ namespace Modules.Channel.B2B.Core.Pages
             {
                 if (_buyerCatalogTab == null)
                 {
-                    Thread.Sleep(1000);
+                    //Thread.Sleep(1000);
                     _buyerCatalogTab =
                         webDriver.FindElement(By.Id("ContentPageHolder_ProfileHeader_hyp_PH_BuyerCatalog"),
                             new TimeSpan(0, 0, 30));
