@@ -14,6 +14,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Data;
+using System.Linq;
 using System.Runtime.Remoting;
 using System.Text;
 using System.Threading;
@@ -85,7 +86,10 @@ namespace Modules.Channel.B2B.Core.Pages
             get
             {
                 if (_catalogOperation == null)
-                    _catalogOperation = webDriver.FindElement(By.Id("rbOrgpub_1"), new TimeSpan(0, 0, 30));
+                {
+                    _catalogOperation =
+                        webDriver.FindElements(By.Name("ctl00$ContentPageHolder$AutoBhc$rbOrgpub")).FirstOrDefault(e => e.Selected);
+                }
                 return _catalogOperation;
             }
         }
