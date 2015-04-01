@@ -1,24 +1,32 @@
 ﻿
-using System.Globalization;
-using System.Text.RegularExpressions;
-//using Microsoft.SharePoint.Client.Utilities;
+using Microsoft.SharePoint.Client;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Modules.Channel.B2B.Common;
 using Modules.Channel.B2B.Core.Pages;
 using Modules.Channel.B2B.DAL;
 using OpenQA.Selenium;
+using OpenQA.Selenium.Internal;
+using OpenQA.Selenium.Support.UI;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using System.Xml.Linq;
 using System.Xml.XPath;
 using Excel = Microsoft.Office.Interop.Excel;
-using decode = System.Web;
 
 //Adept Framework 
+using Dell.Adept.Core;
+using Dell.Adept.UI;
+using Dell.Adept.UI.Web;
+using Dell.Adept.UI.Web.Pages;
 using Dell.Adept.UI.Web.Support.Extensions.WebDriver;
-using Extensions = System.Xml.XPath.Extensions;
+using Dell.Adept.UI.Web.Support.Extensions.WebElement;
+using Dell.Adept.UI.Web.Support.Locators;
+using Dell.Adept.UI.Web.Support;
 
 
 namespace Modules.Channel.B2B.Core.Workflows.Common
@@ -470,21 +478,12 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
         /// <param name="expectedDpidMessage"></param>
         /// <param name="mapperRequestMessage"></param>
         /// <param name="profileName"></param>
-        /// <param name="quote"></param>
         /// <returns></returns>
-        [Owner("CTS_Nethra_Pandapillav,CTS_Neha_Joshi")]
-        [Timeout(TestTimeout.Infinite)]
-        [Priority(2)]
-        [TestCategory("")]
-        [WorkItem(647867)]
-        [Description(" Verify all the PO fileds are present in Mapper Request Xml retrived from B2B Log Report for 1 lineitem.")]
-        [DataSource("Microsoft.VisualStudio.TestTools.DataSource.XML", "|DataDirectory|\\CblTemplate.xml", "Iteration", DataAccessMethod.Sequential)]
-        [DeploymentItem("B2B_ASN\\Data\\CblTemplate.xml")]
         public bool MatchValuesInPoXmlAndMapperXml(
             string poNumber,
             string expectedDpidMessage,
             string mapperRequestMessage,
-            string profileName, string quote)
+            string profileName)
         {
             B2BHomePage.ClickB2BProfileList();
             B2BCustomerProfileListPage.SearchProfile(null, profileName);
@@ -511,13 +510,13 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
                 return false;
             }
 
-            var mapperXml = XDocument.Parse(PrepareXml(B2BLogDetailPage.GetLogDetail()));
+            var mapperXml = XDocument.Parse(B2BLogDetailPage.GetLogDetail());
             var savedPoCbl = XDocument.Load("CblTemplate.xml");
             Console.WriteLine("Begin retrieval from ASNQueue");
             var asnQueueEntry = AsnDataAccess.FetchRecordsFromAsnQueue(poNumber).FirstOrDefault();
             Console.WriteLine("End retrieval from ASNQueue");
 
-            if (asnQueueEntry != null && !asnQueueEntry.DPID.Equals(dellPurchaseId))
+            if (!asnQueueEntry.DPID.Equals(dellPurchaseId))
             {
                 return false;
             }
@@ -527,7 +526,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
                 return false;
             }
 
-            if (asnQueueEntry != null && !asnQueueEntry.ThreadId.Equals(threadId))
+            if (!asnQueueEntry.ThreadId.Equals(threadId))
             {
                 return false;
             }
@@ -550,161 +549,66 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
                 return false;
             }
 
-            if (asnQueueEntry != null && !asnQueueEntry.Partner.ToUpper().Equals(mapperXml.XPathSelectElement("//Partner").Value.ToUpper()))
+            if (!asnQueueEntry.Partner.ToUpper().Equals(mapperXml.XPathSelectElement("//Partner").Value.ToUpper()))
             {
                 return false;
             }
 
-            var mapperLineItemNumber = mapperXml.XPathSelectElements("//LineItems/MapperRequestPOLine/LineItemNumber").FirstOrDefault();
-            var poLineItemNumber = savedPoCbl.XPathSelectElements("//ListOfOrderDetail/OrderDetail/BaseItemDetail/LineItemNum").FirstOrDefault();
-            if (mapperLineItemNumber != null && poLineItemNumber != null)
-            {
-                if (!mapperLineItemNumber.Value.Equals(poLineItemNumber.Value))
-                {
-                    return false;
-                }
-            }
-
-            var mapperVendorPartNumber = mapperXml.XPathSelectElements("//LineItems/MapperRequestPOLine/VendorPartNumber").FirstOrDefault();
-            var poVendorPartNumber = savedPoCbl.XPathSelectElements("//ListOfOrderDetail/OrderDetail/BaseItemDetail/ManufacturerPartNum/PartNum/PartID").FirstOrDefault();
-            if (mapperVendorPartNumber != null && poVendorPartNumber != null)
-            {
-                if (!mapperVendorPartNumber.Value.Equals(poVendorPartNumber.Value))
-                {
-                    return false;
-                }
-            }
-
-            if (mapperVendorPartNumber != null && asnQueueEntry != null && !asnQueueEntry.VendorPartNumber.Equals(mapperVendorPartNumber.Value))
+            if (
+                !mapperXml.XPathSelectElements("//LineItems/MapperRequestPOLine/VendorPartNumber")
+                     .FirstOrDefault()
+                     .Value.Equals(
+                         savedPoCbl.XPathSelectElements(
+                             "//ListOfOrderDetail/OrderDetail/BaseItemDetail/ManufacturerPartNum/PartNum/PartID")
+                     .FirstOrDefault()
+                     .Value))
             {
                 return false;
             }
 
-            var mapperBuyerSku = mapperXml.XPathSelectElements("//LineItems/MapperRequestPOLine/BuyerSKU").FirstOrDefault();
-            var poBuyerSku = savedPoCbl.XPathSelectElements("//ListOfOrderDetail/OrderDetail/BaseItemDetail/BuyerPartNum/PartNum/PartID").FirstOrDefault();
-            if (mapperBuyerSku != null && poBuyerSku != null)
+            if (
+                !asnQueueEntry.VendorPartNumber.Equals(
+                    mapperXml.XPathSelectElements("//LineItems/MapperRequestPOLine/VendorPartNumber")
+                     .FirstOrDefault()
+                     .Value))
             {
-                if (!mapperBuyerSku.Value.Equals(poBuyerSku.Value))
-                {
-                    return false;
-                }
+                return false;
             }
 
-            if (mapperBuyerSku != null && asnQueueEntry != null && !asnQueueEntry.BuyerSKU.Equals(mapperBuyerSku.Value))
+            if (
+                !mapperXml.XPathSelectElements("//LineItems/MapperRequestPOLine/BuyerSKU")
+                     .FirstOrDefault()
+                     .Value.Equals(
+                         savedPoCbl.XPathSelectElements(
+                             "//ListOfOrderDetail/OrderDetail/BaseItemDetail/BuyerPartNum/PartNum/PartID")
+                     .FirstOrDefault()
+                     .Value))
+            {
+                return false;
+            }
+
+            if (
+                !asnQueueEntry.BuyerSKU.Equals(
+                    mapperXml.XPathSelectElements("//LineItems/MapperRequestPOLine/BuyerSKU").FirstOrDefault().Value))
             {
                 return false;
             }
 
             Console.WriteLine("Delivery Preference from profile settings page is: {0}", deliveryPreference);
             Console.WriteLine("Delivery Preference from mapper xml is: {0}", mapperXml.XPathSelectElement("//DeliveryPreference").Value);
-            if (asnQueueEntry != null)
-            {
-                Console.WriteLine("Delivery Preference from database is: {0}", asnQueueEntry.DeliveryPreference.ToString(CultureInfo.InvariantCulture));
+            Console.WriteLine("Delivery Preference from database is: {0}", asnQueueEntry.DeliveryPreference.ToString());
 
-                var mapperDeliveryPreference = mapperXml.XPathSelectElement("//DeliveryPreference");
-                if (!mapperDeliveryPreference.Value.Equals(deliveryPreference))
-                {
-                    return false;
-                }
-
-                if (!asnQueueEntry.DeliveryPreference.ToString(CultureInfo.InvariantCulture).Equals(mapperDeliveryPreference.Value))
-                {
-                    return false;
-                }
-            }
-
-            //Compare PO Fields in Mapper Xml
-            //PO#
-            if (!mapperXml.XPathSelectElement("//PORequestXml/PurchaseOrder/OrderHeader/OrderReference/BuyerRefNum/Reference/RefNum").Value.Equals(savedPoCbl.XPathSelectElement("//BuyerRefNum/Reference/RefNum").Value))
+            if (!mapperXml.XPathSelectElement("//DeliveryPreference").Value.Equals(deliveryPreference))
             {
                 return false;
             }
 
-            //Partner
-            if (!mapperXml.XPathSelectElement("//PORequestXml/PurchaseOrder/OrderHeader/OrderParty/BuyerParty/Party/ListOfIdentifier/Identifier/Agency").Attribute("AgencyOther").Value.ToUpper().Equals(savedPoCbl.XPathSelectElement("//BuyerParty/Party/ListOfIdentifier/Identifier/Agency")
-                     .Attribute("AgencyOther")
-                     .Value.ToUpper()))
-            {
-                return false;
-            }
-
-            //LineItem#
-            if (!mapperXml.XPathSelectElement("//PORequestXml/PurchaseOrder/ListOfOrderDetail/OrderDetail/BaseItemDetail/LineItemNum").Value.
-                Equals(savedPoCbl.XPathSelectElement("//BaseItemDetail/LineItemNum").Value))
-            {
-                return false;
-            }
-
-            quote = "-" + quote;
-
-            //Quote #
-            if (quote.Contains("\\") && !mapperXml.XPathSelectElement("//PORequestXml/PurchaseOrder/ListOfOrderDetail/OrderDetail/BaseItemDetail/SupplierPartNum/PartNum/PartIDExt").Value.
-                Equals(quote))//OR
-            {
-                return false;
-            }
-            else if (quote.Contains("EQ:") && !mapperXml.XPathSelectElement("//PORequestXml/PurchaseOrder/ListOfOrderDetail/OrderDetail/BaseItemDetail/SupplierPartNum/PartNum/PartID").Value.
-                Equals(quote))//Equote
-            {
-                return false;
-            }
-            else if (quote.Contains("Q:") && !mapperXml.XPathSelectElement("//PORequestXml/PurchaseOrder/ListOfOrderDetail/OrderDetail/BaseItemDetail/SupplierPartNum/PartNum/PartID").Value.
-                Equals(quote))//Doms
-            {
-                return false;
-            }
-            else if (quote.Contains("BHC:") && !mapperXml.XPathSelectElement("//PORequestXml/PurchaseOrder/ListOfOrderDetail/OrderDetail/BaseItemDetail/SupplierPartNum/PartNum/PartIDExt").Value.
-            Equals(quote))//OR
-            {
-                return false;
-            }
-            else if (!mapperXml.XPathSelectElement("//PORequestXml/PurchaseOrder/ListOfOrderDetail/OrderDetail/BaseItemDetail/SupplierPartNum/PartNum/PartIDExt").Value.
-                Equals(quote))//Cif
-            {
-                return false;
-            }
-
-            //Buyer SKUID
-            var poBuyrSku = savedPoCbl.XPathSelectElements("//ListOfOrderDetail/OrderDetail/BaseItemDetail/BuyerPartNum/PartNum/PartID").FirstOrDefault();
-            if (poBuyrSku != null && !mapperXml.XPathSelectElement("//PORequestXml/PurchaseOrder/ListOfOrderDetail/OrderDetail/BaseItemDetail/BuyerPartNum/PartNum/PartID").Value.
-                Equals(poBuyrSku.Value))
-            {
-                return false;
-            }
-
-            //Vendor PartID
-            var poVendorPartId = savedPoCbl.XPathSelectElements("//ListOfOrderDetail/OrderDetail/BaseItemDetail/ManufacturerPartNum/PartNum/PartID").FirstOrDefault();
-            if (poVendorPartId != null && !mapperXml.XPathSelectElement("//PORequestXml/PurchaseOrder/ListOfOrderDetail/OrderDetail/BaseItemDetail/ManufacturerPartNum/PartNum/PartID").Value.
-                Equals(poVendorPartId.Value))
-            {
-                return false;
-            }
-
-            //Quantity
-            var poQty = savedPoCbl.XPathSelectElements("//ListOfOrderDetail/OrderDetail/BaseItemDetail/Quantity/Qty ").FirstOrDefault();
-            if (poQty != null && !mapperXml.XPathSelectElement("//PORequestXml/PurchaseOrder/ListOfOrderDetail/OrderDetail/BaseItemDetail/Quantity/Qty").Value.
-                Equals(poQty.Value))
-            {
-                return false;
-            }
-
-            //Unit Price
-            var poUnitPrice = savedPoCbl.XPathSelectElements("//ListOfOrderDetail/OrderDetail/BuyerExpectedUnitPrice/Price/UnitPrice ").FirstOrDefault();
-            if (poUnitPrice != null && !mapperXml.XPathSelectElement("//PORequestXml/PurchaseOrder/ListOfOrderDetail/OrderDetail/BuyerExpectedUnitPrice/Price/UnitPrice").Value.
-                Equals(poUnitPrice.Value))
+            if (!asnQueueEntry.DeliveryPreference.ToString().Equals(mapperXml.XPathSelectElement("//DeliveryPreference").Value))
             {
                 return false;
             }
 
             return true;
-        }
-
-        public string PrepareXml(string strXml)
-        {
-            strXml = decode.HttpUtility.HtmlDecode(strXml);
-            strXml = decode.HttpUtility.HtmlDecode(strXml);
-            strXml = Regex.Replace(strXml, @"<\?xml.*?>", "");
-            return strXml;
         }
 
         /// <summary>
@@ -1040,23 +944,18 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
 
             for (var i = 0; i < countOfOrderFormItemElements; i++)
             {
-                var idValue = ogXml.XPathSelectElements("//OrderGroup/OrderForms/OrderForm/Items/Item/Id").FirstOrDefault();
-                if (idValue !=
-                    null)
-                    itemIds.Add(idValue.Value);
+                itemIds.Add(ogXml.XPathSelectElements("//OrderGroup/OrderForms/OrderForm/Items/Item/Id").FirstOrDefault().Value);
 
-                var compIdValue =
+                var firstOrDefault =
                     ogXml.XPathSelectElements(
                         "//OrderGroup/OrderForms/OrderForm/Items/Item/ConfigDetails/Modules/Module/Options/Option/CompositeItems/Item/Id").FirstOrDefault();
 
-                if (compIdValue != null)
+                if (firstOrDefault != null)
                 {
-                    itemIds.Add(compIdValue.Value);
+                    itemIds.Add(firstOrDefault.Value);
                 }
 
-                var orderFormItem = ogXml.XPathSelectElements("//OrderGroup/OrderForms/OrderForm/Items/Item").FirstOrDefault();
-                if (orderFormItem != null)
-                    orderFormItem.Remove();
+                ogXml.XPathSelectElements("//OrderGroup/OrderForms/OrderForm/Items/Item").FirstOrDefault().Remove();
             }
 
             if (!itemIds.Any())
@@ -1069,16 +968,12 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
                     "//OrderGroup/OrderForms/OrderForm/FulfillmentUnits/FulfillmentUnit/FulfillmentItemInformation/FulfillmentItemInformation/ItemId")
                     .Select(i => i.Value);
 
-            var idsFromFulfillment = itemIdsFromFulfillment as string[] ?? itemIdsFromFulfillment.ToArray();
-            if (!idsFromFulfillment.Any())
+            if (!itemIdsFromFulfillment.Any()
+                || !itemIds.OrderBy(x => x).SequenceEqual(itemIdsFromFulfillment.OrderBy(x => x)))
             {
                 return false;
             }
-            if (!itemIds.OrderBy(x => x).SequenceEqual(idsFromFulfillment.OrderBy(x => x)))
-            {
-                 return false;
-            }
-           
+
             if (!B2BLogReportPage.FindMessageAndGoToLogDetailPage(mapperRequestMessage))
             {
                 return false;
@@ -1086,12 +981,8 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
 
             var itemIdsFromMapperRequestXml = B2BLogDetailPage.GetItemIdsFromMapperRequestXml();
 
-            var idsFromMapperRequestXml = itemIdsFromMapperRequestXml as string[] ?? itemIdsFromMapperRequestXml.ToArray();
-            if (!idsFromMapperRequestXml.Any())
-            {
-                return false;
-            }
-            if (!itemIds.OrderBy(x => x).SequenceEqual(idsFromMapperRequestXml.OrderBy(x => x)))
+            if (!itemIdsFromMapperRequestXml.Any()
+                || !itemIds.OrderBy(x => x).SequenceEqual(itemIdsFromMapperRequestXml.OrderBy(x => x)))
             {
                 return false;
             }
@@ -1100,11 +991,8 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
             var itemIdsFromDb = AsnDataAccess.FetchItemId(poNumber);
             Console.WriteLine("End retrieval from ASNItemMapping");
 
-            if (!itemIdsFromDb.Any())
-            {
-                 return false;
-            }
-            if (!itemIds.OrderBy(x => x).SequenceEqual(itemIdsFromDb.Select(i => i.ToLower()).OrderBy(x => x)))
+            if (!itemIdsFromDb.Any()
+                || !itemIds.OrderBy(x => x).SequenceEqual(itemIdsFromDb.Select(i => i.ToLower()).OrderBy(x => x)))
             {
                 return false;
             }
