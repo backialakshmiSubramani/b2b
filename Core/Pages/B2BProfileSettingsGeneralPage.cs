@@ -100,7 +100,7 @@ namespace Modules.Channel.B2B.Core.Pages
             }
         }
 
-        private IWebElement SearchLink
+        public IWebElement SearchLink
         {
             get
             {
@@ -126,7 +126,7 @@ namespace Modules.Channel.B2B.Core.Pages
             }
         }
 
-        private IWebElement CreateNewProfileButton
+        public IWebElement CreateNewProfileButton
         {
             get
             {

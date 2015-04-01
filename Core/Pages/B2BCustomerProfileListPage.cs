@@ -74,7 +74,7 @@ namespace Modules.Channel.B2B.Core.Pages
 
         #region Elements
 
-        private IWebElement CreateNewProfileLink
+        public IWebElement CreateNewProfileLink
         {
             get
             {

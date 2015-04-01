@@ -100,7 +100,7 @@ namespace Modules.Channel.B2B.Core.Pages
             }
         }
 
-        private IWebElement B2BProfileListLink
+        public IWebElement B2BProfileListLink
         {
             get
             {

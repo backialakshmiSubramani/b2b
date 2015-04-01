@@ -70,7 +70,7 @@ namespace Modules.Channel.B2B.Core.Pages
         }
 
         #region Elements
-        
+
         /// <summary>
         /// CR Association Link
         /// </summary>
@@ -104,6 +104,15 @@ namespace Modules.Channel.B2B.Core.Pages
                 return webDriver.FindElement(By.Id("ucBreadCrumb_lblPageTitle"));
             }
         }
+
+        public IWebElement BuyerCatalogTab
+        {
+            get
+            {
+                return webDriver.FindElement(By.Id("ContentPageHolder_ProfileHeader_hyp_PH_BuyerCatalog"));
+            }
+        }
+
         #endregion
     }
 }
