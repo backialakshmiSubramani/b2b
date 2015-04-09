@@ -250,9 +250,10 @@ namespace Modules.Channel.B2B.Core.Pages
         #endregion
 
         #region ReUsable Methods
-        public void SelectEnvironment(string EnvironmentValue)
+        public void SelectEnvironment(string environmentValue)
         {
-            EnvironmentList.SelectByText(EnvironmentValue);
+            EnvironmentList.SelectByText(environmentValue);
+            Console.WriteLine("B2B environment selected is: ** {0} **", environmentValue);
             ////GoButton.Click();
             javaScriptExecutor.ExecuteScript("arguments[0].click();", GoButton);
             webDriver.WaitForPageLoad(new TimeSpan(0, 0, 10));
