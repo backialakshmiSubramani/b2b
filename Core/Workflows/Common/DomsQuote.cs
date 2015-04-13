@@ -171,7 +171,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
                        gcmUrl);
         }
 
-        public bool MatchValuesInPoXmlAndMapperXml(string expectedDpidMessage, string mapperRequestMessage)
+        public bool MatchValuesInPoXmlAndMapperXml(string expectedDpidMessage, string mapperRequestMessage, string quote)
         {
             //this.poNumber = "DCS0201E2ETest3";
 
@@ -180,7 +180,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
                        this.poNumber,
                        expectedDpidMessage,
                        mapperRequestMessage,
-                       this.ProfileName);
+                       this.ProfileName, quote);
         }
 
         public bool VerifyMappingEntriesForChannelAsnEnabledProfileForAsn(List<string> asnLogEventMessages, List<string> asnLogDetailMessages, string mapperRequestMessage)

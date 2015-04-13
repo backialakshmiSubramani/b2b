@@ -247,14 +247,14 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
                        this.GcmUrl);
         }
 
-        public bool MatchValuesInPoXmlAndMapperXml(string expectedDpidMessage, string mapperRequestMessage)
+        public bool MatchValuesInPoXmlAndMapperXml(string expectedDpidMessage, string mapperRequestMessage, string quote)
         {
             return !string.IsNullOrEmpty(this.poNumber)
                    && this.poOperations.MatchValuesInPoXmlAndMapperXml(
                        this.poNumber,
                        expectedDpidMessage,
                        mapperRequestMessage,
-                       this.ProfileName);
+                       this.ProfileName, quote);
         }
     }
 }
