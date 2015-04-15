@@ -178,6 +178,14 @@ namespace Modules.Channel.B2B.Core.Pages
             }
         }
 
+        public IWebElement ChannelCatalogUxLink
+        {
+            get
+            {
+                return webDriver.FindElement(By.LinkText("ChannelCatalogUX"));
+            }
+        }
+
         #endregion
 
         #region Element Actions
