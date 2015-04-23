@@ -38,7 +38,7 @@ namespace Modules.Channel.B2B.Core.Pages
     /// <summary>
     /// This base class is the where all specific page classes will be derived.
     /// </summary>
-    public class B2BBuyerCatalogPage: PageBase
+    public class B2BBuyerCatalogPage : PageBase
     {
         IWebDriver webDriver;
         private IJavaScriptExecutor javaScriptExecutor;
@@ -77,20 +77,45 @@ namespace Modules.Channel.B2B.Core.Pages
             return webDriver.Url.Contains("ManageProfileIdentities.aspx");
         }
 
-
         #region Elements
 
-        private IWebElement _catalogOperation;
-        public IWebElement CatalogOperation
+        private IWebElement _catalogOperationSelected;
+        public IWebElement CatalogOperationSelected
         {
             get
             {
-                if (_catalogOperation == null)
+                if (_catalogOperationSelected == null)
                 {
-                    _catalogOperation =
+                    _catalogOperationSelected =
                         webDriver.FindElements(By.Name("ctl00$ContentPageHolder$AutoBhc$rbOrgpub")).FirstOrDefault(e => e.Selected);
                 }
-                return _catalogOperation;
+                return _catalogOperationSelected;
+            }
+        }
+
+        private IWebElement _catalogOperationCreate;
+        public IWebElement CatalogOperationCreate
+        {
+            get
+            {
+                if (_catalogOperationCreate == null)
+                {
+                    _catalogOperationCreate = webDriver.FindElement(By.Id("rbOrgpub_0"));
+                }
+                return _catalogOperationCreate;
+            }
+        }
+
+        private IWebElement _catalogOperationCreatePublish;
+        public IWebElement CatalogOperationCreatePublish
+        {
+            get
+            {
+                if (_catalogOperationCreatePublish == null)
+                {
+                    _catalogOperationCreatePublish = webDriver.FindElement(By.Id("rbOrgpub_1"));
+                }
+                return _catalogOperationCreatePublish;
             }
         }
 
@@ -118,201 +143,6 @@ namespace Modules.Channel.B2B.Core.Pages
             }
         }
 
-        /// <summary>
-        /// BHC Catalog Config BCP Standard Config Checkbox
-        /// </summary>
-        private IWebElement _catalogConfigBCPStandardConfig;
-        public IWebElement BCP_StandardConfig
-        {
-            get
-            {
-                if (_catalogConfigBCPStandardConfig == null)
-                    _catalogConfigBCPStandardConfig = webDriver.FindElement(By.Id("ContentPageHolder_chk_BC_StandardConfigurations"), new TimeSpan(0, 0, 30));
-                return _catalogConfigBCPStandardConfig;
-            }
-        }
-
-        /// <summary>
-        /// BHC Catalog Config BCP UpSell DownSell checkbox
-        /// </summary>
-        public IWebElement _catalogConfigBCPUpDnSell;
-        public IWebElement BCP_UpSellDownSell
-        {
-            get
-            {
-                if (_catalogConfigBCPUpDnSell == null)
-                    _catalogConfigBCPUpDnSell = webDriver.FindElement(By.Id("ContentPageHolder_chk_BC_UpsellDownsell"), new TimeSpan(0, 0, 30));
-                return _catalogConfigBCPUpDnSell;
-            }
-        }
-
-        /// <summary>
-        /// BHC Catalog Config BCP include option type check box
-        /// </summary>
-        private IWebElement _catalogConfigBCPIncOptionType;
-        public IWebElement BCP_IncludeOptionType
-        {
-            get
-            {
-                if (_catalogConfigBCPIncOptionType == null)
-                    _catalogConfigBCPIncOptionType = webDriver.FindElement(By.Id("ContentPageHolder_chk_BC_IncOptionType"), new TimeSpan(0, 0, 30));
-                return _catalogConfigBCPIncOptionType;
-            }
-        }
-
-        /// <summary>
-        /// BHC Catalog Config BCP Show Final Price Checkbox
-        /// </summary>
-        private IWebElement catalogConfigBCP_ShowFinalPrice;
-        public IWebElement BCP_ShowFinalPrice
-        {
-            get
-            {
-                if (catalogConfigBCP_ShowFinalPrice == null)
-                    catalogConfigBCP_ShowFinalPrice = webDriver.FindElement(By.Id("ContentPageHolder_chk_BC_ShowFinPrice"), new TimeSpan(0, 0, 30));
-                return catalogConfigBCP_ShowFinalPrice;
-            }
-        }
-
-        /// <summary>
-        /// BHC Catalog Config BCP SNP Checkbox
-        /// </summary>
-        private IWebElement _catalogConfigBCPSNP;
-        public IWebElement BCP_SNP
-        {
-            get
-            {
-                if (_catalogConfigBCPSNP == null)
-                    _catalogConfigBCPSNP = webDriver.FindElement(By.Id("ContentPageHolder_chk_BC_SNP"), new TimeSpan(0, 0, 30));
-                return _catalogConfigBCPSNP;
-            }
-        }
-
-        /// <summary>
-        /// BHC Catalog Config BCP Include Default Options
-        /// </summary>
-        private IWebElement _catalogConfigBCPIncDefOPtions;
-        public IWebElement BCP_IncludeDefaultOptions
-        {
-            get
-            {
-                if (_catalogConfigBCPIncDefOPtions == null)
-                    _catalogConfigBCPIncDefOPtions = webDriver.FindElement(By.Id("ContentPageHolder_chk_BC_IncDefOptions"), new TimeSpan(0, 0, 30));
-                return _catalogConfigBCPIncDefOPtions;
-            }
-        }
-
-        /// <summary>
-        /// BHC Catalog Config BCP Show Absolute Price Checkbox
-        /// </summary>
-        private IWebElement _catalogConfigBCPShowAbsPrice;
-        public IWebElement BCP_ShowAbsPrice
-        {
-            get
-            {
-                if (_catalogConfigBCPShowAbsPrice == null)
-                    _catalogConfigBCPShowAbsPrice = webDriver.FindElement(By.Id("ContentPageHolder_chk_BC_ShowAbsPrice"), new TimeSpan(0, 0, 30));
-                return _catalogConfigBCPShowAbsPrice;
-            }
-        }
-
-        /// <summary>
-        /// BHC Catalog Config BCP Skudetail Checkbox
-        /// </summary>
-        private IWebElement _catalogConfigBCSkuDetail;
-        public IWebElement BCP_SkuDetail
-        {
-            get
-            {
-                if (_catalogConfigBCSkuDetail == null)
-                    _catalogConfigBCSkuDetail = webDriver.FindElement(By.Id("ContentPageHolder_chk_BC_SkuDetail"), new TimeSpan(0, 0, 30));
-                return _catalogConfigBCSkuDetail;
-            }
-        }
-
-        /// <summary>
-        /// Catalog Configuration SNP checkbox
-        /// </summary>
-        private IWebElement _catalogConfigSNP;
-        public IWebElement CatalogConfigurationSNP
-        {
-            get
-            {
-                if (_catalogConfigSNP == null)
-                    _catalogConfigSNP = webDriver.FindElement(By.Id("chkSNP"), new TimeSpan(0, 0, 30));
-                return _catalogConfigSNP;
-            }
-        }
-
-        /// <summary>
-        /// Catalog Configuration Include Default Options
-        /// </summary>
-        private IWebElement _catalogConfigIncDefOptions;
-        public IWebElement CatalogConfigurationIncludeDefaultOption
-        {
-            get
-            {
-                if (_catalogConfigIncDefOptions == null)
-                    _catalogConfigIncDefOptions = webDriver.FindElement(By.Id("chk_BC_IncDefOptions"), new TimeSpan(0, 0, 30));
-                return _catalogConfigIncDefOptions;
-            }
-        }
-
-        /// <summary>
-        /// Catalog Configuration Show Absolute Configuration Checkbox
-        /// </summary>
-        private IWebElement _catalogConfigShowAbsPrice;
-        public IWebElement CatalogConfigurationShowAbsolutePrice
-        {
-            get
-            {
-                if (_catalogConfigShowAbsPrice == null)
-                    _catalogConfigShowAbsPrice = webDriver.FindElement(By.Id("chk_BC_ShowAbsPrice"), new TimeSpan(0, 0, 30));
-                return _catalogConfigShowAbsPrice;
-            }
-        }
-
-        /// <summary>
-        /// Catalog Configuration Include Option Type CheckBox
-        /// </summary>
-        private IWebElement _catalogConfigIncOptionType;
-        public IWebElement CatalogConfigIncludeOptionType
-        {
-            get
-            {
-                if (_catalogConfigIncOptionType == null)
-                    _catalogConfigIncOptionType = webDriver.FindElement(By.Id("chk_BC_IncOptionType"), new TimeSpan(0, 0, 30));
-                return _catalogConfigIncOptionType;
-            }
-        }
-
-        /// <summary>
-        /// Catalog Configuration Include Show Final Price Checkbox
-        /// </summary>
-        private IWebElement _catalogConfigShowFinalPrice;
-        public IWebElement CatalogConfigShowFinalPrice
-        {
-            get
-            {
-                if (_catalogConfigShowFinalPrice == null)
-                    _catalogConfigShowFinalPrice = webDriver.FindElement(By.Id("chk_BC_ShowFinPrice"), new TimeSpan(0, 0, 30));
-                return _catalogConfigShowFinalPrice;
-            }
-        }
-
-        /// <summary>
-        /// Catalog config include sku details checkbox
-        /// </summary>
-        private IWebElement _catalogSkuDeail;
-        public IWebElement CatalogConfigurationIncludeSkuDetail
-        {
-            get
-            {
-                if (_catalogSkuDeail == null)
-                    _catalogSkuDeail = webDriver.FindElement(By.Id("chk_BC_SkuDetail"), new TimeSpan(0, 0, 30));
-                return _catalogSkuDeail;
-            }
-        }
         /// <summary>
         /// Buyer Catalog First Identity
         /// </summary>
@@ -344,30 +174,115 @@ namespace Modules.Channel.B2B.Core.Pages
         /// <summary>
         /// Catalog Configuration Standard Checkbox
         /// </summary>
-        private IWebElement _catalogConfigStd;
-        public IWebElement CatalogConfigurationStandard
+        private IWebElement _catalogConfigStandard;
+        public IWebElement CatalogConfigStandard
         {
             get
             {
-                if (_catalogConfigStd == null)
-                    _catalogConfigStd = webDriver.FindElement(By.Id("chkStandardConfigurations"), new TimeSpan(0, 0, 30));
-                return _catalogConfigStd;
+                if (_catalogConfigStandard == null)
+                    _catalogConfigStandard = webDriver.FindElement(By.Id("chkStandardConfigurations"), new TimeSpan(0, 0, 30));
+                return _catalogConfigStandard;
             }
         }
 
         /// <summary>
         /// Catalog Configuration UpDn Sell checkbox
         /// </summary>
-        private IWebElement _catalogConfigUpDnSell;
-        public IWebElement CatalogConfigurationUpAndDownSell
+        private IWebElement _catalogConfigUpsellDownSell;
+        public IWebElement CatalogConfigUpsellDownSell
         {
             get
             {
-                if (_catalogConfigUpDnSell == null)
-                    _catalogConfigUpDnSell = webDriver.FindElement(By.Id("chkUpAndDownSell"), new TimeSpan(0, 0, 30));
-                return _catalogConfigUpDnSell;
+                if (_catalogConfigUpsellDownSell == null)
+                    _catalogConfigUpsellDownSell = webDriver.FindElement(By.Id("chkUpAndDownSell"), new TimeSpan(0, 0, 30));
+                return _catalogConfigUpsellDownSell;
             }
         }
+
+        /// <summary>
+        /// Catalog Configuration SNP checkbox
+        /// </summary>
+        private IWebElement _catalogConfigSnP;
+        public IWebElement CatalogConfigSnP
+        {
+            get
+            {
+                if (_catalogConfigSnP == null)
+                    _catalogConfigSnP = webDriver.FindElement(By.Id("chkSNP"), new TimeSpan(0, 0, 30));
+                return _catalogConfigSnP;
+            }
+        }
+
+        /// <summary>
+        /// Catalog Configuration Include Default Options
+        /// </summary>
+        private IWebElement _catalogConfigIncludeDefaultOptions;
+        public IWebElement CatalogConfigIncludeDefaultOptions
+        {
+            get
+            {
+                if (_catalogConfigIncludeDefaultOptions == null)
+                    _catalogConfigIncludeDefaultOptions = webDriver.FindElement(By.Id("chk_BC_IncDefOptions"), new TimeSpan(0, 0, 30));
+                return _catalogConfigIncludeDefaultOptions;
+            }
+        }
+
+        /// <summary>
+        /// Catalog Configuration Show Absolute Configuration Checkbox
+        /// </summary>
+        private IWebElement _catalogConfigIncludeAbsolutePrice;
+        public IWebElement CatalogConfigIncludeAbsolutePrice
+        {
+            get
+            {
+                if (_catalogConfigIncludeAbsolutePrice == null)
+                    _catalogConfigIncludeAbsolutePrice = webDriver.FindElement(By.Id("chk_BC_ShowAbsPrice"), new TimeSpan(0, 0, 30));
+                return _catalogConfigIncludeAbsolutePrice;
+            }
+        }
+
+        /// <summary>
+        /// Catalog Configuration Include Option Type CheckBox
+        /// </summary>
+        private IWebElement _catalogConfigIncludeOptionType;
+        public IWebElement CatalogConfigIncludeOptionType
+        {
+            get
+            {
+                if (_catalogConfigIncludeOptionType == null)
+                    _catalogConfigIncludeOptionType = webDriver.FindElement(By.Id("chk_BC_IncOptionType"), new TimeSpan(0, 0, 30));
+                return _catalogConfigIncludeOptionType;
+            }
+        }
+
+        /// <summary>
+        /// Catalog Configuration Include Show Final Price Checkbox
+        /// </summary>
+        private IWebElement _catalogConfigIncludeFinalPrice;
+        public IWebElement CatalogConfigIncludeFinalPrice
+        {
+            get
+            {
+                if (_catalogConfigIncludeFinalPrice == null)
+                    _catalogConfigIncludeFinalPrice = webDriver.FindElement(By.Id("chk_BC_ShowFinPrice"), new TimeSpan(0, 0, 30));
+                return _catalogConfigIncludeFinalPrice;
+            }
+        }
+
+        /// <summary>
+        /// Catalog config include sku details checkbox
+        /// </summary>
+        private IWebElement _catalogConfigIncludeSkuDetails;
+        public IWebElement CatalogConfigIncludeSkuDetails
+        {
+            get
+            {
+                if (_catalogConfigIncludeSkuDetails == null)
+                    _catalogConfigIncludeSkuDetails = webDriver.FindElement(By.Id("chk_BC_SkuDetail"), new TimeSpan(0, 0, 30));
+                return _catalogConfigIncludeSkuDetails;
+            }
+        }
+
         /// <summary>
         /// Delta Catalog End Date TextBox
         /// </summary>
@@ -476,14 +391,14 @@ namespace Modules.Channel.B2B.Core.Pages
         /// <summary>
         /// Delta Frequency Weeks Dropdown
         /// </summary>
-        private IWebElement _deltaFreqWeeks;
-        public IWebElement DeltaFrequencyWeeks
+        private SelectElement _deltaFreqWeeks;
+        public SelectElement DeltaFrequencyWeeks
         {
             get
             {
                 if (_deltaFreqWeeks == null)
                 {
-                    _deltaFreqWeeks = webDriver.FindElement(By.Id("ddlDeltaWeeks"), new TimeSpan(0, 0, 30));
+                    _deltaFreqWeeks = new SelectElement(webDriver.FindElement(By.Id("ddlDeltaWeeks"), new TimeSpan(0, 0, 30)));
                 }
                 return _deltaFreqWeeks;
             }
@@ -492,62 +407,32 @@ namespace Modules.Channel.B2B.Core.Pages
         /// <summary>
         /// Original Frequency Weeks Dropdown
         /// </summary>
-        private IWebElement _originalFreqWeeks;
-        public IWebElement OriginaFrequencyWeeks
+        private SelectElement _originalFreqWeeks;
+        public SelectElement OriginaFrequencyWeeks
         {
             get
             {
                 if (_originalFreqWeeks == null)
                 {
-                    _originalFreqWeeks = webDriver.FindElement(By.Id("ddlOrgWeeks"), new TimeSpan(0, 0, 30));
+                    _originalFreqWeeks =
+                        new SelectElement(webDriver.FindElement(By.Id("ddlOrgWeeks"), new TimeSpan(0, 0, 30)));
                 }
                 return _originalFreqWeeks;
             }
         }
 
         /// <summary>
-        /// Delta Frequency Months Dropdown
-        /// </summary>
-        private IWebElement _deltaFreqMonths;
-        public IWebElement DeltaFrequencyMonths
-        {
-            get
-            {
-                if (_deltaFreqMonths == null)
-                {
-                    _deltaFreqMonths = webDriver.FindElement(By.Id("ddlDeltaMonths"), new TimeSpan(0, 0, 30));
-                }
-                return _deltaFreqMonths;
-            }
-        }
-
-        /// <summary>
-        /// Original Catalog Frequency Months Dropdown
-        /// </summary>
-        private IWebElement _originalFreqMonths;
-        public IWebElement OriginaFrequencyMonths
-        {
-            get
-            {
-                if (_originalFreqMonths == null)
-                {
-                    _originalFreqMonths = webDriver.FindElement(By.Id("ddlOrgMonths"), new TimeSpan(0, 0, 30));
-                }
-                return _originalFreqMonths;
-            }
-        }
-
-        /// <summary>
         /// Delta Catalog Frequency Days Dropdown
         /// </summary>
-        private IWebElement _deltaFreqDays;
-        public IWebElement DeltaFrequencyDays
+        private SelectElement _deltaFreqDays;
+        public SelectElement DeltaFrequencyDays
         {
             get
             {
                 if (_deltaFreqDays == null)
                 {
-                    _deltaFreqDays = webDriver.FindElement(By.Id("ddlDeltaDays"), new TimeSpan(0, 0, 30));
+                    _deltaFreqDays =
+                        new SelectElement(webDriver.FindElement(By.Id("ddlDeltaDays"), new TimeSpan(0, 0, 30)));
                 }
                 return _deltaFreqDays;
             }
@@ -556,16 +441,16 @@ namespace Modules.Channel.B2B.Core.Pages
         /// <summary>
         /// Original Catalog Frequency Days Dropdown
         /// </summary>
-        private IWebElement _originalFreqDays;
-        public IWebElement OriginalFrequencyDays
+        private SelectElement _originalFreqDays;
+        public SelectElement OriginalFrequencyDays
         {
             get
             {
                 if (_originalFreqDays == null)
                 {
-                    _originalFreqDays = webDriver.FindElement(By.Id("ddlOrgDays"), new TimeSpan(0, 0, 30));
+                    _originalFreqDays =
+                        new SelectElement(webDriver.FindElement(By.Id("ddlOrgDays"), new TimeSpan(0, 0, 30)));
                 }
-
                 return _originalFreqDays;
             }
         }
@@ -587,59 +472,30 @@ namespace Modules.Channel.B2B.Core.Pages
         /// <summary>
         /// Delta Time of Send Dropdown
         /// </summary>
-        private IWebElement _deltaTimeOfSend;
-        public IWebElement DeltaTimeOfSend
+        private SelectElement _deltaTimeOfSend;
+        public SelectElement DeltaTimeOfSend
         {
             get
             {
                 if (_deltaTimeOfSend == null)
-                    _deltaTimeOfSend = webDriver.FindElement(By.Id("ddlDelTime"), new TimeSpan(0, 0, 30));
+                    _deltaTimeOfSend =
+                        new SelectElement(webDriver.FindElement(By.Id("ddlDelTime"), new TimeSpan(0, 0, 30)));
                 return _deltaTimeOfSend;
-            }
-        }
-
-        /// <summary>
-        /// Delta Day Of Send Dropdown
-        /// </summary>
-        private IWebElement _deltaDayOfSend;
-        public IWebElement DeltaDayOfSend
-        {
-            get
-            {
-                if (_deltaDayOfSend == null)
-                    _deltaDayOfSend = webDriver.FindElement(By.Id("ddlDelDaySend"), new TimeSpan(0, 0, 30));
-                return _deltaDayOfSend;
             }
         }
 
         /// <summary>
         /// Original Time of Send Dropdown
         /// </summary>
-        private IWebElement _originalTimeOfSend;
-        public IWebElement OriginalTimeOfSend
+        private SelectElement _originalTimeOfSend;
+        public SelectElement OriginalTimeOfSend
         {
             get
             {
                 if (_originalTimeOfSend == null)
-                    _originalTimeOfSend = webDriver.FindElement(By.Id("ddlOrgTime"), new TimeSpan(0, 0, 30));
+                    _originalTimeOfSend =
+                        new SelectElement(webDriver.FindElement(By.Id("ddlOrgTime"), new TimeSpan(0, 0, 30)));
                 return _originalTimeOfSend;
-            }
-        }
-
-        /// <summary>
-        /// Original Day of Send Dropdown
-        /// </summary>
-        private IWebElement _originalDayOfSend;
-        public IWebElement OriginalDayOfSend
-        {
-            get
-            {
-                if (_originalDayOfSend == null)
-                {
-                    _originalDayOfSend = webDriver.FindElement(By.Id("ddlOrgDaySend"), new TimeSpan(0, 0, 30));
-                }
-
-                return _originalDayOfSend;
             }
         }
 
@@ -689,17 +545,17 @@ namespace Modules.Channel.B2B.Core.Pages
         /// <summary>
         /// Automatically create and Publish Checkbox
         /// </summary>
-        private IWebElement _autoCreatePublishChk;
-        public IWebElement AutoCreatePublish
+        private IWebElement _enableCatalogAutoGeneration;
+        public IWebElement EnableCatalogAutoGeneration
         {
             get
             {
-                if (_autoCreatePublishChk == null)
+                if (_enableCatalogAutoGeneration == null)
                 {
-                    _autoCreatePublishChk = webDriver.FindElement(By.Id("chk_BC_BuyerCatalogCheck"),
+                    _enableCatalogAutoGeneration = webDriver.FindElement(By.Id("chk_BC_BuyerCatalogCheck"),
                         new TimeSpan(0, 0, 30));
                 }
-                return _autoCreatePublishChk;
+                return _enableCatalogAutoGeneration;
             }
         }
 
@@ -765,6 +621,33 @@ namespace Modules.Channel.B2B.Core.Pages
             }
         }
 
+        private IWebElement _requestedBy;
+        public IWebElement RequestedBy
+        {
+            get
+            {
+                if (_requestedBy == null)
+                {
+                    _requestedBy = webDriver.FindElement(By.Id("txtRequestedBy"), new TimeSpan(0, 0, 10));
+                }
+
+                return _requestedBy;
+            }
+        }
+
+        private IWebElement _editScheduleButton;
+        public IWebElement EditScheduleButton
+        {
+            get
+            {
+                if (_editScheduleButton == null)
+                {
+                    _editScheduleButton = webDriver.FindElement(By.Id("btnEditSchedule"), new TimeSpan(0, 0, 10));
+                }
+
+                return _editScheduleButton;
+            }
+        }
 
         #endregion
 
@@ -780,5 +663,25 @@ namespace Modules.Channel.B2B.Core.Pages
         }
 
         #endregion
+
+        public void UncheckAllConfigTypes()
+        {
+            if (CatalogConfigStandard.Selected)
+                CatalogConfigStandard.Click();
+            if (CatalogConfigUpsellDownSell.Selected)
+                CatalogConfigUpsellDownSell.Click();
+            if (CatalogConfigSnP.Selected)
+                CatalogConfigSnP.Click();
+            if (CatalogConfigIncludeDefaultOptions.Selected)
+                CatalogConfigIncludeDefaultOptions.Click();
+            if (CatalogConfigIncludeAbsolutePrice.Selected)
+                CatalogConfigIncludeAbsolutePrice.Click();
+            if (CatalogConfigIncludeOptionType.Selected)
+                CatalogConfigIncludeOptionType.Click();
+            if (CatalogConfigIncludeFinalPrice.Selected)
+                CatalogConfigIncludeFinalPrice.Click();
+            if (CatalogConfigIncludeSkuDetails.Selected)
+                CatalogConfigIncludeSkuDetails.Click();
+        }
     }
 }
