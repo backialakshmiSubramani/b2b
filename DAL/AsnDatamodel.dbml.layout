@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<ordesignerObjectsDiagram dslVersion="1.0.0.0" absoluteBounds="0, 0, 11, 8.5" name="AsnDatamodel">
+<ordesignerObjectsDiagram dslVersion="1.0.0.0" absoluteBounds="0, 0, 11, 11.125" name="AsnDatamodel">
   <DataContextMoniker Name="/AsnDatamodelDataContext" />
   <nestedChildShapes>
     <classShape Id="4668c2b0-762f-421c-add1-740d066fb33e" absoluteBounds="1.125, 1.25, 2, 4.8477197265625">
@@ -27,11 +27,56 @@
         <elementListCompartment Id="aa1ad301-83e1-4d8b-b7fa-7616b9b0aa46" absoluteBounds="4.64, 5.085, 1.9700000000000002, 0.8262939453125" name="DataPropertiesCompartment" titleTextColor="Black" itemTextColor="Black" />
       </nestedChildShapes>
     </classShape>
-    <associationConnector edgePoints="[(5.5625 : 2.6362939453125); (5.5625 : 4.625)]" fixedFrom="Algorithm" fixedTo="Algorithm">
+    <associationConnector edgePoints="[(5.5625 : 2.6362939453125); (5.5625 : 4.625)]" fixedFrom="NotFixed" fixedTo="NotFixed">
       <AssociationMoniker Name="/AsnDatamodelDataContext/ASNItemMapping/ASNItemMapping_ASNOrderMapping" />
       <nodes>
         <classShapeMoniker Id="446749e7-f8a1-456a-afe8-0440b960c6ce" />
         <classShapeMoniker Id="af289844-5e40-4c95-81b8-744c3c4a8767" />
+      </nodes>
+    </associationConnector>
+    <classShape Id="3cf99da2-39d7-49ff-b6de-7a0ad6a15611" absoluteBounds="0.625, 1.25, 2, 3.1170068359375">
+      <DataClassMoniker Name="/AsnDatamodelDataContext/PurchaseOrder" />
+      <nestedChildShapes>
+        <elementListCompartment Id="60cf1814-cc6d-4ba9-afd0-266d036e19fd" absoluteBounds="0.64, 1.71, 1.9700000000000002, 2.5570068359375" name="DataPropertiesCompartment" titleTextColor="Black" itemTextColor="Black" />
+      </nestedChildShapes>
+    </classShape>
+    <classShape Id="f42a75bc-102f-4b3e-9aca-e0d3ed63f8fe" absoluteBounds="0.75, 6.625, 2, 2.3478011067708335">
+      <DataClassMoniker Name="/AsnDatamodelDataContext/POLine" />
+      <nestedChildShapes>
+        <elementListCompartment Id="9789609e-acab-44de-a974-b7b78ca8fc11" absoluteBounds="0.765, 7.085, 1.9700000000000002, 1.7878011067708335" name="DataPropertiesCompartment" titleTextColor="Black" itemTextColor="Black" />
+      </nestedChildShapes>
+    </classShape>
+    <associationConnector edgePoints="[(0.90625 : 4.3670068359375); (0.90625 : 6.625)]" fixedFrom="Algorithm" fixedTo="Algorithm">
+      <AssociationMoniker Name="/AsnDatamodelDataContext/PurchaseOrder/PurchaseOrder_POLine" />
+      <nodes>
+        <classShapeMoniker Id="3cf99da2-39d7-49ff-b6de-7a0ad6a15611" />
+        <classShapeMoniker Id="f42a75bc-102f-4b3e-9aca-e0d3ed63f8fe" />
+      </nodes>
+    </associationConnector>
+    <classShape Id="776f5dec-29a4-423e-a41e-44b741073dae" absoluteBounds="2.875, 6.75, 2, 4.0785139973958326">
+      <DataClassMoniker Name="/AsnDatamodelDataContext/Order" />
+      <nestedChildShapes>
+        <elementListCompartment Id="7a801f28-5c6c-4c9e-891a-2471e717f405" absoluteBounds="2.89, 7.21, 1.9700000000000002, 3.518513997395833" name="DataPropertiesCompartment" titleTextColor="Black" itemTextColor="Black" />
+      </nestedChildShapes>
+    </classShape>
+    <associationConnector edgePoints="[(2.75 : 7.86140055338542); (2.875 : 7.86140055338542)]" fixedFrom="Algorithm" fixedTo="Algorithm">
+      <AssociationMoniker Name="/AsnDatamodelDataContext/POLine/POLine_Order" />
+      <nodes>
+        <classShapeMoniker Id="f42a75bc-102f-4b3e-9aca-e0d3ed63f8fe" />
+        <classShapeMoniker Id="776f5dec-29a4-423e-a41e-44b741073dae" />
+      </nodes>
+    </associationConnector>
+    <classShape Id="e1b7c081-9132-4e4f-b795-03339d48f3ba" absoluteBounds="5.125, 5.625, 2, 3.3093082682291666">
+      <DataClassMoniker Name="/AsnDatamodelDataContext/ShippingInfo" />
+      <nestedChildShapes>
+        <elementListCompartment Id="aa52d238-efa3-4c1f-8982-4e8b5d90add2" absoluteBounds="5.14, 6.085, 1.9700000000000002, 2.7493082682291665" name="DataPropertiesCompartment" titleTextColor="Black" itemTextColor="Black" />
+      </nestedChildShapes>
+    </classShape>
+    <associationConnector edgePoints="[(4.875 : 7.84215413411458); (5.125 : 7.84215413411458)]" fixedFrom="Algorithm" fixedTo="Algorithm">
+      <AssociationMoniker Name="/AsnDatamodelDataContext/Order/Order_ShippingInfo" />
+      <nodes>
+        <classShapeMoniker Id="776f5dec-29a4-423e-a41e-44b741073dae" />
+        <classShapeMoniker Id="e1b7c081-9132-4e4f-b795-03339d48f3ba" />
       </nodes>
     </associationConnector>
   </nestedChildShapes>

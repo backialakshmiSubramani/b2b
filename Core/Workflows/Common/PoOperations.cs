@@ -15,6 +15,7 @@ using System.Xml.Linq;
 using System.Xml.XPath;
 using Excel = Microsoft.Office.Interop.Excel;
 using decode = System.Web;
+using Modules.Channel.ASN.Core.Pages;
 
 //Adept Framework 
 using Dell.Adept.UI.Web.Support.Extensions.WebDriver;
@@ -829,6 +830,11 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
             }
 
             return true;
+        }
+
+        public List<POLine> FetchPurchaseOrderAndPoLinesFromAsnDb(string poNumber, List<PurchaseOrder> purchaseOrderDetails)
+        {
+            return AsnDataAccess.FetchPurchaseOrderDetails(poNumber, out purchaseOrderDetails);
         }
 
         private void GetCrtDetails(string crtFilePath, string crtEndUserId)

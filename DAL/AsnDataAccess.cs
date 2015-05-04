@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Configuration;
 using System.Reflection;
 
+
 namespace Modules.Channel.B2B.DAL
 {
     public class AsnDataAccess
@@ -116,6 +117,62 @@ namespace Modules.Channel.B2B.DAL
             catch (Exception e)
             {
                 Console.WriteLine("Failed to fetch Backend Order Number from DB. Exception Message: {0}", e.Message);
+                return null;
+            }
+        }
+
+        public static List<POLine> FetchPurchaseOrderDetails(string poNumber, out List<PurchaseOrder> listOfPurchaseOrder)
+        {
+            try
+            {
+                asnDatamodelDataContext = new AsnDatamodelDataContext(asnConnectionString);
+
+                var purchaseOrderDetails = (from pos in asnDatamodelDataContext.PurchaseOrders
+                    where pos.PONumber == poNumber
+                    select pos);
+
+                listOfPurchaseOrder = purchaseOrderDetails.ToList();
+
+                var poLineDetails = (from polines in asnDatamodelDataContext.POLines
+                    where polines.PurchaseOrder_PurchaseOrderId == purchaseOrderDetails.FirstOrDefault().PurchaseOrderId
+                    select polines);
+
+
+                Console.WriteLine("PurchaseOrders Table Content Start");
+                foreach (var purchaseOrder in purchaseOrderDetails)
+                {
+                    foreach (var prop in purchaseOrder.GetType().GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
+                    {
+                        var value = prop.GetValue(purchaseOrder, new object[] { });
+                        Console.Write("{0} = {1} \t", prop.Name, value);
+                    }
+
+                    Console.WriteLine();
+                }
+                Console.WriteLine("PurchaseOrders Table Content End");
+
+                Console.WriteLine("POLines Table Content Start");
+
+
+                foreach (var poLine in poLineDetails)
+                {
+                    foreach (var prop in poLine.GetType().GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
+                    {
+                        var value = prop.GetValue(poLine, new object[] { });
+                        Console.Write("{0} = {1} \t", prop.Name, value);
+                    }
+
+                    Console.WriteLine();
+                }
+                Console.WriteLine("POLines Table Content End");
+
+
+                return poLineDetails.ToList();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Failed to fetch Backend Order Number from DB. Exception Message: {0}", e.Message);
+                listOfPurchaseOrder = null;
                 return null;
             }
         }

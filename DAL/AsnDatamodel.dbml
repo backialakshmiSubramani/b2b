@@ -43,4 +43,76 @@
       <Association Name="ASNItemMapping_ASNOrderMapping" Member="ASNItemMapping" ThisKey="MapItemId" OtherKey="MapItemId" Type="ASNItemMapping" IsForeignKey="true" />
     </Type>
   </Table>
+  <Table Name="dbo.PurchaseOrders" Member="PurchaseOrders">
+    <Type Name="PurchaseOrder">
+      <Column Name="PurchaseOrderId" Type="System.Guid" DbType="UniqueIdentifier NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="PONumber" Type="System.String" DbType="NVarChar(50) NOT NULL" CanBeNull="false" />
+      <Column Name="Partner" Type="System.String" DbType="NVarChar(50) NOT NULL" CanBeNull="false" />
+      <Column Name="InternalVendorNumber" Type="System.String" DbType="NVarChar(50) NOT NULL" CanBeNull="false" />
+      <Column Name="DeliveryLevel" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="DeliveryStatus" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="LockDate" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="LockOwner" Type="System.String" DbType="NVarChar(50)" CanBeNull="true" />
+      <Column Name="RowVersion" Type="System.Data.Linq.Binary" DbType="rowversion NOT NULL" CanBeNull="false" IsVersion="true" />
+      <Column Name="CreatedDate" Type="System.DateTime" DbType="DateTime NOT NULL" CanBeNull="false" />
+      <Column Name="DeliveryPreference" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="AffinityTag" Type="System.String" DbType="NVarChar(100)" CanBeNull="true" />
+      <Association Name="PurchaseOrder_POLine" Member="POLines" ThisKey="PurchaseOrderId" OtherKey="PurchaseOrder_PurchaseOrderId" Type="POLine" />
+    </Type>
+  </Table>
+  <Table Name="dbo.POLines" Member="POLines">
+    <Type Name="POLine">
+      <Column Name="POLineId" Type="System.Guid" DbType="UniqueIdentifier NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="LineNumber" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="VendorPartNumber" Type="System.String" DbType="NVarChar(50)" CanBeNull="true" />
+      <Column Name="DeliveryStatus" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="PurchaseOrder_PurchaseOrderId" Type="System.Guid" DbType="UniqueIdentifier NOT NULL" CanBeNull="false" />
+      <Column Name="Quantity" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="UnitPrice" Type="System.Decimal" DbType="Decimal(18,2)" CanBeNull="true" />
+      <Column Name="CreatedDate" Type="System.DateTime" DbType="DateTime NOT NULL" CanBeNull="false" />
+      <Association Name="POLine_Order" Member="Orders" ThisKey="POLineId" OtherKey="POLine_POLineId" Type="Order" />
+      <Association Name="PurchaseOrder_POLine" Member="PurchaseOrder" ThisKey="PurchaseOrder_PurchaseOrderId" OtherKey="PurchaseOrderId" Type="PurchaseOrder" IsForeignKey="true" DeleteRule="CASCADE" DeleteOnNull="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.Orders" Member="Orders">
+    <Type Name="Order">
+      <Column Name="OrderId" Type="System.Guid" DbType="UniqueIdentifier NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="OrderNumber" Type="System.String" DbType="NVarChar(50) NOT NULL" CanBeNull="false" />
+      <Column Name="BuyerSKU" Type="System.String" DbType="NVarChar(50)" CanBeNull="true" />
+      <Column Name="Status" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="Action" Type="System.String" DbType="NVarChar(50)" CanBeNull="true" />
+      <Column Name="Record" Type="System.String" DbType="NVarChar(50)" CanBeNull="true" />
+      <Column Name="UOM" Type="System.String" DbType="NVarChar(50)" CanBeNull="true" />
+      <Column Name="QuantityCancelled" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="CancelReason" Type="System.String" DbType="NVarChar(50)" CanBeNull="true" />
+      <Column Name="ASNLabel" Type="System.String" DbType="NVarChar(50)" CanBeNull="true" />
+      <Column Name="RowNumber" Type="System.Int64" DbType="BigInt NOT NULL IDENTITY" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="POLine_POLineId" Type="System.Guid" DbType="UniqueIdentifier NOT NULL" CanBeNull="false" />
+      <Column Name="DeliveryQueueItem_DeliveryQueueItemId" Type="System.Guid" DbType="UniqueIdentifier" CanBeNull="true" />
+      <Column Name="OrderStatusNotFoundCount" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="SubTotal" Type="System.Decimal" DbType="Decimal(18,2)" CanBeNull="true" />
+      <Column Name="CreatedDate" Type="System.DateTime" DbType="DateTime NOT NULL" CanBeNull="false" />
+      <Column Name="ShippingInfoFirstAttemptedDate" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Association Name="Order_ShippingInfo" Member="ShippingInfos" ThisKey="OrderId" OtherKey="Order_OrderId" Type="ShippingInfo" />
+      <Association Name="POLine_Order" Member="POLine" ThisKey="POLine_POLineId" OtherKey="POLineId" Type="POLine" IsForeignKey="true" DeleteRule="CASCADE" DeleteOnNull="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.ShippingInfo" Member="ShippingInfos">
+    <Type Name="ShippingInfo">
+      <Column Name="ShippingInfoId" Type="System.Guid" DbType="UniqueIdentifier NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+      <Column Name="WayBill" Type="System.String" DbType="NVarChar(50)" CanBeNull="true" />
+      <Column Name="PartNumber" Type="System.String" DbType="NVarChar(50)" CanBeNull="true" />
+      <Column Name="ServiceTag" Type="System.String" DbType="NVarChar(50)" CanBeNull="true" />
+      <Column Name="UPC" Type="System.String" DbType="NVarChar(50)" CanBeNull="true" />
+      <Column Name="NumberofUnitsShipped" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="ManifestId" Type="System.String" DbType="NVarChar(50)" CanBeNull="true" />
+      <Column Name="ShipDate" Type="System.DateTime" DbType="DateTime" CanBeNull="true" />
+      <Column Name="ShippingMethod" Type="System.String" DbType="NVarChar(50)" CanBeNull="true" />
+      <Column Name="TruckNumber" Type="System.String" DbType="NVarChar(50)" CanBeNull="true" />
+      <Column Name="PalletNumber" Type="System.String" DbType="NVarChar(50)" CanBeNull="true" />
+      <Column Name="BoxNumber" Type="System.String" DbType="NVarChar(50)" CanBeNull="true" />
+      <Column Name="Order_OrderId" Type="System.Guid" DbType="UniqueIdentifier NOT NULL" CanBeNull="false" />
+      <Association Name="Order_ShippingInfo" Member="Order" ThisKey="Order_OrderId" OtherKey="OrderId" Type="Order" IsForeignKey="true" DeleteRule="CASCADE" DeleteOnNull="true" />
+    </Type>
+  </Table>
 </Database>
