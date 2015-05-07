@@ -213,18 +213,11 @@ namespace Modules.Channel.B2B.Core.Pages
 
         public void ClickSearchedProfile(string linkText)
         {
-           webDriver.WaitForElementDisplayed(By.LinkText(linkText), TimeSpan.FromSeconds(30));
-            //webDriver.WaitForElementDisplayed(By.Id("ContentPageHolder_grdCustomerProfilelists_hypCustomerName_0"), TimeSpan.FromSeconds(30));
-            
-          //  webDriver.FindElement(By.LinkText(linkText)).Click();
-//            Console.WriteLine(this.Validate());
+            webDriver.WaitForElementDisplayed(By.LinkText(linkText), TimeSpan.FromSeconds(30));
             var elem = webDriver.FindElement(By.LinkText(linkText));
-           // var elem = webDriver.FindElement(By.Id("ContentPageHolder_grdCustomerProfilelists_hypCustomerName_0"));
-          //  Console.WriteLine("Element is visible" + elem.IsElementVisible());
             javaScriptExecutor.ExecuteScript("arguments[0].click();", elem);
             Thread.Sleep(1000);
-
-           webDriver.WaitForPageLoad(new TimeSpan(0, 0, 60));
+            webDriver.WaitForPageLoad(new TimeSpan(0, 0, 60));
         }
 
         public B2BBuyerCatalogPage ClickB2BsearchedProfile()
@@ -233,7 +226,7 @@ namespace Modules.Channel.B2B.Core.Pages
             var elem = webDriver.FindElement(By.Id("ContentPageHolder_grdCustomerProfilelists_hypCustomerName_0"));
             javaScriptExecutor.ExecuteScript("arguments[0].click();", elem);
             webDriver.WaitForPageLoad(new TimeSpan(0, 0, 60));
-            
+
             return new B2BBuyerCatalogPage(this.webDriver);
 
         }
@@ -255,7 +248,7 @@ namespace Modules.Channel.B2B.Core.Pages
             SearchTextField.Set(ProfileName);
             ////SearchLink.Click();
             javaScriptExecutor.ExecuteScript("arguments[0].click();", SearchLink);
-           // Thread.Sleep(5000);
+            // Thread.Sleep(5000);
             webDriver.WaitForPageLoad(TimeSpan.FromSeconds(20));
         }
 

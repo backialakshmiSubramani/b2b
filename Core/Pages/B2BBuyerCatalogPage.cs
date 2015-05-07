@@ -43,7 +43,6 @@ namespace Modules.Channel.B2B.Core.Pages
         IWebDriver webDriver;
         private IJavaScriptExecutor javaScriptExecutor;
 
-
         #region Constructors
         /// <summary>
         /// Constructor to hand off webDriver
@@ -65,7 +64,7 @@ namespace Modules.Channel.B2B.Core.Pages
         /// <returns>validated</returns>
         public override bool Validate()
         {
-            return BuyerCatalogTab.Displayed;
+            return AutomatedBhcCatalogProcessingRules.Displayed;
         }
 
         /// <summary>
@@ -74,11 +73,14 @@ namespace Modules.Channel.B2B.Core.Pages
         /// <returns>active</returns>
         public override bool IsActive()
         {
-            return webDriver.Url.Contains("ManageProfileIdentities.aspx");
+            return webDriver.Url.ToLowerInvariant().Contains("buyercatalog.aspx");
         }
 
         #region Elements
 
+        /// <summary>
+        /// Selected Catalog Operaton - Create / Create & Publish
+        /// </summary>
         private IWebElement _catalogOperationSelected;
         public IWebElement CatalogOperationSelected
         {
@@ -93,6 +95,9 @@ namespace Modules.Channel.B2B.Core.Pages
             }
         }
 
+        /// <summary>
+        /// Catalog Operation - Create
+        /// </summary>
         private IWebElement _catalogOperationCreate;
         public IWebElement CatalogOperationCreate
         {
@@ -106,6 +111,9 @@ namespace Modules.Channel.B2B.Core.Pages
             }
         }
 
+        /// <summary>
+        /// Catalog Operation - Create & Publish
+        /// </summary>
         private IWebElement _catalogOperationCreatePublish;
         public IWebElement CatalogOperationCreatePublish
         {
@@ -119,55 +127,70 @@ namespace Modules.Channel.B2B.Core.Pages
             }
         }
 
-        private IWebElement _automatedBHCCatalogProcessingRules;
-        public IWebElement AutomatedBHCCatalogProcessingRules
-        {
-            get
-            {
-                if (_automatedBHCCatalogProcessingRules == null)
-                    _automatedBHCCatalogProcessingRules = webDriver.FindElement(By.LinkText("Automated BHC Catalog - Processing Rules"), new TimeSpan(0, 0, 30));
-                return _automatedBHCCatalogProcessingRules;
-            }
-        }
         /// <summary>
-        /// BHC Catalog Config BCP Buyer Catalog Checkbox
+        /// Automated BHC Catalog - Processing Rules collapse/ expand
         /// </summary>
-        private IWebElement _catalogConfigBCPBuyerCatalog;
-        public IWebElement BCP_BuyerCatalog
+        private IWebElement _automatedBhcCatalogProcessingRules;
+        public IWebElement AutomatedBhcCatalogProcessingRules
         {
             get
             {
-                if (_catalogConfigBCPBuyerCatalog == null)
-                    _catalogConfigBCPBuyerCatalog = webDriver.FindElement(By.Id("ContentPageHolder_chk_BC_BuyerCatalogCheck"), new TimeSpan(0, 0, 30));
-                return _catalogConfigBCPBuyerCatalog;
+                if (_automatedBhcCatalogProcessingRules == null)
+                    _automatedBhcCatalogProcessingRules = webDriver.FindElement(By.LinkText("Automated BHC Catalog - Processing Rules"), new TimeSpan(0, 0, 30));
+                return _automatedBhcCatalogProcessingRules;
             }
         }
 
         /// <summary>
-        /// Buyer Catalog First Identity
+        /// Catalog Enabled checkbox under Buyer Catalog - Processing Rules section
         /// </summary>
-        private IWebElement _firstIdentity;
+        private IWebElement _bcpCatalogEnabled;
+        public IWebElement BcpCatalogEnabled
+        {
+            get
+            {
+                if (_bcpCatalogEnabled == null)
+                    _bcpCatalogEnabled = webDriver.FindElement(By.Id("ContentPageHolder_chk_BC_BuyerCatalogCheck"), new TimeSpan(0, 0, 30));
+                return _bcpCatalogEnabled;
+            }
+        }
+
+        /// <summary>
+        /// First Identity from the Automated BHC Catalog - Processing Rules section
+        /// </summary>
+        private IWebElement _buyerCatalogFirstIdentity;
         public IWebElement BuyerCatalogFirstIdentity
         {
             get
             {
-                if (_firstIdentity == null)
-                    _firstIdentity = webDriver.FindElement(By.Id("chklistIdenties_0"), new TimeSpan(0, 0, 30));
-                return _firstIdentity;
+                if (_buyerCatalogFirstIdentity == null)
+                    _buyerCatalogFirstIdentity = webDriver.FindElement(By.Id("chklistIdenties_0"), new TimeSpan(0, 0, 30));
+                return _buyerCatalogFirstIdentity;
             }
         }
 
         /// <summary>
         /// Buyer Catalog Error Message Label
         /// </summary>
-        private IWebElement _bhcUIError;
+        private IWebElement _buyerCatalogError;
         public IWebElement BuyerCatalogError
         {
             get
             {
-                if (_bhcUIError == null)
-                    _bhcUIError = webDriver.FindElement(By.Id("ContentPageHolder_lbl_Auto_BhcUI_Error"), new TimeSpan(0, 0, 30));
-                return _bhcUIError;
+                if (_buyerCatalogError == null)
+                    _buyerCatalogError = webDriver.FindElement(By.Id("ContentPageHolder_lbl_Auto_BhcUI_Error"), new TimeSpan(0, 0, 30));
+                return _buyerCatalogError;
+            }
+        }
+
+        /// <summary>
+        /// List of Configuration checkboxes
+        /// </summary>
+        public ReadOnlyCollection<IWebElement> ConfigElements
+        {
+            get
+            {
+                return webDriver.FindElements(By.XPath("//table[@id='mytable']/tbody/tr[3]/td[2]/table/tbody/tr/td/input"), new TimeSpan(0, 0, 30));
             }
         }
 
@@ -372,6 +395,7 @@ namespace Modules.Channel.B2B.Core.Pages
                 return _customerEmail;
             }
         }
+
         /// <summary>
         /// Catalog Type Label
         /// </summary>
@@ -391,14 +415,14 @@ namespace Modules.Channel.B2B.Core.Pages
         /// <summary>
         /// Delta Frequency Weeks Dropdown
         /// </summary>
-        private SelectElement _deltaFreqWeeks;
-        public SelectElement DeltaFrequencyWeeks
+        private IWebElement _deltaFreqWeeks;
+        public IWebElement DeltaFrequencyWeeks
         {
             get
             {
                 if (_deltaFreqWeeks == null)
                 {
-                    _deltaFreqWeeks = new SelectElement(webDriver.FindElement(By.Id("ddlDeltaWeeks"), new TimeSpan(0, 0, 30)));
+                    _deltaFreqWeeks = webDriver.FindElement(By.Id("ddlDeltaWeeks"), new TimeSpan(0, 0, 30));
                 }
                 return _deltaFreqWeeks;
             }
@@ -407,15 +431,14 @@ namespace Modules.Channel.B2B.Core.Pages
         /// <summary>
         /// Original Frequency Weeks Dropdown
         /// </summary>
-        private SelectElement _originalFreqWeeks;
-        public SelectElement OriginaFrequencyWeeks
+        private IWebElement _originalFreqWeeks;
+        public IWebElement OriginalFrequencyWeeks
         {
             get
             {
                 if (_originalFreqWeeks == null)
                 {
-                    _originalFreqWeeks =
-                        new SelectElement(webDriver.FindElement(By.Id("ddlOrgWeeks"), new TimeSpan(0, 0, 30)));
+                    _originalFreqWeeks = webDriver.FindElement(By.Id("ddlOrgWeeks"), new TimeSpan(0, 0, 30));
                 }
                 return _originalFreqWeeks;
             }
@@ -424,15 +447,14 @@ namespace Modules.Channel.B2B.Core.Pages
         /// <summary>
         /// Delta Catalog Frequency Days Dropdown
         /// </summary>
-        private SelectElement _deltaFreqDays;
-        public SelectElement DeltaFrequencyDays
+        private IWebElement _deltaFreqDays;
+        public IWebElement DeltaFrequencyDays
         {
             get
             {
                 if (_deltaFreqDays == null)
                 {
-                    _deltaFreqDays =
-                        new SelectElement(webDriver.FindElement(By.Id("ddlDeltaDays"), new TimeSpan(0, 0, 30)));
+                    _deltaFreqDays = webDriver.FindElement(By.Id("ddlDeltaDays"), new TimeSpan(0, 0, 30));
                 }
                 return _deltaFreqDays;
             }
@@ -441,15 +463,14 @@ namespace Modules.Channel.B2B.Core.Pages
         /// <summary>
         /// Original Catalog Frequency Days Dropdown
         /// </summary>
-        private SelectElement _originalFreqDays;
-        public SelectElement OriginalFrequencyDays
+        private IWebElement _originalFreqDays;
+        public IWebElement OriginalFrequencyDays
         {
             get
             {
                 if (_originalFreqDays == null)
                 {
-                    _originalFreqDays =
-                        new SelectElement(webDriver.FindElement(By.Id("ddlOrgDays"), new TimeSpan(0, 0, 30)));
+                    _originalFreqDays = webDriver.FindElement(By.Id("ddlOrgDays"), new TimeSpan(0, 0, 30));
                 }
                 return _originalFreqDays;
             }
@@ -472,14 +493,13 @@ namespace Modules.Channel.B2B.Core.Pages
         /// <summary>
         /// Delta Time of Send Dropdown
         /// </summary>
-        private SelectElement _deltaTimeOfSend;
-        public SelectElement DeltaTimeOfSend
+        private IWebElement _deltaTimeOfSend;
+        public IWebElement DeltaTimeOfSend
         {
             get
             {
                 if (_deltaTimeOfSend == null)
-                    _deltaTimeOfSend =
-                        new SelectElement(webDriver.FindElement(By.Id("ddlDelTime"), new TimeSpan(0, 0, 30)));
+                    _deltaTimeOfSend = webDriver.FindElement(By.Id("ddlDelTime"), new TimeSpan(0, 0, 30));
                 return _deltaTimeOfSend;
             }
         }
@@ -487,14 +507,13 @@ namespace Modules.Channel.B2B.Core.Pages
         /// <summary>
         /// Original Time of Send Dropdown
         /// </summary>
-        private SelectElement _originalTimeOfSend;
-        public SelectElement OriginalTimeOfSend
+        private IWebElement _originalTimeOfSend;
+        public IWebElement OriginalTimeOfSend
         {
             get
             {
                 if (_originalTimeOfSend == null)
-                    _originalTimeOfSend =
-                        new SelectElement(webDriver.FindElement(By.Id("ddlOrgTime"), new TimeSpan(0, 0, 30)));
+                    _originalTimeOfSend = webDriver.FindElement(By.Id("ddlOrgTime"), new TimeSpan(0, 0, 30));
                 return _originalTimeOfSend;
             }
         }
@@ -514,6 +533,7 @@ namespace Modules.Channel.B2B.Core.Pages
                 return _enableDeltaCatalog;
             }
         }
+
         /// <summary>
         /// Enable Original Catalog Checkbox
         /// </summary>
@@ -529,6 +549,7 @@ namespace Modules.Channel.B2B.Core.Pages
                 return _enableOriginalCatalogChk;
             }
         }
+
         /// <summary>
         /// Update Cross Reference Checkbox
         /// </summary>
@@ -542,8 +563,9 @@ namespace Modules.Channel.B2B.Core.Pages
                 return _updateCrossReferenceChk;
             }
         }
+
         /// <summary>
-        /// Automatically create and Publish Checkbox
+        /// Enable BHC Catalog Auto Generation Checkbox
         /// </summary>
         private IWebElement _enableCatalogAutoGeneration;
         public IWebElement EnableCatalogAutoGeneration
@@ -559,7 +581,10 @@ namespace Modules.Channel.B2B.Core.Pages
             }
         }
 
-        public ReadOnlyCollection<IWebElement> _identities;
+        /// <summary>
+        /// List of all identities in Automated BHC Catalog - Processing Rules section
+        /// </summary>
+        private ReadOnlyCollection<IWebElement> _identities;
         public ReadOnlyCollection<IWebElement> Identities
         {
             get
@@ -572,8 +597,9 @@ namespace Modules.Channel.B2B.Core.Pages
                 return _identities;
             }
         }
+
         /// <summary>
-        /// Buyer Catalog Tab on Manage Profile Identities Page
+        /// Buyer Catalog Tab on the Page
         /// </summary>
         private IWebElement _buyerCatalogTab;
         public IWebElement BuyerCatalogTab
@@ -621,6 +647,9 @@ namespace Modules.Channel.B2B.Core.Pages
             }
         }
 
+        /// <summary>
+        /// Requested By field in Automated BHC Catalog - Processing Rules section
+        /// </summary>
         private IWebElement _requestedBy;
         public IWebElement RequestedBy
         {
@@ -635,6 +664,9 @@ namespace Modules.Channel.B2B.Core.Pages
             }
         }
 
+        /// <summary>
+        /// Edit button under Automated BHC Catalog - Processing Rules section
+        /// </summary>
         private IWebElement _editScheduleButton;
         public IWebElement EditScheduleButton
         {
@@ -653,6 +685,12 @@ namespace Modules.Channel.B2B.Core.Pages
 
         #region Helper Methods
 
+        /// <summary>
+        /// Sets the text for a textbox
+        /// </summary>
+        /// <param name="element"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
         public IWebElement SetTextBoxValue(IWebElement element, string value)
         {
             element.WaitForElementDisplayed(TimeSpan.FromSeconds(30));
@@ -661,27 +699,18 @@ namespace Modules.Channel.B2B.Core.Pages
             javaScriptExecutor.ExecuteScript("arguments[0].value=arguments[1]", element, value);
             return element;
         }
-
-        #endregion
-
+        
+        /// <summary>
+        /// Unchecks all the config & option checkboxes
+        /// </summary>
         public void UncheckAllConfigTypes()
         {
-            if (CatalogConfigStandard.Selected)
-                CatalogConfigStandard.Click();
-            if (CatalogConfigUpsellDownSell.Selected)
-                CatalogConfigUpsellDownSell.Click();
-            if (CatalogConfigSnP.Selected)
-                CatalogConfigSnP.Click();
-            if (CatalogConfigIncludeDefaultOptions.Selected)
-                CatalogConfigIncludeDefaultOptions.Click();
-            if (CatalogConfigIncludeAbsolutePrice.Selected)
-                CatalogConfigIncludeAbsolutePrice.Click();
-            if (CatalogConfigIncludeOptionType.Selected)
-                CatalogConfigIncludeOptionType.Click();
-            if (CatalogConfigIncludeFinalPrice.Selected)
-                CatalogConfigIncludeFinalPrice.Click();
-            if (CatalogConfigIncludeSkuDetails.Selected)
-                CatalogConfigIncludeSkuDetails.Click();
+            foreach (var configElement in ConfigElements.Where(configElement => !configElement.Selected))
+            {
+                configElement.Click();
+            }
         }
+
+        #endregion
     }
 }

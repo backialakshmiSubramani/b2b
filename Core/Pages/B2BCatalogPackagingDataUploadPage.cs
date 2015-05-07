@@ -66,17 +66,26 @@ namespace Modules.Channel.B2B.Core.Pages
 
         #region Elements
 
+        /// <summary>
+        /// Field for selecting the file to upload
+        /// </summary>
         public IWebElement FileUpload
         {
             get { return webDriver.FindElement(By.Id("file")); }
         }
 
+        /// <summary>
+        /// Upload button
+        /// </summary>
         public IWebElement UploadButton
         {
             get { return webDriver.FindElement(By.Id("btnUpload")); }
         }
 
-        public IWebElement UploadSuccessMessage
+        /// <summary>
+        /// Message displayed on Upload
+        /// </summary>
+        public IWebElement UploadMessage
         {
             get
             {
@@ -85,6 +94,9 @@ namespace Modules.Channel.B2B.Core.Pages
             }
         }
         
+        /// <summary>
+        /// Rows of the Audit History table
+        /// </summary>
         public IReadOnlyCollection<IWebElement> AuditHistoryRows
         {
             get

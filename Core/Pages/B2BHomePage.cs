@@ -178,12 +178,23 @@ namespace Modules.Channel.B2B.Core.Pages
             }
         }
 
+        /// <summary>
+        /// Link to go to Channel Catalog UX - Packaging data file upload page
+        /// </summary>
         public IWebElement ChannelCatalogUxLink
         {
             get
             {
-                return webDriver.FindElement(By.LinkText("ChannelCatalogUX"));
+                return webDriver.FindElement(By.LinkText("Packaging Upload"));
             }
+        }
+
+        /// <summary>
+        /// Automated Catalog List Page
+        /// </summary>
+        public IWebElement AutoCatalogListPageLink
+        {
+            get { return webDriver.FindElement(By.LinkText("Auto Catalog List")); }
         }
 
         #endregion
