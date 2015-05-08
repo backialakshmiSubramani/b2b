@@ -176,5 +176,142 @@ namespace Modules.Channel.B2B.DAL
                 return null;
             }
         }
+
+        /// <summary>
+        /// to get Purchase Order Details based on PONumber
+        /// </summary>
+        /// <param name="poNumber"></param>
+        /// <returns></returns>
+        public static List<PurchaseOrder> GetPurchaseOrdersDetailsBasedOnPoNumber(string poNumber)
+        {
+            try
+            {
+                asnDatamodelDataContext = new AsnDatamodelDataContext(asnConnectionString);
+
+                var purchaseOrderDetails = (from pos in asnDatamodelDataContext.PurchaseOrders
+                                            where pos.PONumber == poNumber
+                                            select pos);
+
+                return purchaseOrderDetails.ToList();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Failed to get DPID from DB. Exception Message: {0}", e.Message);
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// to get PO Line Details based on PONumber
+        /// </summary>
+        /// <param name="poNumber"></param>
+        /// <returns></returns>
+        public static List<POLine> GetLineDetailsBasedOnPoNumber(string poNumber)
+        {
+            try
+            {
+                asnDatamodelDataContext = new AsnDatamodelDataContext(asnConnectionString);
+
+                var purchaseOrderDetails = (from pos in asnDatamodelDataContext.PurchaseOrders
+                                            where pos.PONumber == poNumber
+                                            select pos);
+
+                var poLineDetails = (from polines in asnDatamodelDataContext.POLines
+                                     where polines.PurchaseOrder_PurchaseOrderId == purchaseOrderDetails.FirstOrDefault().PurchaseOrderId
+                                     select polines);
+
+                return poLineDetails.ToList();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Failed to get DPID from DB. Exception Message: {0}", e.Message);
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// to get Order Details based on PONumber
+        /// </summary>
+        /// <param name="poNumber"></param>
+        /// <returns></returns>
+        public static List<Order> GetOrderDetailsBasedOnPoNumber(string poNumber)
+        {
+            try
+            {
+                asnDatamodelDataContext = new AsnDatamodelDataContext(asnConnectionString);
+
+                var purchaseOrderDetails = (from pos in asnDatamodelDataContext.PurchaseOrders
+                                            where pos.PONumber == poNumber
+                                            select pos);
+
+                var poLineDetails = (from polines in asnDatamodelDataContext.POLines
+                                     where polines.PurchaseOrder_PurchaseOrderId == purchaseOrderDetails.FirstOrDefault().PurchaseOrderId
+                                     select polines);
+
+                var orderDetails = (from orders in asnDatamodelDataContext.Orders
+                                    where orders.POLine_POLineId == poLineDetails.FirstOrDefault().POLineId
+                                    select orders);
+
+                return orderDetails.ToList();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Failed to get DPID from DB. Exception Message: {0}", e.Message);
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// to get Ship Details based on PONumber
+        /// </summary>
+        /// <param name="poNumber"></param>
+        /// <returns></returns>
+        public static List<ShippingInfo> GetShipDetailsBasedOnOrderNumber(string orderId)
+        {
+            try
+            {
+                asnDatamodelDataContext = new AsnDatamodelDataContext(asnConnectionString);
+
+                var shipDetails = (from shipinfo in asnDatamodelDataContext.ShippingInfos
+                                   where shipinfo.Order_OrderId.ToString() == orderId
+                                   select shipinfo);
+
+                return shipDetails.ToList();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Failed to get DPID from DB. Exception Message: {0}", e.Message);
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// to get Ship Details based on OrderId
+        /// </summary>
+        /// <param name="orderId"></param>
+        /// <returns></returns>
+        public static int? GetNumberOfUnitsShippedBasedOnOrderNumber(string orderId)
+        {
+            try
+            {
+                asnDatamodelDataContext = new AsnDatamodelDataContext(asnConnectionString);
+
+                var numberOfUnitsShipped = (from shipinfo in asnDatamodelDataContext.ShippingInfos
+                                            where shipinfo.Order_OrderId.ToString() == orderId
+                                            select shipinfo);
+
+                int? totalNumberOfUnitsShipped = numberOfUnitsShipped.Sum(s => s.NumberofUnitsShipped);
+
+                if (totalNumberOfUnitsShipped != null)
+                    return totalNumberOfUnitsShipped;
+                else
+                    return 0;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Failed to get DPID from DB. Exception Message: {0}", e.Message);
+                return 0;
+            }
+        }
     }
 }

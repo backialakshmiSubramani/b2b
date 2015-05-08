@@ -1120,6 +1120,31 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
 
             return true;
         }
+
+        public List<PurchaseOrder> GetPurchaseOrdersDetailsBasedOnPoNumber(string poNumber)
+        {
+            return AsnDataAccess.GetPurchaseOrdersDetailsBasedOnPoNumber(poNumber);
+        }
+
+        public List<POLine> GetLineDetailsBasedOnPoNumber(string poNumber)
+        {
+            return AsnDataAccess.GetLineDetailsBasedOnPoNumber(poNumber);
+        }
+
+        public List<Order> GetOrderDetailsBasedOnPoNumber(string poNumber)
+        {
+            return AsnDataAccess.GetOrderDetailsBasedOnPoNumber(poNumber);
+        }
+
+        public List<ShippingInfo> GetShipDetailsBasedOnOrderNumber(string orderId)
+        {
+            return AsnDataAccess.GetShipDetailsBasedOnOrderNumber(orderId);
+        }
+
+        public int? GetNumberOfUnitsShippedBasedOnOrderNumber(string orderId)
+        {
+            return AsnDataAccess.GetNumberOfUnitsShippedBasedOnOrderNumber(orderId);
+        }
     }
 
     public enum Workflow

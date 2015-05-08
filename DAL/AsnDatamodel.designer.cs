@@ -54,7 +54,7 @@ namespace Modules.Channel.B2B.DAL
     #endregion
 		
 		public AsnDatamodelDataContext() : 
-				base(global::Modules.Channel.Properties.Settings.Default.ASNDBConnectionString, mappingSource)
+				base(global::Modules.Channel.Properties.Settings.Default.ASNDBConnectionString1, mappingSource)
 		{
 			OnCreated();
 		}
@@ -1416,6 +1416,12 @@ namespace Modules.Channel.B2B.DAL
 		
 		private System.DateTime _CreatedDate;
 		
+		private string _CustomerUPC;
+		
+		private string _ExternalName;
+		
+		private string _ItemDescription;
+		
 		private EntitySet<Order> _Orders;
 		
 		private EntityRef<PurchaseOrder> _PurchaseOrder;
@@ -1440,6 +1446,12 @@ namespace Modules.Channel.B2B.DAL
     partial void OnUnitPriceChanged();
     partial void OnCreatedDateChanging(System.DateTime value);
     partial void OnCreatedDateChanged();
+    partial void OnCustomerUPCChanging(string value);
+    partial void OnCustomerUPCChanged();
+    partial void OnExternalNameChanging(string value);
+    partial void OnExternalNameChanged();
+    partial void OnItemDescriptionChanging(string value);
+    partial void OnItemDescriptionChanged();
     #endregion
 		
 		public POLine()
@@ -1613,6 +1625,66 @@ namespace Modules.Channel.B2B.DAL
 			}
 		}
 		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_CustomerUPC", DbType="Char(12)")]
+		public string CustomerUPC
+		{
+			get
+			{
+				return this._CustomerUPC;
+			}
+			set
+			{
+				if ((this._CustomerUPC != value))
+				{
+					this.OnCustomerUPCChanging(value);
+					this.SendPropertyChanging();
+					this._CustomerUPC = value;
+					this.SendPropertyChanged("CustomerUPC");
+					this.OnCustomerUPCChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_ExternalName", DbType="NVarChar(100)")]
+		public string ExternalName
+		{
+			get
+			{
+				return this._ExternalName;
+			}
+			set
+			{
+				if ((this._ExternalName != value))
+				{
+					this.OnExternalNameChanging(value);
+					this.SendPropertyChanging();
+					this._ExternalName = value;
+					this.SendPropertyChanged("ExternalName");
+					this.OnExternalNameChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_ItemDescription", DbType="NVarChar(100)")]
+		public string ItemDescription
+		{
+			get
+			{
+				return this._ItemDescription;
+			}
+			set
+			{
+				if ((this._ItemDescription != value))
+				{
+					this.OnItemDescriptionChanging(value);
+					this.SendPropertyChanging();
+					this._ItemDescription = value;
+					this.SendPropertyChanged("ItemDescription");
+					this.OnItemDescriptionChanged();
+				}
+			}
+		}
+		
 		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="POLine_Order", Storage="_Orders", ThisKey="POLineId", OtherKey="POLine_POLineId")]
 		public EntitySet<Order> Orders
 		{
@@ -1733,6 +1805,10 @@ namespace Modules.Channel.B2B.DAL
 		
 		private System.Nullable<System.DateTime> _ShippingInfoFirstAttemptedDate;
 		
+		private System.Nullable<System.DateTime> _OrderDate;
+		
+		private string _InvoiceNumber;
+		
 		private EntitySet<ShippingInfo> _ShippingInfos;
 		
 		private EntityRef<POLine> _POLine;
@@ -1775,6 +1851,10 @@ namespace Modules.Channel.B2B.DAL
     partial void OnCreatedDateChanged();
     partial void OnShippingInfoFirstAttemptedDateChanging(System.Nullable<System.DateTime> value);
     partial void OnShippingInfoFirstAttemptedDateChanged();
+    partial void OnOrderDateChanging(System.Nullable<System.DateTime> value);
+    partial void OnOrderDateChanged();
+    partial void OnInvoiceNumberChanging(string value);
+    partial void OnInvoiceNumberChanged();
     #endregion
 		
 		public Order()
@@ -2128,6 +2208,46 @@ namespace Modules.Channel.B2B.DAL
 			}
 		}
 		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_OrderDate", DbType="DateTime")]
+		public System.Nullable<System.DateTime> OrderDate
+		{
+			get
+			{
+				return this._OrderDate;
+			}
+			set
+			{
+				if ((this._OrderDate != value))
+				{
+					this.OnOrderDateChanging(value);
+					this.SendPropertyChanging();
+					this._OrderDate = value;
+					this.SendPropertyChanged("OrderDate");
+					this.OnOrderDateChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_InvoiceNumber", DbType="NVarChar(25)")]
+		public string InvoiceNumber
+		{
+			get
+			{
+				return this._InvoiceNumber;
+			}
+			set
+			{
+				if ((this._InvoiceNumber != value))
+				{
+					this.OnInvoiceNumberChanging(value);
+					this.SendPropertyChanging();
+					this._InvoiceNumber = value;
+					this.SendPropertyChanged("InvoiceNumber");
+					this.OnInvoiceNumberChanged();
+				}
+			}
+		}
+		
 		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="Order_ShippingInfo", Storage="_ShippingInfos", ThisKey="OrderId", OtherKey="Order_OrderId")]
 		public EntitySet<ShippingInfo> ShippingInfos
 		{
@@ -2240,6 +2360,12 @@ namespace Modules.Channel.B2B.DAL
 		
 		private System.Guid _Order_OrderId;
 		
+		private System.Nullable<System.DateTime> _EstimatedDeliveryDate;
+		
+		private string _Scac;
+		
+		private string _CarrierProNumber;
+		
 		private EntityRef<Order> _Order;
 		
     #region Extensibility Method Definitions
@@ -2272,6 +2398,12 @@ namespace Modules.Channel.B2B.DAL
     partial void OnBoxNumberChanged();
     partial void OnOrder_OrderIdChanging(System.Guid value);
     partial void OnOrder_OrderIdChanged();
+    partial void OnEstimatedDeliveryDateChanging(System.Nullable<System.DateTime> value);
+    partial void OnEstimatedDeliveryDateChanged();
+    partial void OnScacChanging(string value);
+    partial void OnScacChanged();
+    partial void OnCarrierProNumberChanging(string value);
+    partial void OnCarrierProNumberChanged();
     #endregion
 		
 		public ShippingInfo()
@@ -2540,6 +2672,66 @@ namespace Modules.Channel.B2B.DAL
 					this._Order_OrderId = value;
 					this.SendPropertyChanged("Order_OrderId");
 					this.OnOrder_OrderIdChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_EstimatedDeliveryDate", DbType="DateTime")]
+		public System.Nullable<System.DateTime> EstimatedDeliveryDate
+		{
+			get
+			{
+				return this._EstimatedDeliveryDate;
+			}
+			set
+			{
+				if ((this._EstimatedDeliveryDate != value))
+				{
+					this.OnEstimatedDeliveryDateChanging(value);
+					this.SendPropertyChanging();
+					this._EstimatedDeliveryDate = value;
+					this.SendPropertyChanged("EstimatedDeliveryDate");
+					this.OnEstimatedDeliveryDateChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Scac", DbType="NVarChar(4)")]
+		public string Scac
+		{
+			get
+			{
+				return this._Scac;
+			}
+			set
+			{
+				if ((this._Scac != value))
+				{
+					this.OnScacChanging(value);
+					this.SendPropertyChanging();
+					this._Scac = value;
+					this.SendPropertyChanged("Scac");
+					this.OnScacChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_CarrierProNumber", DbType="NVarChar(12)")]
+		public string CarrierProNumber
+		{
+			get
+			{
+				return this._CarrierProNumber;
+			}
+			set
+			{
+				if ((this._CarrierProNumber != value))
+				{
+					this.OnCarrierProNumberChanging(value);
+					this.SendPropertyChanging();
+					this._CarrierProNumber = value;
+					this.SendPropertyChanged("CarrierProNumber");
+					this.OnCarrierProNumberChanged();
 				}
 			}
 		}
