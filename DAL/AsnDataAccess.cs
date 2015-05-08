@@ -250,6 +250,7 @@ namespace Modules.Channel.B2B.DAL
 
                 var orderDetails = (from orders in asnDatamodelDataContext.Orders
                                     where orders.POLine_POLineId == poLineDetails.FirstOrDefault().POLineId
+                                    orderby orders.OrderNumber  
                                     select orders);
 
                 return orderDetails.ToList();
