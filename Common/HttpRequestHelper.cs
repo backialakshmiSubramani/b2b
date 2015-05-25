@@ -15,12 +15,24 @@ using System.Threading.Tasks;
 
 namespace Modules.Channel.B2B.Common
 {
-    public static class HttpRequestHelper
+    public partial class HttpRequestHelper
     {
+        private readonly string _baseUrl;
+
+        public HttpRequestHelper(string baseUrl)
+        {
+            if (string.IsNullOrWhiteSpace(baseUrl))
+            {
+                throw new ArgumentNullException("baseUrl");
+            }
+
+            _baseUrl = baseUrl;
+        }
         public static HttpResponseMessage SendRequest(string url, RequestMethod method)
         {
             return SendRequest<object, HttpResponseMessage>(url, method, null);
         }
+
 
         public static TResponse SendRequest<TResponse>(string url, RequestMethod method)
             where TResponse : class
