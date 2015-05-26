@@ -1143,6 +1143,11 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
 
             if (
                 !b2BAutoCatalogListPage.CatalogListTableRows.All(
+                    r => r.FindElements(By.TagName("td"))[0].ElementExists(By.TagName("a"))))
+                return false;
+
+            if (
+                !b2BAutoCatalogListPage.CatalogListTableRows.All(
                     r =>
                         r.FindElements(By.TagName("td"))[1].Text.ToLowerInvariant().Equals("delta") ||
                         r.FindElements(By.TagName("td"))[1].Text.ToLowerInvariant().Equals("original")))
