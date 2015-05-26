@@ -54,7 +54,7 @@ namespace Modules.Channel.B2B.Core.Pages
         /// <returns>validated</returns>
         public override bool Validate()
         {
-            return SelectCustomer.Displayed;
+            return PageHeader.Displayed;
         }
 
         /// <summary>
@@ -93,7 +93,7 @@ namespace Modules.Channel.B2B.Core.Pages
             {
                 return
                     webDriver.FindElement(
-                        By.XPath("//table[@id='mytable']/tbody/tr[1]/td[2]/div/div/select[@ng-model='profiles']"));
+                        By.XPath("//select[@ng-model='customer']"));
             }
         }
 
@@ -106,7 +106,7 @@ namespace Modules.Channel.B2B.Core.Pages
             {
                 return
                     webDriver.FindElement(
-                        By.XPath("//table[@id='mytable']/tbody/tr[1]/td[4]/div/div/select[@ng-model='Identitys']"));
+                        By.XPath("//select[@ng-model='Identity']"));
             }
         }
 
@@ -164,9 +164,9 @@ namespace Modules.Channel.B2B.Core.Pages
         /// <summary>
         /// Show Scheduled check box
         /// </summary>
-        public IWebElement ShowScheduled
+        public IWebElement ScheduledCheckbox
         {
-            get { return webDriver.FindElement(AdeptBy.Attribute(ElementTag.input, "ng-model", "Scheduled")); }
+            get { return webDriver.FindElement(AdeptBy.Attribute(ElementTag.input, "ng-model", "parScheduled")); }
         }
 
         /// <summary>
@@ -185,6 +185,14 @@ namespace Modules.Channel.B2B.Core.Pages
             get { return webDriver.FindElement(By.Id("lnkClear")); }
         }
 
+        /// <summary>
+        /// Auto Catalog List Page results Table 
+        /// </summary>
+        public ReadOnlyCollection<IWebElement> CatalogListTableRows
+        {
+            get { return webDriver.FindElements(By.XPath("//table[@st-safe-src='Catalogs']/tbody/tr")); }
+        }
+
         #endregion
 
         #region Helper Methods
@@ -199,6 +207,40 @@ namespace Modules.Channel.B2B.Core.Pages
                 element => element.FindElements(By.TagName("td"))[1].Text);
         }
 
+        /// <summary>
+        /// Selects the specified customer from the Select customer drop down
+        /// </summary>
+        /// <param name="profileName"></param>
+        public void SelectTheCustomer(string profileName)
+        {
+            webDriver.FindElement(By.XPath("//div[@ng-model='customer']/a")).Click();
+            webDriver.FindElement(By.XPath("//div[@ng-model='customer']/div/div[@class='custom-select-search']/input"))
+                .SendKeys(profileName);
+            webDriver.FindElement(By.XPath("//div[@ng-model='customer']/div/ul/li[1]/a[text()='" + profileName + "']"))
+                .Click();
+        }
+
         #endregion
+
+        /// <summary>
+        /// Selects the identity from the identities listed
+        /// if not specified, selects the first identity from the drop down
+        /// </summary>
+        /// <param name="identity"></param>
+        public void SelectTheIdentity(string identity = "")
+        {
+            webDriver.FindElement(By.XPath("//div[@ng-model='Identity']/a")).Click();
+            if (string.IsNullOrEmpty(identity))
+            {
+                webDriver.FindElements(By.XPath("//div[@ng-model='Identity']/div/ul/li[1]/a"))[0].Click();
+            }
+            else
+            {
+                //webDriver.FindElement(By.XPath("//div[@ng-model='Identity']/div/div[@class='custom-select-search']/input")).SendKeys(identity);
+                webDriver.FindElement(By.XPath("//input[@ng-model='search.UserName']")).SendKeys(identity);
+                webDriver.FindElement(By.XPath("//div[@ng-model='Identity']/div/ul/li[1]/a[text()='" + identity + "']"))
+                    .Click();
+            }
+        }
     }
 }

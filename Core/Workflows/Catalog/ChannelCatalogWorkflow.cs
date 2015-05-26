@@ -19,6 +19,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         private B2BCatalogPackagingDataUploadPage b2BCatalogPackagingDataUploadPage;
         private B2BAutoCatalogListPage b2BAutoCatalogListPage;
         private IJavaScriptExecutor javaScriptExecutor;
+        const string MMDDYYYY = "MM/dd/yyyy";
 
         /// <summary>
         /// Constructor for ChannelCatalogWorkflow
@@ -99,7 +100,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         /// </summary>
         public void WaitForPageRefresh()
         {
-            string isloaded = string.Empty;
+            var isloaded = string.Empty;
             do
             {
                 Thread.Sleep(4000);
@@ -256,8 +257,8 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                 b2BBuyerCatalogPage.BcpCatalogEnabled.Click();
             b2BBuyerCatalogPage.EnableCatalogAutoGeneration.Click();
 
-            return VerifyDeltaCatalogSchedulingOptions(DateTime.Now.AddDays(1).ToString("MM/dd/yyyy"), "0", "1",
-                DateTime.Now.AddDays(59).ToString("MM/dd/yyyy"), defaultDeltaTimeOfSend);
+            return VerifyDeltaCatalogSchedulingOptions(DateTime.Now.AddDays(1).ToString(MMDDYYYY), "0", "1",
+                DateTime.Now.AddDays(59).ToString(MMDDYYYY), defaultDeltaTimeOfSend);
         }
 
         /// <summary>
@@ -277,8 +278,8 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             b2BBuyerCatalogPage.AutomatedBhcCatalogProcessingRules.Click();
 
             if (
-                !VerifyDeltaCatalogSchedulingOptions(DateTime.Now.AddDays(1).ToString("MM/dd/yyyy"), "0", "1",
-                    DateTime.Now.AddDays(59).ToString("MM/dd/yyyy"), defaultDeltaTimeOfSend))
+                !VerifyDeltaCatalogSchedulingOptions(DateTime.Now.AddDays(1).ToString(MMDDYYYY), "0", "1",
+                    DateTime.Now.AddDays(59).ToString(MMDDYYYY), defaultDeltaTimeOfSend))
                 return false;
 
             return true;
@@ -292,13 +293,14 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         /// <returns></returns>
         public bool ChangeDeltaSchedulingDefaultOptionsForExistingProfile(string profileName)
         {
-            var startDate = DateTime.Now.AddDays(5).ToString("MM/dd/yyyy");
+            var startDate = DateTime.Now.AddDays(5).ToString(MMDDYYYY);
             var frequencyDays = "2";
-            var endDate = DateTime.Now.AddDays(30).ToString("MM/dd/yyyy");
+            var endDate = DateTime.Now.AddDays(30).ToString(MMDDYYYY);
             var timeOfSend = "9";
             GoToBuyerCatalogTab(profileName);
             b2BBuyerCatalogPage.EditScheduleButton.Click();
-            b2BBuyerCatalogPage.EnableDeltaCatalog.Click();
+            if (!b2BBuyerCatalogPage.EnableDeltaCatalog.Selected)
+                b2BBuyerCatalogPage.EnableDeltaCatalog.Click();
             SetDeltaSchedule(startDate, frequencyDays, FrequencyType.Days, endDate, timeOfSend);
             b2BBuyerCatalogPage.UpdateButton.Click();
             WaitForPageRefresh();
@@ -325,112 +327,6 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             b2BAutoCatalogListPage = new B2BAutoCatalogListPage(webDriver);
             var statusDictionary = b2BAutoCatalogListPage.GetStatusDictionary();
             return CheckDictionary(statusDictionary, autoCatalogStatus, autoCatalogStatusDescription);
-        }
-
-        /// <summary>
-        /// Verifies the fields provided for Auto Catalog Search
-        /// </summary>
-        /// <param name="profileName"></param>
-        /// <param name="identities"></param>
-        /// <returns></returns>
-        public bool VerifySearchParametersOnAutoCatalogListPage(string profileName, string identities)
-        {
-            b2BHomePage.AutoCatalogListPageLink.Click();
-            b2BAutoCatalogListPage = new B2BAutoCatalogListPage(webDriver);
-
-            if (!b2BAutoCatalogListPage.SelectCustomer.TagName.Equals("select"))
-            {
-                Console.WriteLine("Select customer field is not a drop down");
-                return false;
-            }
-
-            if (!b2BAutoCatalogListPage.SelectCustomer.Select().Options.Any(o => o.Text.Equals(profileName)))
-            {
-                Console.WriteLine("Profile **{0}** not found in select customer drop down", profileName);
-                return false;
-            }
-
-            b2BAutoCatalogListPage.SelectCustomer.Select().SelectByText(profileName);
-
-            if (!b2BAutoCatalogListPage.SelectIdentity.TagName.Equals("select"))
-            {
-                Console.WriteLine("Identities field is not a drop down");
-                return false;
-            }
-
-            var identityList = identities.Split(',');
-
-            foreach (var identity in identityList.Where(identity => !b2BAutoCatalogListPage.SelectIdentity.Select().Options.Any(o => o.Text.Equals(identity))))
-            {
-                Console.WriteLine("Identity **{0}** not found in select customer drop down", identity);
-                return false;
-            }
-
-            if ((!b2BAutoCatalogListPage.CatalogName.TagName.Equals("input") ||
-                 (!b2BAutoCatalogListPage.CatalogName.GetAttribute("type").Equals("text")) ||
-                 (!b2BAutoCatalogListPage.CatalogName.Enabled)))
-            {
-                return false;
-            }
-
-            if ((!b2BAutoCatalogListPage.ThreadId.TagName.Equals("input") ||
-                 (!b2BAutoCatalogListPage.ThreadId.GetAttribute("type").Equals("text")) ||
-                 (!b2BAutoCatalogListPage.ThreadId.Enabled)))
-            {
-                return false;
-            }
-
-            if ((!b2BAutoCatalogListPage.CreationDateStart.TagName.Equals("input") ||
-                (!b2BAutoCatalogListPage.CreationDateStart.GetAttribute("type").Equals("date")) ||
-                (!b2BAutoCatalogListPage.CreationDateStart.Enabled)))
-            {
-                return false;
-            }
-
-            if ((!b2BAutoCatalogListPage.CreationDateEnd.TagName.Equals("input") ||
-                 (!b2BAutoCatalogListPage.CreationDateEnd.GetAttribute("type").Equals("date")) ||
-                 (!b2BAutoCatalogListPage.CreationDateEnd.Enabled)))
-            {
-                return false;
-            }
-
-            if ((!b2BAutoCatalogListPage.OriginalCatalogCheckbox.TagName.Equals("input") ||
-                 (!b2BAutoCatalogListPage.OriginalCatalogCheckbox.GetAttribute("type").Equals("checkbox")) ||
-                 (!b2BAutoCatalogListPage.OriginalCatalogCheckbox.Enabled) ||
-                 b2BAutoCatalogListPage.OriginalCatalogCheckbox.Selected))
-            {
-                return false;
-            }
-
-            if ((!b2BAutoCatalogListPage.DeltaCatalogCheckbox.TagName.Equals("input") ||
-                 (!b2BAutoCatalogListPage.DeltaCatalogCheckbox.GetAttribute("type").Equals("checkbox")) ||
-                 (!b2BAutoCatalogListPage.DeltaCatalogCheckbox.Enabled) ||
-                 b2BAutoCatalogListPage.DeltaCatalogCheckbox.Selected))
-            {
-                return false;
-            }
-
-            if ((!b2BAutoCatalogListPage.ShowScheduled.TagName.Equals("input") ||
-                 (!b2BAutoCatalogListPage.ShowScheduled.GetAttribute("type").Equals("checkbox")) ||
-                 (!b2BAutoCatalogListPage.ShowScheduled.Enabled) ||
-                 b2BAutoCatalogListPage.ShowScheduled.Selected))
-            {
-                return false;
-            }
-
-            if ((!b2BAutoCatalogListPage.SearchCatalogLink.TagName.Equals("a") ||
-                 (!b2BAutoCatalogListPage.SearchCatalogLink.Enabled)))
-            {
-                return false;
-            }
-
-            if ((!b2BAutoCatalogListPage.ClearAllLink.TagName.Equals("a") ||
-                 (!b2BAutoCatalogListPage.ClearAllLink.Enabled)))
-            {
-                return false;
-            }
-
-            return true;
         }
 
         /// <summary>
@@ -521,7 +417,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             if (!b2BBuyerCatalogPage.CatalogConfigStandard.Selected)
                 b2BBuyerCatalogPage.CatalogConfigStandard.Click();
             b2BBuyerCatalogPage.SetTextBoxValue(b2BBuyerCatalogPage.OriginalCatalogStartDate,
-                DateTime.Now.AddDays(1).ToString("MM/dd/yyyy"));
+                DateTime.Now.AddDays(1).ToString(MMDDYYYY));
             b2BBuyerCatalogPage.UpdateButton.Click();
             WaitForPageRefresh();
             if (!b2BBuyerCatalogPage.ConfirmationLabel.Text.ToLowerInvariant().Equals(autoBhcSaveMessage))
@@ -579,7 +475,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             b2BBuyerCatalogPage.EditScheduleButton.Click();
             b2BBuyerCatalogPage.UncheckAllConfigTypes();
             b2BBuyerCatalogPage.CatalogConfigStandard.Click();
-            b2BBuyerCatalogPage.SetTextBoxValue(b2BBuyerCatalogPage.OriginalCatalogStartDate, DateTime.Now.AddDays(1).ToString("MM/dd/yyyy"));
+            b2BBuyerCatalogPage.SetTextBoxValue(b2BBuyerCatalogPage.OriginalCatalogStartDate, DateTime.Now.AddDays(1).ToString(MMDDYYYY));
             b2BBuyerCatalogPage.UpdateButton.Click();
             if (!b2BBuyerCatalogPage.ConfirmationLabel.Text.ToLowerInvariant().Equals(scheduleSaveConfirmation))
             {
@@ -677,14 +573,14 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         /// <returns></returns>
         public bool VerifyWarningMessageForConfigChange(string profileName, string defaultOriginalTimeOfSend, string defaultDeltaTimeOfSend, string scheduleSaveConfirmation)
         {
-            var originalStartDate = DateTime.Now.AddDays(10).ToString("MM/dd/yyyy");
+            var originalStartDate = DateTime.Now.AddDays(10).ToString(MMDDYYYY);
             var originalFrequencyDays = "5";
-            var originalEndDate = DateTime.Now.AddDays(30).ToString("MM/dd/yyyy");
+            var originalEndDate = DateTime.Now.AddDays(30).ToString(MMDDYYYY);
             var originalTimeOfSend = "8";
 
-            var deltaStartDate = DateTime.Now.AddDays(11).ToString("MM/dd/yyyy");
+            var deltaStartDate = DateTime.Now.AddDays(11).ToString(MMDDYYYY);
             var deltaFrequencyDays = "5";
-            var deltaEndDate = DateTime.Now.AddDays(29).ToString("MM/dd/yyyy");
+            var deltaEndDate = DateTime.Now.AddDays(29).ToString(MMDDYYYY);
             var deltaTimeOfSend = "9";
 
 
@@ -694,12 +590,12 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                 b2BBuyerCatalogPage.CatalogConfigStandard.Click();
             b2BBuyerCatalogPage.CatalogConfigSnP.Click();
             if (
-                !VerifyOriginalCatalogSchedulingOptions(DateTime.Now.ToString("MM/dd/yyyy"), "0", "4",
-                    DateTime.Now.AddDays(60).ToString("MM/dd/yyyy"), defaultOriginalTimeOfSend))
+                !VerifyOriginalCatalogSchedulingOptions(DateTime.Now.ToString(MMDDYYYY), "0", "4",
+                    DateTime.Now.AddDays(60).ToString(MMDDYYYY), defaultOriginalTimeOfSend))
                 return false;
             if (
-                !VerifyDeltaCatalogSchedulingOptions(DateTime.Now.AddDays(1).ToString("MM/dd/yyyy"), "0", "1",
-                    DateTime.Now.AddDays(59).ToString("MM/dd/yyyy"), defaultDeltaTimeOfSend))
+                !VerifyDeltaCatalogSchedulingOptions(DateTime.Now.AddDays(1).ToString(MMDDYYYY), "0", "1",
+                    DateTime.Now.AddDays(59).ToString(MMDDYYYY), defaultDeltaTimeOfSend))
                 return false;
 
             SetOriginalSchedule(originalStartDate, originalFrequencyDays, FrequencyType.Days, originalEndDate,
@@ -909,12 +805,12 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             b2BBuyerCatalogPage.Identities[0].Click();
             b2BBuyerCatalogPage.CatalogConfigStandard.Click();
 
-            SetOriginalSchedule(DateTime.Now.AddDays(10).ToString("MM/dd/yyyy"), "5", FrequencyType.Days,
-                DateTime.Now.AddDays(30).ToString("MM/dd/yyyy"), "8");
+            SetOriginalSchedule(DateTime.Now.AddDays(10).ToString(MMDDYYYY), "5", FrequencyType.Days,
+                DateTime.Now.AddDays(30).ToString(MMDDYYYY), "8");
 
             b2BBuyerCatalogPage.EnableDeltaCatalog.Click();
-            SetDeltaSchedule(DateTime.Now.AddDays(11).ToString("MM/dd/yyyy"), "5", FrequencyType.Days,
-                DateTime.Now.AddDays(29).ToString("MM/dd/yyyy"), "9");
+            SetDeltaSchedule(DateTime.Now.AddDays(11).ToString(MMDDYYYY), "5", FrequencyType.Days,
+                DateTime.Now.AddDays(29).ToString(MMDDYYYY), "9");
 
             b2BBuyerCatalogPage.InternalEMail.SendKeys("test@dell.com");
             b2BBuyerCatalogPage.CustomerEmail.SendKeys("test@gmail.com");
@@ -1015,14 +911,14 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                 b2BBuyerCatalogPage.EnableDeltaCatalog.Click();
 
             var configDictionary = GetConfigurationsSelected();
-            var originalStartDate = centralTime.ToString("MM/dd/yyyy");
+            var originalStartDate = centralTime.ToString(MMDDYYYY);
             var originalFrequencyDays = b2BBuyerCatalogPage.OriginalFrequencyDays.Select().SelectedOption.GetAttribute("value");
             var originalFrequencyWeeks =
                 b2BBuyerCatalogPage.OriginalFrequencyWeeks.Select().SelectedOption.GetAttribute("value");
             var originalEndDate = b2BBuyerCatalogPage.OriginalCatalogEndDate.GetAttribute("value");
             var originalTimeOfSend = centralTime.Hour.ToString();
 
-            var deltaStartDate = centralTime.AddDays(1).ToString("MM/dd/yyyy");
+            var deltaStartDate = centralTime.AddDays(1).ToString(MMDDYYYY);
             var deltaFrequencyDays = b2BBuyerCatalogPage.DeltaFrequencyDays.Select().SelectedOption.GetAttribute("value");
             var deltaFrequencyWeeks =
                 b2BBuyerCatalogPage.DeltaFrequencyWeeks.Select().SelectedOption.GetAttribute("value");
@@ -1071,7 +967,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
 
             return VerifyConfigScheduleSectionEnabled();
         }
-        
+
         /// <summary>
         /// Checks if navigation to Auto Catalog List page is successful
         /// </summary>
@@ -1084,6 +980,142 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             WaitForPageRefresh();
             b2BAutoCatalogListPage = new B2BAutoCatalogListPage(webDriver);
             return b2BAutoCatalogListPage.PageHeader.Text.Equals(pageHeaderText);
+        }
+
+        /// <summary>
+        /// Checks if the Clear All link removes the previously set search criteria
+        /// </summary>
+        /// <param name="profileName"></param>
+        /// <param name="identities"></param>
+        /// <returns></returns>
+        public bool VerifyClearAllLink(string profileName, string identities)
+        {
+            b2BHomePage.AutoCatalogListPageLink.Click();
+            webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
+            b2BAutoCatalogListPage = new B2BAutoCatalogListPage(webDriver);
+            WaitForPageRefresh();
+
+            b2BAutoCatalogListPage.SelectTheCustomer(profileName);
+            WaitForPageRefresh();
+            b2BAutoCatalogListPage.SelectTheIdentity();
+            b2BAutoCatalogListPage.CatalogName.SendKeys("abc123");
+            b2BAutoCatalogListPage.ThreadId.SendKeys("123");
+            b2BAutoCatalogListPage.CreationDateStart.SendKeys(DateTime.Now.AddDays(-5).ToString(MMDDYYYY));
+            b2BAutoCatalogListPage.CreationDateEnd.SendKeys(DateTime.Now.ToString(MMDDYYYY));
+            b2BAutoCatalogListPage.OriginalCatalogCheckbox.Click();
+            b2BAutoCatalogListPage.DeltaCatalogCheckbox.Click();
+            b2BAutoCatalogListPage.ScheduledCheckbox.Click();
+            b2BAutoCatalogListPage.ClearAllLink.Click();
+
+            if (!webDriver.FindElement(By.XPath("//div[@ng-model='customer']/a/span")).Text.Equals("Select Customer Profile"))
+            {
+                return false;
+            }
+
+            if (!webDriver.FindElement(By.XPath("//div[@ng-model='Identity']/a/span")).Text.Equals("Select Profile Identity"))
+            {
+                return false;
+            }
+
+            if (!string.IsNullOrEmpty(b2BAutoCatalogListPage.CatalogName.GetAttribute("value")))
+            {
+                return false;
+            }
+
+            if (!string.IsNullOrEmpty(b2BAutoCatalogListPage.ThreadId.GetAttribute("value")))
+            {
+                return false;
+            }
+
+            if (!string.IsNullOrEmpty(b2BAutoCatalogListPage.CreationDateStart.GetAttribute("value")))
+            {
+                return false;
+            }
+
+            if (!string.IsNullOrEmpty(b2BAutoCatalogListPage.CreationDateEnd.GetAttribute("value")))
+            {
+                return false;
+            }
+
+            if (b2BAutoCatalogListPage.OriginalCatalogCheckbox.Selected)
+                return false;
+
+            if (b2BAutoCatalogListPage.DeltaCatalogCheckbox.Selected)
+                return false;
+
+            return !b2BAutoCatalogListPage.ScheduledCheckbox.Selected;
+        }
+
+        /// <summary>
+        /// Verifies the presence and functionality of Thread Id link in Auto Cataog List Page
+        /// </summary>
+        /// <returns></returns>
+        public bool VerifyThreadIdLinkInAutoCatalogListPage()
+        {
+            b2BHomePage.AutoCatalogListPageLink.Click();
+            webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
+            b2BAutoCatalogListPage = new B2BAutoCatalogListPage(webDriver);
+            WaitForPageRefresh();
+            var firstThreadIdElement = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[6];
+            var threadId = firstThreadIdElement.Text;
+
+            if (!firstThreadIdElement.ElementExists(By.TagName("a")))
+            {
+                Console.WriteLine("Thread ID column with value **{0}** is not a hyperlink ", threadId);
+                return false;
+            }
+
+            var threadIdLink = firstThreadIdElement.FindElement(By.TagName("a"));
+            threadId = threadIdLink.Text;
+            threadIdLink.Click();
+            webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
+            WaitForPageRefresh();
+            return webDriver.Url.ToUpperInvariant().Contains("b2blogreportb.aspx?threadid=" + threadId);
+        }
+
+        /// <summary>
+        /// Verifies the Select Customer drop down on the Auto Catalog List Page
+        /// </summary>
+        /// <param name="profileName"></param>
+        /// <returns></returns>
+        public bool VerifySelectCustomerFieldOnAutoCatalogListPage(string profileName)
+        {
+            b2BHomePage.AutoCatalogListPageLink.Click();
+            webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
+            b2BAutoCatalogListPage = new B2BAutoCatalogListPage(webDriver);
+            WaitForPageRefresh();
+            return b2BAutoCatalogListPage.SelectCustomer.Select().Options.Count() > 1 &&
+                   b2BAutoCatalogListPage.SelectCustomer.Select().Options.Any(o => o.GetAttribute("text").Equals(profileName));
+        }
+
+        /// <summary>
+        /// Verifies the Identity drop down on the Auto Catalog List Page
+        /// </summary>
+        /// <param name="profileName"></param>
+        /// <param name="identities"></param>
+        /// <returns></returns>
+        public bool VerifyIdentityFieldOnAutoCatalogListPage(string profileName, string identities)
+        {
+            var identityList = identities.Split(',');
+            b2BHomePage.AutoCatalogListPageLink.Click();
+            webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
+            b2BAutoCatalogListPage = new B2BAutoCatalogListPage(webDriver);
+            WaitForPageRefresh();
+            b2BAutoCatalogListPage.SelectTheCustomer(profileName);
+            WaitForPageRefresh();
+            if (identityList.Count() ==
+                b2BAutoCatalogListPage.SelectIdentity.Select()
+                    .Options.Count(o => !string.IsNullOrEmpty(o.GetAttribute("text"))))
+            {
+                return
+                    b2BAutoCatalogListPage.SelectIdentity.Select()
+                        .Options.Where(o => !string.IsNullOrEmpty(o.GetAttribute("text")))
+                        .All(option => identityList.Contains(option.GetAttribute("text")));
+            }
+
+            Console.WriteLine(
+                "No. of identities passed for profile **{0}** does not match with the no. of identities in Identities drop down", profileName);
+            return false;
         }
 
         /// <summary>
@@ -1239,7 +1271,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         private bool VerifyDeltaCatalogSchedulingOptions(string startDate, string frequencyDays, string frequencyWeeks,
             string endDate, string timeOfSend)
         {
-            if (!b2BBuyerCatalogPage.DeltaCatalogStartDate.GetAttribute("value").Equals(startDate))
+            if (!Convert.ToDateTime(b2BBuyerCatalogPage.DeltaCatalogStartDate.GetAttribute("value")).Equals(Convert.ToDateTime(startDate)))
             {
                 Console.WriteLine("Delta Catalog Start Date does not match: {0}", startDate);
                 return false;
@@ -1257,7 +1289,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                 return false;
             }
 
-            if (!b2BBuyerCatalogPage.DeltaCatalogEndDate.GetAttribute("value").Equals(endDate))
+            if (!Convert.ToDateTime(b2BBuyerCatalogPage.DeltaCatalogEndDate.GetAttribute("value")).Equals(Convert.ToDateTime(endDate)))
             {
                 Console.WriteLine("Delta Catalog End Date does not match: {0}", endDate);
                 return false;
