@@ -1119,6 +1119,59 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         }
 
         /// <summary>
+        /// Verifies the search results on Auto Catalog List Page
+        /// </summary>
+        /// <param name="profileName"></param>
+        /// <param name="identity"></param>
+        /// <returns></returns>
+        public bool VerifySearchResultsOnAutoCatalogListPage(string profileName, string identity)
+        {
+            b2BHomePage.AutoCatalogListPageLink.Click();
+            webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
+            b2BAutoCatalogListPage = new B2BAutoCatalogListPage(webDriver);
+            WaitForPageRefresh();
+            b2BAutoCatalogListPage.SelectTheCustomer(profileName);
+            WaitForPageRefresh();
+            b2BAutoCatalogListPage.SelectTheIdentity(identity);
+            b2BAutoCatalogListPage.SearchCatalogLink.Click();
+            if (
+                !b2BAutoCatalogListPage.CatalogListTableRows.All(
+                    r =>
+                        r.FindElements(By.TagName("td"))[0].Text.ToLowerInvariant()
+                            .StartsWith(identity.ToLowerInvariant())))
+                return false;
+
+            if (
+                !b2BAutoCatalogListPage.CatalogListTableRows.All(
+                    r =>
+                        r.FindElements(By.TagName("td"))[1].Text.ToLowerInvariant().Equals("delta") ||
+                        r.FindElements(By.TagName("td"))[1].Text.ToLowerInvariant().Equals("original")))
+                return false;
+
+            if (
+                !b2BAutoCatalogListPage.CatalogListTableRows.All(
+                    r => r.FindElements(By.TagName("td"))[0].Text.EndsWith(r.FindElements(By.TagName("td"))[7].Text)))
+                return false;
+
+            if (
+                !b2BAutoCatalogListPage.CatalogListTableRows.All(
+                    r =>
+                        r.FindElements(By.TagName("td"))[2].Text.Equals(
+                            b2BAutoCatalogListPage.StatusTable[0].FindElements(By.TagName("td"))[0].Text) ||
+                        r.FindElements(By.TagName("td"))[2].Text.Equals(
+                            b2BAutoCatalogListPage.StatusTable[1].FindElements(By.TagName("td"))[0].Text) ||
+                        r.FindElements(By.TagName("td"))[2].Text.Equals(
+                            b2BAutoCatalogListPage.StatusTable[2].FindElements(By.TagName("td"))[0].Text) ||
+                        r.FindElements(By.TagName("td"))[2].Text.Equals(
+                            b2BAutoCatalogListPage.StatusTable[3].FindElements(By.TagName("td"))[0].Text) ||
+                        r.FindElements(By.TagName("td"))[2].Text.Equals(
+                            b2BAutoCatalogListPage.StatusTable[4].FindElements(By.TagName("td"))[0].Text)))
+                return false;
+
+            return true;
+        }
+
+        /// <summary>
         /// Verifies if all the fields in Auto BHC section are disabled
         /// </summary>
         /// <returns></returns>
@@ -1490,7 +1543,6 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             Console.WriteLine("Message received on upload: **{0}**",
                 b2BCatalogPackagingDataUploadPage.UploadMessage.Text);
         }
-
     }
 
     /// <summary>
