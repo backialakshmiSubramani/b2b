@@ -1172,6 +1172,788 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         }
 
         /// <summary>
+        /// To verify all the fields are selected
+        /// </summary>
+        public void AuditHistoryProperties()
+        {
+            b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+            if (!b2BBuyerCatalogPage.BcpCatalogEnabled.Selected)
+                b2BBuyerCatalogPage.BcpCatalogEnabled.Click();
+            b2BBuyerCatalogPage.EnableCatalogAutoGeneration.Click();
+            b2BBuyerCatalogPage.BuyerCatalogFirstIdentity.Click();
+            b2BBuyerCatalogPage.CatalogConfigStandard.Click();
+            b2BBuyerCatalogPage.OriginalTimeOfSend.Select().SelectByValue("8");
+            b2BBuyerCatalogPage.UpdateButton.Click();
+
+        }
+
+        /// <summary>
+        /// Verify user name in the latest entry of Audit History
+        /// </summary>
+        /// <param name="ValuetobeChecked"></param>
+        /// <returns></returns>
+        public bool VerifyAuditHistoryUserName(String ValuetobeChecked)
+        {
+            b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+            b2BBuyerCatalogPage.AuditHistoryLink.Click();
+            WaitForPageRefresh();
+            var valuetocheck = b2BBuyerCatalogPage.AuditHistoryRows[0].FindElements(By.TagName("td"))[0].Text.ToString();
+            return valuetocheck.Contains(ValuetobeChecked);
+        }
+
+        /// <summary>
+        /// To verify the logging of change in Delta Catalog Frequency under audit history section
+        /// </summary>
+        /// <param name="profile"></param>
+        /// <param name="deltaFreqAuditHistoryProperty"></param>
+        /// <returns></returns>
+        public bool VerifyAuditHistoryDeltaCatalogFrequency(string profile, string deltaFreqAuditHistoryProperty)
+        {
+            var newValue = string.Empty;
+            var oldValue = string.Empty;
+
+            GoToBuyerCatalogTab(profile);
+
+            b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+            if (!b2BBuyerCatalogPage.BcpCatalogEnabled.Selected)
+                b2BBuyerCatalogPage.BcpCatalogEnabled.Click();
+
+            if (!b2BBuyerCatalogPage.EnableCatalogAutoGeneration.Selected)
+                b2BBuyerCatalogPage.EnableCatalogAutoGeneration.Click();
+
+            if (!b2BBuyerCatalogPage.BuyerCatalogFirstIdentity.Selected)
+                b2BBuyerCatalogPage.BuyerCatalogFirstIdentity.Click();
+
+            b2BBuyerCatalogPage.EditScheduleButton.Click();
+            if (!b2BBuyerCatalogPage.CatalogConfigStandard.Selected)
+                b2BBuyerCatalogPage.CatalogConfigStandard.Click();
+
+            if (!b2BBuyerCatalogPage.EnableOriginalCatalog.Selected)
+                b2BBuyerCatalogPage.EnableOriginalCatalog.Click();
+            b2BBuyerCatalogPage.OriginalFrequencyDays.Select().SelectByValue("5");
+            b2BBuyerCatalogPage.OriginalTimeOfSend.Select().SelectByValue("8");
+            if (!b2BBuyerCatalogPage.EnableDeltaCatalog.Selected)
+                b2BBuyerCatalogPage.EnableDeltaCatalog.Click();
+
+            b2BBuyerCatalogPage.DeltaFrequencyDays.Select().SelectByValue("4");
+
+            b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+            oldValue = b2BBuyerCatalogPage.DeltaFrequencyDays.Select().SelectedOption.GetAttribute("value") + " Day(s)";
+            b2BBuyerCatalogPage.DeltaTimeOfSend.Select().SelectByValue("9");
+            b2BBuyerCatalogPage.UpdateButton.Click();
+            b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+            if (!b2BBuyerCatalogPage.BcpCatalogEnabled.Selected)
+                b2BBuyerCatalogPage.BcpCatalogEnabled.Click();
+
+            b2BBuyerCatalogPage.AutomatedBhcCatalogProcessingRules.Click();
+            b2BBuyerCatalogPage.EnableCatalogAutoGeneration.WaitForElementDisplayed(TimeSpan.FromSeconds(30));
+            if (!b2BBuyerCatalogPage.EnableCatalogAutoGeneration.Selected)
+                b2BBuyerCatalogPage.EnableCatalogAutoGeneration.Click();
+
+            if (!b2BBuyerCatalogPage.BuyerCatalogFirstIdentity.Selected)
+                b2BBuyerCatalogPage.BuyerCatalogFirstIdentity.Click();
+            b2BBuyerCatalogPage.EditScheduleButton.Click();
+
+
+            if (!b2BBuyerCatalogPage.EnableOriginalCatalog.Selected)
+                b2BBuyerCatalogPage.EnableOriginalCatalog.Click();
+
+            b2BBuyerCatalogPage.OriginalFrequencyDays.Select().SelectByValue("5");
+            b2BBuyerCatalogPage.OriginalTimeOfSend.Select().SelectByValue("8");
+            if (!b2BBuyerCatalogPage.EnableDeltaCatalog.Selected)
+                b2BBuyerCatalogPage.EnableDeltaCatalog.Click();
+
+            b2BBuyerCatalogPage.DeltaFrequencyDays.Select().SelectByValue("3");
+
+            b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+            newValue = b2BBuyerCatalogPage.DeltaFrequencyDays.Select().SelectedOption.GetAttribute("value") + " Day(s)";
+            b2BBuyerCatalogPage.UpdateButton.Click();
+            return VerifyAuditHistoryRow(oldValue, newValue, deltaFreqAuditHistoryProperty);
+
+        }
+
+        /// <summary>
+        /// To verify the logging of change in Original start date under audit history section
+        /// </summary>
+        /// <param name="profile"></param>
+        /// <param name="deltaFreqAuditHistoryProperty"></param>
+        /// <returns></returns>
+        public bool VerifyAuditHistoryOriginalStartDate(string profile, string deltaStartDateOriginalAuditHistoryProperty)
+        {
+            var newValue = string.Empty;
+            var oldValue = string.Empty;
+
+            GoToBuyerCatalogTab(profile);
+
+            b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+            if (!b2BBuyerCatalogPage.BcpCatalogEnabled.Selected)
+                b2BBuyerCatalogPage.BcpCatalogEnabled.Click();
+
+            if (!b2BBuyerCatalogPage.EnableCatalogAutoGeneration.Selected)
+                b2BBuyerCatalogPage.EnableCatalogAutoGeneration.Click();
+
+            if (!b2BBuyerCatalogPage.BuyerCatalogFirstIdentity.Selected)
+                b2BBuyerCatalogPage.BuyerCatalogFirstIdentity.Click();
+
+            b2BBuyerCatalogPage.EditScheduleButton.Click();
+            if (!b2BBuyerCatalogPage.CatalogConfigStandard.Selected)
+                b2BBuyerCatalogPage.CatalogConfigStandard.Click();
+
+
+            if (!b2BBuyerCatalogPage.EnableOriginalCatalog.Selected)
+
+
+                b2BBuyerCatalogPage.EnableOriginalCatalog.Click();
+
+
+            b2BBuyerCatalogPage.SetTextBoxValue(b2BBuyerCatalogPage.OriginalCatalogStartDate, DateTime.Now.AddDays(1).ToString(MMDDYYYY));
+            oldValue = b2BBuyerCatalogPage.OriginalCatalogStartDate.GetAttribute("value").ToString();
+            b2BBuyerCatalogPage.OriginalTimeOfSend.Select().SelectByValue("8");
+            if (!b2BBuyerCatalogPage.EnableDeltaCatalog.Selected)
+                b2BBuyerCatalogPage.EnableDeltaCatalog.Click();
+
+            b2BBuyerCatalogPage.SetTextBoxValue(b2BBuyerCatalogPage.DeltaCatalogStartDate, DateTime.Now.AddDays(2).ToString(MMDDYYYY));
+            b2BBuyerCatalogPage.DeltaTimeOfSend.Select().SelectByValue("9");
+            b2BBuyerCatalogPage.UpdateButton.Click();
+
+            b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+            if (!b2BBuyerCatalogPage.BcpCatalogEnabled.Selected)
+                b2BBuyerCatalogPage.BcpCatalogEnabled.Click();
+
+            b2BBuyerCatalogPage.AutomatedBhcCatalogProcessingRules.Click();
+            b2BBuyerCatalogPage.EnableCatalogAutoGeneration.WaitForElementDisplayed(TimeSpan.FromSeconds(30));
+            if (!b2BBuyerCatalogPage.EnableCatalogAutoGeneration.Selected)
+                b2BBuyerCatalogPage.EnableCatalogAutoGeneration.Click();
+
+            if (!b2BBuyerCatalogPage.BuyerCatalogFirstIdentity.Selected)
+                b2BBuyerCatalogPage.BuyerCatalogFirstIdentity.Click();
+            b2BBuyerCatalogPage.EditScheduleButton.Click();
+
+
+            if (!b2BBuyerCatalogPage.EnableOriginalCatalog.Selected)
+
+                b2BBuyerCatalogPage.EnableOriginalCatalog.Click();
+            b2BBuyerCatalogPage.SetTextBoxValue(b2BBuyerCatalogPage.OriginalCatalogStartDate, DateTime.Now.AddDays(2).ToString(MMDDYYYY));
+            newValue = b2BBuyerCatalogPage.OriginalCatalogStartDate.GetAttribute("value").ToString();
+            b2BBuyerCatalogPage.OriginalTimeOfSend.Select().SelectByValue("8");
+
+            if (!b2BBuyerCatalogPage.EnableDeltaCatalog.Selected)
+                b2BBuyerCatalogPage.EnableDeltaCatalog.Click();
+
+            b2BBuyerCatalogPage.SetTextBoxValue(b2BBuyerCatalogPage.DeltaCatalogStartDate, DateTime.Now.AddDays(3).ToString(MMDDYYYY));
+            b2BBuyerCatalogPage.DeltaTimeOfSend.Select().SelectByValue("9");
+
+            b2BBuyerCatalogPage.UpdateButton.Click();
+            return VerifyAuditHistoryRow(oldValue, newValue, deltaStartDateOriginalAuditHistoryProperty);
+        }
+
+        /// <summary>
+        /// To verify the logging of change in Delta start date under audit history section
+        /// </summary>
+        /// <returns></returns>
+        public bool AuditHistoryDeltaStartDate(string profile, string StartDatedeltaAuditHistoryProperty)
+        {
+            var newValue = string.Empty;
+            var oldValue = string.Empty;
+
+            GoToBuyerCatalogTab(profile);
+            b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+            if (!b2BBuyerCatalogPage.BcpCatalogEnabled.Selected)
+                b2BBuyerCatalogPage.BcpCatalogEnabled.Click();
+
+            if (!b2BBuyerCatalogPage.EnableCatalogAutoGeneration.Selected)
+                b2BBuyerCatalogPage.EnableCatalogAutoGeneration.Click();
+
+            if (!b2BBuyerCatalogPage.BuyerCatalogFirstIdentity.Selected)
+                b2BBuyerCatalogPage.BuyerCatalogFirstIdentity.Click();
+
+            b2BBuyerCatalogPage.EditScheduleButton.Click();
+            if (!b2BBuyerCatalogPage.CatalogConfigStandard.Selected)
+                b2BBuyerCatalogPage.CatalogConfigStandard.Click();
+
+            if (!b2BBuyerCatalogPage.EnableOriginalCatalog.Selected)
+                b2BBuyerCatalogPage.EnableOriginalCatalog.Click();
+
+            b2BBuyerCatalogPage.OriginalTimeOfSend.Select().SelectByValue("8");
+            if (!b2BBuyerCatalogPage.EnableDeltaCatalog.Selected)
+                b2BBuyerCatalogPage.EnableDeltaCatalog.Click();
+
+            b2BBuyerCatalogPage.SetTextBoxValue(b2BBuyerCatalogPage.DeltaCatalogStartDate, DateTime.Now.AddDays(2).ToString(MMDDYYYY));
+            b2BBuyerCatalogPage.DeltaTimeOfSend.Select().SelectByValue("9");
+
+            oldValue = b2BBuyerCatalogPage.DeltaCatalogStartDate.GetAttribute("value").ToString();
+            b2BBuyerCatalogPage.UpdateButton.Click();
+            b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+            if (!b2BBuyerCatalogPage.BcpCatalogEnabled.Selected)
+                b2BBuyerCatalogPage.BcpCatalogEnabled.Click();
+
+            b2BBuyerCatalogPage.AutomatedBhcCatalogProcessingRules.Click();
+            b2BBuyerCatalogPage.EnableCatalogAutoGeneration.WaitForElementDisplayed(TimeSpan.FromSeconds(30));
+
+            if (!b2BBuyerCatalogPage.EnableCatalogAutoGeneration.Selected)
+                b2BBuyerCatalogPage.EnableCatalogAutoGeneration.Click();
+
+            if (!b2BBuyerCatalogPage.BuyerCatalogFirstIdentity.Selected)
+                b2BBuyerCatalogPage.BuyerCatalogFirstIdentity.Click();
+
+            b2BBuyerCatalogPage.EditScheduleButton.Click();
+            if (!b2BBuyerCatalogPage.CatalogConfigStandard.Selected)
+                b2BBuyerCatalogPage.CatalogConfigStandard.Click();
+
+            if (!b2BBuyerCatalogPage.EnableOriginalCatalog.Selected)
+                b2BBuyerCatalogPage.EnableOriginalCatalog.Click();
+            b2BBuyerCatalogPage.OriginalTimeOfSend.Select().SelectByValue("8");
+
+            if (!b2BBuyerCatalogPage.EnableDeltaCatalog.Selected)
+                b2BBuyerCatalogPage.EnableDeltaCatalog.Click();
+
+            b2BBuyerCatalogPage.SetTextBoxValue(b2BBuyerCatalogPage.DeltaCatalogStartDate, DateTime.Now.AddDays(3).ToString(MMDDYYYY));
+
+            newValue = b2BBuyerCatalogPage.DeltaCatalogStartDate.GetAttribute("value").ToString();
+            b2BBuyerCatalogPage.OriginalTimeOfSend.Select().SelectByValue("8");
+
+            b2BBuyerCatalogPage.UpdateButton.Click();
+            return VerifyAuditHistoryRow(oldValue, newValue, StartDatedeltaAuditHistoryProperty);
+        }
+
+        /// <summary>
+        /// To verify the logging of change in Delta End date under audit history section
+        /// </summary>
+        /// <param name="profile"></param>
+        /// <param name="EndDatedeltaAuditHistoryProperty"></param>
+        /// <returns></returns>
+        public bool AuditHistoryDeltaEndDate(string profile, string EndDatedeltaAuditHistoryProperty)
+        {
+            var newValue = string.Empty;
+            var oldValue = string.Empty;
+
+            GoToBuyerCatalogTab(profile);
+            b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+            if (!b2BBuyerCatalogPage.BcpCatalogEnabled.Selected)
+                b2BBuyerCatalogPage.BcpCatalogEnabled.Click();
+
+            if (!b2BBuyerCatalogPage.EnableCatalogAutoGeneration.Selected)
+                b2BBuyerCatalogPage.EnableCatalogAutoGeneration.Click();
+
+            if (!b2BBuyerCatalogPage.BuyerCatalogFirstIdentity.Selected)
+                b2BBuyerCatalogPage.BuyerCatalogFirstIdentity.Click();
+
+            b2BBuyerCatalogPage.EditScheduleButton.Click();
+            if (!b2BBuyerCatalogPage.CatalogConfigStandard.Selected)
+                b2BBuyerCatalogPage.CatalogConfigStandard.Click();
+
+            if (!b2BBuyerCatalogPage.EnableOriginalCatalog.Selected)
+                b2BBuyerCatalogPage.EnableOriginalCatalog.Click();
+
+            if (!b2BBuyerCatalogPage.EnableDeltaCatalog.Selected)
+                b2BBuyerCatalogPage.EnableDeltaCatalog.Click();
+
+            b2BBuyerCatalogPage.SetTextBoxValue(b2BBuyerCatalogPage.DeltaCatalogEndDate, DateTime.Now.AddDays(35).ToString(MMDDYYYY));
+
+            oldValue = b2BBuyerCatalogPage.DeltaCatalogEndDate.GetAttribute("value").ToString();
+            b2BBuyerCatalogPage.UpdateButton.Click();
+            b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+            if (!b2BBuyerCatalogPage.BcpCatalogEnabled.Selected)
+                b2BBuyerCatalogPage.BcpCatalogEnabled.Click();
+
+            b2BBuyerCatalogPage.AutomatedBhcCatalogProcessingRules.Click();
+            b2BBuyerCatalogPage.EnableCatalogAutoGeneration.WaitForElementDisplayed(TimeSpan.FromSeconds(30));
+
+            if (!b2BBuyerCatalogPage.EnableCatalogAutoGeneration.Selected)
+                b2BBuyerCatalogPage.EnableCatalogAutoGeneration.Click();
+
+            if (!b2BBuyerCatalogPage.BuyerCatalogFirstIdentity.Selected)
+                b2BBuyerCatalogPage.BuyerCatalogFirstIdentity.Click();
+
+            b2BBuyerCatalogPage.EditScheduleButton.Click();
+            if (!b2BBuyerCatalogPage.CatalogConfigStandard.Selected)
+                b2BBuyerCatalogPage.CatalogConfigStandard.Click();
+
+            if (!b2BBuyerCatalogPage.EnableOriginalCatalog.Selected)
+                b2BBuyerCatalogPage.EnableOriginalCatalog.Click();
+
+            if (!b2BBuyerCatalogPage.EnableDeltaCatalog.Selected)
+                b2BBuyerCatalogPage.EnableDeltaCatalog.Click();
+
+            b2BBuyerCatalogPage.SetTextBoxValue(b2BBuyerCatalogPage.DeltaCatalogEndDate, DateTime.Now.AddDays(40).ToString(MMDDYYYY));
+
+            newValue = b2BBuyerCatalogPage.DeltaCatalogEndDate.GetAttribute("value").ToString();
+
+
+            b2BBuyerCatalogPage.UpdateButton.Click();
+
+            return VerifyAuditHistoryRow(oldValue, newValue, EndDatedeltaAuditHistoryProperty);
+
+        }
+
+        /// <summary>
+        /// To verify the logging of change in Delta catalog Time of send under audit history section
+        /// </summary>
+        /// <param name="profile"></param>
+        /// <param name="deltaTimeofsendAuditHistoryProperty"></param>
+        /// <returns></returns>
+        public bool AuditHistoryDeltaCatalogTimeofSend(string profile, string deltaTimeofsendAuditHistoryProperty)
+        {
+            var newValue = string.Empty;
+            var oldValue = string.Empty;
+
+            GoToBuyerCatalogTab(profile);
+            b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+            if (!b2BBuyerCatalogPage.BcpCatalogEnabled.Selected)
+                b2BBuyerCatalogPage.BcpCatalogEnabled.Click();
+
+            if (!b2BBuyerCatalogPage.EnableCatalogAutoGeneration.Selected)
+                b2BBuyerCatalogPage.EnableCatalogAutoGeneration.Click();
+
+            if (!b2BBuyerCatalogPage.BuyerCatalogFirstIdentity.Selected)
+                b2BBuyerCatalogPage.BuyerCatalogFirstIdentity.Click();
+
+            b2BBuyerCatalogPage.EditScheduleButton.Click();
+            if (!b2BBuyerCatalogPage.CatalogConfigStandard.Selected)
+                b2BBuyerCatalogPage.CatalogConfigStandard.Click();
+
+            if (!b2BBuyerCatalogPage.EnableOriginalCatalog.Selected)
+                b2BBuyerCatalogPage.EnableOriginalCatalog.Click();
+
+            b2BBuyerCatalogPage.OriginalTimeOfSend.Select().SelectByValue("7");
+            if (!b2BBuyerCatalogPage.EnableDeltaCatalog.Selected)
+                b2BBuyerCatalogPage.EnableDeltaCatalog.Click();
+
+            b2BBuyerCatalogPage.DeltaTimeOfSend.Select().SelectByValue("8");
+
+            var oldValue1 = b2BBuyerCatalogPage.DeltaTimeOfSend.Select().SelectedOption.GetAttribute("value");
+            oldValue = "0" + oldValue1 + ":00:00";
+            b2BBuyerCatalogPage.UpdateButton.Click();
+
+            b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+            if (!b2BBuyerCatalogPage.BcpCatalogEnabled.Selected)
+                b2BBuyerCatalogPage.BcpCatalogEnabled.Click();
+
+            b2BBuyerCatalogPage.AutomatedBhcCatalogProcessingRules.Click();
+            b2BBuyerCatalogPage.EnableCatalogAutoGeneration.WaitForElementDisplayed(TimeSpan.FromSeconds(30));
+
+            if (!b2BBuyerCatalogPage.EnableCatalogAutoGeneration.Selected)
+                b2BBuyerCatalogPage.EnableCatalogAutoGeneration.Click();
+
+            if (!b2BBuyerCatalogPage.BuyerCatalogFirstIdentity.Selected)
+                b2BBuyerCatalogPage.BuyerCatalogFirstIdentity.Click();
+
+            b2BBuyerCatalogPage.EditScheduleButton.Click();
+            if (!b2BBuyerCatalogPage.CatalogConfigStandard.Selected)
+                b2BBuyerCatalogPage.CatalogConfigStandard.Click();
+
+            if (!b2BBuyerCatalogPage.EnableOriginalCatalog.Selected)
+                b2BBuyerCatalogPage.EnableOriginalCatalog.Click();
+
+            b2BBuyerCatalogPage.OriginalTimeOfSend.Select().SelectByValue("8");
+
+            if (!b2BBuyerCatalogPage.EnableDeltaCatalog.Selected)
+                b2BBuyerCatalogPage.EnableDeltaCatalog.Click();
+
+
+            b2BBuyerCatalogPage.DeltaTimeOfSend.Select().SelectByValue("9");
+
+            var newValue1 = b2BBuyerCatalogPage.DeltaTimeOfSend.Select().SelectedOption.GetAttribute("value");
+            newValue = "0" + newValue1 + ":00:00";
+            b2BBuyerCatalogPage.UpdateButton.Click();
+
+            return VerifyAuditHistoryRow(oldValue, newValue, deltaTimeofsendAuditHistoryProperty);
+        }
+
+        /// <summary>
+        /// To verify the logging of change in original catalog end date under audit history section
+        /// </summary>
+        /// <param name="profile"></param>
+        /// <param name="OriginalcatalogEndDateAuditHistoryProperty"></param>
+        /// <returns></returns>
+        public bool AuditHistoryOriginalCatalogEndDate(string profile, string OriginalcatalogEndDateAuditHistoryProperty)
+        {
+            var newValue = string.Empty;
+            var oldValue = string.Empty;
+
+            GoToBuyerCatalogTab(profile);
+            b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+            if (!b2BBuyerCatalogPage.BcpCatalogEnabled.Selected)
+                b2BBuyerCatalogPage.BcpCatalogEnabled.Click();
+
+            if (!b2BBuyerCatalogPage.EnableCatalogAutoGeneration.Selected)
+                b2BBuyerCatalogPage.EnableCatalogAutoGeneration.Click();
+
+            if (!b2BBuyerCatalogPage.BuyerCatalogFirstIdentity.Selected)
+                b2BBuyerCatalogPage.BuyerCatalogFirstIdentity.Click();
+
+            b2BBuyerCatalogPage.EditScheduleButton.Click();
+            if (!b2BBuyerCatalogPage.CatalogConfigStandard.Selected)
+                b2BBuyerCatalogPage.CatalogConfigStandard.Click();
+
+            if (!b2BBuyerCatalogPage.EnableOriginalCatalog.Selected)
+                b2BBuyerCatalogPage.EnableOriginalCatalog.Click();
+
+            b2BBuyerCatalogPage.SetTextBoxValue(b2BBuyerCatalogPage.OriginalCatalogEndDate, DateTime.Now.AddDays(55).ToString(MMDDYYYY));
+            b2BBuyerCatalogPage.OriginalTimeOfSend.Select().SelectByValue("8");
+
+
+            if (!b2BBuyerCatalogPage.EnableDeltaCatalog.Selected)
+                b2BBuyerCatalogPage.EnableDeltaCatalog.Click();
+
+            b2BBuyerCatalogPage.SetTextBoxValue(b2BBuyerCatalogPage.DeltaCatalogEndDate, DateTime.Now.AddDays(54).ToString(MMDDYYYY));
+            b2BBuyerCatalogPage.DeltaTimeOfSend.Select().SelectByValue("9");
+
+            oldValue = b2BBuyerCatalogPage.OriginalCatalogEndDate.GetAttribute("value").ToString();
+            b2BBuyerCatalogPage.UpdateButton.Click();
+
+            b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+            if (!b2BBuyerCatalogPage.BcpCatalogEnabled.Selected)
+                b2BBuyerCatalogPage.BcpCatalogEnabled.Click();
+
+            b2BBuyerCatalogPage.AutomatedBhcCatalogProcessingRules.Click();
+            b2BBuyerCatalogPage.EnableCatalogAutoGeneration.WaitForElementDisplayed(TimeSpan.FromSeconds(30));
+            if (!b2BBuyerCatalogPage.EnableCatalogAutoGeneration.Selected)
+                b2BBuyerCatalogPage.EnableCatalogAutoGeneration.Click();
+
+            if (!b2BBuyerCatalogPage.BuyerCatalogFirstIdentity.Selected)
+                b2BBuyerCatalogPage.BuyerCatalogFirstIdentity.Click();
+            b2BBuyerCatalogPage.EditScheduleButton.Click();
+
+
+            if (!b2BBuyerCatalogPage.EnableOriginalCatalog.Selected)
+                b2BBuyerCatalogPage.EnableOriginalCatalog.Click();
+            b2BBuyerCatalogPage.SetTextBoxValue(b2BBuyerCatalogPage.OriginalCatalogEndDate, DateTime.Now.AddDays(59).ToString(MMDDYYYY));
+            newValue = b2BBuyerCatalogPage.OriginalCatalogEndDate.GetAttribute("value").ToString();
+            b2BBuyerCatalogPage.OriginalTimeOfSend.Select().SelectByValue("8");
+
+            if (!b2BBuyerCatalogPage.EnableDeltaCatalog.Selected)
+                b2BBuyerCatalogPage.EnableDeltaCatalog.Click();
+
+            b2BBuyerCatalogPage.SetTextBoxValue(b2BBuyerCatalogPage.DeltaCatalogEndDate, DateTime.Now.AddDays(58).ToString(MMDDYYYY));
+            b2BBuyerCatalogPage.DeltaTimeOfSend.Select().SelectByValue("9");
+
+            b2BBuyerCatalogPage.UpdateButton.Click();
+
+            return VerifyAuditHistoryRow(oldValue, newValue, OriginalcatalogEndDateAuditHistoryProperty);
+        }
+
+        /// <summary>
+        /// To verify the logging of change in Original catalog frequency under audit history section
+        /// </summary>
+        /// <param name="profile"></param>
+        /// <param name="OriginalcatalogFrequencyAuditHistoryProperty"></param>
+        /// <returns></returns>
+        public bool AuditHistoryOriginalCatalogFrequency(string profile, string OriginalcatalogFrequencyAuditHistoryProperty)
+        {
+            var newValue = string.Empty;
+            var oldValue = string.Empty;
+
+            GoToBuyerCatalogTab(profile);
+            b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+            if (!b2BBuyerCatalogPage.BcpCatalogEnabled.Selected)
+                b2BBuyerCatalogPage.BcpCatalogEnabled.Click();
+
+            if (!b2BBuyerCatalogPage.EnableCatalogAutoGeneration.Selected)
+                b2BBuyerCatalogPage.EnableCatalogAutoGeneration.Click();
+
+            if (!b2BBuyerCatalogPage.BuyerCatalogFirstIdentity.Selected)
+                b2BBuyerCatalogPage.BuyerCatalogFirstIdentity.Click();
+
+            b2BBuyerCatalogPage.EditScheduleButton.Click();
+            if (!b2BBuyerCatalogPage.CatalogConfigStandard.Selected)
+                b2BBuyerCatalogPage.CatalogConfigStandard.Click();
+
+            if (!b2BBuyerCatalogPage.EnableOriginalCatalog.Selected)
+                b2BBuyerCatalogPage.EnableOriginalCatalog.Click();
+
+            b2BBuyerCatalogPage.OriginalFrequencyDays.Select().SelectByValue("4");
+            b2BBuyerCatalogPage.OriginalTimeOfSend.Select().SelectByValue("8");
+
+
+            if (!b2BBuyerCatalogPage.EnableDeltaCatalog.Selected)
+                b2BBuyerCatalogPage.EnableDeltaCatalog.Click();
+
+            b2BBuyerCatalogPage.DeltaFrequencyDays.Select().SelectByValue("3");
+            b2BBuyerCatalogPage.DeltaTimeOfSend.Select().SelectByValue("9");
+
+            var oldValue1 = b2BBuyerCatalogPage.OriginalFrequencyDays.GetAttribute("value").ToString();
+            oldValue = oldValue1 + " Day(s)";
+            b2BBuyerCatalogPage.UpdateButton.Click();
+
+            b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+            if (!b2BBuyerCatalogPage.BcpCatalogEnabled.Selected)
+                b2BBuyerCatalogPage.BcpCatalogEnabled.Click();
+
+            b2BBuyerCatalogPage.AutomatedBhcCatalogProcessingRules.Click();
+            b2BBuyerCatalogPage.EnableCatalogAutoGeneration.WaitForElementDisplayed(TimeSpan.FromSeconds(30));
+            if (!b2BBuyerCatalogPage.EnableCatalogAutoGeneration.Selected)
+                b2BBuyerCatalogPage.EnableCatalogAutoGeneration.Click();
+
+            if (!b2BBuyerCatalogPage.BuyerCatalogFirstIdentity.Selected)
+                b2BBuyerCatalogPage.BuyerCatalogFirstIdentity.Click();
+            b2BBuyerCatalogPage.EditScheduleButton.Click();
+
+
+            if (!b2BBuyerCatalogPage.EnableOriginalCatalog.Selected)
+                b2BBuyerCatalogPage.EnableOriginalCatalog.Click();
+            b2BBuyerCatalogPage.OriginalFrequencyDays.Select().SelectByValue("5");
+
+
+
+            var newValue1 = b2BBuyerCatalogPage.OriginalFrequencyDays.GetAttribute("value").ToString();
+            newValue = newValue1 + " Day(s)";
+            b2BBuyerCatalogPage.OriginalTimeOfSend.Select().SelectByValue("8");
+            if (!b2BBuyerCatalogPage.EnableDeltaCatalog.Selected)
+                b2BBuyerCatalogPage.EnableDeltaCatalog.Click();
+
+            b2BBuyerCatalogPage.DeltaFrequencyDays.Select().SelectByValue("4");
+            b2BBuyerCatalogPage.OriginalTimeOfSend.Select().SelectByValue("9");
+
+            b2BBuyerCatalogPage.UpdateButton.Click();
+
+            return VerifyAuditHistoryRow(oldValue, newValue, OriginalcatalogFrequencyAuditHistoryProperty);
+        }
+
+        /// <summary>
+        /// To verify the logging of change in original Catalog Time of send under audit history section
+        /// </summary>
+        /// <param name="profile"></param>
+        /// <param name="OriginalcatalogTimeofsendAuditHistoryProperty"></param>
+        /// <returns></returns>
+        public bool AuditHistoryOriginalCatalogTimeofSend(string profile, string OriginalcatalogTimeofsendAuditHistoryProperty)
+        {
+            var newValue = string.Empty;
+            var oldValue = string.Empty;
+
+            GoToBuyerCatalogTab(profile);
+            b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+            if (!b2BBuyerCatalogPage.BcpCatalogEnabled.Selected)
+                b2BBuyerCatalogPage.BcpCatalogEnabled.Click();
+
+            if (!b2BBuyerCatalogPage.EnableCatalogAutoGeneration.Selected)
+                b2BBuyerCatalogPage.EnableCatalogAutoGeneration.Click();
+
+            if (!b2BBuyerCatalogPage.BuyerCatalogFirstIdentity.Selected)
+                b2BBuyerCatalogPage.BuyerCatalogFirstIdentity.Click();
+
+            b2BBuyerCatalogPage.EditScheduleButton.Click();
+            if (!b2BBuyerCatalogPage.CatalogConfigStandard.Selected)
+                b2BBuyerCatalogPage.CatalogConfigStandard.Click();
+
+            if (!b2BBuyerCatalogPage.EnableOriginalCatalog.Selected)
+                b2BBuyerCatalogPage.EnableOriginalCatalog.Click();
+
+
+            b2BBuyerCatalogPage.OriginalTimeOfSend.Select().SelectByValue("8");
+
+            var oldValue1 = b2BBuyerCatalogPage.OriginalTimeOfSend.GetAttribute("value").ToString();
+            oldValue = "0" + oldValue1 + ":00:00";
+            if (!b2BBuyerCatalogPage.EnableDeltaCatalog.Selected)
+                b2BBuyerCatalogPage.EnableDeltaCatalog.Click();
+
+            b2BBuyerCatalogPage.DeltaTimeOfSend.Select().SelectByValue("9");
+
+            b2BBuyerCatalogPage.UpdateButton.Click();
+
+            b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+            if (!b2BBuyerCatalogPage.BcpCatalogEnabled.Selected)
+                b2BBuyerCatalogPage.BcpCatalogEnabled.Click();
+
+            b2BBuyerCatalogPage.AutomatedBhcCatalogProcessingRules.Click();
+            b2BBuyerCatalogPage.EnableCatalogAutoGeneration.WaitForElementDisplayed(TimeSpan.FromSeconds(30));
+            if (!b2BBuyerCatalogPage.EnableCatalogAutoGeneration.Selected)
+                b2BBuyerCatalogPage.EnableCatalogAutoGeneration.Click();
+
+            if (!b2BBuyerCatalogPage.BuyerCatalogFirstIdentity.Selected)
+                b2BBuyerCatalogPage.BuyerCatalogFirstIdentity.Click();
+            b2BBuyerCatalogPage.EditScheduleButton.Click();
+
+
+            if (!b2BBuyerCatalogPage.EnableOriginalCatalog.Selected)
+                b2BBuyerCatalogPage.EnableOriginalCatalog.Click();
+
+
+            b2BBuyerCatalogPage.OriginalTimeOfSend.Select().SelectByValue("7");
+
+            var newValue1 = b2BBuyerCatalogPage.OriginalTimeOfSend.GetAttribute("value").ToString();
+
+            newValue = "0" + newValue1 + ":00:00";
+            if (!b2BBuyerCatalogPage.EnableDeltaCatalog.Selected)
+                b2BBuyerCatalogPage.EnableDeltaCatalog.Click();
+
+
+            b2BBuyerCatalogPage.DeltaTimeOfSend.Select().SelectByValue("8");
+
+            b2BBuyerCatalogPage.UpdateButton.Click();
+
+            return VerifyAuditHistoryRow(oldValue, newValue, OriginalcatalogTimeofsendAuditHistoryProperty);
+        }
+
+        /// <summary>
+        /// To verify the logging of change in internal email under audit history section
+        /// </summary>
+        /// <param name="profile"></param>
+        /// <param name="Email1"></param>
+        /// <param name="Email2"></param>
+        /// <param name="InternalEmailAuditHistory"></param>
+        /// <returns></returns>
+        public bool AuditHistoryInternalEmail(string profile, string Email1, string Email2, string InternalEmailAuditHistory)
+        {
+            var oldValue = string.Empty;
+            var newValue = string.Empty;
+            GoToBuyerCatalogTab(profile);
+            b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+            oldValue = b2BBuyerCatalogPage.InternalEMail.GetAttribute("value");
+            b2BBuyerCatalogPage.InternalEMail.Clear();
+            if (oldValue.Equals(Email1))
+                newValue = Email1;
+            else
+                newValue = Email2;
+
+            b2BBuyerCatalogPage.InternalEMail.SendKeys(newValue);
+            b2BBuyerCatalogPage.UpdateButton.Click();
+
+
+            return VerifyAuditHistoryRow(oldValue, newValue, InternalEmailAuditHistory);
+
+        }
+
+        /// <summary>
+        /// To verify the logging of change in customer email under audit history section
+        /// </summary>
+        /// <param name="profile"></param>
+        /// <param name="Email1"></param>
+        /// <param name="Email2"></param>
+        /// <param name="customerEmailAuditHistory"></param>
+        /// <returns></returns>
+        public bool AuditHistoryCustomerEmail(string profile, string Email1, string Email2, string customerEmailAuditHistory)
+        {
+            var oldValue = string.Empty;
+            var newValue = string.Empty;
+            GoToBuyerCatalogTab(profile);
+            b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+
+            oldValue = b2BBuyerCatalogPage.CustomerEmail.GetAttribute("value");
+            b2BBuyerCatalogPage.CustomerEmail.Clear();
+            if (oldValue.Equals(Email1))
+                newValue = Email2;
+            else
+                newValue = Email1;
+
+            b2BBuyerCatalogPage.CustomerEmail.SendKeys(newValue);
+            b2BBuyerCatalogPage.UpdateButton.Click();
+            return VerifyAuditHistoryRow(oldValue, newValue, customerEmailAuditHistory);
+        }
+
+        /// <summary>
+        /// To verify the logging of change in EnableBHCAutoGen under audit history section
+        /// </summary>
+        /// <param name="profile"></param>
+        /// <param name="EnableBHCAuditHistory"></param>
+        /// <returns></returns>
+        public bool AuditHistoryEnableBHCCatAutoGen(string profile, string EnableBHCAuditHistory)
+        {
+            var oldValue = string.Empty;
+            var newValue = string.Empty;
+            GoToBuyerCatalogTab(profile);
+            b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+
+            oldValue = b2BBuyerCatalogPage.EnableCatalogAutoGeneration.Selected.ToString();
+
+            b2BBuyerCatalogPage.EnableCatalogAutoGeneration.Click();
+            newValue = b2BBuyerCatalogPage.EnableCatalogAutoGeneration.Selected.ToString();
+            if (!b2BBuyerCatalogPage.BuyerCatalogFirstIdentity.Selected)
+                b2BBuyerCatalogPage.BuyerCatalogFirstIdentity.Click();
+            if (!b2BBuyerCatalogPage.CatalogConfigStandard.Selected)
+                b2BBuyerCatalogPage.CatalogConfigStandard.Click();
+            b2BBuyerCatalogPage.UpdateButton.Click();
+            return VerifyAuditHistoryRow(oldValue, newValue, EnableBHCAuditHistory);
+        }
+
+        /// <summary>
+        /// To verify the logging of change in AutoBHC under audit history section
+        /// </summary>
+        /// <param name="AutoBHCAuditHistory"></param>
+        /// <returns></returns>
+        public bool AuditHistoryAutoBHC(string AutoBHCAuditHistory)
+        {
+            var oldValue = string.Empty;
+            var newValue = string.Empty;
+            b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+            if (!b2BBuyerCatalogPage.BcpCatalogEnabled.Selected)
+                b2BBuyerCatalogPage.BcpCatalogEnabled.Click();
+            b2BBuyerCatalogPage.EnableCatalogAutoGeneration.WaitForElementDisplayed(TimeSpan.FromSeconds(30));
+            oldValue = b2BBuyerCatalogPage.EnableCatalogAutoGeneration.Selected.ToString();
+            b2BBuyerCatalogPage.EnableCatalogAutoGeneration.Click();
+            newValue = b2BBuyerCatalogPage.EnableCatalogAutoGeneration.Selected.ToString();
+            b2BBuyerCatalogPage.BuyerCatalogFirstIdentity.Click();
+            b2BBuyerCatalogPage.CatalogConfigStandard.Click();
+            b2BBuyerCatalogPage.OriginalTimeOfSend.Select().SelectByValue("8");
+            b2BBuyerCatalogPage.UpdateButton.Click();
+            return VerifyAuditHistoryRow(oldValue, newValue, AutoBHCAuditHistory);
+        }
+
+        /// <summary>
+        /// To verify the logging of change in Catlog operation under audit history section
+        /// </summary>
+        /// <param name="profile"></param>
+        /// <param name="CatalogoperationAuditHistory"></param>
+        /// <returns></returns>
+        public bool AuditHistoryCatalogOperation(string profile, string CatalogoperationAuditHistory)
+        {
+            var newValue = string.Empty;
+            var oldValue = string.Empty;
+            GoToBuyerCatalogTab(profile);
+
+            b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+            if (!b2BBuyerCatalogPage.BcpCatalogEnabled.Selected)
+                b2BBuyerCatalogPage.BcpCatalogEnabled.Click();
+
+            if (!b2BBuyerCatalogPage.EnableCatalogAutoGeneration.Selected)
+                b2BBuyerCatalogPage.EnableCatalogAutoGeneration.Click();
+
+            if (!b2BBuyerCatalogPage.BuyerCatalogFirstIdentity.Selected)
+                b2BBuyerCatalogPage.BuyerCatalogFirstIdentity.Click();
+
+            if (b2BBuyerCatalogPage.CatalogOperationCreate.Selected)
+            {
+                oldValue = "Create";
+                b2BBuyerCatalogPage.CatalogOperationCreatePublish.Click();
+                newValue = "Create & Publish";
+            }
+            else
+            {
+                oldValue = "Create & Publish";
+                b2BBuyerCatalogPage.CatalogOperationCreate.Click();
+                newValue = "Create";
+            }
+
+            b2BBuyerCatalogPage.UpdateButton.Click();
+            return VerifyAuditHistoryRow(oldValue, newValue, CatalogoperationAuditHistory);
+
+        }
+
+        /// <summary>
+        /// To verify the logging of change in Enable Delta Catalog under audit history section
+        /// </summary>
+        /// <param name="profile"></param>
+        /// <param name="EnableadeltaCatalogAuditHistory"></param>
+        /// <returns></returns>
+        public bool AuditHistoryEnableDeltaCatalog(string profile, string EnableadeltaCatalogAuditHistory)
+        {
+            var newValue = string.Empty;
+            var oldValue = string.Empty;
+            GoToBuyerCatalogTab(profile);
+            b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+            b2BBuyerCatalogPage.EditScheduleButton.Click();
+            b2BBuyerCatalogPage.OriginalTimeOfSend.Select().SelectByValue("8");
+            oldValue = b2BBuyerCatalogPage.EnableDeltaCatalog.Selected.ToString();
+
+            b2BBuyerCatalogPage.EnableDeltaCatalog.Click();
+            newValue = b2BBuyerCatalogPage.EnableDeltaCatalog.Selected.ToString();
+            b2BBuyerCatalogPage.DeltaTimeOfSend.Select().SelectByValue("9");
+            b2BBuyerCatalogPage.UpdateButton.Click();
+            return VerifyAuditHistoryRow(oldValue, newValue, EnableadeltaCatalogAuditHistory);
+
+        }
+
+        /// <summary>
         /// Verifies if all the fields in Auto BHC section are disabled
         /// </summary>
         /// <returns></returns>
@@ -1543,7 +2325,34 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             Console.WriteLine("Message received on upload: **{0}**",
                 b2BCatalogPackagingDataUploadPage.UploadMessage.Text);
         }
+
+        /// <summary>
+        /// Validates an Audit History entry base on provided property, old value & new value
+        /// </summary>
+        /// <param name="oldValue"></param>
+        /// <param name="newValue"></param>
+        /// <param name="auditHistoryProperty"></param>
+        /// <returns></returns>
+        private bool VerifyAuditHistoryRow(string oldValue, string newValue, string auditHistoryProperty)
+        {
+            b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+            b2BBuyerCatalogPage.AuditHistoryLink.Click();
+            WaitForPageRefresh();
+            var internalEmailRow = b2BBuyerCatalogPage.AuditHistoryRows.FirstOrDefault(r => r.FindElements(By.TagName("td"))[0].Text.Equals(auditHistoryProperty));
+            var oldv = internalEmailRow.FindElements(By.TagName("td"))[1].Text;
+            Console.WriteLine(oldv);
+            var newv = internalEmailRow.FindElements(By.TagName("td"))[2].Text;
+            Console.Write(newv);
+
+            if (!oldValue.Equals(oldv))
+                return false;
+
+            return newValue.Equals(newv);
+        }
+
+
     }
+
 
     /// <summary>
     /// Enum to restrict the types of frequencies used

@@ -681,6 +681,41 @@ namespace Modules.Channel.B2B.Core.Pages
             }
         }
 
+        /// <summary>
+        /// Audit History Section on Buyer Catalog Page
+        /// </summary>
+        private IWebElement _AuditHistoryLink;
+        public IWebElement AuditHistoryLink
+        {
+
+            get
+            {
+                if (_AuditHistoryLink == null)
+                {
+                    _AuditHistoryLink = webDriver.FindElement(By.LinkText("Audit History"), new TimeSpan(0, 0, 30));
+                }
+                return _AuditHistoryLink;
+            }
+        }
+
+        /// <summary>
+        /// Audit History Records
+        /// </summary>
+        private List<IWebElement> _AuditHistoryRows;
+        public List<IWebElement> AuditHistoryRows
+        {
+            get
+            {
+                if (_AuditHistoryRows == null)
+                {
+                    _AuditHistoryRows = webDriver.FindElements(
+                        By.XPath("//div[@id='audithistory']/table/tbody/tr/td/div/table/tbody/tr"),
+                        new TimeSpan(0, 0, 30)).ToList();
+                }
+                return _AuditHistoryRows;
+            }
+        }
+
         #endregion
 
         #region Helper Methods
