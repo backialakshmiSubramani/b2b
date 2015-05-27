@@ -218,10 +218,7 @@ namespace Modules.Channel.B2B.Core.Pages
             long dpid;
             if (long.TryParse(dellPurchaseId, out dpid))
             {
-                if (!dpid.Equals(-1))
-                {
-                    return dellPurchaseId;
-                }
+                return dellPurchaseId;
             }
 
             return string.Empty;

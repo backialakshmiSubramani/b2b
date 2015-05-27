@@ -38,7 +38,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
         public PoXmlFormat PoXmlFormat { get; set; }
         public string TargetUrl { get; set; }
 
-        public bool CreateCifPo(List<QuoteDetail> listOfQuoteDetail, bool removeInternalVendorNumber = false)
+        public bool CreateCifPo(List<QuoteDetail> listOfQuoteDetail, string testEnvironment, bool removeInternalVendorNumber = false)
         {
             B2BHomePage.SelectEnvironment(RunEnvironment.ToString());
             var orderId = OrderIdBase + DateTime.Today.ToString("yyMMdd") + DateTime.Now.ToString("HHmmss");
@@ -51,7 +51,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
 
             B2BHomePage.ClickQaTools3();
 
-            if (!poOperations.SubmitXmlForPoCreation(poXml, RunEnvironment.ToString(), TargetUrl, out poNumber))
+            if (!poOperations.SubmitXmlForPoCreation(poXml, RunEnvironment.ToString(), TargetUrl, testEnvironment, out poNumber))
             {
                 return false;
             }
@@ -103,6 +103,14 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
                        ogXmlMessage,
                        mapperRequestMessage);
         }
+        public bool MatchItemIdInOgXmlAndMapperRequestAndDbForAsnProd(string ogXmlMessage, string mapperRequestMessage)
+        {
+            return !string.IsNullOrEmpty(this.poNumber)
+                   && this.poOperations.MatchItemIdInOgXmlAndMapperRequestAndDb(
+                       this.poNumber,
+                       ogXmlMessage,
+                       mapperRequestMessage);
+        }
 
         public bool CaptureBackendOrderNumberFromOgXmlAndDbForAsn(string ogXmlMessage, string gcmUrl, string expectedDpidMessage)
         {
@@ -136,7 +144,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
                        this.poNumber,
                        expectedDpidMessage,
                        mapperRequestMessage,
-                       this.ProfileName,quote);
+                       this.ProfileName, quote);
         }
 
         public bool VerifyMappingEntriesForChannelAsnEnabledProfileForAsn(List<string> asnLogEventMessages, List<string> asnLogDetailMessages, string mapperRequestMessage)
@@ -147,6 +155,16 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
                    asnLogEventMessages,
                    asnLogDetailMessages,
                    mapperRequestMessage);
+        }
+
+        public bool MatchValuesInPoXmlAndMapperXmlProd(string expectedDpidMessage, string mapperRequestMessage, string quote)
+        {
+            return !string.IsNullOrEmpty(this.poNumber)
+                    && this.poOperations.MatchValuesInPoXmlAndMapperXmlProd(
+                        this.poNumber,
+                        expectedDpidMessage,
+                        mapperRequestMessage,
+                        this.ProfileName, quote);
         }
     }
 }

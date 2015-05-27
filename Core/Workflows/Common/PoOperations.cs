@@ -218,7 +218,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
             // 4. "Continue Purchase Order: Purchase Order Success: <DPID>" - capture DPID & verify in GCM
             var dellPurchaseId = B2BLogReportPage.FindDellPurchaseId(expectedDpidMessage);
 
-            if (string.IsNullOrEmpty(dellPurchaseId))
+            if (string.IsNullOrEmpty(dellPurchaseId) || Convert.ToInt64(dellPurchaseId).Equals(-1))
             {
                 if (environment == RunEnvironment.Production)
                 {
@@ -245,10 +245,9 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
             return true;
         }
 
-        public bool SubmitXmlForPoCreation(string poXml, string environment, string targetUrl, out string poNumber)
+        public bool SubmitXmlForPoCreation(string poXml, string environment, string targetUrl, string testEnvironment, out string poNumber)
         {
-            B2BQaToolsPage.ClickLocationEnvironment(environment);
-            B2BQaToolsPage.ClickLocationEnvironmentLink(environment);
+            B2BQaToolsPage.SelectLocationAndEnvironment(environment, testEnvironment);
             B2BQaToolsPage.PasteTargetUrl(targetUrl);
             B2BQaToolsPage.PasteInputXml(poXml);
             B2BQaToolsPage.ClickSubmitMessage();
@@ -408,7 +407,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
             }
 
             var dellPurchaseId = B2BLogReportPage.FindDellPurchaseId(expectedDpidMessage);
-            if (string.IsNullOrEmpty(dellPurchaseId))
+            if (string.IsNullOrEmpty(dellPurchaseId) || Convert.ToInt64(dellPurchaseId).Equals(-1))
             {
                 Console.WriteLine("Dpid not found. Stopping verification");
                 return false;
@@ -473,15 +472,9 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
         /// <param name="profileName"></param>
         /// <param name="quote"></param>
         /// <returns></returns>
-        [Owner("CTS_Nethra_Pandapillav,CTS_Neha_Joshi")]
-        [Timeout(TestTimeout.Infinite)]
-        [Priority(2)]
-        [TestCategory("")]
-        [WorkItem(647867)]
-        [Description(" Verify all the PO fileds are present in Mapper Request Xml retrived from B2B Log Report for 1 lineitem.")]
-        [DataSource("Microsoft.VisualStudio.TestTools.DataSource.XML", "|DataDirectory|\\CblTemplate.xml", "Iteration", DataAccessMethod.Sequential)]
-        [DeploymentItem("B2B_ASN\\Data\\CblTemplate.xml")]
+       
         public bool MatchValuesInPoXmlAndMapperXml(
+         
             string poNumber,
             string expectedDpidMessage,
             string mapperRequestMessage,
@@ -501,11 +494,13 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
 
             var threadId = B2BLogReportPage.GetThreadId();
             var dellPurchaseId = B2BLogReportPage.FindDellPurchaseId(expectedDpidMessage);
+
             if (string.IsNullOrEmpty(dellPurchaseId))
             {
                 Console.WriteLine("Dpid not found. Stopping verification");
                 return false;
             }
+           
 
             if (!B2BLogReportPage.FindMessageAndGoToLogDetailPage(mapperRequestMessage))
             {
@@ -702,6 +697,217 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
 
             return true;
         }
+        public bool MatchValuesInPoXmlAndMapperXmlProd(
+
+            string poNumber,
+            string expectedDpidMessage,
+            string mapperRequestMessage,
+            string profileName, string quote)
+        {
+            //B2BHomePage.ClickB2BProfileList();
+            //B2BCustomerProfileListPage.SearchProfile(null, profileName);
+            //B2BCustomerProfileListPage.ClickSearchedProfile(profileName);
+            //B2BProfileSettingsGeneralPage.GoToAsnTab();
+            //var deliveryPreference = B2BProfileSettingsAsnPage.GetDeliveryPreference();
+            //B2BProfileSettingsAsnPage.GoToHomePage();
+
+            if (!SearchPoInLogReportPage(poNumber))
+            {
+                return false;
+            }
+
+            var threadId = B2BLogReportPage.GetThreadId();
+            var dellPurchaseId = B2BLogReportPage.FindDellPurchaseId(expectedDpidMessage);
+
+            if (string.IsNullOrEmpty(dellPurchaseId))
+            {
+                Console.WriteLine("Dpid not found. Stopping verification");
+                return false;
+            }
+
+
+            if (!B2BLogReportPage.FindMessageAndGoToLogDetailPage(mapperRequestMessage))
+            {
+                return false;
+            }
+
+            var strXml = B2BLogDetailPage.GetLogDetail();
+            strXml = PrepareXml(strXml);
+
+            var mapperXml = XDocument.Parse(strXml);
+            var savedPoCbl = XDocument.Load("CblTemplate.xml");
+            
+
+            if (
+                !mapperXml.XPathSelectElement("//PONumber")
+                     .Value.Equals(savedPoCbl.XPathSelectElement("//BuyerRefNum/Reference/RefNum").Value))
+            {
+                return false;
+            }
+
+            if (
+                !mapperXml.XPathSelectElement("//Partner")
+                     .Value.ToUpper()
+                     .Equals(
+                         savedPoCbl.XPathSelectElement("//BuyerParty/Party/ListOfIdentifier/Identifier/Agency")
+                     .Attribute("AgencyOther")
+                     .Value.ToUpper()))
+            {
+                return false;
+            }
+
+            //if (asnQueueEntry != null && !asnQueueEntry.Partner.ToUpper().Equals(mapperXml.XPathSelectElement("//Partner").Value.ToUpper()))
+            //{
+            //    return false;
+            //}
+
+            var mapperLineItemNumber = mapperXml.XPathSelectElements("//LineItems/MapperRequestPOLine/LineItemNumber").FirstOrDefault();
+            var poLineItemNumber = savedPoCbl.XPathSelectElements("//ListOfOrderDetail/OrderDetail/BaseItemDetail/LineItemNum").FirstOrDefault();
+            if (mapperLineItemNumber != null && poLineItemNumber != null)
+            {
+                if (!mapperLineItemNumber.Value.Equals(poLineItemNumber.Value))
+                {
+                    return false;
+                }
+                Console.WriteLine("LineItem Number verified");
+            }
+            
+            var mapperVendorPartNumber = mapperXml.XPathSelectElements("//LineItems/MapperRequestPOLine/VendorPartNumber").FirstOrDefault();
+            var poVendorPartNumber = savedPoCbl.XPathSelectElements("//ListOfOrderDetail/OrderDetail/BaseItemDetail/ManufacturerPartNum/PartNum/PartID").FirstOrDefault();
+            if (mapperVendorPartNumber != null && poVendorPartNumber != null)
+            {
+                if (!mapperVendorPartNumber.Value.Equals(poVendorPartNumber.Value))
+                {
+                    return false;
+                }
+                Console.WriteLine("Vendor Part Number verified");
+            }
+
+            //if (mapperVendorPartNumber != null && asnQueueEntry != null && !asnQueueEntry.VendorPartNumber.Equals(mapperVendorPartNumber.Value))
+            //{
+            //    return false;
+            //}
+
+            var mapperBuyerSku = mapperXml.XPathSelectElements("//LineItems/MapperRequestPOLine/BuyerSKU").FirstOrDefault();
+            var poBuyerSku = savedPoCbl.XPathSelectElements("//ListOfOrderDetail/OrderDetail/BaseItemDetail/BuyerPartNum/PartNum/PartID").FirstOrDefault();
+            if (mapperBuyerSku != null && poBuyerSku != null)
+            {
+                if (!mapperBuyerSku.Value.Equals(poBuyerSku.Value))
+                {
+                    return false;
+                }
+                Console.WriteLine("Buyer SKU Number verified");
+            }
+
+            //if (mapperBuyerSku != null && asnQueueEntry != null && !asnQueueEntry.BuyerSKU.Equals(mapperBuyerSku.Value))
+            //{
+            //    return false;
+            //}
+
+            //Console.WriteLine("Delivery Preference from profile settings page is: {0}", deliveryPreference);
+            //Console.WriteLine("Delivery Preference from mapper xml is: {0}", mapperXml.XPathSelectElement("//DeliveryPreference").Value);
+            //if (asnQueueEntry != null)
+            //{
+            //    Console.WriteLine("Delivery Preference from database is: {0}", asnQueueEntry.DeliveryPreference.ToString(CultureInfo.InvariantCulture));
+
+            //    var mapperDeliveryPreference = mapperXml.XPathSelectElement("//DeliveryPreference");
+            //    if (!mapperDeliveryPreference.Value.Equals(deliveryPreference))
+            //    {
+            //        return false;
+            //    }
+
+            //    if (!asnQueueEntry.DeliveryPreference.ToString(CultureInfo.InvariantCulture).Equals(mapperDeliveryPreference.Value))
+            //    {
+            //        return false;
+            //    }
+            //}
+
+            //Compare PO Fields in Mapper Xml
+            //PO#
+            if (!mapperXml.XPathSelectElement("//PORequestXml/PurchaseOrder/OrderHeader/OrderReference/BuyerRefNum/Reference/RefNum").Value.Equals(savedPoCbl.XPathSelectElement("//BuyerRefNum/Reference/RefNum").Value))
+            {
+                return false;
+            }
+            Console.WriteLine("PO# Number verified");
+
+            //Partner
+            if (!mapperXml.XPathSelectElement("//PORequestXml/PurchaseOrder/OrderHeader/OrderParty/BuyerParty/Party/ListOfIdentifier/Identifier/Agency").Attribute("AgencyOther").Value.ToUpper().Equals(savedPoCbl.XPathSelectElement("//BuyerParty/Party/ListOfIdentifier/Identifier/Agency")
+                     .Attribute("AgencyOther")
+                     .Value.ToUpper()))
+            {
+                return false;
+            }
+            Console.WriteLine("Partner verified");
+            //LineItem#
+            if (!mapperXml.XPathSelectElement("//PORequestXml/PurchaseOrder/ListOfOrderDetail/OrderDetail/BaseItemDetail/LineItemNum").Value.
+                Equals(savedPoCbl.XPathSelectElement("//BaseItemDetail/LineItemNum").Value))
+            {
+                return false;
+            }
+            Console.WriteLine("LineItem Number verified");
+            quote =  quote;
+
+            //Quote #
+            if (quote.Contains("\\") && !mapperXml.XPathSelectElement("//PORequestXml/PurchaseOrder/ListOfOrderDetail/OrderDetail/BaseItemDetail/SupplierPartNum/PartNum/PartIDExt").Value.
+                Equals(quote.Replace("\\","-")))//CIF
+            {
+                return false;
+            }
+            else if (quote.Contains("EQ:") && !mapperXml.XPathSelectElement("//PORequestXml/PurchaseOrder/ListOfOrderDetail/OrderDetail/BaseItemDetail/SupplierPartNum/PartNum/PartID").Value.
+                Equals(quote))//Equote
+            {
+                return false;
+            }
+            else if (quote.Contains("Q:") && !mapperXml.XPathSelectElement("//PORequestXml/PurchaseOrder/ListOfOrderDetail/OrderDetail/BaseItemDetail/SupplierPartNum/PartNum/PartID").Value.
+                Equals(quote))//Doms
+            {
+                return false;
+            }
+            else if (quote.Contains("BHC:") && !mapperXml.XPathSelectElement("//PORequestXml/PurchaseOrder/ListOfOrderDetail/OrderDetail/BaseItemDetail/SupplierPartNum/PartNum/PartIDExt").Value.
+            Equals(quote))//BHC
+            {
+                return false;
+            }
+            else if (quote.Contains("-") && !mapperXml.XPathSelectElement("//PORequestXml/PurchaseOrder/ListOfOrderDetail/OrderDetail/BaseItemDetail/SupplierPartNum/PartNum/PartIDExt").Value.
+                Equals(quote))//OR
+            {
+                return false;
+            }
+            Console.WriteLine("Quote Number verified");
+            //Buyer SKUID
+            var poBuyrSku = savedPoCbl.XPathSelectElements("//ListOfOrderDetail/OrderDetail/BaseItemDetail/BuyerPartNum/PartNum/PartID").FirstOrDefault();
+            if (poBuyrSku != null && !mapperXml.XPathSelectElement("//PORequestXml/PurchaseOrder/ListOfOrderDetail/OrderDetail/BaseItemDetail/BuyerPartNum/PartNum/PartID").Value.
+                Equals(poBuyrSku.Value))
+            {
+                return false;
+            }
+            Console.WriteLine("Buyer SKU verified");
+            //Vendor PartID
+            var poVendorPartId = savedPoCbl.XPathSelectElements("//ListOfOrderDetail/OrderDetail/BaseItemDetail/ManufacturerPartNum/PartNum/PartID").FirstOrDefault();
+            if (poVendorPartId != null && !mapperXml.XPathSelectElement("//PORequestXml/PurchaseOrder/ListOfOrderDetail/OrderDetail/BaseItemDetail/ManufacturerPartNum/PartNum/PartID").Value.
+                Equals(poVendorPartId.Value))
+            {
+                return false;
+            }
+            Console.WriteLine("VPN verified");
+            //Quantity
+            var poQty = savedPoCbl.XPathSelectElements("//ListOfOrderDetail/OrderDetail/BaseItemDetail/Quantity/Qty ").FirstOrDefault();
+            if (poQty != null && !mapperXml.XPathSelectElement("//PORequestXml/PurchaseOrder/ListOfOrderDetail/OrderDetail/BaseItemDetail/Quantity/Qty").Value.
+                Equals(poQty.Value))
+            {
+                return false;
+            }
+            Console.WriteLine("Qty verified");
+            //Unit Price
+            var poUnitPrice = savedPoCbl.XPathSelectElements("//ListOfOrderDetail/OrderDetail/BuyerExpectedUnitPrice/Price/UnitPrice ").FirstOrDefault();
+            if (poUnitPrice != null && !mapperXml.XPathSelectElement("//PORequestXml/PurchaseOrder/ListOfOrderDetail/OrderDetail/BuyerExpectedUnitPrice/Price/UnitPrice").Value.
+                Equals(poUnitPrice.Value))
+            {
+                return false;
+            }
+            Console.WriteLine("Unit price verified");
+            return true;
+        }
 
         public string PrepareXml(string strXml)
         {
@@ -730,6 +936,20 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
 
             return this.VerifyItemIdsInOgXmlMapperXmlAndDb(ogXmlMessage, mapperRequestMessage, poNumber);
         }
+
+        public bool MatchItemIdInOgXmlAndMapperRequestAndDbProd(
+           string poNumber,
+           string ogXmlMessage,
+           string mapperRequestMessage)
+        {
+            if (!this.SearchPoInLogReportPage(poNumber))
+            {
+                return false;
+            }
+
+            return this.VerifyItemIdsInOgXmlMapperXmlAndDb(ogXmlMessage, mapperRequestMessage, poNumber);
+        }
+
 
         /// <summary>
         /// Verification points for Sprint19_P1 & Sprint19_P2 ---> 563633
@@ -778,7 +998,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
             }
 
             var dellPurchaseId = B2BLogReportPage.FindDellPurchaseId(expectedDpidMessage);
-            if (string.IsNullOrEmpty(dellPurchaseId))
+            if (string.IsNullOrEmpty(dellPurchaseId) || Convert.ToInt64(dellPurchaseId).Equals(-1))
             {
                 Console.WriteLine("Dpid not found. Stopping verification");
                 return false;
@@ -1112,6 +1332,95 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
             if (!itemIdsFromDb.Any())
             {
                  return false;
+            }
+            if (!itemIds.OrderBy(x => x).SequenceEqual(itemIdsFromDb.Select(i => i.ToLower()).OrderBy(x => x)))
+            {
+                return false;
+            }
+
+            return true;
+        }
+        private bool VerifyItemIdsInOgXmlMapperXmlAndDbProd(string ogXmlMessage, string mapperRequestMessage, string poNumber)
+        {
+            if (!B2BLogReportPage.FindMessageAndGoToLogDetailPage(ogXmlMessage))
+            {
+                return false;
+            }
+
+            var ogXml = XDocument.Parse(B2BLogDetailPage.GetLogDetail());
+
+            B2BLogDetailPage.ReturnToLogReport();
+
+            var countOfOrderFormItemElements =
+                ogXml.XPathSelectElements("//OrderGroup/OrderForms/OrderForm/Items/Item").ToList().Count;
+
+            var itemIds = new List<string>();
+
+            for (var i = 0; i < countOfOrderFormItemElements; i++)
+            {
+                var idValue = ogXml.XPathSelectElements("//OrderGroup/OrderForms/OrderForm/Items/Item/Id").FirstOrDefault();
+                if (idValue !=
+                    null)
+                    itemIds.Add(idValue.Value);
+
+                var compIdValue =
+                    ogXml.XPathSelectElements(
+                        "//OrderGroup/OrderForms/OrderForm/Items/Item/ConfigDetails/Modules/Module/Options/Option/CompositeItems/Item/Id").FirstOrDefault();
+
+                if (compIdValue != null)
+                {
+                    itemIds.Add(compIdValue.Value);
+                }
+
+                var orderFormItem = ogXml.XPathSelectElements("//OrderGroup/OrderForms/OrderForm/Items/Item").FirstOrDefault();
+                if (orderFormItem != null)
+                    orderFormItem.Remove();
+            }
+
+            if (!itemIds.Any())
+            {
+                return false;
+            }
+
+            var itemIdsFromFulfillment =
+                ogXml.XPathSelectElements(
+                    "//OrderGroup/OrderForms/OrderForm/FulfillmentUnits/FulfillmentUnit/FulfillmentItemInformation/FulfillmentItemInformation/ItemId")
+                    .Select(i => i.Value);
+
+            var idsFromFulfillment = itemIdsFromFulfillment as string[] ?? itemIdsFromFulfillment.ToArray();
+            if (!idsFromFulfillment.Any())
+            {
+                return false;
+            }
+            if (!itemIds.OrderBy(x => x).SequenceEqual(idsFromFulfillment.OrderBy(x => x)))
+            {
+                return false;
+            }
+
+            if (!B2BLogReportPage.FindMessageAndGoToLogDetailPage(mapperRequestMessage))
+            {
+                return false;
+            }
+
+            var itemIdsFromMapperRequestXml = B2BLogDetailPage.GetItemIdsFromMapperRequestXml();
+
+            var idsFromMapperRequestXml = itemIdsFromMapperRequestXml as string[] ?? itemIdsFromMapperRequestXml.ToArray();
+            if (!idsFromMapperRequestXml.Any())
+            {
+                return false;
+            }
+            if (!itemIds.OrderBy(x => x).SequenceEqual(idsFromMapperRequestXml.OrderBy(x => x)))
+            {
+                return false;
+            }
+
+            Console.WriteLine("Begin retrieval from ASNItemMapping");
+            var itemIdsFromDb = AsnDataAccess.FetchItemId(poNumber);
+            Console.WriteLine("End retrieval from ASNItemMapping");
+
+            if (!itemIdsFromDb.Any())
+            {
+                return false;
             }
             if (!itemIds.OrderBy(x => x).SequenceEqual(itemIdsFromDb.Select(i => i.ToLower()).OrderBy(x => x)))
             {

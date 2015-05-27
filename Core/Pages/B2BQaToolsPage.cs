@@ -73,8 +73,10 @@ namespace Modules.Channel.B2B.Core.Pages
 
         #region Element
 
-        // Find Location + Environment, like 'B2BPreview - SIT - GE1'/'B2BDirect - SIT - GE1'
-        private IWebElement LocationEnvironmentPreview
+        /// <summary>
+        /// Find Location + Environment - SIT1 - Preview
+        /// </summary>
+        private IWebElement LocationEnvironmentSit1Preview
         {
             get
             {
@@ -82,7 +84,10 @@ namespace Modules.Channel.B2B.Core.Pages
             }
         }
 
-        private IWebElement LocationEnvironmentProduction
+        /// <summary>
+        /// Find Location + Environment - SIT1 - Direct
+        /// </summary>
+        private IWebElement LocationEnvironmentSit1Direct
         {
             get
             {
@@ -91,7 +96,7 @@ namespace Modules.Channel.B2B.Core.Pages
         }
 
         // Find sub link of Location + Environment, like 'B2BPreview - SIT - GE1'/'B2BDirect - SIT - GE1'
-        private IWebElement LocationEnvironmentLinkPreview
+        private IWebElement LocationEnvironmentLinkSit1Preview
         {
             get
             {
@@ -100,11 +105,52 @@ namespace Modules.Channel.B2B.Core.Pages
 
         }
 
-        private IWebElement LocationEnvironmentLinkProduction
+        private IWebElement LocationEnvironmentLinkSit1Direct
         {
             get
             {
                 return webDriver.FindElement(By.XPath("//ul[@id='environmentTree']/li[6]/ul/li/a"));
+            }
+
+        }
+
+        /// <summary>
+        /// Find Location + Environment - Production - Preview
+        /// </summary>
+        private IWebElement LocationEnvironmentProductionPreview
+        {
+            get
+            {
+                return webDriver.FindElement(By.XPath("//ul[@id='environmentTree']/li[8]/div"), new TimeSpan(0, 0, 10));
+            }
+        }
+
+        /// <summary>
+        /// Find Location + Environment - Production - Direct
+        /// </summary>
+        private IWebElement LocationEnvironmentProductionDirect
+        {
+            get
+            {
+                return webDriver.FindElement(By.XPath("//ul[@id='environmentTree']/li[3]/div"));
+            }
+        }
+
+        // Find sub link of Location + Environment, like 'B2BPreview - SIT - GE1'/'B2BDirect - SIT - GE1'
+        private IWebElement LocationEnvironmentLinkProductionPreview
+        {
+            get
+            {
+                return webDriver.FindElement(By.XPath("//ul[@id='environmentTree']/li[8]/ul/li/a"));
+            }
+
+        }
+
+        private IWebElement LocationEnvironmentLinkProductionDirect
+        {
+            get
+            {
+                return webDriver.FindElement(By.XPath("//ul[@id='environmentTree']/li[3]/ul/li/a"));
             }
 
         }
@@ -191,41 +237,54 @@ namespace Modules.Channel.B2B.Core.Pages
             webDriver.WaitForPageLoad(TimeSpan.FromSeconds(20));
         }
 
-
-        // click on env ('B2B Direct - SIT - GE1'/'B2B Preview - SIT - GE1')
-        public void ClickLocationEnvironment(string environment)
+        /// <summary>
+        /// Select Location + Environment in B2b QA Tools
+        /// </summary>
+        /// <param name="environment"></param>
+        public void SelectLocationAndEnvironment(string environment, string testEnvironment)
         {
-            if (environment.ToUpper().Equals("PREVIEW"))
+            if (testEnvironment.Equals("SIT1"))
             {
-                ////LocationEnvironmentPreview.Click();
-                javaScriptExecutor.ExecuteScript("arguments[0].click();", LocationEnvironmentPreview);
-                webDriver.WaitForElementDisplayed(By.XPath("//ul[@id='environmentTree']/li[7]/ul/li/a"), TimeSpan.FromSeconds(15));
+                if (environment.ToUpper().Equals("PREVIEW"))
+                {
+                    ////LocationEnvironmentPreview.Click();
+                    javaScriptExecutor.ExecuteScript("arguments[0].click();", LocationEnvironmentSit1Preview);
+                    webDriver.WaitForElementDisplayed(By.XPath("//ul[@id='environmentTree']/li[7]/ul/li/a"), TimeSpan.FromSeconds(15));
+                    ////LocationEnvironmentLinkPreview.Click();
+                    javaScriptExecutor.ExecuteScript("arguments[0].click();", LocationEnvironmentLinkSit1Preview);
+                }
+                else if (environment.ToUpper().Equals("PRODUCTION"))
+                {
+                    ////LocationEnvironmentProduction.Click();
+                    javaScriptExecutor.ExecuteScript("arguments[0].click();", LocationEnvironmentSit1Direct);
+                    webDriver.WaitForElementDisplayed(By.XPath("//ul[@id='environmentTree']/li[6]/ul/li/a"), TimeSpan.FromSeconds(15));
+                    ////LocationEnvironmentLinkProduction.Click();
+                    javaScriptExecutor.ExecuteScript("arguments[0].click();", LocationEnvironmentLinkSit1Direct);
+                }
             }
-            else if (environment.ToUpper().Equals("PRODUCTION"))
+            if (testEnvironment.Equals("PROD"))
             {
-                ////LocationEnvironmentProduction.Click();
-                javaScriptExecutor.ExecuteScript("arguments[0].click();", LocationEnvironmentProduction);
-                webDriver.WaitForElementDisplayed(By.XPath("//ul[@id='environmentTree']/li[6]/ul/li/a"), TimeSpan.FromSeconds(15));
-            }
-        }
-
-
-
-        // click LocationEnvLink
-        public void ClickLocationEnvironmentLink(string environment)
-        {
-            if (environment.ToUpper().Equals("PREVIEW"))
-            {
-                ////LocationEnvironmentLinkPreview.Click();
-                javaScriptExecutor.ExecuteScript("arguments[0].click();", LocationEnvironmentLinkPreview);
-            }
-            else if (environment.ToUpper().Equals("PRODUCTION"))
-            {
-                ////LocationEnvironmentLinkProduction.Click();
-                javaScriptExecutor.ExecuteScript("arguments[0].click();", LocationEnvironmentLinkProduction);
+                if (environment.ToUpper().Equals("PREVIEW"))
+                {
+                    ////LocationEnvironmentPreview.Click();
+                    javaScriptExecutor.ExecuteScript("arguments[0].click();", LocationEnvironmentProductionPreview);
+                    webDriver.WaitForElementDisplayed(By.XPath("//ul[@id='environmentTree']/li[8]/ul/li/a"), TimeSpan.FromSeconds(15));
+                    ////LocationEnvironmentLinkPreview.Click();
+                    javaScriptExecutor.ExecuteScript("arguments[0].click();", LocationEnvironmentLinkProductionPreview);
+                }
+                else if (environment.ToUpper().Equals("PRODUCTION"))
+                {
+                    ////LocationEnvironmentProduction.Click();
+                    javaScriptExecutor.ExecuteScript("arguments[0].click();", LocationEnvironmentProductionDirect
+                        );
+                    webDriver.WaitForElementDisplayed(By.XPath("//ul[@id='environmentTree']/li[3]/ul/li/a"), TimeSpan.FromSeconds(15));
+                    ////LocationEnvironmentLinkProduction.Click();
+                    javaScriptExecutor.ExecuteScript("arguments[0].click();", LocationEnvironmentLinkProductionDirect);
+                }
             }
 
-            webDriver.WaitForElementDisplayed(By.Id("@id='InputParameters_Completeurl"), TimeSpan.FromSeconds(20));
+           
+            webDriver.WaitForElementDisplayed(By.Id("@id='InputParameters_Completeurl"), TimeSpan.FromSeconds(120));
         }
 
         // click System Type- PunchoutCreate
