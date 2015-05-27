@@ -152,6 +152,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
              string orderIdBase,
              string poTargetUrl,
              string configFilterVal,
+            string testEnvironment,
             List<QuoteDetail> listOfQuoteDetail,
              out string poNumber,
              out List<QuoteDetail> quoteDetail)
@@ -169,8 +170,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
                 webDriver.WaitForPageLoad(TimeSpan.FromSeconds(40));
                 webDriver.SwitchTo().Window(webDriver.WindowHandles.Last());
                 var QaToolsWindow = webDriver.CurrentWindowHandle;
-                B2BQaToolsPage.ClickLocationEnvironment(environment.ToString());
-                B2BQaToolsPage.ClickLocationEnvironmentLink(environment.ToString());
+                B2BQaToolsPage.SelectLocationAndEnvironment(environment.ToString(), testEnvironment);
                 B2BQaToolsPage.ClickPunchoutCreate();
                 B2BQaToolsPage.ClickCxml();
                 B2BQaToolsPage.ClickCxmlMainCreate();
@@ -274,7 +274,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
 
             // Submits PO
             B2BHomePage.ClickQaTools3();
-            if (!poOperations.SubmitXmlForPoCreation(poXml, environment.ToString(), poTargetUrl, out poNumber))
+            if (!poOperations.SubmitXmlForPoCreation(poXml, environment.ToString(), poTargetUrl, testEnvironment, out poNumber))
             {
                 quoteDetail = listOfQuoteDetail;
                 return false;

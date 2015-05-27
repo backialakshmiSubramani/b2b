@@ -40,7 +40,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
         public PoXmlFormat PoXmlFormat { get; set; }
         public string TargetUrl { get; set; }
 
-        public bool CreateDomsPo(List<QuoteDetail> listOfQuoteDetail)
+        public bool CreateDomsPo(List<QuoteDetail> listOfQuoteDetail, string testEnvironment)
         {
             B2BHomePage.SelectEnvironment(RunEnvironment.ToString());
             var orderId = OrderIdBase + DateTime.Today.ToString("yyMMdd") + DateTime.Now.ToString("HHmmss");
@@ -69,7 +69,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
 
             B2BHomePage.ClickQaTools3();
 
-            if (!poOperations.SubmitXmlForPoCreation(poXml, RunEnvironment.ToString(), TargetUrl, out poNumber))
+            if (!poOperations.SubmitXmlForPoCreation(poXml, RunEnvironment.ToString(), TargetUrl,testEnvironment, out poNumber))
             {
                 return false;
             }

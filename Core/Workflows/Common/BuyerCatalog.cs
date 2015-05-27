@@ -38,6 +38,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
         public PoXmlFormat PoXmlFormat { get; set; }
         public string GcmUrl { get; set; }
         public string Quantity { get; set; }
+        public string TestEnvironment { get; set; }
         public QuoteType QuoteType
         {
             get
@@ -160,7 +161,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
 
             B2BCatalogViewer.ClickQaTools3();
 
-            if (!poOperations.SubmitXmlForPoCreation(poXml, RunEnvironment.ToString(), TargetUrl, out poNumber))
+            if (!poOperations.SubmitXmlForPoCreation(poXml, RunEnvironment.ToString(), TargetUrl, TestEnvironment, out poNumber))
             {
                 return;
             }
