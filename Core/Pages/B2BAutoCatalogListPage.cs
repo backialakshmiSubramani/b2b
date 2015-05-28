@@ -73,7 +73,7 @@ namespace Modules.Channel.B2B.Core.Pages
         /// </summary>
         public IWebElement PageHeader
         {
-            get { return webDriver.FindElement(By.XPath("//table[@id='mytable']/tbody/tr/td/h3/span")); }
+            get { return webDriver.FindElement(By.XPath("//table[@id='mytable']/tbody/tr/td/h1/span")); }
         }
 
         /// <summary>

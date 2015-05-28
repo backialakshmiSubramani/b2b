@@ -36,9 +36,11 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         /// Searches for the profile provided in B2B Profile List page and 
         /// navigates to the Buyer Catalog Tab
         /// </summary>
+        /// <param name="environment"></param>
         /// <param name="profileName"></param>
-        public void GoToBuyerCatalogTab(string profileName)
+        public void GoToBuyerCatalogTab(string environment, string profileName)
         {
+            b2BHomePage.SelectEnvironment(environment);
             b2BHomePage.ClickB2BProfileList();
             b2BCustomerProfileListPage = new B2BCustomerProfileListPage(webDriver);
             b2BCustomerProfileListPage.SearchProfile("Customer Name", profileName);
@@ -56,13 +58,15 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         /// Creates a new profile with the CustomerSet & AccessGroup provided 
         /// and navigates to the Buyer Catalog Tab
         /// </summary>
+        /// <param name="environment"></param>
         /// <param name="customerSet"></param>
         /// <param name="accessGroup"></param>
         /// <param name="profileNameBase"></param>
-        public void CreateNewProfileAndGoToBuyerCatalogTab(string customerSet, string accessGroup, string profileNameBase)
+        public void CreateNewProfileAndGoToBuyerCatalogTab(string environment, string customerSet, string accessGroup, string profileNameBase)
         {
             var newProfileName = profileNameBase + DateTime.Today.ToString("yyMMdd") + DateTime.Now.ToString("HHmmss");
             Console.WriteLine("Profile creation start with name: {0}", newProfileName);
+            b2BHomePage.SelectEnvironment(environment);
             b2BHomePage.B2BProfileListLink.Click();
             WaitForPageRefresh();
             b2BCustomerProfileListPage = new B2BCustomerProfileListPage(webDriver);
@@ -119,10 +123,16 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         /// Verifies the impact of clicking on Cancel on 
         /// Upload alert in Packaging Data Upload Page
         /// </summary>
-        public string VerifyCancelClickOnUploadAlert(string fileToUpload)
+        /// <param name="environment"></param>
+        /// <param name="fileToUpload"></param>
+        /// <returns></returns>
+        public string VerifyCancelClickOnUploadAlert(string environment, string fileToUpload)
         {
+            b2BHomePage.SelectEnvironment(environment);
             b2BHomePage.ChannelCatalogUxLink.Click();
             WaitForPageRefresh();
+            webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
+            b2BCatalogPackagingDataUploadPage = new B2BCatalogPackagingDataUploadPage(webDriver);
             b2BCatalogPackagingDataUploadPage.FileUpload.SendKeys(fileToUpload);
             b2BCatalogPackagingDataUploadPage.UploadButton.Click();
             var uploadAlert = webDriver.SwitchTo().Alert();
@@ -133,11 +143,14 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         /// <summary>
         /// Returns the count of Audit History Records on Packaging Data Upload Page
         /// </summary>
+        /// <param name="environment"></param>
         /// <param name="packagingDataFile"></param>
         /// <returns></returns>
-        public int VerifyCountOfRecordsInAuditHistory(string packagingDataFile)
+        public int VerifyCountOfRecordsInAuditHistory(string environment, string packagingDataFile)
         {
+            b2BHomePage.SelectEnvironment(environment);
             b2BHomePage.ChannelCatalogUxLink.Click();
+            webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
             WaitForPageRefresh();
             for (var i = 0; i <= 13; i++)
             {
@@ -152,13 +165,16 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         /// Verifies the impact of clicking on OK on 
         /// Upload alert in Packaging Data Upload Page
         /// </summary>
+        /// <param name="environment"></param>
         /// <param name="fileToBeUploaded"></param>
         /// <param name="uploadMessage"></param>
         /// <returns></returns>
-        public bool VerifyOkClickOnUploadAlert(string fileToBeUploaded, string uploadMessage)
+        public bool VerifyOkClickOnUploadAlert(string environment, string fileToBeUploaded, string uploadMessage)
         {
+            b2BHomePage.SelectEnvironment(environment);
             b2BHomePage.ChannelCatalogUxLink.Click();
             WaitForPageRefresh();
+            webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
             return UploadAndCheckMessageAndValidate(fileToBeUploaded, uploadMessage);
         }
 
@@ -166,6 +182,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         /// Validates the messages received on uploading packaging data files 
         /// with Invalid Values in OrderCode, LOB & ConfigName columns in Packaging Data Upload Page
         /// </summary>
+        /// <param name="environment"></param>
         /// <param name="invalidValueInOrderCodeFile"></param>
         /// <param name="invalidValueInOrderCodeErrorMessage"></param>
         /// <param name="invalidValueInLobFile"></param>
@@ -173,12 +190,14 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         /// <param name="invalidValueInConfigNameFile"></param>
         /// <param name="invalidValueInConfigNameErrorMessage"></param>
         /// <returns></returns>
-        public bool VerifyInvalidValuesInAlphanumericFields(string invalidValueInOrderCodeFile,
+        public bool VerifyInvalidValuesInAlphanumericFields(string environment, string invalidValueInOrderCodeFile,
             string invalidValueInOrderCodeErrorMessage, string invalidValueInLobFile, string invalidValueInLobErrorMessage,
             string invalidValueInConfigNameFile, string invalidValueInConfigNameErrorMessage)
         {
+            b2BHomePage.SelectEnvironment(environment);
             b2BHomePage.ChannelCatalogUxLink.Click();
             WaitForPageRefresh();
+            webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
             if (!UploadAndCheckMessageAndValidate(invalidValueInOrderCodeFile, invalidValueInOrderCodeErrorMessage))
                 return false;
 
@@ -195,6 +214,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         /// Validates the messages received on uploading packaging data files with Invalid Values
         /// in PackageHeight, PackageLength, PackageWidth & ShipWeight columns in Packaging Data Upload Page
         /// </summary>
+        /// <param name="environment"></param>
         /// <param name="invalidValueInPackageHeightFile"></param>
         /// <param name="nullValueInPackageHeightErrorMessageStart"></param>
         /// <param name="nullValueInPackageHeightErrorMessageEnd"></param>
@@ -208,7 +228,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         /// <param name="nullValueInShipWeightErrorMessageStart"></param>
         /// <param name="nullValueInShipWeightErrorMessageEnd"></param>
         /// <returns></returns>
-        public bool VerifyInvalidValuesInNumericFields(string invalidValueInPackageHeightFile,
+        public bool VerifyInvalidValuesInNumericFields(string environment, string invalidValueInPackageHeightFile,
             string nullValueInPackageHeightErrorMessageStart, string nullValueInPackageHeightErrorMessageEnd,
             string invalidValueInPackageLengthFile, string nullValueInPackageLengthErrorMessageStart,
             string nullValueInPackageLengthErrorMessageEnd, string invalidValueInPackageWidthFile,
@@ -216,8 +236,10 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             string invalidValueInShipWeightFile, string nullValueInShipWeightErrorMessageStart,
             string nullValueInShipWeightErrorMessageEnd)
         {
+            b2BHomePage.SelectEnvironment(environment);
             b2BHomePage.ChannelCatalogUxLink.Click();
             WaitForPageRefresh();
+            webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
             if (
                 !UploadAndCheckMessageAndValidate(invalidValueInPackageHeightFile,
                     nullValueInPackageHeightErrorMessageStart, nullValueInPackageHeightErrorMessageEnd))
@@ -244,15 +266,16 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         /// <summary>
         /// Verifies default delta scheduling options for a new profile
         /// </summary>
+        /// <param name="environment"></param>
         /// <param name="customerSet"></param>
         /// <param name="accessGroup"></param>
         /// <param name="profileNameBase"></param>
         /// <param name="defaultDeltaTimeOfSend"></param>
         /// <returns></returns>
-        public bool VerifyDeltaSchedulingDefaultOptionsForNewProfile(string customerSet, string accessGroup,
+        public bool VerifyDeltaSchedulingDefaultOptionsForNewProfile(string environment, string customerSet, string accessGroup,
             string profileNameBase, string defaultDeltaTimeOfSend)
         {
-            CreateNewProfileAndGoToBuyerCatalogTab(customerSet, accessGroup, profileNameBase);
+            CreateNewProfileAndGoToBuyerCatalogTab(environment, customerSet, accessGroup, profileNameBase);
             if (!b2BBuyerCatalogPage.BcpCatalogEnabled.Selected)
                 b2BBuyerCatalogPage.BcpCatalogEnabled.Click();
             b2BBuyerCatalogPage.EnableCatalogAutoGeneration.Click();
@@ -264,13 +287,14 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         /// <summary>
         /// Verifies default delta scheduling options for an existing profile
         /// </summary>
+        /// <param name="environment"></param>
         /// <param name="profileName"></param>
         /// <param name="defaultDeltaTimeOfSend"></param>
         /// <returns></returns>
-        public bool VerifyDeltaSchedulingDefaultOptionsForExistingProfile(string profileName,
+        public bool VerifyDeltaSchedulingDefaultOptionsForExistingProfile(string environment, string profileName,
             string defaultDeltaTimeOfSend)
         {
-            GoToBuyerCatalogTab(profileName);
+            GoToBuyerCatalogTab(environment, profileName);
             b2BBuyerCatalogPage.EditScheduleButton.Click();
             b2BBuyerCatalogPage.UpdateButton.Click();
             WaitForPageRefresh();
@@ -289,15 +313,16 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         /// Changes the default delta scheduling options and verifies 
         /// if the options are retained on updating and navigating back to Buyer Catalog Tab
         /// </summary>
+        /// <param name="environment"></param>
         /// <param name="profileName"></param>
         /// <returns></returns>
-        public bool ChangeDeltaSchedulingDefaultOptionsForExistingProfile(string profileName)
+        public bool ChangeDeltaSchedulingDefaultOptionsForExistingProfile(string environment, string profileName)
         {
             var startDate = DateTime.Now.AddDays(5).ToString(MMDDYYYY);
             var frequencyDays = "2";
             var endDate = DateTime.Now.AddDays(30).ToString(MMDDYYYY);
             var timeOfSend = "9";
-            GoToBuyerCatalogTab(profileName);
+            GoToBuyerCatalogTab(environment, profileName);
             b2BBuyerCatalogPage.EditScheduleButton.Click();
             if (!b2BBuyerCatalogPage.EnableDeltaCatalog.Selected)
                 b2BBuyerCatalogPage.EnableDeltaCatalog.Click();
@@ -317,32 +342,38 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         /// <summary>
         /// Verifies the status table values on Auto Catalog List Page
         /// </summary>
+        /// <param name="environment"></param>
         /// <param name="autoCatalogStatus"></param>
         /// <param name="autoCatalogStatusDescription"></param>
         /// <returns></returns>
-        public bool VerifyStatusOnAutoCatalogListPage(string[] autoCatalogStatus, string[] autoCatalogStatusDescription)
+        public bool VerifyStatusOnAutoCatalogListPage(string environment, string autoCatalogStatus, string autoCatalogStatusDescription)
         {
+            var autoCatStatus = autoCatalogStatus.Split(',');
+            var autoCatStatusDescription = autoCatalogStatusDescription.Split(',');
+            b2BHomePage.SelectEnvironment(environment);
             b2BHomePage.AutoCatalogListPageLink.Click();
             webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
             b2BAutoCatalogListPage = new B2BAutoCatalogListPage(webDriver);
+            WaitForPageRefresh();
             var statusDictionary = b2BAutoCatalogListPage.GetStatusDictionary();
-            return CheckDictionary(statusDictionary, autoCatalogStatus, autoCatalogStatusDescription);
+            return CheckDictionary(statusDictionary, autoCatStatus, autoCatStatusDescription);
         }
 
         /// <summary>
         /// Verifies both Default Original Time Of Send and 
         /// Default Delta Time Of Send for a new profile
         /// </summary>
+        /// <param name="environment"></param>
         /// <param name="customerSet"></param>
         /// <param name="accessGroup"></param>
         /// <param name="profileNameBase"></param>
         /// <param name="defaultOriginalTimeOfSend"></param>
         /// <param name="defaultDeltaTimeOfSend"></param>
         /// <returns></returns>
-        public bool VerifyDefaultTimeOfSendForNewProfile(string customerSet, string accessGroup, string profileNameBase,
+        public bool VerifyDefaultTimeOfSendForNewProfile(string environment, string customerSet, string accessGroup, string profileNameBase,
             string defaultOriginalTimeOfSend, string defaultDeltaTimeOfSend)
         {
-            CreateNewProfileAndGoToBuyerCatalogTab(customerSet, accessGroup, profileNameBase);
+            CreateNewProfileAndGoToBuyerCatalogTab(environment, customerSet, accessGroup, profileNameBase);
             if (!b2BBuyerCatalogPage.BcpCatalogEnabled.Selected)
                 b2BBuyerCatalogPage.BcpCatalogEnabled.Click();
             b2BBuyerCatalogPage.EnableCatalogAutoGeneration.Click();
@@ -367,13 +398,14 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         /// Verifies both Default Original Time Of Send and 
         /// Default Delta Time Of Send for an existing profile
         /// </summary>
+        /// <param name="environment"></param>
         /// <param name="profileName"></param>
         /// <param name="defaultOriginalTimeOfSend"></param>
         /// <param name="defaultDeltaTimeOfSend"></param>
         /// <returns></returns>
-        public bool VerifyDefaultTimeOfSendForExistingProfile(string profileName, string defaultOriginalTimeOfSend, string defaultDeltaTimeOfSend)
+        public bool VerifyDefaultTimeOfSendForExistingProfile(string environment, string profileName, string defaultOriginalTimeOfSend, string defaultDeltaTimeOfSend)
         {
-            GoToBuyerCatalogTab(profileName);
+            GoToBuyerCatalogTab(environment, profileName);
             b2BBuyerCatalogPage.EditScheduleButton.Click();
             if (!b2BBuyerCatalogPage.EnableOriginalCatalog.Selected)
                 b2BBuyerCatalogPage.EnableOriginalCatalog.Click();
@@ -400,16 +432,18 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         /// <summary>
         /// Verifies the autopopulation of RequestedBy field for a new profile
         /// </summary>
+        /// <param name="environment"></param>
         /// <param name="customerSet"></param>
         /// <param name="accessGroup"></param>
         /// <param name="profileNameBase"></param>
         /// <param name="autoBhcSaveMessage"></param>
         /// <param name="windowsLogin"></param>
         /// <returns></returns>
-        public bool VerifyRequestedByAutopopulationForNewProfile(string customerSet, string accessGroup,
+        public bool VerifyRequestedByAutopopulationForNewProfile(string environment, string customerSet,
+            string accessGroup,
             string profileNameBase, string autoBhcSaveMessage, string windowsLogin)
         {
-            CreateNewProfileAndGoToBuyerCatalogTab(customerSet, accessGroup, profileNameBase);
+            CreateNewProfileAndGoToBuyerCatalogTab(environment, customerSet, accessGroup, profileNameBase);
             if (!b2BBuyerCatalogPage.BcpCatalogEnabled.Selected)
                 b2BBuyerCatalogPage.BcpCatalogEnabled.Click();
             b2BBuyerCatalogPage.EnableCatalogAutoGeneration.Click();
@@ -439,14 +473,14 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         /// <summary>
         /// Verifies the autopopulation of RequestedBy field for an existing profile
         /// </summary>
+        /// <param name="environment"></param>
         /// <param name="profileName"></param>
         /// <param name="scheduleSaveConfirmation"></param>
         /// <param name="windowsLogin"></param>
         /// <returns></returns>
-        public bool VerifyRequestedByAutopopulationForExistingProfile(string profileName, string scheduleSaveConfirmation, string windowsLogin)
+        public bool VerifyRequestedByAutopopulationForExistingProfile(string environment, string profileName, string scheduleSaveConfirmation, string windowsLogin)
         {
-            GoToBuyerCatalogTab(profileName);
-
+            GoToBuyerCatalogTab(environment, profileName);
             if (!b2BBuyerCatalogPage.BcpCatalogEnabled.Selected)
                 b2BBuyerCatalogPage.BcpCatalogEnabled.Click();
             if (!b2BBuyerCatalogPage.EnableCatalogAutoGeneration.Selected)
@@ -473,9 +507,9 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                 return false;
             }
             b2BBuyerCatalogPage.EditScheduleButton.Click();
-            b2BBuyerCatalogPage.UncheckAllConfigTypes();
-            b2BBuyerCatalogPage.CatalogConfigStandard.Click();
-            b2BBuyerCatalogPage.SetTextBoxValue(b2BBuyerCatalogPage.OriginalCatalogStartDate, DateTime.Now.AddDays(1).ToString(MMDDYYYY));
+            if (!b2BBuyerCatalogPage.CatalogConfigStandard.Selected)
+                b2BBuyerCatalogPage.CatalogConfigStandard.Click();
+            b2BBuyerCatalogPage.CatalogConfigUpsellDownSell.Click();
             b2BBuyerCatalogPage.UpdateButton.Click();
             if (!b2BBuyerCatalogPage.ConfirmationLabel.Text.ToLowerInvariant().Equals(scheduleSaveConfirmation))
             {
@@ -496,12 +530,13 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         /// <summary>
         /// Checks if warning message is displayed for Catalog Operation change for an existing profile
         /// </summary>
+        /// <param name="environment"></param>
         /// <param name="profileName"></param>
         /// <param name="scheduleSaveConfirmation"></param>
         /// <returns></returns>
-        public bool VerifyWarningMessageForCatalogOperationChange(string profileName, string scheduleSaveConfirmation)
+        public bool VerifyWarningMessageForCatalogOperationChange(string environment, string profileName, string scheduleSaveConfirmation)
         {
-            GoToBuyerCatalogTab(profileName);
+            GoToBuyerCatalogTab(environment, profileName);
             var configDictionary = GetConfigurationsSelected();
 
             var originalStartDate = b2BBuyerCatalogPage.OriginalCatalogStartDate.GetAttribute("value");
@@ -566,25 +601,25 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         /// <summary>
         /// Checks if warning message is displayed for Configuration type change for an existing profile
         /// </summary>
+        /// <param name="environment"></param>
         /// <param name="profileName"></param>
         /// <param name="defaultOriginalTimeOfSend"></param>
         /// <param name="defaultDeltaTimeOfSend"></param>
         /// <param name="scheduleSaveConfirmation"></param>
         /// <returns></returns>
-        public bool VerifyWarningMessageForConfigChange(string profileName, string defaultOriginalTimeOfSend, string defaultDeltaTimeOfSend, string scheduleSaveConfirmation)
+        public bool VerifyWarningMessageForConfigChange(string environment, string profileName, string defaultOriginalTimeOfSend, string defaultDeltaTimeOfSend, string scheduleSaveConfirmation)
         {
             var originalStartDate = DateTime.Now.AddDays(10).ToString(MMDDYYYY);
-            var originalFrequencyDays = "5";
+            var originalFrequencyDays = "2";
             var originalEndDate = DateTime.Now.AddDays(30).ToString(MMDDYYYY);
             var originalTimeOfSend = "8";
 
             var deltaStartDate = DateTime.Now.AddDays(11).ToString(MMDDYYYY);
-            var deltaFrequencyDays = "5";
+            var deltaFrequencyDays = "1";
             var deltaEndDate = DateTime.Now.AddDays(29).ToString(MMDDYYYY);
             var deltaTimeOfSend = "9";
 
-
-            GoToBuyerCatalogTab(profileName);
+            GoToBuyerCatalogTab(environment, profileName);
             b2BBuyerCatalogPage.EditScheduleButton.Click();
             if (!b2BBuyerCatalogPage.CatalogConfigStandard.Selected)
                 b2BBuyerCatalogPage.CatalogConfigStandard.Click();
@@ -600,6 +635,8 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
 
             SetOriginalSchedule(originalStartDate, originalFrequencyDays, FrequencyType.Days, originalEndDate,
                 originalTimeOfSend);
+            if (!b2BBuyerCatalogPage.EnableDeltaCatalog.Selected)
+                b2BBuyerCatalogPage.EnableDeltaCatalog.Click();
             SetDeltaSchedule(deltaStartDate, deltaFrequencyDays, FrequencyType.Days, deltaEndDate, deltaTimeOfSend);
             b2BBuyerCatalogPage.UpdateButton.Click();
             WaitForPageRefresh();
@@ -624,12 +661,13 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         /// <summary>
         /// Checks if warning message is displayed when Identities selected are changed - for an existing profile
         /// </summary>
+        /// <param name="environment"></param>
         /// <param name="profileName"></param>
         /// <param name="scheduleSaveConfirmation"></param>
         /// <returns></returns>
-        public bool VerifyWarningMessageForMultipleIdentity(string profileName, string scheduleSaveConfirmation)
+        public bool VerifyWarningMessageForMultipleIdentity(string environment, string profileName, string scheduleSaveConfirmation)
         {
-            GoToBuyerCatalogTab(profileName);
+            GoToBuyerCatalogTab(environment, profileName);
 
             if (!b2BBuyerCatalogPage.Identities[0].Selected)
                 b2BBuyerCatalogPage.Identities[0].Click();
@@ -653,6 +691,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
 
             b2BBuyerCatalogPage.UpdateButton.Click();
             WaitForPageRefresh();
+            b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
             if (!b2BBuyerCatalogPage.ConfirmationLabel.Text.ToLowerInvariant().Equals(scheduleSaveConfirmation))
                 return false;
 
@@ -683,25 +722,26 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         /// <summary>
         /// Checks if warning message is displayed when Internal & Customer Email fields are changed - Existing Profile
         /// </summary>
+        /// <param name="environment"></param>
         /// <param name="profileName"></param>
-        /// <param name="internalEmailAdress"></param>
-        /// <param name="customerEmailAdress"></param>
+        /// <param name="internalEmailAddress"></param>
+        /// <param name="customerEmailAddress"></param>
         /// <param name="scheduleSaveConfirmation"></param>
         /// <returns></returns>
-        public bool VerifyWarningUponEmailFieldChange(string profileName, string internalEmailAdress,
-            string customerEmailAdress, string scheduleSaveConfirmation)
+        public bool VerifyWarningUponEmailFieldChange(string environment, string profileName, string internalEmailAddress,
+            string customerEmailAddress, string scheduleSaveConfirmation)
         {
-            GoToBuyerCatalogTab(profileName);
+            GoToBuyerCatalogTab(environment, profileName);
 
-            b2BBuyerCatalogPage.InternalEMail.SendKeys(string.Empty);
-            b2BBuyerCatalogPage.CustomerEmail.SendKeys(string.Empty);
+            b2BBuyerCatalogPage.InternalEMail.Clear();
+            b2BBuyerCatalogPage.CustomerEmail.Clear();
             b2BBuyerCatalogPage.UpdateButton.Click();
             WaitForPageRefresh();
             b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
             b2BBuyerCatalogPage.AutomatedBhcCatalogProcessingRules.Click();
 
-            b2BBuyerCatalogPage.InternalEMail.SendKeys(internalEmailAdress);
-            b2BBuyerCatalogPage.CustomerEmail.SendKeys(customerEmailAdress);
+            b2BBuyerCatalogPage.InternalEMail.SendKeys(internalEmailAddress);
+            b2BBuyerCatalogPage.CustomerEmail.SendKeys(customerEmailAddress);
 
             var configDictionary = GetConfigurationsSelected();
             var originalStartDate = b2BBuyerCatalogPage.OriginalCatalogStartDate.GetAttribute("value");
@@ -722,7 +762,6 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
             if (!b2BBuyerCatalogPage.ConfirmationLabel.Text.ToLowerInvariant().Equals(scheduleSaveConfirmation))
                 return false;
-
             b2BBuyerCatalogPage.AutomatedBhcCatalogProcessingRules.Click();
 
             if (!VerifyConfigurationsSelected(configDictionary))
@@ -740,10 +779,10 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                     deltaTimeOfSend))
                 return false;
 
-            if (!b2BBuyerCatalogPage.InternalEMail.Text.Equals(internalEmailAdress))
+            if (!b2BBuyerCatalogPage.InternalEMail.Text.Equals(internalEmailAddress))
                 return false;
 
-            if (!b2BBuyerCatalogPage.CustomerEmail.Text.Equals(customerEmailAdress))
+            if (!b2BBuyerCatalogPage.CustomerEmail.Text.Equals(customerEmailAddress))
                 return false;
 
             return true;
@@ -752,12 +791,13 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         /// <summary>
         /// Checks if warning message is displayed when Auto BHC is turned off - Existing Profile
         /// </summary>
+        /// <param name="environment"></param>
         /// <param name="profileName"></param>
         /// <param name="scheduleSaveConfirmation"></param>
         /// <returns></returns>
-        public bool VerifyWarningUponTurningAutoBhcOff(string profileName, string scheduleSaveConfirmation)
+        public bool VerifyWarningUponTurningAutoBhcOff(string environment, string profileName, string scheduleSaveConfirmation)
         {
-            GoToBuyerCatalogTab(profileName);
+            GoToBuyerCatalogTab(environment, profileName);
             if (b2BBuyerCatalogPage.EnableCatalogAutoGeneration.Selected)
                 b2BBuyerCatalogPage.EnableCatalogAutoGeneration.Click();
             else
@@ -789,14 +829,15 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         /// <summary>
         /// Checks if warning message is displayed when Auto BHC is turned on - New Profile
         /// </summary>
+        /// <param name="environment"></param>
         /// <param name="customerSet"></param>
         /// <param name="accessGroup"></param>
         /// <param name="profileNameBase"></param>
         /// <param name="scheduleSaveConfirmation"></param>
         /// <returns></returns>
-        public bool VerifyWarningUponTurningAutoBhcOnForNewProfile(string customerSet, string accessGroup, string profileNameBase, string scheduleSaveConfirmation)
+        public bool VerifyWarningUponTurningAutoBhcOnForNewProfile(string environment, string customerSet, string accessGroup, string profileNameBase, string scheduleSaveConfirmation)
         {
-            CreateNewProfileAndGoToBuyerCatalogTab(customerSet, accessGroup, profileNameBase);
+            CreateNewProfileAndGoToBuyerCatalogTab(environment, customerSet, accessGroup, profileNameBase);
 
             if (!b2BBuyerCatalogPage.BcpCatalogEnabled.Selected)
                 b2BBuyerCatalogPage.BcpCatalogEnabled.Click();
@@ -805,11 +846,11 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             b2BBuyerCatalogPage.Identities[0].Click();
             b2BBuyerCatalogPage.CatalogConfigStandard.Click();
 
-            SetOriginalSchedule(DateTime.Now.AddDays(10).ToString(MMDDYYYY), "5", FrequencyType.Days,
+            SetOriginalSchedule(DateTime.Now.AddDays(10).ToString(MMDDYYYY), "2", FrequencyType.Days,
                 DateTime.Now.AddDays(30).ToString(MMDDYYYY), "8");
 
             b2BBuyerCatalogPage.EnableDeltaCatalog.Click();
-            SetDeltaSchedule(DateTime.Now.AddDays(11).ToString(MMDDYYYY), "5", FrequencyType.Days,
+            SetDeltaSchedule(DateTime.Now.AddDays(11).ToString(MMDDYYYY), "1", FrequencyType.Days,
                 DateTime.Now.AddDays(29).ToString(MMDDYYYY), "9");
 
             b2BBuyerCatalogPage.InternalEMail.SendKeys("test@dell.com");
@@ -890,14 +931,15 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         /// Verifies if error due to selecting a past time 
         /// is locking the catalog scheduling section
         /// </summary>
+        /// <param name="environment"></param>
         /// <param name="profileName"></param>
         /// <param name="pastTimeErrorStart"></param>
         /// <returns></returns>
-        public bool VerifyEditingErrorNotLockingScheduleSection(string profileName, string pastTimeErrorStart)
+        public bool VerifyEditingErrorNotLockingScheduleSection(string environment, string profileName, string pastTimeErrorStart)
         {
             var centralTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("Central Standard Time"));
 
-            GoToBuyerCatalogTab(profileName);
+            GoToBuyerCatalogTab(environment, profileName);
             if (!b2BBuyerCatalogPage.BcpCatalogEnabled.Selected)
                 b2BBuyerCatalogPage.BcpCatalogEnabled.Click();
             if (!b2BBuyerCatalogPage.EnableCatalogAutoGeneration.Selected)
@@ -971,10 +1013,12 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         /// <summary>
         /// Checks if navigation to Auto Catalog List page is successful
         /// </summary>
+        /// <param name="environment"></param>
         /// <param name="pageHeaderText"></param>
         /// <returns></returns>
-        public bool VerifyNavigationToAutoCatalogListPage(string pageHeaderText)
+        public bool VerifyNavigationToAutoCatalogListPage(string environment, string pageHeaderText)
         {
+            b2BHomePage.SelectEnvironment(environment);
             b2BHomePage.AutoCatalogListPageLink.Click();
             webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
             WaitForPageRefresh();
@@ -985,11 +1029,13 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         /// <summary>
         /// Checks if the Clear All link removes the previously set search criteria
         /// </summary>
+        /// <param name="environment"></param>
         /// <param name="profileName"></param>
         /// <param name="identities"></param>
         /// <returns></returns>
-        public bool VerifyClearAllLink(string profileName, string identities)
+        public bool VerifyClearAllLink(string environment, string profileName, string identities)
         {
+            b2BHomePage.SelectEnvironment(environment);
             b2BHomePage.AutoCatalogListPageLink.Click();
             webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
             b2BAutoCatalogListPage = new B2BAutoCatalogListPage(webDriver);
@@ -1049,14 +1095,16 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         /// <summary>
         /// Verifies the presence and functionality of Thread Id link in Auto Cataog List Page
         /// </summary>
+        /// <param name="environment"></param>
         /// <returns></returns>
-        public bool VerifyThreadIdLinkInAutoCatalogListPage()
+        public bool VerifyThreadIdLinkInAutoCatalogListPage(string environment)
         {
+            b2BHomePage.SelectEnvironment(environment);
             b2BHomePage.AutoCatalogListPageLink.Click();
             webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
             b2BAutoCatalogListPage = new B2BAutoCatalogListPage(webDriver);
             WaitForPageRefresh();
-            var firstThreadIdElement = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[6];
+            var firstThreadIdElement = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[7];
             var threadId = firstThreadIdElement.Text;
 
             if (!firstThreadIdElement.ElementExists(By.TagName("a")))
@@ -1070,16 +1118,18 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             threadIdLink.Click();
             webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
             WaitForPageRefresh();
-            return webDriver.Url.ToUpperInvariant().Contains("b2blogreportb.aspx?threadid=" + threadId);
+            return webDriver.Url.ToLowerInvariant().Contains("b2blogreportb.aspx?threadid=" + threadId);
         }
 
         /// <summary>
         /// Verifies the Select Customer drop down on the Auto Catalog List Page
         /// </summary>
+        /// <param name="environment"></param>
         /// <param name="profileName"></param>
         /// <returns></returns>
-        public bool VerifySelectCustomerFieldOnAutoCatalogListPage(string profileName)
+        public bool VerifySelectCustomerFieldOnAutoCatalogListPage(string environment, string profileName)
         {
+            b2BHomePage.SelectEnvironment(environment);
             b2BHomePage.AutoCatalogListPageLink.Click();
             webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
             b2BAutoCatalogListPage = new B2BAutoCatalogListPage(webDriver);
@@ -1091,12 +1141,14 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         /// <summary>
         /// Verifies the Identity drop down on the Auto Catalog List Page
         /// </summary>
+        /// <param name="environment"></param>
         /// <param name="profileName"></param>
         /// <param name="identities"></param>
         /// <returns></returns>
-        public bool VerifyIdentityFieldOnAutoCatalogListPage(string profileName, string identities)
+        public bool VerifyIdentityFieldOnAutoCatalogListPage(string environment, string profileName, string identities)
         {
             var identityList = identities.Split(',');
+            b2BHomePage.SelectEnvironment(environment);
             b2BHomePage.AutoCatalogListPageLink.Click();
             webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
             b2BAutoCatalogListPage = new B2BAutoCatalogListPage(webDriver);
@@ -1121,11 +1173,13 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         /// <summary>
         /// Verifies the search results on Auto Catalog List Page
         /// </summary>
+        /// <param name="environment"></param>
         /// <param name="profileName"></param>
         /// <param name="identity"></param>
         /// <returns></returns>
-        public bool VerifySearchResultsOnAutoCatalogListPage(string profileName, string identity)
+        public bool VerifySearchResultsOnAutoCatalogListPage(string environment, string profileName, string identity)
         {
+            b2BHomePage.SelectEnvironment(environment);
             b2BHomePage.AutoCatalogListPageLink.Click();
             webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
             b2BAutoCatalogListPage = new B2BAutoCatalogListPage(webDriver);
@@ -1134,6 +1188,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             WaitForPageRefresh();
             b2BAutoCatalogListPage.SelectTheIdentity(identity);
             b2BAutoCatalogListPage.SearchCatalogLink.Click();
+            WaitForPageRefresh();
             if (
                 !b2BAutoCatalogListPage.CatalogListTableRows.All(
                     r =>
@@ -1159,18 +1214,18 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                 return false;
 
             if (
-                !b2BAutoCatalogListPage.CatalogListTableRows.All(
-                    r =>
-                        r.FindElements(By.TagName("td"))[2].Text.Equals(
-                            b2BAutoCatalogListPage.StatusTable[0].FindElements(By.TagName("td"))[0].Text) ||
-                        r.FindElements(By.TagName("td"))[2].Text.Equals(
-                            b2BAutoCatalogListPage.StatusTable[1].FindElements(By.TagName("td"))[0].Text) ||
-                        r.FindElements(By.TagName("td"))[2].Text.Equals(
-                            b2BAutoCatalogListPage.StatusTable[2].FindElements(By.TagName("td"))[0].Text) ||
-                        r.FindElements(By.TagName("td"))[2].Text.Equals(
-                            b2BAutoCatalogListPage.StatusTable[3].FindElements(By.TagName("td"))[0].Text) ||
-                        r.FindElements(By.TagName("td"))[2].Text.Equals(
-                            b2BAutoCatalogListPage.StatusTable[4].FindElements(By.TagName("td"))[0].Text)))
+                 !b2BAutoCatalogListPage.CatalogListTableRows.All(
+                     r =>
+                         r.FindElements(By.TagName("td"))[2].Text.Equals(
+                             b2BAutoCatalogListPage.StatusTable[0].FindElements(By.TagName("td"))[0].Text) ||
+                         r.FindElements(By.TagName("td"))[2].Text.Equals(
+                             b2BAutoCatalogListPage.StatusTable[1].FindElements(By.TagName("td"))[0].Text) ||
+                         r.FindElements(By.TagName("td"))[2].Text.Equals(
+                             b2BAutoCatalogListPage.StatusTable[2].FindElements(By.TagName("td"))[0].Text) ||
+                         r.FindElements(By.TagName("td"))[2].Text.Equals(
+                             b2BAutoCatalogListPage.StatusTable[3].FindElements(By.TagName("td"))[0].Text) ||
+                         r.FindElements(By.TagName("td"))[2].Text.Equals(
+                             b2BAutoCatalogListPage.StatusTable[4].FindElements(By.TagName("td"))[0].Text)))
                 return false;
 
             return true;
@@ -1195,29 +1250,30 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         /// <summary>
         /// Verify user name in the latest entry of Audit History
         /// </summary>
-        /// <param name="ValuetobeChecked"></param>
+        /// <param name="valueToBeChecked"></param>
         /// <returns></returns>
-        public bool VerifyAuditHistoryUserName(String ValuetobeChecked)
+        public bool VerifyAuditHistoryUserName(string valueToBeChecked)
         {
             b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
             b2BBuyerCatalogPage.AuditHistoryLink.Click();
             WaitForPageRefresh();
-            var valuetocheck = b2BBuyerCatalogPage.AuditHistoryRows[0].FindElements(By.TagName("td"))[0].Text.ToString();
-            return valuetocheck.Contains(ValuetobeChecked);
+            var valuetocheck = b2BBuyerCatalogPage.AuditHistoryRows[0].FindElements(By.TagName("td"))[0].Text;
+            return valuetocheck.Contains(valueToBeChecked);
         }
 
         /// <summary>
         /// To verify the logging of change in Delta Catalog Frequency under audit history section
         /// </summary>
+        /// <param name="environment"></param>
         /// <param name="profile"></param>
         /// <param name="deltaFreqAuditHistoryProperty"></param>
         /// <returns></returns>
-        public bool VerifyAuditHistoryDeltaCatalogFrequency(string profile, string deltaFreqAuditHistoryProperty)
+        public bool VerifyAuditHistoryDeltaCatalogFrequency(string environment, string profile, string deltaFreqAuditHistoryProperty)
         {
             var newValue = string.Empty;
             var oldValue = string.Empty;
 
-            GoToBuyerCatalogTab(profile);
+            GoToBuyerCatalogTab(environment, profile);
 
             b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
             if (!b2BBuyerCatalogPage.BcpCatalogEnabled.Selected)
@@ -1280,15 +1336,16 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         /// <summary>
         /// To verify the logging of change in Original start date under audit history section
         /// </summary>
+        /// <param name="environment"></param>
         /// <param name="profile"></param>
-        /// <param name="deltaFreqAuditHistoryProperty"></param>
+        /// <param name="originalStartDateAuditHistoryProperty"></param>
         /// <returns></returns>
-        public bool VerifyAuditHistoryOriginalStartDate(string profile, string deltaStartDateOriginalAuditHistoryProperty)
+        public bool VerifyAuditHistoryOriginalStartDate(string environment, string profile, string originalStartDateAuditHistoryProperty)
         {
             var newValue = string.Empty;
             var oldValue = string.Empty;
 
-            GoToBuyerCatalogTab(profile);
+            GoToBuyerCatalogTab(environment, profile);
 
             b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
             if (!b2BBuyerCatalogPage.BcpCatalogEnabled.Selected)
@@ -1349,19 +1406,22 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             b2BBuyerCatalogPage.DeltaTimeOfSend.Select().SelectByValue("9");
 
             b2BBuyerCatalogPage.UpdateButton.Click();
-            return VerifyAuditHistoryRow(oldValue, newValue, deltaStartDateOriginalAuditHistoryProperty);
+            return VerifyAuditHistoryRow(oldValue, newValue, originalStartDateAuditHistoryProperty);
         }
 
         /// <summary>
         /// To verify the logging of change in Delta start date under audit history section
         /// </summary>
+        /// <param name="environment"></param>
+        /// <param name="profile"></param>
+        /// <param name="deltaStartDateAuditHistoryProperty"></param>
         /// <returns></returns>
-        public bool AuditHistoryDeltaStartDate(string profile, string StartDatedeltaAuditHistoryProperty)
+        public bool AuditHistoryDeltaStartDate(string environment, string profile, string deltaStartDateAuditHistoryProperty)
         {
             var newValue = string.Empty;
             var oldValue = string.Empty;
 
-            GoToBuyerCatalogTab(profile);
+            GoToBuyerCatalogTab(environment, profile);
             b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
             if (!b2BBuyerCatalogPage.BcpCatalogEnabled.Selected)
                 b2BBuyerCatalogPage.BcpCatalogEnabled.Click();
@@ -1418,21 +1478,22 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             b2BBuyerCatalogPage.OriginalTimeOfSend.Select().SelectByValue("8");
 
             b2BBuyerCatalogPage.UpdateButton.Click();
-            return VerifyAuditHistoryRow(oldValue, newValue, StartDatedeltaAuditHistoryProperty);
+            return VerifyAuditHistoryRow(oldValue, newValue, deltaStartDateAuditHistoryProperty);
         }
 
         /// <summary>
         /// To verify the logging of change in Delta End date under audit history section
         /// </summary>
+        /// <param name="environment"></param>
         /// <param name="profile"></param>
-        /// <param name="EndDatedeltaAuditHistoryProperty"></param>
+        /// <param name="deltaEndDateAuditHistoryProperty"></param>
         /// <returns></returns>
-        public bool AuditHistoryDeltaEndDate(string profile, string EndDatedeltaAuditHistoryProperty)
+        public bool AuditHistoryDeltaEndDate(string environment, string profile, string deltaEndDateAuditHistoryProperty)
         {
             var newValue = string.Empty;
             var oldValue = string.Empty;
 
-            GoToBuyerCatalogTab(profile);
+            GoToBuyerCatalogTab(environment, profile);
             b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
             if (!b2BBuyerCatalogPage.BcpCatalogEnabled.Selected)
                 b2BBuyerCatalogPage.BcpCatalogEnabled.Click();
@@ -1487,22 +1548,23 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
 
             b2BBuyerCatalogPage.UpdateButton.Click();
 
-            return VerifyAuditHistoryRow(oldValue, newValue, EndDatedeltaAuditHistoryProperty);
+            return VerifyAuditHistoryRow(oldValue, newValue, deltaEndDateAuditHistoryProperty);
 
         }
 
         /// <summary>
         /// To verify the logging of change in Delta catalog Time of send under audit history section
         /// </summary>
+        /// <param name="environment"></param>
         /// <param name="profile"></param>
-        /// <param name="deltaTimeofsendAuditHistoryProperty"></param>
+        /// <param name="deltaTimeOfSendAuditHistoryProperty"></param>
         /// <returns></returns>
-        public bool AuditHistoryDeltaCatalogTimeofSend(string profile, string deltaTimeofsendAuditHistoryProperty)
+        public bool AuditHistoryDeltaCatalogTimeofSend(string environment, string profile, string deltaTimeOfSendAuditHistoryProperty)
         {
             var newValue = string.Empty;
             var oldValue = string.Empty;
 
-            GoToBuyerCatalogTab(profile);
+            GoToBuyerCatalogTab(environment, profile);
             b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
             if (!b2BBuyerCatalogPage.BcpCatalogEnabled.Selected)
                 b2BBuyerCatalogPage.BcpCatalogEnabled.Click();
@@ -1562,21 +1624,22 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             newValue = "0" + newValue1 + ":00:00";
             b2BBuyerCatalogPage.UpdateButton.Click();
 
-            return VerifyAuditHistoryRow(oldValue, newValue, deltaTimeofsendAuditHistoryProperty);
+            return VerifyAuditHistoryRow(oldValue, newValue, deltaTimeOfSendAuditHistoryProperty);
         }
 
         /// <summary>
         /// To verify the logging of change in original catalog end date under audit history section
         /// </summary>
+        /// <param name="environment"></param>
         /// <param name="profile"></param>
-        /// <param name="OriginalcatalogEndDateAuditHistoryProperty"></param>
+        /// <param name="originalEndDateAuditHistoryProperty"></param>
         /// <returns></returns>
-        public bool AuditHistoryOriginalCatalogEndDate(string profile, string OriginalcatalogEndDateAuditHistoryProperty)
+        public bool AuditHistoryOriginalCatalogEndDate(string environment, string profile, string originalEndDateAuditHistoryProperty)
         {
             var newValue = string.Empty;
             var oldValue = string.Empty;
 
-            GoToBuyerCatalogTab(profile);
+            GoToBuyerCatalogTab(environment, profile);
             b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
             if (!b2BBuyerCatalogPage.BcpCatalogEnabled.Selected)
                 b2BBuyerCatalogPage.BcpCatalogEnabled.Click();
@@ -1635,21 +1698,22 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
 
             b2BBuyerCatalogPage.UpdateButton.Click();
 
-            return VerifyAuditHistoryRow(oldValue, newValue, OriginalcatalogEndDateAuditHistoryProperty);
+            return VerifyAuditHistoryRow(oldValue, newValue, originalEndDateAuditHistoryProperty);
         }
 
         /// <summary>
         /// To verify the logging of change in Original catalog frequency under audit history section
         /// </summary>
+        /// <param name="environment"></param>
         /// <param name="profile"></param>
-        /// <param name="OriginalcatalogFrequencyAuditHistoryProperty"></param>
+        /// <param name="originalFrequencyAuditHistoryProperty"></param>
         /// <returns></returns>
-        public bool AuditHistoryOriginalCatalogFrequency(string profile, string OriginalcatalogFrequencyAuditHistoryProperty)
+        public bool AuditHistoryOriginalCatalogFrequency(string environment, string profile, string originalFrequencyAuditHistoryProperty)
         {
             var newValue = string.Empty;
             var oldValue = string.Empty;
 
-            GoToBuyerCatalogTab(profile);
+            GoToBuyerCatalogTab(environment, profile);
             b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
             if (!b2BBuyerCatalogPage.BcpCatalogEnabled.Selected)
                 b2BBuyerCatalogPage.BcpCatalogEnabled.Click();
@@ -1712,21 +1776,22 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
 
             b2BBuyerCatalogPage.UpdateButton.Click();
 
-            return VerifyAuditHistoryRow(oldValue, newValue, OriginalcatalogFrequencyAuditHistoryProperty);
+            return VerifyAuditHistoryRow(oldValue, newValue, originalFrequencyAuditHistoryProperty);
         }
 
         /// <summary>
         /// To verify the logging of change in original Catalog Time of send under audit history section
         /// </summary>
+        /// <param name="environment"></param>
         /// <param name="profile"></param>
-        /// <param name="OriginalcatalogTimeofsendAuditHistoryProperty"></param>
+        /// <param name="originalTimeOfSendAuditHistoryProperty"></param>
         /// <returns></returns>
-        public bool AuditHistoryOriginalCatalogTimeofSend(string profile, string OriginalcatalogTimeofsendAuditHistoryProperty)
+        public bool AuditHistoryOriginalCatalogTimeofSend(string environment, string profile, string originalTimeOfSendAuditHistoryProperty)
         {
             var newValue = string.Empty;
             var oldValue = string.Empty;
 
-            GoToBuyerCatalogTab(profile);
+            GoToBuyerCatalogTab(environment, profile);
             b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
             if (!b2BBuyerCatalogPage.BcpCatalogEnabled.Selected)
                 b2BBuyerCatalogPage.BcpCatalogEnabled.Click();
@@ -1787,76 +1852,79 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
 
             b2BBuyerCatalogPage.UpdateButton.Click();
 
-            return VerifyAuditHistoryRow(oldValue, newValue, OriginalcatalogTimeofsendAuditHistoryProperty);
+            return VerifyAuditHistoryRow(oldValue, newValue, originalTimeOfSendAuditHistoryProperty);
         }
 
         /// <summary>
         /// To verify the logging of change in internal email under audit history section
         /// </summary>
+        /// <param name="environment"></param>
         /// <param name="profile"></param>
-        /// <param name="Email1"></param>
-        /// <param name="Email2"></param>
-        /// <param name="InternalEmailAuditHistory"></param>
+        /// <param name="internalEmail1"></param>
+        /// <param name="internalEmail2"></param>
+        /// <param name="internalEmailAuditHistoryProperty"></param>
         /// <returns></returns>
-        public bool AuditHistoryInternalEmail(string profile, string Email1, string Email2, string InternalEmailAuditHistory)
+        public bool AuditHistoryInternalEmail(string environment, string profile, string internalEmail1, string internalEmail2, string internalEmailAuditHistoryProperty)
         {
             var oldValue = string.Empty;
             var newValue = string.Empty;
-            GoToBuyerCatalogTab(profile);
+            GoToBuyerCatalogTab(environment, profile);
             b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
             oldValue = b2BBuyerCatalogPage.InternalEMail.GetAttribute("value");
             b2BBuyerCatalogPage.InternalEMail.Clear();
-            if (oldValue.Equals(Email1))
-                newValue = Email1;
+            if (oldValue.Equals(internalEmail1))
+                newValue = internalEmail1;
             else
-                newValue = Email2;
+                newValue = internalEmail2;
 
             b2BBuyerCatalogPage.InternalEMail.SendKeys(newValue);
             b2BBuyerCatalogPage.UpdateButton.Click();
 
 
-            return VerifyAuditHistoryRow(oldValue, newValue, InternalEmailAuditHistory);
+            return VerifyAuditHistoryRow(oldValue, newValue, internalEmailAuditHistoryProperty);
 
         }
 
         /// <summary>
         /// To verify the logging of change in customer email under audit history section
         /// </summary>
+        /// <param name="environment"></param>
         /// <param name="profile"></param>
-        /// <param name="Email1"></param>
-        /// <param name="Email2"></param>
-        /// <param name="customerEmailAuditHistory"></param>
+        /// <param name="customerEmail1"></param>
+        /// <param name="customerEmail2"></param>
+        /// <param name="customerEmailAuditHistoryProperty"></param>
         /// <returns></returns>
-        public bool AuditHistoryCustomerEmail(string profile, string Email1, string Email2, string customerEmailAuditHistory)
+        public bool AuditHistoryCustomerEmail(string environment, string profile, string customerEmail1, string customerEmail2, string customerEmailAuditHistoryProperty)
         {
             var oldValue = string.Empty;
             var newValue = string.Empty;
-            GoToBuyerCatalogTab(profile);
+            GoToBuyerCatalogTab(environment, profile);
             b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
 
             oldValue = b2BBuyerCatalogPage.CustomerEmail.GetAttribute("value");
             b2BBuyerCatalogPage.CustomerEmail.Clear();
-            if (oldValue.Equals(Email1))
-                newValue = Email2;
+            if (oldValue.Equals(customerEmail1))
+                newValue = customerEmail2;
             else
-                newValue = Email1;
+                newValue = customerEmail1;
 
             b2BBuyerCatalogPage.CustomerEmail.SendKeys(newValue);
             b2BBuyerCatalogPage.UpdateButton.Click();
-            return VerifyAuditHistoryRow(oldValue, newValue, customerEmailAuditHistory);
+            return VerifyAuditHistoryRow(oldValue, newValue, customerEmailAuditHistoryProperty);
         }
 
         /// <summary>
         /// To verify the logging of change in EnableBHCAutoGen under audit history section
         /// </summary>
+        /// <param name="environment"></param>
         /// <param name="profile"></param>
-        /// <param name="EnableBHCAuditHistory"></param>
+        /// <param name="enableAutoBhcAuditHistoryProperty"></param>
         /// <returns></returns>
-        public bool AuditHistoryEnableBHCCatAutoGen(string profile, string EnableBHCAuditHistory)
+        public bool AuditHistoryEnableAutoCatGen(string environment, string profile, string enableAutoBhcAuditHistoryProperty)
         {
             var oldValue = string.Empty;
             var newValue = string.Empty;
-            GoToBuyerCatalogTab(profile);
+            GoToBuyerCatalogTab(environment, profile);
             b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
 
             oldValue = b2BBuyerCatalogPage.EnableCatalogAutoGeneration.Selected.ToString();
@@ -1868,15 +1936,15 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             if (!b2BBuyerCatalogPage.CatalogConfigStandard.Selected)
                 b2BBuyerCatalogPage.CatalogConfigStandard.Click();
             b2BBuyerCatalogPage.UpdateButton.Click();
-            return VerifyAuditHistoryRow(oldValue, newValue, EnableBHCAuditHistory);
+            return VerifyAuditHistoryRow(oldValue, newValue, enableAutoBhcAuditHistoryProperty);
         }
 
         /// <summary>
         /// To verify the logging of change in AutoBHC under audit history section
         /// </summary>
-        /// <param name="AutoBHCAuditHistory"></param>
+        /// <param name="autoBhcAuditHistoryProperty"></param>
         /// <returns></returns>
-        public bool AuditHistoryAutoBHC(string AutoBHCAuditHistory)
+        public bool AuditHistoryAutoBhc(string autoBhcAuditHistoryProperty)
         {
             var oldValue = string.Empty;
             var newValue = string.Empty;
@@ -1891,20 +1959,21 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             b2BBuyerCatalogPage.CatalogConfigStandard.Click();
             b2BBuyerCatalogPage.OriginalTimeOfSend.Select().SelectByValue("8");
             b2BBuyerCatalogPage.UpdateButton.Click();
-            return VerifyAuditHistoryRow(oldValue, newValue, AutoBHCAuditHistory);
+            return VerifyAuditHistoryRow(oldValue, newValue, autoBhcAuditHistoryProperty);
         }
 
         /// <summary>
         /// To verify the logging of change in Catlog operation under audit history section
         /// </summary>
+        /// <param name="environment"></param>
         /// <param name="profile"></param>
-        /// <param name="CatalogoperationAuditHistory"></param>
+        /// <param name="catalogOperationAuditHistoryProperty"></param>
         /// <returns></returns>
-        public bool AuditHistoryCatalogOperation(string profile, string CatalogoperationAuditHistory)
+        public bool AuditHistoryCatalogOperation(string environment, string profile, string catalogOperationAuditHistoryProperty)
         {
             var newValue = string.Empty;
             var oldValue = string.Empty;
-            GoToBuyerCatalogTab(profile);
+            GoToBuyerCatalogTab(environment, profile);
 
             b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
             if (!b2BBuyerCatalogPage.BcpCatalogEnabled.Selected)
@@ -1930,21 +1999,22 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             }
 
             b2BBuyerCatalogPage.UpdateButton.Click();
-            return VerifyAuditHistoryRow(oldValue, newValue, CatalogoperationAuditHistory);
+            return VerifyAuditHistoryRow(oldValue, newValue, catalogOperationAuditHistoryProperty);
 
         }
 
         /// <summary>
         /// To verify the logging of change in Enable Delta Catalog under audit history section
         /// </summary>
+        /// <param name="environment"></param>
         /// <param name="profile"></param>
-        /// <param name="EnableadeltaCatalogAuditHistory"></param>
+        /// <param name="enableDeltaCatalogAuditHistoryProperty"></param>
         /// <returns></returns>
-        public bool AuditHistoryEnableDeltaCatalog(string profile, string EnableadeltaCatalogAuditHistory)
+        public bool AuditHistoryEnableDeltaCatalog(string environment, string profile, string enableDeltaCatalogAuditHistoryProperty)
         {
             var newValue = string.Empty;
             var oldValue = string.Empty;
-            GoToBuyerCatalogTab(profile);
+            GoToBuyerCatalogTab(environment, profile);
             b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
             b2BBuyerCatalogPage.EditScheduleButton.Click();
             b2BBuyerCatalogPage.OriginalTimeOfSend.Select().SelectByValue("8");
@@ -1954,7 +2024,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             newValue = b2BBuyerCatalogPage.EnableDeltaCatalog.Selected.ToString();
             b2BBuyerCatalogPage.DeltaTimeOfSend.Select().SelectByValue("9");
             b2BBuyerCatalogPage.UpdateButton.Click();
-            return VerifyAuditHistoryRow(oldValue, newValue, EnableadeltaCatalogAuditHistory);
+            return VerifyAuditHistoryRow(oldValue, newValue, enableDeltaCatalogAuditHistoryProperty);
 
         }
 
@@ -2155,7 +2225,9 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         private bool VerifyOriginalCatalogSchedulingOptions(string startDate, string frequencyDays,
             string frequencyWeeks, string endDate, string timeOfSend)
         {
-            if (!b2BBuyerCatalogPage.OriginalCatalogStartDate.GetAttribute("value").Equals(startDate))
+            if (
+                !Convert.ToDateTime(b2BBuyerCatalogPage.OriginalCatalogStartDate.GetAttribute("value"))
+                    .Equals(Convert.ToDateTime(startDate)))
             {
                 Console.WriteLine("Original Catalog Start Date does not match: {0}", startDate);
                 return false;
@@ -2173,7 +2245,9 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                 return false;
             }
 
-            if (!b2BBuyerCatalogPage.OriginalCatalogEndDate.GetAttribute("value").Equals(endDate))
+            if (
+                !Convert.ToDateTime(b2BBuyerCatalogPage.OriginalCatalogEndDate.GetAttribute("value"))
+                    .Equals(Convert.ToDateTime(endDate)))
             {
                 Console.WriteLine("Original Catalog End Date does not match: {0}", endDate);
                 return false;
@@ -2343,10 +2417,12 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
             b2BBuyerCatalogPage.AuditHistoryLink.Click();
             WaitForPageRefresh();
-            var internalEmailRow = b2BBuyerCatalogPage.AuditHistoryRows.FirstOrDefault(r => r.FindElements(By.TagName("td"))[0].Text.Equals(auditHistoryProperty));
-            var oldv = internalEmailRow.FindElements(By.TagName("td"))[1].Text;
+            var auditHistoryRow =
+                b2BBuyerCatalogPage.AuditHistoryRows.FirstOrDefault(
+                    r => r.FindElements(By.TagName("td"))[0].Text.Equals(auditHistoryProperty));
+            var oldv = auditHistoryRow.FindElements(By.TagName("td"))[1].Text;
             Console.WriteLine(oldv);
-            var newv = internalEmailRow.FindElements(By.TagName("td"))[2].Text;
+            var newv = auditHistoryRow.FindElements(By.TagName("td"))[2].Text;
             Console.Write(newv);
 
             if (!oldValue.Equals(oldv))
