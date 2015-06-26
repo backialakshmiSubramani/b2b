@@ -94,6 +94,7 @@ namespace Modules.Channel.B2B.Core.Pages
                 return
                     webDriver.FindElement(
                         By.XPath("//select[@ng-model='customer']"));
+               
             }
         }
 
@@ -162,6 +163,28 @@ namespace Modules.Channel.B2B.Core.Pages
         }
 
         /// <summary>
+        /// Test harness checkbox
+        /// </summary>
+        public IWebElement TestHarnessCheckbox
+        {
+            get
+            {
+                return webDriver.FindElement(By.XPath("//*[@id='myForm']/table/tbody/tr/td[1]/table/tbody/tr[4]/td[4]/input[2]"));
+            }
+        }
+
+        /// <summary>
+        /// DownloadButton on Auto cat List page
+        /// </summary>
+        public IWebElement DownloadButton
+        {
+            get
+            {
+                return webDriver.FindElement(By.XPath("//*[@id='homepage-var']/div/div[2]/div/div/div/div[1]/div/table/tbody/tr[1]/td[16]/input"));
+            }
+        }
+
+        /// <summary>
         /// Show Scheduled check box
         /// </summary>
         public IWebElement ScheduledCheckbox
@@ -190,9 +213,12 @@ namespace Modules.Channel.B2B.Core.Pages
         /// </summary>
         public ReadOnlyCollection<IWebElement> CatalogListTableRows
         {
+            //table[@st-safe-src='Catalogs']/tbody/tr
             get { return webDriver.FindElements(By.XPath("//table[@st-safe-src='Catalogs']/tbody/tr")); }
         }
 
+       
+       
         #endregion
 
         #region Helper Methods

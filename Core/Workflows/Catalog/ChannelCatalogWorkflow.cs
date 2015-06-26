@@ -1121,6 +1121,161 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             return webDriver.Url.ToLowerInvariant().Contains("b2blogreportb.aspx?threadid=" + threadId);
         }
 
+
+
+        /// <summary>
+        /// Verifies the presence and functionality of Country code for Published in Auto Cataog List Page
+        /// </summary>
+        /// <returns></returns>
+        public bool VerifyCountryCodeInAutoCatalogListPage(string environment, string profileName, string status, string countryCode, string region, string currencycode)
+        {
+            b2BHomePage.SelectEnvironment(environment);
+            b2BHomePage.AutoCatalogListPageLink.Click();
+            webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
+            b2BAutoCatalogListPage = new B2BAutoCatalogListPage(webDriver);
+            WaitForPageRefresh();
+            b2BAutoCatalogListPage.ThreadId.SendKeys(profileName);
+            b2BAutoCatalogListPage.SearchCatalogLink.Click();
+            WaitForPageRefresh();
+            var firststatusElement = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[2];
+            var Status = firststatusElement.Text;
+            var firstCountryCodeElement = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[8];
+            var countryCodea = firstCountryCodeElement.Text;
+            var firstregioncode = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[9];
+            var regioncode = firstregioncode.Text;
+            var firstcurrencycode = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[10];
+            var currencyCode = firstcurrencycode.Text;
+            if (status.Equals(Status) && countryCode.Equals(countryCodea) && region.Equals(regioncode) && currencycode.Equals(currencyCode))
+            {
+                return true;
+            }
+
+            return false;
+            }
+
+        ///<summary>
+        /// Verified country region and currency fields for scheduled catalogs
+        /// </summary>
+        /// <returns></returns>
+        public bool VerifyCountryCodeScheduledInAutoCatalogListPage(string status)
+        {
+            b2BHomePage.AutoCatalogListPageLink.Click();
+            webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
+            b2BAutoCatalogListPage = new B2BAutoCatalogListPage(webDriver);
+            WaitForPageRefresh();
+            b2BAutoCatalogListPage.ScheduledCheckbox.Click();
+            b2BAutoCatalogListPage.SearchCatalogLink.Click();
+
+            WaitForPageRefresh();
+            var firststatusElement = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[2];
+            var Status = firststatusElement.Text;
+            var firstCountryCodeElement = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[8];
+            var countryCode = firstCountryCodeElement.Text;
+            var firstregioncode = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[9];
+            var regioncode = firstregioncode.Text;
+            var firstcurrencycode = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[10];
+            var cUrrencycode = firstcurrencycode.Text;
+            if (Status.Equals(status) && countryCode.Equals("") && regioncode.Equals("") && cUrrencycode.Equals(""))
+            {
+                return true;
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Verifies the presence and functionality of Country code in Auto Cataog List Page for failed catalogs
+        /// </summary>
+        /// <returns></returns>
+        public bool VerifyCountryCodeFailedInAutoCatalogListPage(string environment, string profilename, string status)
+        {
+            b2BHomePage.SelectEnvironment(environment);
+            b2BHomePage.AutoCatalogListPageLink.Click();
+            webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
+            b2BAutoCatalogListPage = new B2BAutoCatalogListPage(webDriver);
+            WaitForPageRefresh();
+            b2BAutoCatalogListPage.ThreadId.SendKeys(profilename);
+            b2BAutoCatalogListPage.SearchCatalogLink.Click();
+            WaitForPageRefresh();
+            var firststatusElement = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[2];
+            var Status = firststatusElement.Text;
+            var firstCountryCodeElement = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[8];
+            var countryCode = firstCountryCodeElement.Text;
+            var firstregioncode = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[9];
+            var regioncode = firstregioncode.Text;
+            var firstcurrencycode = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[10];
+            var currencyCode = firstcurrencycode.Text;
+            if (Status.Equals(status) && countryCode.Equals("") && regioncode.Equals("") && currencyCode.Equals(""))
+            {
+                return true;
+            }
+            return false;
+
+        }
+
+        /// <summary>
+        /// Verifies the presence and functionality of Country code in Auto Cataog List Page.
+        /// </summary>
+        /// <returns></returns>
+        public bool VerifyTestHarnessCheckboxInAutoCatalogListPage(string environment, string profilename, string status, string countrycode, string regionCode, string currencycode)
+        {
+            b2BHomePage.SelectEnvironment(environment);
+            b2BHomePage.AutoCatalogListPageLink.Click();
+            webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
+            b2BAutoCatalogListPage = new B2BAutoCatalogListPage(webDriver);
+            WaitForPageRefresh();
+            b2BAutoCatalogListPage.ThreadId.SendKeys(profilename);
+            b2BAutoCatalogListPage.TestHarnessCheckbox.Click();
+            b2BAutoCatalogListPage.SearchCatalogLink.Click();
+            WaitForPageRefresh();
+            var firststatusElement = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[2];
+            var Status = firststatusElement.Text;
+            var firstCountryCodeElement = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[8];
+            var countryCode = firstCountryCodeElement.Text;
+            var firstregioncode = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[9];
+            var regioncode = firstregioncode.Text;
+            var firstcurrencycode = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[10];
+            var cUrrencycode = firstcurrencycode.Text;
+            if (Status.Equals(status) && countryCode.Equals(countrycode) && regioncode.Equals(regionCode) && cUrrencycode.Equals(currencycode))
+            {
+                return true;
+            }
+            return false;
+        }
+        
+        ///// <summary>
+        ///// Verifies the presence of Download link for original published catalogs in Auto Cat List page
+        ///// </summary>
+        ///// <returns></returns>
+        public bool VerifyDownloadLinkInAutoCatListPage(string environment, string profilename, string type, string status)
+        {
+
+            b2BHomePage.SelectEnvironment(environment);
+            b2BHomePage.AutoCatalogListPageLink.Click();
+            webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
+            b2BAutoCatalogListPage = new B2BAutoCatalogListPage(webDriver);
+            WaitForPageRefresh();
+            b2BAutoCatalogListPage.ThreadId.SendKeys(profilename);
+            b2BAutoCatalogListPage.SearchCatalogLink.Click();
+            WaitForPageRefresh();
+            var firstTypeElement = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[1];
+            var Type = firstTypeElement.Text;
+            var firststatusElement = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[2];
+            var Status = firststatusElement.Text;
+            if (Type.Equals(type) && Status.Equals(status))
+            {
+                if (!b2BAutoCatalogListPage.DownloadButton.Displayed)
+                {
+                    return false;
+                }
+                b2BAutoCatalogListPage.DownloadButton.Click();
+                return true;
+            }
+
+
+            return false;
+
+        }
+
         /// <summary>
         /// Verifies the Select Customer drop down on the Auto Catalog List Page
         /// </summary>
