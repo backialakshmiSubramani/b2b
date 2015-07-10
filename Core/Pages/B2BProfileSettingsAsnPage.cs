@@ -25,6 +25,7 @@ using Dell.Adept.UI.Web.Support.Extensions.WebDriver;
 using Dell.Adept.UI.Web.Support.Extensions.WebElement;
 using Dell.Adept.UI.Web.Support.Locators;
 using Dell.Adept.UI.Web.Support;
+using Modules.Channel.ASN.Common;
 
 namespace Modules.Channel.B2B.Core.Pages
 {
@@ -84,8 +85,17 @@ namespace Modules.Channel.B2B.Core.Pages
         {
             get
             {
-                webDriver.WaitForElement(By.XPath("//input[contains(@id,'ASNEnableChannelCheck')]"), TimeSpan.FromSeconds(60));
-                return webDriver.FindElement(By.XPath("//input[contains(@id,'ASNEnableChannelCheck')]"));
+                webDriver.WaitForElement(By.XPath("//input[@id='ContentPageHolder_chk_Asn_ASNEnableChannelCheck']"), TimeSpan.FromSeconds(60));
+                return webDriver.FindElement(By.XPath("//input[@id='ContentPageHolder_chk_Asn_ASNEnableChannelCheck']"));
+            }
+        }
+
+        private IWebElement EnableChannelCancelAsnCheckbox
+        {
+            get
+            {
+                webDriver.WaitForElement(By.XPath("//input[contains(@id,'ASNEnableChannelCancelCheck')]"), TimeSpan.FromSeconds(60));
+                return webDriver.FindElement(By.XPath("//input[contains(@id,'ASNEnableChannelCancelCheck')]"));
             }
         }
 
@@ -130,6 +140,22 @@ namespace Modules.Channel.B2B.Core.Pages
             }
         }
 
+        private IWebElement EnableChannelCancelAsnlbl
+        {
+            get
+            {
+                return webDriver.FindElement(By.Id("ContentPageHolder_lbl_ASN_EnableChannelCancelASN"));
+            }
+        }
+
+        private IWebElement EnableChannelAsnlbl
+        {
+            get
+            {
+                return webDriver.FindElement(By.Id("ContentPageHolder_lbl_ASN_EnableChannelASN"));
+            }
+        }
+
         #endregion
 
         #region ReUsable Methods
@@ -166,6 +192,61 @@ namespace Modules.Channel.B2B.Core.Pages
             }
         }
 
+        public bool EnableorDisableChannelCancelAsnForProfile(string Option)
+        {
+            ////AsnTab.Click();
+            javaScriptExecutor.ExecuteScript("arguments[0].click();", AsnTab);
+
+            switch (Option)
+            {
+                case "Enable":
+                    if (EnableChannelCancelAsnCheckbox.Enabled)
+                    {
+                        if (EnableChannelCancelAsnCheckbox.GetAttribute("checked") != "true")
+                        {
+                            javaScriptExecutor.ExecuteScript("arguments[0].click();", EnableChannelCancelAsnCheckbox);
+                            javaScriptExecutor.ExecuteScript("arguments[0].click();", UpdateButton);
+                        }
+
+                        else
+                        {
+                            return false;
+                        }
+                    }
+
+                    else
+                    {
+                        return false;
+                    }
+
+                    break;
+
+                case "Disable":
+
+                    if (EnableChannelCancelAsnCheckbox.Displayed)
+                    {
+
+                        if (EnableChannelCancelAsnCheckbox.GetAttribute("checked") == "true")
+                        {
+                            javaScriptExecutor.ExecuteScript("arguments[0].click();", EnableChannelCancelAsnCheckbox);
+                            javaScriptExecutor.ExecuteScript("arguments[0].click();", UpdateButton);
+                        }
+                        else
+                        {
+                            return false;
+                        }
+                    }
+
+                    else
+                    {
+                        return false;
+                    }
+
+                    break;
+            }
+            return true;
+        }
+
         public bool UpdateSuccessMsgDisplayed()
         {
             return UpdateSuccessMsg.Displayed;
@@ -187,6 +268,40 @@ namespace Modules.Channel.B2B.Core.Pages
         {
             javaScriptExecutor.ExecuteScript("arguments[0].click();", DellImageLink);
             webDriver.WaitForPageLoad(new TimeSpan(0, 0, 10));
+        }
+
+        public bool VerifyEnableChannelCancel()
+        {
+            javaScriptExecutor.ExecuteScript("arguments[0].click();", AsnTab);
+
+            if (!EnableChannelCancelAsnCheckbox.Displayed)
+            {
+                return false;
+            }
+
+            if (!EnableChannelCancelAsnlbl.Text.Equals(Helper.EnableChannelASN))
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        public bool VerifyEnableChannelASNShip()
+        {
+            javaScriptExecutor.ExecuteScript("arguments[0].click();", AsnTab);
+
+            if (!EnableChannelAsnCheckbox.Displayed)
+            {
+                return false;
+            }
+
+            if (!EnableChannelAsnlbl.Text.Equals(Helper.EnableShipASN))
+            {
+                return false;
+            }
+
+            return true;
         }
 
         #endregion

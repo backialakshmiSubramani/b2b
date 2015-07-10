@@ -170,6 +170,15 @@ namespace Modules.Channel.B2B.Core.Pages
             }
         }
 
+        private IWebElement ASNLink
+        {
+            get
+            {
+                webDriver.WaitForElement(By.XPath("//a[contains(text(),' Advance Ship Notification')]"), TimeSpan.FromSeconds(10));
+                return webDriver.FindElement(By.XPath("//a[contains(text(),' Advance Ship Notification')]"));
+            }
+        }
+
         private IWebElement LogReport
         {
             get
@@ -264,6 +273,12 @@ namespace Modules.Channel.B2B.Core.Pages
         {
             ////CifCatalogLink.Click();
             javaScriptExecutor.ExecuteScript("arguments[0].click();", CifCatalogLink);
+        }
+
+        public void ClickChannelPlatformLink()
+        {
+            ////CifASNLink.Click();
+            javaScriptExecutor.ExecuteScript("arguments[0].click();", ASNLink);
         }
 
         #endregion

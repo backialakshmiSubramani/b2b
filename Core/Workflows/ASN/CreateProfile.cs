@@ -65,12 +65,14 @@ namespace Modules.Channel.B2B.Core.Workflows.ASN
             profileSettingGeneralPage.EnterCustomerSet(CustomerSet);
             profileSettingGeneralPage.ClickSearch();
             webDriver.WaitForPageLoad(TimeSpan.FromSeconds(5));
+            
             if (profileSettingGeneralPage.SelectAccessGroupMsgDisplayed())
             {
                 profileSettingGeneralPage.EnterAccessGroup(AccessGroup);
                 profileSettingGeneralPage.ClickCreateNewProfile();
                 webDriver.WaitForPageLoad(TimeSpan.FromSeconds(5));
             }
+
             else
             {
                 throw new ElementNotVisibleException();
