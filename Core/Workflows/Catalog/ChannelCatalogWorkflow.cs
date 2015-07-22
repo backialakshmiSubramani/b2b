@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Dell.Adept.UI.Web.Support.Extensions.WebElement;
+using FluentAssertions;
 using Modules.Channel.B2B.Core.Pages;
 using OpenQA.Selenium;
+using OpenQA.Selenium.Support.PageObjects;
 
 namespace Modules.Channel.B2B.Core.Workflows.Catalog
 {
@@ -20,7 +22,8 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         private B2BAutoCatalogListPage b2BAutoCatalogListPage;
         private IJavaScriptExecutor javaScriptExecutor;
         const string MMDDYYYY = "MM/dd/yyyy";
-
+        private int HeaderRowsCount = 0, Headercount = 0, subHeaderRows = 0;
+        
         /// <summary>
         /// Constructor for ChannelCatalogWorkflow
         /// </summary>
@@ -239,6 +242,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             b2BHomePage.SelectEnvironment(environment);
             b2BHomePage.ChannelCatalogUxLink.Click();
             WaitForPageRefresh();
+            webDriver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromMinutes(1));
             webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
             if (
                 !UploadAndCheckMessageAndValidate(invalidValueInPackageHeightFile,
@@ -1104,7 +1108,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
             b2BAutoCatalogListPage = new B2BAutoCatalogListPage(webDriver);
             WaitForPageRefresh();
-            var firstThreadIdElement = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[7];
+            var firstThreadIdElement = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[8];
             var threadId = firstThreadIdElement.Text;
 
             if (!firstThreadIdElement.ElementExists(By.TagName("a")))
@@ -1121,59 +1125,58 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             return webDriver.Url.ToLowerInvariant().Contains("b2blogreportb.aspx?threadid=" + threadId);
         }
 
-
-
-        /// <summary>
-        /// Verifies the presence and functionality of Country code for Published in Auto Cataog List Page
+        ///<summary>
+        /// Verifies country region and currency fields for original/delta created/published catalogs in Auto Cat List Page
         /// </summary>
-        /// <returns></returns>
-        public bool VerifyCountryCodeInAutoCatalogListPage(string environment, string profileName, string status, string countryCode, string region, string currencycode)
+        public bool VerifyCountryCodepublishedcreatedInAutoCatListPage(string environment, string profilename,string status,
+            string CountryCode, string region, string currencyCode)
+
         {
             b2BHomePage.SelectEnvironment(environment);
             b2BHomePage.AutoCatalogListPageLink.Click();
             webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
             b2BAutoCatalogListPage = new B2BAutoCatalogListPage(webDriver);
             WaitForPageRefresh();
-            b2BAutoCatalogListPage.ThreadId.SendKeys(profileName);
+            b2BAutoCatalogListPage.ThreadId.SendKeys(profilename);
             b2BAutoCatalogListPage.SearchCatalogLink.Click();
             WaitForPageRefresh();
-            var firststatusElement = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[2];
+            var firststatusElement = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[3];
             var Status = firststatusElement.Text;
-            var firstCountryCodeElement = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[8];
-            var countryCodea = firstCountryCodeElement.Text;
-            var firstregioncode = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[9];
+            var firstCountryCodeElement = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[9];
+            var countryCode = firstCountryCodeElement.Text;
+            var firstregioncode = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[11];
             var regioncode = firstregioncode.Text;
-            var firstcurrencycode = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[10];
-            var currencyCode = firstcurrencycode.Text;
-            if (status.Equals(Status) && countryCode.Equals(countryCodea) && region.Equals(regioncode) && currencycode.Equals(currencyCode))
+            var firstcurrencycode = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[13];
+            var Currencycode = firstcurrencycode.Text;
+            if (Status.Equals(status) && countryCode.Equals(CountryCode) && regioncode.Equals(region) && Currencycode.Equals(currencyCode))
             {
                 return true;
             }
-
             return false;
-            }
 
+        }
+        
         ///<summary>
         /// Verified country region and currency fields for scheduled catalogs
         /// </summary>
         /// <returns></returns>
-        public bool VerifyCountryCodeScheduledInAutoCatalogListPage(string status)
+        public bool VerifyCountryCodeScheduledInAutoCatalogListPage(string environment, string status)
         {
+           b2BHomePage.SelectEnvironment(environment);
             b2BHomePage.AutoCatalogListPageLink.Click();
             webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
             b2BAutoCatalogListPage = new B2BAutoCatalogListPage(webDriver);
             WaitForPageRefresh();
             b2BAutoCatalogListPage.ScheduledCheckbox.Click();
             b2BAutoCatalogListPage.SearchCatalogLink.Click();
-
             WaitForPageRefresh();
-            var firststatusElement = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[2];
+            var firststatusElement = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[3];
             var Status = firststatusElement.Text;
-            var firstCountryCodeElement = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[8];
+            var firstCountryCodeElement = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[10];
             var countryCode = firstCountryCodeElement.Text;
-            var firstregioncode = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[9];
+            var firstregioncode = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[12];
             var regioncode = firstregioncode.Text;
-            var firstcurrencycode = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[10];
+            var firstcurrencycode = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[14];
             var cUrrencycode = firstcurrencycode.Text;
             if (Status.Equals(status) && countryCode.Equals("") && regioncode.Equals("") && cUrrencycode.Equals(""))
             {
@@ -1183,7 +1186,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         }
 
         /// <summary>
-        /// Verifies the presence and functionality of Country code in Auto Cataog List Page for failed catalogs
+        /// Verifies the presence and functionality of country region and currency fields in Auto Cataog List Page for failed catalogs
         /// </summary>
         /// <returns></returns>
         public bool VerifyCountryCodeFailedInAutoCatalogListPage(string environment, string profilename, string status)
@@ -1196,13 +1199,13 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             b2BAutoCatalogListPage.ThreadId.SendKeys(profilename);
             b2BAutoCatalogListPage.SearchCatalogLink.Click();
             WaitForPageRefresh();
-            var firststatusElement = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[2];
+            var firststatusElement = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[3];
             var Status = firststatusElement.Text;
-            var firstCountryCodeElement = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[8];
+            var firstCountryCodeElement = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[10];
             var countryCode = firstCountryCodeElement.Text;
-            var firstregioncode = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[9];
+            var firstregioncode = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[12];
             var regioncode = firstregioncode.Text;
-            var firstcurrencycode = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[10];
+            var firstcurrencycode = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[14];
             var currencyCode = firstcurrencycode.Text;
             if (Status.Equals(status) && countryCode.Equals("") && regioncode.Equals("") && currencyCode.Equals(""))
             {
@@ -1213,10 +1216,11 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         }
 
         /// <summary>
-        /// Verifies the presence and functionality of Country code in Auto Cataog List Page.
+        /// Verifies the presence and functionality of Test harness Checkbox for created catalogs in Auto Cataog List Page.
         /// </summary>
         /// <returns></returns>
-        public bool VerifyTestHarnessCheckboxInAutoCatalogListPage(string environment, string profilename, string status, string countrycode, string regionCode, string currencycode)
+        public bool VerifyTestHarnessCheckboxInAutoCatalogListPage(string environment, 
+            string profilename, string countrycode, string regionCode, string currencycode, string status)
         {
             b2BHomePage.SelectEnvironment(environment);
             b2BHomePage.AutoCatalogListPageLink.Click();
@@ -1227,23 +1231,53 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             b2BAutoCatalogListPage.TestHarnessCheckbox.Click();
             b2BAutoCatalogListPage.SearchCatalogLink.Click();
             WaitForPageRefresh();
-            var firststatusElement = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[2];
+            var firststatusElement = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[3];
             var Status = firststatusElement.Text;
-            var firstCountryCodeElement = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[8];
+            var firstCountryCodeElement = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[9];
             var countryCode = firstCountryCodeElement.Text;
-            var firstregioncode = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[9];
+            var firstregioncode = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[11];
             var regioncode = firstregioncode.Text;
-            var firstcurrencycode = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[10];
+            var firstcurrencycode = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[13];
             var cUrrencycode = firstcurrencycode.Text;
-            if (Status.Equals(status) && countryCode.Equals(countrycode) && regioncode.Equals(regionCode) && cUrrencycode.Equals(currencycode))
+            if (countryCode.Equals(countrycode) && regioncode.Equals(regionCode) && cUrrencycode.Equals(currencycode) && Status.Equals(status))
             {
                 return true;
             }
             return false;
         }
-        
+
+        /// <summary>
+        /// Verifies the presence and functionality of Test Harness Checkbox for failed catalogs in Auto Cataog List Page.
+        /// </summary>
+        /// <returns></returns>
+        public bool VerifyTestHarnessCheckboxFailedInAutoCatalogListPage(string environment,string profilename, string status)
+        {
+            b2BHomePage.SelectEnvironment(environment);
+            b2BHomePage.AutoCatalogListPageLink.Click();
+            webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
+            b2BAutoCatalogListPage = new B2BAutoCatalogListPage(webDriver);
+            WaitForPageRefresh();
+            b2BAutoCatalogListPage.ThreadId.SendKeys(profilename);
+            b2BAutoCatalogListPage.TestHarnessCheckbox.Click();
+            b2BAutoCatalogListPage.SearchCatalogLink.Click();
+            WaitForPageRefresh();
+            var firststatusElement = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[3];
+            var Status = firststatusElement.Text;
+            var firstCountryCodeElement = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[9];
+            var countryCode = firstCountryCodeElement.Text;
+            var firstregioncode = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[11];
+            var regioncode = firstregioncode.Text;
+            var firstcurrencycode = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[13];
+            var cUrrencycode = firstcurrencycode.Text;
+            if (countryCode.Equals("") && regioncode.Equals("") && cUrrencycode.Equals("") && Status.Equals(status))
+            {
+                return true;
+            }
+            return false;
+        }
+
         ///// <summary>
-        ///// Verifies the presence of Download link for original published catalogs in Auto Cat List page
+        ///// Verifies the presence of Download link for original/delta published/Created catalogs in Auto Cat List page
         ///// </summary>
         ///// <returns></returns>
         public bool VerifyDownloadLinkInAutoCatListPage(string environment, string profilename, string type, string status)
@@ -1257,23 +1291,368 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             b2BAutoCatalogListPage.ThreadId.SendKeys(profilename);
             b2BAutoCatalogListPage.SearchCatalogLink.Click();
             WaitForPageRefresh();
-            var firstTypeElement = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[1];
+            var firstTypeElement = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[2];
             var Type = firstTypeElement.Text;
-            var firststatusElement = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[2];
+            var firststatusElement = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[3];
             var Status = firststatusElement.Text;
+            var DownloadLinkElement = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[18];
             if (Type.Equals(type) && Status.Equals(status))
             {
-                if (!b2BAutoCatalogListPage.DownloadButton.Displayed)
-                {
-                    return false;
+                DownloadLinkElement.Click();
+                    return true;
                 }
-                b2BAutoCatalogListPage.DownloadButton.Click();
-                return true;
+            return false;
             }
 
+        ///// <summary>
+        ///// Verifies the presence of Download link for Failed catalogs in Auto Cat List page
+        ///// </summary>
+        ///// <returns></returns>
+        public bool VerifyDownloadLinkFailedOrigInAutoCatListPage(string environment, string profilename, string type, string status)
+        {
+            b2BHomePage.SelectEnvironment(environment);
+            b2BHomePage.AutoCatalogListPageLink.Click();
+            webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
+            b2BAutoCatalogListPage = new B2BAutoCatalogListPage(webDriver);
+            WaitForPageRefresh();
+            b2BAutoCatalogListPage.ThreadId.SendKeys(profilename);
+            b2BAutoCatalogListPage.SearchCatalogLink.Click();
+            WaitForPageRefresh();
+            var firstTypeElement =
+                b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[2];
+            var Type = firstTypeElement.Text;
+            var firststatusElement =
+                b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[3];
+            var Status = firststatusElement.Text;
+            var DownloadLinkElement =
+                b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[18];
+            String download = DownloadLinkElement.FindElement(By.ClassName("ng-hide")).GetAttribute("value");
+            if (Type.Equals(type) && Status.Equals(status))
+            {
+                if (download.Equals(""))
+                {
 
+                    return true;
+                }
+                return false;
+            }
             return false;
+        }
 
+        ///// <summary>
+        ///// Verifies the presence of Download link for original scheduled catalogs in Auto Cat List page
+        ///// </summary>
+        ///// <returns></returns>
+        public bool VerifyDownloadLinkScheduledOrigInAutoCatListPage(string environment, string status, string type)
+        {
+
+            b2BHomePage.SelectEnvironment(environment);
+            b2BHomePage.AutoCatalogListPageLink.Click();
+            webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
+            b2BAutoCatalogListPage = new B2BAutoCatalogListPage(webDriver);
+            WaitForPageRefresh();
+            b2BAutoCatalogListPage.ScheduledCheckbox.Click();
+            b2BAutoCatalogListPage.OriginalCatalogCheckbox.Click();
+            b2BAutoCatalogListPage.SearchCatalogLink.Click();
+            WaitForPageRefresh();
+            var firstTypeElement =
+                b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[2];
+            var Type = firstTypeElement.Text;
+            var firststatusElement =
+                b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[3];
+            var Status = firststatusElement.Text;
+
+            var DownloadLinkElement =
+                b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[18];
+            String download = DownloadLinkElement.FindElement(By.ClassName("ng-hide")).GetAttribute("value");
+            if (Type.Equals(type) && Status.Equals(status))
+            {
+
+                if (download.Equals(""))
+                {
+
+                    return true;
+                }
+                return false;
+            }
+            return false;
+        }
+
+        ///// <summary>
+        ///// Verifies the presence of Download link for Delta scheduled catalogs in Auto Cat List page
+        ///// </summary>
+        ///// <returns></returns>
+        public bool VerifyDownloadLinkScheduledDeltaInAutoCatListPage(string environment, string status, string type)
+        {
+
+            b2BHomePage.SelectEnvironment(environment);
+            b2BHomePage.AutoCatalogListPageLink.Click();
+            webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
+            b2BAutoCatalogListPage = new B2BAutoCatalogListPage(webDriver);
+            WaitForPageRefresh();
+            b2BAutoCatalogListPage.ScheduledCheckbox.Click();
+            b2BAutoCatalogListPage.DeltaCatalogCheckbox.Click();
+            b2BAutoCatalogListPage.SearchCatalogLink.Click();
+            WaitForPageRefresh();
+            var firstTypeElement =
+                b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[2];
+            var Type = firstTypeElement.Text;
+            var firststatusElement =
+                b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[3];
+            var Status = firststatusElement.Text;
+
+            var DownloadLinkElement =
+                b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[18];
+            String download = DownloadLinkElement.FindElement(By.ClassName("ng-hide")).GetAttribute("value");
+            if (Type.Equals(type) && Status.Equals(status))
+            {
+                if (download.Equals(""))
+                {
+                    return true;
+                }
+                return false;
+            }
+            return false;
+        }
+        
+        ///// <summary>
+        ///// Verifies the presence of Download link for Created through Test harness in Auto Cat List page
+        ///// </summary>
+        ///// <returns></returns>
+        public bool VerifyDownloadLinkInAutoCatListPageCreatedTestHarness(string environment, string profilename, string type, string status)
+        {
+
+            b2BHomePage.SelectEnvironment(environment);
+            b2BHomePage.AutoCatalogListPageLink.Click();
+            webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
+            b2BAutoCatalogListPage = new B2BAutoCatalogListPage(webDriver);
+            WaitForPageRefresh();
+            b2BAutoCatalogListPage.ThreadId.SendKeys(profilename);
+            b2BAutoCatalogListPage.TestHarnessCheckbox.Click();
+            b2BAutoCatalogListPage.SearchCatalogLink.Click();
+            WaitForPageRefresh();
+            var firststatusElement = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[3];
+            var Status = firststatusElement.Text;
+            var firstTypeElement = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[2];
+            var Type = firstTypeElement.Text;
+            var DownloadLinkElement = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[18];
+            if (Type.Equals(type) && Status.Equals(status))
+            {
+                DownloadLinkElement.Click();
+                return true;
+            }
+            return false;
+        }
+
+        ///// <summary>
+        ///// Verifies the presence of Download link for Failed catalogs thru Test Harness in Auto Cat List page
+        ///// </summary>
+        ///// <returns></returns>
+        public bool VerifyDownloadLinkFailedThrutestHarnessInAutoCatListPage(string environment, string profile, string type, string status)
+        {
+
+            b2BHomePage.SelectEnvironment(environment);
+            b2BHomePage.AutoCatalogListPageLink.Click();
+            webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
+            b2BAutoCatalogListPage = new B2BAutoCatalogListPage(webDriver);
+            WaitForPageRefresh();
+            b2BAutoCatalogListPage.ThreadId.SendKeys(profile);
+            b2BAutoCatalogListPage.TestHarnessCheckbox.Click();
+            b2BAutoCatalogListPage.SearchCatalogLink.Click();
+            WaitForPageRefresh();
+            var firstTypeElement =
+                b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[2];
+            var Type = firstTypeElement.Text;
+            var firststatusElement =
+                b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[3];
+            var Status = firststatusElement.Text;
+            var DownloadLinkElement =
+                b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[18];
+            String download = DownloadLinkElement.FindElement(By.ClassName("ng-hide")).GetAttribute("value");
+            if (Type.Equals(type) && Status.Equals(status))
+            {
+                if (download.Equals(""))
+                {
+
+                    return true;
+                }
+                return false;
+            }
+            return false;
+        }
+
+        ///// <summary>
+        ///// Verifies Catalog Name in Auto Cat List page
+        ///// </summary>
+        ///// <returns></returns>
+        public bool VerifyCatalogNameInAutoCatListPage(string environment, string profile, string catalogName)
+        {
+            b2BHomePage.SelectEnvironment(environment);
+            b2BHomePage.AutoCatalogListPageLink.Click();
+            webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
+            b2BAutoCatalogListPage = new B2BAutoCatalogListPage(webDriver);
+            WaitForPageRefresh();
+            b2BAutoCatalogListPage.ThreadId.SendKeys(profile);
+            b2BAutoCatalogListPage.SearchCatalogLink.Click();
+            WaitForPageRefresh();
+            var catalogNameElement = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[0];
+            var CatalogNamefromLocator = catalogNameElement.Text;
+            if (CatalogNamefromLocator.Equals(catalogName))
+            {
+                return true;
+                }
+            return false;
+        }
+
+        ///// <summary>
+        ///// Verifies Status Time in Auto Cat List page
+        ///// </summary>
+        ///// <returns></returns>
+        public bool VerifyStatusTimeInAutoCatListPage(string environment, string profile, string statusTime)
+        {
+            b2BHomePage.SelectEnvironment(environment);
+            b2BHomePage.AutoCatalogListPageLink.Click();
+            webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
+            b2BAutoCatalogListPage = new B2BAutoCatalogListPage(webDriver);
+            WaitForPageRefresh();
+            b2BAutoCatalogListPage.ThreadId.SendKeys(profile);
+            b2BAutoCatalogListPage.SearchCatalogLink.Click();
+            WaitForPageRefresh();
+            var statusTimeElement = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[4];
+            var statusTimefromLocator = statusTimeElement.Text;
+            if (statusTimefromLocator.Equals(statusTime))
+            {
+                return true;
+                }
+            return false;
+        }
+
+        ///// <summary>
+        ///// Verifies Status Time in Auto Cat List page for Test Harness
+        ///// </summary>
+        ///// <returns></returns>
+        public bool VerifyStatusTimeforTestHarnessInAutoCatListPage(string environment, string profile, string statusTime)
+        {
+            b2BHomePage.SelectEnvironment(environment);
+            b2BHomePage.AutoCatalogListPageLink.Click();
+            webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
+            b2BAutoCatalogListPage = new B2BAutoCatalogListPage(webDriver);
+            WaitForPageRefresh();
+            b2BAutoCatalogListPage.ThreadId.SendKeys(profile);
+            b2BAutoCatalogListPage.TestHarnessCheckbox.Click();
+            b2BAutoCatalogListPage.SearchCatalogLink.Click();
+            WaitForPageRefresh();
+            var statusTimeElement = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[4];
+            var statusTimefromLocator = statusTimeElement.Text;
+            if (statusTimefromLocator.Equals(statusTime))
+            {
+                return true;
+            }
+            return false;
+        }
+
+        ///// <summary>
+        ///// Verifies Profile Name for existing profile
+        ///// </summary>
+        ///// <returns></returns>
+        public bool VerifyProfileNameAutoCatPage(string environment, string profile, string profileName)
+        {
+            b2BHomePage.SelectEnvironment(environment);
+            b2BHomePage.AutoCatalogListPageLink.Click();
+            webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
+            b2BAutoCatalogListPage = new B2BAutoCatalogListPage(webDriver);
+            WaitForPageRefresh();
+            b2BAutoCatalogListPage.ThreadId.SendKeys(profile);
+            b2BAutoCatalogListPage.SearchCatalogLink.Click();
+            WaitForPageRefresh();
+            var profileNameElement = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[1];
+            var profileNamefromLocator = profileNameElement.Text;
+            if (profileNamefromLocator.Equals(profileName))
+            {
+                return true;
+            }
+            return false;
+        }
+
+        ///// <summary>
+        ///// Verifies Profile Name for Test Harness for existing profile
+        ///// </summary>
+        ///// <returns></returns>
+        public bool VerifyProfileNameforTestHarnessAutoCatPage(string environment, string profile)
+        {
+            b2BHomePage.SelectEnvironment(environment);
+            b2BHomePage.AutoCatalogListPageLink.Click();
+            webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
+            b2BAutoCatalogListPage = new B2BAutoCatalogListPage(webDriver);
+            WaitForPageRefresh();
+            b2BAutoCatalogListPage.ThreadId.SendKeys(profile);
+            b2BAutoCatalogListPage.TestHarnessCheckbox.Click();
+            b2BAutoCatalogListPage.SearchCatalogLink.Click();
+            WaitForPageRefresh();
+            var profileNameElement = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[1];
+            var profileNamefromLocator = profileNameElement.Text;
+            if (profileNamefromLocator.Equals(String.Empty))
+            {
+                return true;
+            }
+            return false;
+        }
+
+        ///// <summary>
+        ///// Verifies RemoveItemsLt Checkbox defaultValue for new profile
+        ///// </summary>
+        ///// <returns></returns>
+        public bool VerifyRemoveItemsLtCheckboxdefaultValue()
+        {
+            b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+            if (!b2BBuyerCatalogPage.BcpCatalogEnabled.Selected)
+                b2BBuyerCatalogPage.BcpCatalogEnabled.Click();
+            b2BBuyerCatalogPage.EnableCatalogAutoGeneration.Click();
+            b2BBuyerCatalogPage.BuyerCatalogFirstIdentity.Click();
+            if (b2BBuyerCatalogPage.BcpchkRemoveItemsWithLTAbove3Days.Selected)
+            {
+                return false;
+            }
+            b2BBuyerCatalogPage.BcpchkRemoveItemsWithLTAbove3Days.Click();
+            b2BBuyerCatalogPage.CatalogConfigStandard.Click();
+            b2BBuyerCatalogPage.UpdateButton.Click();
+            return true;
+            }
+
+        ///// <summary>
+        ///// Verifies RemoveItems Lt Checkbox default Value for existing profile
+        ///// </summary>
+        ///// <returns></returns>
+        public bool VerifyRemoveItemsLtCheckboxdefaultValueExistingProfile(string environment, string profileName)
+        {
+
+            GoToBuyerCatalogTab(environment, profileName);
+            b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+            if (!b2BBuyerCatalogPage.BcpCatalogEnabled.Selected)
+                b2BBuyerCatalogPage.BcpCatalogEnabled.Click();
+            if (!b2BBuyerCatalogPage.EnableCatalogAutoGeneration.Selected)
+                b2BBuyerCatalogPage.EnableCatalogAutoGeneration.Click();
+            if (!b2BBuyerCatalogPage.BuyerCatalogFirstIdentity.Selected)
+                b2BBuyerCatalogPage.BuyerCatalogFirstIdentity.Click();
+            if (!b2BBuyerCatalogPage.CatalogConfigStandard.Selected)
+                b2BBuyerCatalogPage.CatalogConfigStandard.Click();
+            b2BBuyerCatalogPage.EnableCatalogAutoGeneration.WaitForElementDisplayed(TimeSpan.FromSeconds(30));
+            if (b2BBuyerCatalogPage.BcpchkRemoveItemsWithLTAbove3Days.Selected)
+            {
+                b2BBuyerCatalogPage.BcpchkRemoveItemsWithLTAbove3Days.Click();
+
+                b2BBuyerCatalogPage.UpdateButton.Click();
+                return true;
+            }
+            else if (!b2BBuyerCatalogPage.BcpchkRemoveItemsWithLTAbove3Days.Selected)
+            {
+                b2BBuyerCatalogPage.BcpchkRemoveItemsWithLTAbove3Days.Click();
+
+                b2BBuyerCatalogPage.UpdateButton.Click();
+                return true;
+            }
+            else return false;
+            
         }
 
         /// <summary>
@@ -1342,44 +1721,36 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             b2BAutoCatalogListPage.SelectTheCustomer(profileName);
             WaitForPageRefresh();
             b2BAutoCatalogListPage.SelectTheIdentity(identity);
+            webDriver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromSeconds(60));
             b2BAutoCatalogListPage.SearchCatalogLink.Click();
             WaitForPageRefresh();
-            if (
-                !b2BAutoCatalogListPage.CatalogListTableRows.All(
-                    r =>
-                        r.FindElements(By.TagName("td"))[0].Text.ToLowerInvariant()
-                            .StartsWith(identity.ToLowerInvariant())))
-                return false;
-
-            if (
-                !b2BAutoCatalogListPage.CatalogListTableRows.All(
-                    r => r.FindElements(By.TagName("td"))[0].ElementExists(By.TagName("a"))))
-                return false;
 
             if (
                 !b2BAutoCatalogListPage.CatalogListTableRows.All(
                     r =>
-                        r.FindElements(By.TagName("td"))[1].Text.ToLowerInvariant().Equals("delta") ||
-                        r.FindElements(By.TagName("td"))[1].Text.ToLowerInvariant().Equals("original")))
+                        r.FindElements(By.TagName("td"))[1].Text.ToLowerInvariant()
+                            .Equals(profileName.ToLowerInvariant())))
                 return false;
-
+           
             if (
                 !b2BAutoCatalogListPage.CatalogListTableRows.All(
-                    r => r.FindElements(By.TagName("td"))[0].Text.EndsWith(r.FindElements(By.TagName("td"))[7].Text)))
+                    r =>
+                        r.FindElements(By.TagName("td"))[2].Text.ToLowerInvariant().Equals("delta") ||
+                        r.FindElements(By.TagName("td"))[2].Text.ToLowerInvariant().Equals("original")))
                 return false;
-
+                                
             if (
                  !b2BAutoCatalogListPage.CatalogListTableRows.All(
                      r =>
-                         r.FindElements(By.TagName("td"))[2].Text.Equals(
+                         r.FindElements(By.TagName("td"))[3].Text.Equals(
                              b2BAutoCatalogListPage.StatusTable[0].FindElements(By.TagName("td"))[0].Text) ||
-                         r.FindElements(By.TagName("td"))[2].Text.Equals(
+                         r.FindElements(By.TagName("td"))[3].Text.Equals(
                              b2BAutoCatalogListPage.StatusTable[1].FindElements(By.TagName("td"))[0].Text) ||
-                         r.FindElements(By.TagName("td"))[2].Text.Equals(
+                         r.FindElements(By.TagName("td"))[3].Text.Equals(
                              b2BAutoCatalogListPage.StatusTable[2].FindElements(By.TagName("td"))[0].Text) ||
-                         r.FindElements(By.TagName("td"))[2].Text.Equals(
+                         r.FindElements(By.TagName("td"))[3].Text.Equals(
                              b2BAutoCatalogListPage.StatusTable[3].FindElements(By.TagName("td"))[0].Text) ||
-                         r.FindElements(By.TagName("td"))[2].Text.Equals(
+                         r.FindElements(By.TagName("td"))[3].Text.Equals(
                              b2BAutoCatalogListPage.StatusTable[4].FindElements(By.TagName("td"))[0].Text)))
                 return false;
 
@@ -2181,6 +2552,87 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             b2BBuyerCatalogPage.UpdateButton.Click();
             return VerifyAuditHistoryRow(oldValue, newValue, enableDeltaCatalogAuditHistoryProperty);
 
+        }
+
+        ///// <summary>
+        ///// Retrieve Delta Published Auto BHC Config Quote ID thru Part Viewer. Verify all required info in the table
+        ///// </summary>
+        ///// <returns></returns>
+        public bool VerifyRetrieveCatalogConfigAquoteId(string environment, string quoteid, string Headervalue,string HeaderRowvalue, string SubHeadervalue, string SubRowvalue1, string subRowvalue2)
+        {
+
+            b2BHomePage.SelectEnvironment(environment);
+            b2BHomePage.AutoCatalogPartViewerLink.Click();
+            webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
+            b2BAutoCatalogListPage = new B2BAutoCatalogListPage(webDriver);
+            WaitForPageRefresh();
+            webDriver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromMinutes(5));
+            b2BAutoCatalogListPage.PartViewerQuoteIdsLink.SendKeys(quoteid);
+            b2BAutoCatalogListPage.PartViewerSearchButton.Click();
+            WaitForPageRefresh();
+            b2BAutoCatalogListPage.PartViewerPlusButton.Click();
+            b2BAutoCatalogListPage.PartViewerSecondPlusButton.Click();
+            string[] HeaderStringvalue = Headervalue.Split(',');
+            string[] HeaderRowStringValue = HeaderRowvalue.Split(',');
+            string[] SubHeaderStringValue = SubHeadervalue.Split(',');
+            string[] SubRow1StringValue = SubRowvalue1.Split(',');
+            string[] subRow2StringValue = subRowvalue2.Split(',');
+            string TableXpath_First = "//*[@id='quoteTable']";
+            string Table1FirstRow_End = "/tbody[1]/tr[1]/td";
+            string Table1SubHeadingEnd = "/tbody[1]/tr[2]/td[2]/table/thead/tr/th";
+            string Table1SubRow_End = "/tbody[1]/tr[2]/td[2]/table/tbody/tr/td";
+            string Table2FirstRow_End = "/tbody[2]/tr[1]/td";
+            string Table2SubHeading_End = "/tbody[2]/tr[2]/td[2]/table/thead/tr/th";
+            string Table2SubRow_End = "/tbody[2]/tr[2]/td[2]/table/tbody/tr/td";
+            for (int j = 0; j < SubHeaderStringValue.Length; j++)
+            {
+                var SubHeaderElement = webDriver.FindElements(By.XPath(TableXpath_First + Table1SubHeadingEnd))[j];
+                var subHeaderTable1fromLocator = SubHeaderElement.Text;
+                var SubRowElemt = webDriver.FindElements(By.XPath(TableXpath_First + Table1SubRow_End))[j];
+                var subRowTable1fromLocator = SubRowElemt.Text;
+                var SubHeadingTable2 = webDriver.FindElements(By.XPath(TableXpath_First + Table2SubHeading_End))[j];
+                var subHeadingtable2fromLocator = SubHeadingTable2.Text;
+                var SubRowTable2 = webDriver.FindElements(By.XPath(TableXpath_First + Table2SubRow_End))[j];
+                var subRowTable2fromLocator = SubRowTable2.Text;
+                var subHeaderTestdata = SubHeaderStringValue[j];
+                var subRow1Testdata = SubRow1StringValue[j];
+                var subRow2Testdata = subRow2StringValue[j];
+                if (subHeaderTable1fromLocator.Equals(subHeaderTestdata) && subRowTable1fromLocator.Equals(subRow1Testdata) && subHeadingtable2fromLocator.Equals(subHeaderTestdata) && subRowTable2fromLocator.Equals(subRow2Testdata))
+                {
+                    subHeaderRows++;
+                }
+            }
+            //Header
+            for (int i = 0; i < HeaderStringvalue.Length; i++)
+            {
+                var HeaderElement = b2BAutoCatalogListPage.PartViewerHeader.FirstOrDefault().FindElements(By.TagName("th"))[i];
+                var HeaderTextfromLocator = HeaderElement.Text;
+                var HeadTestdata = HeaderStringvalue[i];
+                if (HeaderTextfromLocator.Equals(HeadTestdata))
+                {
+                    Headercount++;
+                }           
+            }
+            //HeaderRows
+            for (int z = 1; z < HeaderRowStringValue.Length; z++)
+            {
+                var HeaderRowElement = webDriver.FindElements(By.XPath(TableXpath_First + Table1FirstRow_End))[z];
+                var HeaderRowTextfromLocator = HeaderRowElement.Text;
+                var HeaderRowtable2Element = webDriver.FindElements(By.XPath(TableXpath_First + Table2FirstRow_End))[z];
+                var HeaderRowTable2TextfromLocator = HeaderRowtable2Element.Text;
+                var HeaderRowTestData = HeaderRowStringValue[z];
+                if (HeaderRowTextfromLocator.Equals(HeaderRowTestData) && HeaderRowTable2TextfromLocator.Equals(HeaderRowTestData))
+                {
+                    HeaderRowsCount++;
+                }
+            }
+           // Sub Header and Sub Rows Table1
+            
+            if (Headercount.Equals(9) && HeaderRowsCount.Equals(9) && subHeaderRows.Equals(8))
+            {
+                return true;
+            }
+            return false;
         }
 
         /// <summary>

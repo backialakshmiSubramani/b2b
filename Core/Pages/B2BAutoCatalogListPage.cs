@@ -208,6 +208,7 @@ namespace Modules.Channel.B2B.Core.Pages
             get { return webDriver.FindElement(By.Id("lnkClear")); }
         }
 
+        
         /// <summary>
         /// Auto Catalog List Page results Table 
         /// </summary>
@@ -217,8 +218,102 @@ namespace Modules.Channel.B2B.Core.Pages
             get { return webDriver.FindElements(By.XPath("//table[@st-safe-src='Catalogs']/tbody/tr")); }
         }
 
-       
-       
+        ///<summary>
+        /// Auto Catalog Part Viewer Quote Ids Link
+        /// </summary>
+        public IWebElement PartViewerQuoteIdsLink
+        {
+            get { return webDriver.FindElement(By.Id("quoteid")); }
+        }
+
+        ///<summary>
+        /// Auto Catalog part Viewer Search Button
+        /// </summary>
+        public IWebElement PartViewerSearchButton
+        {
+            get
+            {
+                return webDriver.FindElement(By.XPath("//*[@id='homepage-var']/div/div[2]/div/div[1]/div[2]/button"));
+            }
+        }
+
+        ///<summary>
+        /// Part Viewer table Parent Header 
+        /// </summary>
+        public ReadOnlyCollection<IWebElement> PartViewerHeader
+        {
+
+            get { return webDriver.FindElements(By.XPath("//*[@id='quoteTable']/thead/tr")); }
+        }
+
+        ///<summary>
+        /// Part Viewer Table 1st Row in first plus button
+        /// </summary>
+        public ReadOnlyCollection<IWebElement> PartViewerFirstRows
+        {
+
+            get { return webDriver.FindElements(By.XPath("//*[@id='quoteTable']/tbody[1]/tr[1]")); }
+        }
+
+        
+         ///<summary>
+        /// Part Viewer Page '+' First Button
+        /// </summary>
+        public IWebElement PartViewerPlusButton
+        {
+            get { return webDriver.FindElement(By.XPath("//*[@id='quoteTable']/tbody[1]/tr[1]/td[1]/img")); }
+        }
+
+        ///<summary>
+        /// Part Viewer Sub Header after clicking 1st plus button
+        /// </summary>
+        public ReadOnlyCollection<IWebElement> PartViewerSubHeader
+        {
+            get { return webDriver.FindElements(By.XPath("//*[@id='quoteTable']/tbody[1]/tr[2]/td[2]/table/thead/tr")); }
+        }
+
+        ///<summary>
+        /// Part Viewer Table sub Rows in first sub header
+        /// </summary>
+        public ReadOnlyCollection<IWebElement> PartViewerSubRows
+        {
+
+            get { return webDriver.FindElements(By.XPath("//*[@id='quoteTable']/tbody[1]/tr[2]/td[2]/table/tbody/tr")); }
+        }
+
+        ///<summary>
+        /// Part Viewer '+' second Button 
+        /// </summary>
+        public IWebElement PartViewerSecondPlusButton
+        {
+            get { return webDriver.FindElement(By.XPath("//*[@id='quoteTable']/tbody[2]/tr[1]/td[1]/img")); } 
+        }
+
+        ///<summary>
+        /// Part Viewer Table Second Row
+        /// </summary>
+        public ReadOnlyCollection<IWebElement> PartViewerSecondRow
+        {
+
+            get { return webDriver.FindElements(By.XPath("//*[@id='quoteTable']/tbody[2]/tr[1]")); }
+        }
+        ///<summary>
+        /// Part Viewer Sub Header after clicking second plus button
+        /// </summary>
+        public ReadOnlyCollection<IWebElement> PartViewerSecondSubHeader
+        {
+            get { return webDriver.FindElements(By.XPath("//*[@id='quoteTable']/tbody[2]/tr[2]/td[2]/table/thead/tr")); }
+        }
+
+        ///<summary>
+        /// Part Viewer Table sub Rows in second sub header
+        /// </summary>
+        public ReadOnlyCollection<IWebElement> PartViewerSecondSubRows
+        {
+
+            get { return webDriver.FindElements(By.XPath("//*[@id='quoteTable']/tbody[2]/tr[2]/td[2]/table/tbody/tr")); }
+        }
+        
         #endregion
 
         #region Helper Methods
@@ -262,10 +357,9 @@ namespace Modules.Channel.B2B.Core.Pages
             }
             else
             {
-                //webDriver.FindElement(By.XPath("//div[@ng-model='Identity']/div/div[@class='custom-select-search']/input")).SendKeys(identity);
                 webDriver.FindElement(By.XPath("//input[@ng-model='search.UserName']")).SendKeys(identity);
-                webDriver.FindElement(By.XPath("//div[@ng-model='Identity']/div/ul/li[1]/a[text()='" + identity + "']"))
-                    .Click();
+                webDriver.FindElement(By.XPath("//div[@ng-model='Identity']//div[@class='dropdown-menu ng-scope']//ul[@role='menu']/li[@class='ng-scope']/a[@role='menuitem']")).Click();
+                
             }
         }
     }
