@@ -206,6 +206,15 @@ namespace Modules.Channel.B2B.Core.Pages
             get { return webDriver.FindElement(By.LinkText("Auto Catalog List")); }
         }
 
+        /// <summary>
+        /// Auto Catalog Part Viewer
+        /// </summary>
+        public IWebElement AutoCatalogPartViewerLink
+        {
+            get { return webDriver.FindElement(By.LinkText("Auto Catalog Part Viewer")); }
+        }
+
+
         #endregion
 
         #region Element Actions
@@ -214,7 +223,7 @@ namespace Modules.Channel.B2B.Core.Pages
         {
             ////B2BProfileListLink.Click();
             javaScriptExecutor.ExecuteScript("arguments[0].click();", B2BProfileListLink);
-            webDriver.WaitForPageLoad(new TimeSpan(0,0,20));
+            webDriver.WaitForPageLoad(new TimeSpan(0, 0, 20));
         }
 
         public void ClickCrossReferenceListLink()

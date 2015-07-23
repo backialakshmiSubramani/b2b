@@ -156,6 +156,19 @@ namespace Modules.Channel.B2B.Core.Pages
         }
 
         /// <summary>
+        /// Catalog Enabled checkbox under Buyer Catalog - Processing Rules section
+        /// </summary>
+        private IWebElement _bcpchkRemoveItemsWithLTAbove3Days;
+        public IWebElement BcpchkRemoveItemsWithLTAbove3Days
+        {
+            get
+            {
+                if (_bcpchkRemoveItemsWithLTAbove3Days == null)
+                    _bcpchkRemoveItemsWithLTAbove3Days = webDriver.FindElement(By.Id("chkRemoveItemsWithLTAbove3Days"), new TimeSpan(0, 0, 30));
+                return _bcpchkRemoveItemsWithLTAbove3Days;
+            }
+        }
+        /// <summary>
         /// First Identity from the Automated BHC Catalog - Processing Rules section
         /// </summary>
         private IWebElement _buyerCatalogFirstIdentity;
@@ -734,7 +747,7 @@ namespace Modules.Channel.B2B.Core.Pages
             javaScriptExecutor.ExecuteScript("arguments[0].value=arguments[1]", element, value);
             return element;
         }
-        
+
         /// <summary>
         /// Unchecks all the config & option checkboxes
         /// </summary>
