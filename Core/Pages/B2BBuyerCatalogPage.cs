@@ -729,6 +729,116 @@ namespace Modules.Channel.B2B.Core.Pages
             }
         }
 
+        private IWebElement _inventoryFeedProcessingRules;
+
+        /// <summary>
+        /// 'Inventory Feed - Processing Rules' section - Collapse/Expand link
+        /// </summary>
+        public IWebElement InventoryFeedProcessingRules
+        {
+            get
+            {
+                return _inventoryFeedProcessingRules ??
+                       (_inventoryFeedProcessingRules =
+                           webDriver.FindElement(By.LinkText("Inventory Feed - Processing Rules"),
+                               new TimeSpan(0, 0, 10)));
+            }
+        }
+
+        private IWebElement _inventoryFeedSectionTable;
+
+        /// <summary>
+        /// 'Inventory Feed - Processing Rules' section
+        /// </summary>
+        public IWebElement InventoryFeedSectionTable
+        {
+            get
+            {
+                return _inventoryFeedSectionTable ??
+                       (_inventoryFeedSectionTable = webDriver.FindElement(By.Id("ContentPageHolder_Table6"),
+                           new TimeSpan(0, 0, 10)));
+            }
+        }
+
+        private IWebElement _clickToRunOnceButton;
+
+        /// <summary>
+        /// 'Click to Run Once' button under 'Inventory Feed - Processing Rules' section
+        /// </summary>
+        public IWebElement ClickToRunOnceButton
+        {
+            get
+            {
+                return _clickToRunOnceButton ??
+                       (_clickToRunOnceButton = webDriver.FindElement(By.Id("ContentPageHolder_btnClicktoRunOnce"),
+                           new TimeSpan(0, 0, 10)));
+            }
+        }
+
+        private IWebElement _enableAutoInventoryCheckbox;
+
+        /// <summary>
+        /// Enable Automated Inventory Feed Checkbox
+        /// </summary>
+        public IWebElement EnableAutoInventoryCheckbox
+        {
+            get
+            {
+                return _enableAutoInventoryCheckbox ??
+                       (_enableAutoInventoryCheckbox =
+                           webDriver.FindElement(By.Id("ContentPageHolder_chk_BC_AutomatedATSCheck"),
+                               new TimeSpan(0, 0, 10)));
+            }
+        }
+
+        private IWebElement _autoInventoryDaysDropdown;
+
+        /// <summary>
+        /// Auto Inventory Refresh Interval - Days Dropdown
+        /// </summary>
+        public IWebElement AutoInventoryDaysDropdown
+        {
+            get
+            {
+                return _autoInventoryDaysDropdown ??
+                       (_autoInventoryDaysDropdown =
+                           webDriver.FindElement(By.Id("ContentPageHolder_dd_AutomatedATSIntervaldays"),
+                               new TimeSpan(0, 0, 10)));
+            }
+        }
+
+        private IWebElement _autoInventoryHoursDropdown;
+
+        /// <summary>
+        /// Auto Inventory Refresh Interval - Hours Dropdown
+        /// </summary>
+        public IWebElement AutoInventoryHoursDropdown
+        {
+            get
+            {
+                return _autoInventoryHoursDropdown ??
+                       (_autoInventoryHoursDropdown =
+                           webDriver.FindElement(By.Id("ContentPageHolder_dd_AutomatedATSIntervalhr"),
+                               new TimeSpan(0, 0, 10)));
+            }
+        }
+
+        private IWebElement _autoInventoryMinutesDropdown;
+
+        /// <summary>
+        /// Auto Inventory Refresh Interval - Minutes Dropdown
+        /// </summary>
+        public IWebElement AutoInventoryMinutesDropdown
+        {
+            get
+            {
+                return _autoInventoryMinutesDropdown ??
+                       (_autoInventoryMinutesDropdown =
+                           webDriver.FindElement(By.Id("ContentPageHolder_dd_AutomatedATSIntervalmn"),
+                               new TimeSpan(0, 0, 10)));
+            }
+        }
+
         #endregion
 
         #region Helper Methods
@@ -757,6 +867,134 @@ namespace Modules.Channel.B2B.Core.Pages
             {
                 configElement.Click();
             }
+        }
+
+        /// <summary>
+        /// Validates the presence of the required fields in 'Inventory Feed - Processing Rules' section
+        /// </summary>
+        /// <param name="clickToRunOnceButtonLabelText"></param>
+        /// <param name="clickToRunOnceButtonText"></param>
+        /// <param name="enableAutoInventoryLabelText"></param>
+        /// <param name="autoInventoryRefreshIntervalLabelText"></param>
+        /// <returns>The <see cref="bool"/></returns>
+        public bool VerifyInventoryFeedSectionFields(string clickToRunOnceButtonLabelText,
+            string clickToRunOnceButtonText, string enableAutoInventoryLabelText,
+            string autoInventoryRefreshIntervalLabelText)
+        {
+            return VerifyClickToRunOnceButton(clickToRunOnceButtonLabelText, clickToRunOnceButtonText) &&
+                   (VerifyEnableAutoInventoryCheckbox(enableAutoInventoryLabelText) &&
+                    VerifyAutoInventoryRefreshIntervalDropdowns(autoInventoryRefreshIntervalLabelText));
+        }
+
+
+        /// <summary>
+        /// Verifies if the 'Automated Inventory Feed Failure Notification Email' textbox is present
+        /// </summary>
+        /// <param name="failureNotificationEmailLabelText"></param>
+        /// <returns>The <see cref="bool"/></returns>
+        public bool VerifyPresenceOfEmailField(string failureNotificationEmailLabelText)
+        {
+            return
+                InventoryFeedSectionTable.ElementExists(
+                    By.XPath("tbody/tr[4]/td[2]/input[@id='ContentPageHolder_txt_AutomatedATSNotification']")) ||
+                InventoryFeedSectionTable.Text.Contains(failureNotificationEmailLabelText);
+        }
+
+        /// <summary>
+        /// Verify if all the dropdowns of Refresh Interval are disabled
+        /// </summary>
+        /// <returns>The <see cref="bool"/></returns>
+        public bool VerifyRefreshIntervalDropdownsAreDisabled()
+        {
+            return !AutoInventoryDaysDropdown.Enabled && !AutoInventoryHoursDropdown.Enabled &&
+                   !AutoInventoryMinutesDropdown.Enabled;
+        }
+
+        /// <summary>
+        /// Verify if all the dropdowns of Refresh Interval are enabled
+        /// </summary>
+        /// <returns>The <see cref="bool"/></returns>
+        public bool VerifyRefreshIntervalDropdownsAreEnabled()
+        {
+            return AutoInventoryDaysDropdown.Enabled && AutoInventoryHoursDropdown.Enabled &&
+                   AutoInventoryMinutesDropdown.Enabled;
+        }
+
+        private bool VerifyClickToRunOnceButton(string clickToRunOnceButtonLabelText, string clickToRunOnceButtonText)
+        {
+            var firstRow = InventoryFeedSectionTable.FindElement(By.XPath("tbody/tr[1]"));
+
+            if (
+                !firstRow.FindElement(By.XPath("td[1]/span[@id='ContentPageHolder_lblManualATSEnabled']"))
+                    .Text.Equals(clickToRunOnceButtonLabelText))
+            {
+                return false;
+            }
+
+            return firstRow.FindElement(By.XPath("td[2]/input[@id='ContentPageHolder_btnClicktoRunOnce']"))
+                .GetAttribute("value")
+                .Equals(clickToRunOnceButtonText);
+        }
+
+        private bool VerifyEnableAutoInventoryCheckbox(string enableAutoInventoryLabelText)
+        {
+            var secondRow = InventoryFeedSectionTable.FindElement(By.XPath("tbody/tr[2]"));
+
+            if (
+                !secondRow.FindElement(By.XPath("td[1]/span[@id='ContentPageHolder_lblAutomatedATSEnabled']"))
+                    .Text.Equals(enableAutoInventoryLabelText))
+            {
+                return false;
+            }
+
+            return secondRow.FindElement(By.XPath("td[2]/input[@id='ContentPageHolder_chk_BC_AutomatedATSCheck']"))
+                .GetAttribute("type")
+                .Equals("checkbox");
+        }
+
+        private bool VerifyAutoInventoryRefreshIntervalDropdowns(string autoInventoryRefreshIntervalLabelText)
+        {
+            var thirdRow = InventoryFeedSectionTable.FindElement(By.XPath("tbody/tr[3]"));
+            
+            if (
+                !thirdRow.FindElement(By.XPath("td[1]/span[@id='ContentPageHolder_lblAutomatedATSInterval']"))
+                    .Text.Equals(autoInventoryRefreshIntervalLabelText))
+            {
+                return false;
+            }
+
+            var intervalDropdowns = thirdRow.FindElements(By.XPath("td[2]/select"));
+
+            if (intervalDropdowns.Count() != 3)
+            {
+                return false;
+            }
+
+            var daysOptions = Enumerable.Range(0, 7);
+
+            if (intervalDropdowns[0].Select().Options.Count() != daysOptions.Count() ||
+                intervalDropdowns[0].Select().Options.Any(o => !daysOptions.Contains(Convert.ToInt32(o.Text))))
+            {
+                return false;
+            }
+
+            var hoursOptions = Enumerable.Range(0, 24);
+
+            if (intervalDropdowns[1].Select().Options.Count() != hoursOptions.Count() ||
+                intervalDropdowns[1].Select().Options.Any(o => !hoursOptions.Contains(Convert.ToInt32(o.Text))))
+            {
+                return false;
+            }
+
+            var minutesOptions = new[] { "0", "30" };
+
+            if (intervalDropdowns[2].Select().Options.Count() != minutesOptions.Count() ||
+                intervalDropdowns[2].Select().Options.Any(o => !minutesOptions.Contains(o.Text)))
+            {
+                return false;
+            }
+
+            return true;
         }
 
         #endregion
