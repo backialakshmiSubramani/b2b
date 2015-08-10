@@ -1027,7 +1027,8 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
             WaitForPageRefresh();
             b2BAutoCatalogListPage = new B2BAutoCatalogListPage(webDriver);
-            return b2BAutoCatalogListPage.PageHeader.Text.Equals(pageHeaderText);
+            webDriver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromSeconds(30));
+            return b2BAutoCatalogListPage.PageHeader.Text.Contains(pageHeaderText);
         }
 
         /// <summary>
