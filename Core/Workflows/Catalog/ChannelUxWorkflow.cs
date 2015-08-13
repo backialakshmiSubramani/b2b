@@ -17,8 +17,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         private IWebDriver webDriver;
         private B2BChannelUx B2BChannelUx;
         private IJavaScriptExecutor javaScriptExecutor;
-        private B2BAutoCatalogListPage b2BAutoCatalogListPage;
-
+        
         /// <summary>
         /// Constructor for ChannelUxWorkflow
         /// </summary>
@@ -40,6 +39,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             string[] LinkTestStringValue = linksTextTestData.Split(',');
             B2BChannelUx = new B2BChannelUx(webDriver);
             B2BChannelUx.SelectEnvironment(environment);
+            webDriver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromMinutes(1));
             for (int j = 1; j <= LinkTestStringValue.Length; j++)
                 {
                     string TestData = LinkTestStringValue[j-1];

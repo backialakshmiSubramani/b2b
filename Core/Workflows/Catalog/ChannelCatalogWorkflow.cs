@@ -3038,8 +3038,61 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
 
             return newValue.Equals(newv);
         }
+        
+        /// <summary>
+        /// Verifies Sys checkbox is present and non editable in Auto Cat List page. 
+        /// </summary>
+        public bool VerifySysCheckboxinAutoCatListPage(string environment)
+        {
+            b2BHomePage.SelectEnvironment(environment);
+            b2BHomePage.AutoCatalogListPageLink.Click();
+            webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
+            b2BAutoCatalogListPage = new B2BAutoCatalogListPage(webDriver);
+            webDriver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromMinutes(2));
+            var firstSysElement = webDriver.FindElement(By.XPath("//table[@st-safe-src='Catalogs']/tbody/tr/td[16]/input"));
+            var sysCheckbox = firstSysElement.GetAttribute("disabled");
+            if (!sysCheckbox.Equals("true"))
+            {
+                return false;
+            }
+            return true;
+        }
 
-
+        /// <summary>
+        /// Verifies System Catalog checkbox is present in Auto BHC section. 
+        /// </summary>
+        public bool VerifySystemCataloginAutoBhcSection(string environment, string profileName)
+        {
+            GoToBuyerCatalogTab(environment, profileName);
+            b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+            b2BBuyerCatalogPage.EditScheduleButton.Click();
+            if (!b2BBuyerCatalogPage.BcpchkSysCatalogCheckbox.Selected)
+            {
+                b2BBuyerCatalogPage.BcpchkSysCatalogCheckbox.Click();
+                b2BBuyerCatalogPage.UpdateButton.Click();
+                b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+                b2BBuyerCatalogPage.AutomatedBhcCatalogProcessingRules.Click();
+                b2BBuyerCatalogPage.EditScheduleButton.Click();
+                if (!b2BBuyerCatalogPage.BcpchkSysCatalogCheckbox.Selected)
+                {
+                    return false;
+                }
+                return true;
+            }
+            else
+            {
+                b2BBuyerCatalogPage.BcpchkSysCatalogCheckbox.Click();
+                b2BBuyerCatalogPage.UpdateButton.Click();
+                b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+                b2BBuyerCatalogPage.AutomatedBhcCatalogProcessingRules.Click();
+                b2BBuyerCatalogPage.EditScheduleButton.Click();
+                if (b2BBuyerCatalogPage.BcpchkSysCatalogCheckbox.Selected)
+                {
+                    return false;
+                }
+                return true;
+            }
+        }
     }
 
 

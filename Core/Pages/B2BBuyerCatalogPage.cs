@@ -168,6 +168,20 @@ namespace Modules.Channel.B2B.Core.Pages
                 return _bcpchkRemoveItemsWithLTAbove3Days;
             }
         }
+
+        /// <summary>
+        /// Catalog Enabled checkbox under Buyer Catalog - Processing Rules section
+        /// </summary>
+        private IWebElement _bcpchkSysCatalogCheckbox;
+        public IWebElement BcpchkSysCatalogCheckbox
+        {
+            get
+            {
+                if (_bcpchkSysCatalogCheckbox == null)
+                    _bcpchkSysCatalogCheckbox = webDriver.FindElement(By.XPath("//*[@id='chkSystemCatalog']"), new TimeSpan(0, 0, 30));
+                return _bcpchkSysCatalogCheckbox;
+            }
+        }
         /// <summary>
         /// First Identity from the Automated BHC Catalog - Processing Rules section
         /// </summary>
