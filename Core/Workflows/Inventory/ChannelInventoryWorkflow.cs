@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Linq;
 using Dell.Adept.UI.Web.Support.Extensions.WebElement;
+using OpenQA.Selenium;
 using Modules.Channel.B2B.Core.Pages;
 using Modules.Channel.B2B.Core.Workflows.Common;
-using OpenQA.Selenium;
+using Modules.Channel.B2B.DAL.Inventory;
 
 namespace Modules.Channel.B2B.Core.Workflows.Inventory
 {
@@ -14,6 +16,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Inventory
         private IWebDriver webDriver;
         private AccessProfile accessProfile;
         private B2BBuyerCatalogPage b2BBuyerCatalogPage;
+        private B2BEntities b2BEntities;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ChannelInventoryWorkflow"/> class.
@@ -35,7 +38,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Inventory
         /// <param name="clickToRunOnceButtonText"></param>
         /// <param name="enableAutoInventoryLabelText"></param>
         /// <param name="autoInventoryRefreshIntervalLabelText"></param>
-        /// <returns>The <see cref="bool"/>/></returns>
+        /// <returns>The <see cref="bool"/></returns>
         public bool VerifyFieldsInInventoryFeedProcessingRulesSection(string environment, string profileName,
             string clickToRunOnceButtonLabelText, string clickToRunOnceButtonText, string enableAutoInventoryLabelText,
             string autoInventoryRefreshIntervalLabelText)
@@ -55,7 +58,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Inventory
         /// <param name="environment"></param>
         /// <param name="profileName"></param>
         /// <param name="failureNotificationEmailLabelText"></param>
-        /// <returns>The <see cref="bool"/>/></returns>
+        /// <returns>The <see cref="bool"/></returns>
         public bool VerifyPresenceOfEmailField(string environment, string profileName,
             string failureNotificationEmailLabelText)
         {
@@ -72,7 +75,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Inventory
         /// </summary>
         /// <param name="environment"></param>
         /// <param name="profileName"></param>
-        /// <returns>The <see cref="bool"/>/></returns>
+        /// <returns>The <see cref="bool"/></returns>
         public bool VerifyEnableDisableAutoInventoryCheckbox(string environment, string profileName)
         {
             accessProfile.GoToBuyerCatalogTab(environment, profileName);
@@ -86,6 +89,303 @@ namespace Modules.Channel.B2B.Core.Workflows.Inventory
             b2BBuyerCatalogPage.EnableAutoInventoryCheckbox.Click();
 
             return b2BBuyerCatalogPage.VerifyRefreshIntervalDropdownsAreEnabled();
+        }
+
+        /// <summary>
+        /// Verifies the last_mod_date of the newly created profile is the time of profile creation
+        /// </summary>
+        /// <param name="environment"></param>
+        /// <param name="customerSet"></param>
+        /// <param name="accessGroup"></param>
+        /// <param name="profileNameBase"></param>
+        /// <returns>The <see cref="bool"/></returns>
+        public bool VerifyLastModifiedDateOfNewProfile(string environment, string customerSet, string accessGroup, string profileNameBase)
+        {
+            var timeBeforeProfileCreation = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow,
+                TimeZoneInfo.FindSystemTimeZoneById("Central Standard Time"));
+
+            // Create new profile and verify the last modified date
+            var newProfileName = accessProfile.CreateNewProfile(environment, customerSet, accessGroup, profileNameBase);
+            var lastModifiedDate = GetLastModifiedDate(newProfileName);
+
+            return lastModifiedDate >= timeBeforeProfileCreation;
+        }
+
+        /// <summary>
+        /// Verifies the last_mod_date is updated while enabling or disabling Auto Inventory
+        /// </summary>
+        /// <param name="environment"></param>
+        /// <param name="profileName"></param>
+        /// <returns>The <see cref="bool"/></returns>
+        public bool VerifyLastModifiedDateForEnableDisableAutoInventory(string environment, string profileName)
+        {
+            DateTime? lastModifiedDateBeforeSave;
+            DateTime timeBeforeSave;
+            DateTime? lastModifiedDate;
+
+            accessProfile.GoToBuyerCatalogTab(environment, profileName);
+            b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+
+            // If Auto Inventory Checkbox is checked, uncheck and save.
+            if (b2BBuyerCatalogPage.EnableAutoInventoryCheckbox.Selected)
+            {
+                b2BBuyerCatalogPage.EnableAutoInventoryCheckbox.Click();
+                b2BBuyerCatalogPage.UpdateButton.Click();
+                b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+            }
+
+            // Check Auto Inventory Checkbox, save changes & verify last modified date
+            b2BBuyerCatalogPage.EnableAutoInventoryCheckbox.Click();
+            timeBeforeSave = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow,
+                TimeZoneInfo.FindSystemTimeZoneById("Central Standard Time"));
+            lastModifiedDateBeforeSave = GetLastModifiedDate(profileName);
+            b2BBuyerCatalogPage.UpdateButton.Click();
+            accessProfile.WaitForPageRefresh();
+            lastModifiedDate = GetLastModifiedDate(profileName);
+
+            if (lastModifiedDate < timeBeforeSave && lastModifiedDateBeforeSave == lastModifiedDate)
+            {
+                return false;
+            }
+
+            // Uncheck Auto Inventory Checkbox, save changes & verify last modified date
+            b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+            b2BBuyerCatalogPage.EnableAutoInventoryCheckbox.Click();
+            timeBeforeSave = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow,
+                TimeZoneInfo.FindSystemTimeZoneById("Central Standard Time"));
+            lastModifiedDateBeforeSave = GetLastModifiedDate(profileName);
+            b2BBuyerCatalogPage.UpdateButton.Click();
+            accessProfile.WaitForPageRefresh();
+            lastModifiedDate = GetLastModifiedDate(profileName);
+
+            if (lastModifiedDate < timeBeforeSave && lastModifiedDateBeforeSave == lastModifiedDate)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Verifies the last_mod_date is updated while changing the value in Days Dropdown
+        /// </summary>
+        /// <param name="environment"></param>
+        /// <param name="profileName"></param>
+        /// <returns>The <see cref="bool"/></returns>
+        public bool VerifyLastModifiedDateForChangeInDaysDropdown(string environment, string profileName)
+        {
+            DateTime? lastModifiedDateBeforeSave;
+            DateTime timeBeforeSave;
+            DateTime? lastModifiedDate;
+
+            accessProfile.GoToBuyerCatalogTab(environment, profileName);
+            b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+
+            // If Auto Inventory Checkbox is unchecked, check and save.
+            if (!b2BBuyerCatalogPage.EnableAutoInventoryCheckbox.Selected)
+            {
+                b2BBuyerCatalogPage.EnableAutoInventoryCheckbox.Click();
+            }
+
+            // Select a value in Days dropdown and save.
+            b2BBuyerCatalogPage.AutoInventoryDaysDropdown.Select().SelectByValue("1");
+            b2BBuyerCatalogPage.UpdateButton.Click();
+            accessProfile.WaitForPageRefresh();
+
+            // Change the value in Days dropdown, save and verify last modified date.
+            b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+            b2BBuyerCatalogPage.AutoInventoryDaysDropdown.Select().SelectByValue("2");
+            timeBeforeSave = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow,
+                TimeZoneInfo.FindSystemTimeZoneById("Central Standard Time"));
+            lastModifiedDateBeforeSave = GetLastModifiedDate(profileName);
+            b2BBuyerCatalogPage.UpdateButton.Click();
+            accessProfile.WaitForPageRefresh();
+            lastModifiedDate = GetLastModifiedDate(profileName);
+
+            if (lastModifiedDate < timeBeforeSave && lastModifiedDateBeforeSave == lastModifiedDate)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Verifies the last_mod_date is updated while changing the value in Hours Dropdown
+        /// </summary>
+        /// <param name="environment"></param>
+        /// <param name="profileName"></param>
+        /// <returns>The <see cref="bool"/></returns>
+        public bool VerifyLastModifiedDateForChangeInHoursDropdown(string environment, string profileName)
+        {
+            DateTime? lastModifiedDateBeforeSave;
+            DateTime timeBeforeSave;
+            DateTime? lastModifiedDate;
+
+            accessProfile.GoToBuyerCatalogTab(environment, profileName);
+            b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+
+            // If Auto Inventory Checkbox is unchecked, check and save.
+            if (!b2BBuyerCatalogPage.EnableAutoInventoryCheckbox.Selected)
+            {
+                b2BBuyerCatalogPage.EnableAutoInventoryCheckbox.Click();
+            }
+
+            // Select a value in Hours dropdown and save.
+            b2BBuyerCatalogPage.AutoInventoryHoursDropdown.Select().SelectByValue("11");
+            b2BBuyerCatalogPage.UpdateButton.Click();
+            accessProfile.WaitForPageRefresh();
+
+            // Change the value in Hours dropdown, save and verify last modified date.
+            b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+            b2BBuyerCatalogPage.AutoInventoryHoursDropdown.Select().SelectByValue("12");
+            timeBeforeSave = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow,
+                TimeZoneInfo.FindSystemTimeZoneById("Central Standard Time"));
+            lastModifiedDateBeforeSave = GetLastModifiedDate(profileName);
+            b2BBuyerCatalogPage.UpdateButton.Click();
+            accessProfile.WaitForPageRefresh();
+            lastModifiedDate = GetLastModifiedDate(profileName);
+
+            if (lastModifiedDate < timeBeforeSave && lastModifiedDateBeforeSave == lastModifiedDate)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Verifies the last_mod_date is updated while changing the value in Minutes Dropdown
+        /// </summary>
+        /// <param name="environment"></param>
+        /// <param name="profileName"></param>
+        /// <returns>The <see cref="bool"/></returns>
+        public bool VerifyLastModifiedDateForChangeInMinutesDropdown(string environment, string profileName)
+        {
+            DateTime? lastModifiedDateBeforeSave;
+            DateTime timeBeforeSave;
+            DateTime? lastModifiedDate;
+
+            accessProfile.GoToBuyerCatalogTab(environment, profileName);
+            b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+
+            // If Auto Inventory Checkbox is unchecked, check and save.
+            if (!b2BBuyerCatalogPage.EnableAutoInventoryCheckbox.Selected)
+            {
+                b2BBuyerCatalogPage.EnableAutoInventoryCheckbox.Click();
+            }
+
+            // Select a value in Minutes dropdown and save.
+            b2BBuyerCatalogPage.AutoInventoryMinutesDropdown.Select().SelectByValue("0");
+            b2BBuyerCatalogPage.UpdateButton.Click();
+            accessProfile.WaitForPageRefresh();
+
+            // Change the value in Minutes dropdown, save and verify last modified date.
+            b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+            b2BBuyerCatalogPage.AutoInventoryMinutesDropdown.Select().SelectByValue("30");
+            timeBeforeSave = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow,
+                TimeZoneInfo.FindSystemTimeZoneById("Central Standard Time"));
+            lastModifiedDateBeforeSave = GetLastModifiedDate(profileName);
+            b2BBuyerCatalogPage.UpdateButton.Click();
+            accessProfile.WaitForPageRefresh();
+            lastModifiedDate = GetLastModifiedDate(profileName);
+
+            if (lastModifiedDate < timeBeforeSave && lastModifiedDateBeforeSave == lastModifiedDate)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Verifies the last_mod_date is updated while changing a field in Auto BHC Section
+        /// </summary>
+        /// <param name="environment"></param>
+        /// <param name="profileName"></param>
+        /// <returns>The <see cref="bool"/></returns>
+        public bool VerifyLastModifiedDateForChangeInAutoBhcSection(string environment, string profileName)
+        {
+            DateTime? lastModifiedDateBeforeSave;
+            DateTime timeBeforeSave;
+            DateTime? lastModifiedDate;
+
+            accessProfile.GoToBuyerCatalogTab(environment, profileName);
+            b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+            b2BBuyerCatalogPage.AutomatedBhcCatalogProcessingRules.Click();
+
+            // Change the Catalog Operation selected, save and verify last modified date.
+            switch (b2BBuyerCatalogPage.CatalogOperationSelected.GetAttribute("value"))
+            {
+                case "1":
+                    b2BBuyerCatalogPage.CatalogOperationCreatePublish.Click();
+                    break;
+                case "2":
+                    b2BBuyerCatalogPage.CatalogOperationCreate.Click();
+                    break;
+            }
+
+            timeBeforeSave = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow,
+                TimeZoneInfo.FindSystemTimeZoneById("Central Standard Time"));
+            lastModifiedDateBeforeSave = GetLastModifiedDate(profileName);
+            b2BBuyerCatalogPage.UpdateButton.Click();
+            accessProfile.WaitForPageRefresh();
+            lastModifiedDate = GetLastModifiedDate(profileName);
+
+            if (lastModifiedDate < timeBeforeSave && lastModifiedDateBeforeSave == lastModifiedDate)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Verifies the last_mod_date is updated while changing a field in Buyer Catalog tab
+        /// </summary>
+        /// <param name="environment"></param>
+        /// <param name="profileName"></param>
+        /// <returns>The <see cref="bool"/></returns>
+        public bool VerifyLastModifiedDateForChangeInBuyerCatalogTab(string environment, string profileName)
+        {
+            DateTime? lastModifiedDateBeforeSave;
+            DateTime timeBeforeSave;
+            DateTime? lastModifiedDate;
+
+            accessProfile.GoToBuyerCatalogTab(environment, profileName);
+            b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+
+            // Check/Uncheck the Catalog Enabled checkbox, save and verify last modified date.
+            b2BBuyerCatalogPage.BcpCatalogEnabled.Click();
+
+            timeBeforeSave = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow,
+               TimeZoneInfo.FindSystemTimeZoneById("Central Standard Time"));
+            lastModifiedDateBeforeSave = GetLastModifiedDate(profileName);
+            b2BBuyerCatalogPage.UpdateButton.Click();
+            accessProfile.WaitForPageRefresh();
+            lastModifiedDate = GetLastModifiedDate(profileName);
+
+            if (lastModifiedDate < timeBeforeSave && lastModifiedDateBeforeSave == lastModifiedDate)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Returns the last_mod_date of the profile provided
+        /// </summary>
+        /// <param name="profileName"></param>
+        /// <returns>The <see cref="DateTime"/></returns>
+        private DateTime? GetLastModifiedDate(string profileName)
+        {
+            b2BEntities = new B2BEntities();
+
+            return (from cm in b2BEntities.b2b_profile
+                    where cm.user_id == profileName
+                    select cm.last_mod_date)
+                .FirstOrDefault();
         }
     }
 }
