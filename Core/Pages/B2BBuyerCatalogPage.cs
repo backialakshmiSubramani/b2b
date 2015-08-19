@@ -183,6 +183,19 @@ namespace Modules.Channel.B2B.Core.Pages
             }
         }
         /// <summary>
+        /// Cross reference checkbox under Buyer Catalog - Processing Rules section
+        /// </summary>
+        private IWebElement _bcpchkCrossRefernceUpdate;
+        public IWebElement BcpchkCrossRefernceUpdate
+        {
+            get
+            {
+                if (_bcpchkCrossRefernceUpdate == null)
+                    _bcpchkCrossRefernceUpdate = webDriver.FindElement(By.Id("chkCrossRefUpdate"), new TimeSpan(0, 0, 30));
+                return _bcpchkCrossRefernceUpdate;
+            }
+        }
+        /// <summary>
         /// First Identity from the Automated BHC Catalog - Processing Rules section
         /// </summary>
         private IWebElement _buyerCatalogFirstIdentity;

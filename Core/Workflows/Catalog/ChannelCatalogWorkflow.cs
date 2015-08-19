@@ -3045,10 +3045,11 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         public bool VerifySysCheckboxinAutoCatListPage(string environment)
         {
             b2BHomePage.SelectEnvironment(environment);
+            webDriver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromMinutes(1));
             b2BHomePage.AutoCatalogListPageLink.Click();
             webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
             b2BAutoCatalogListPage = new B2BAutoCatalogListPage(webDriver);
-            webDriver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromMinutes(2));
+            WaitForPageRefresh();
             var firstSysElement = webDriver.FindElement(By.XPath("//table[@st-safe-src='Catalogs']/tbody/tr/td[16]/input"));
             var sysCheckbox = firstSysElement.GetAttribute("disabled");
             if (!sysCheckbox.Equals("true"))
@@ -3066,6 +3067,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             GoToBuyerCatalogTab(environment, profileName);
             b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
             b2BBuyerCatalogPage.EditScheduleButton.Click();
+            b2BBuyerCatalogPage.SetTextBoxValue(b2BBuyerCatalogPage.OriginalCatalogStartDate, DateTime.Now.AddDays(1).ToString(MMDDYYYY));
             if (!b2BBuyerCatalogPage.BcpchkSysCatalogCheckbox.Selected)
             {
                 b2BBuyerCatalogPage.BcpchkSysCatalogCheckbox.Click();
@@ -3087,6 +3089,39 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                 b2BBuyerCatalogPage.AutomatedBhcCatalogProcessingRules.Click();
                 b2BBuyerCatalogPage.EditScheduleButton.Click();
                 if (b2BBuyerCatalogPage.BcpchkSysCatalogCheckbox.Selected)
+                {
+                    return false;
+                }
+                return true;
+            }
+        }
+
+        /// <summary>
+        /// Verifies Cross reference checkbox is present in Auto BHC section. 
+        /// </summary>
+        public bool VerifyCrossRefCheckboxinAutoBhcSection(string environment, string profileName)
+        {
+            GoToBuyerCatalogTab(environment, profileName);
+            b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+            if (!b2BBuyerCatalogPage.BcpchkCrossRefernceUpdate.Selected)
+            {
+                b2BBuyerCatalogPage.BcpchkCrossRefernceUpdate.Click();
+                b2BBuyerCatalogPage.UpdateButton.Click();
+                b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+                b2BBuyerCatalogPage.AutomatedBhcCatalogProcessingRules.Click();
+                if (!b2BBuyerCatalogPage.BcpchkCrossRefernceUpdate.Selected)
+                {
+                    return false;
+                }
+                return true;
+            }
+            else
+            {
+                b2BBuyerCatalogPage.BcpchkCrossRefernceUpdate.Click();
+                b2BBuyerCatalogPage.UpdateButton.Click();
+                b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+                b2BBuyerCatalogPage.AutomatedBhcCatalogProcessingRules.Click();
+                if (b2BBuyerCatalogPage.BcpchkCrossRefernceUpdate.Selected)
                 {
                     return false;
                 }
