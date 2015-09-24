@@ -174,8 +174,8 @@ namespace Modules.Channel.B2B.Core.Pages
         {
             get
             {
-                webDriver.WaitForElement(By.XPath("//a[contains(text(),' Advance Ship Notification')]"), TimeSpan.FromSeconds(10));
-                return webDriver.FindElement(By.XPath("//a[contains(text(),' Advance Ship Notification')]"));
+                webDriver.WaitForElement(By.XPath("//a[contains(text(),' Channel ASN')]"), TimeSpan.FromSeconds(10));
+                return webDriver.FindElement(By.XPath("//a[contains(text(),' Channel ASN')]"));
             }
         }
 
