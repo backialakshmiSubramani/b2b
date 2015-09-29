@@ -182,6 +182,20 @@ namespace Modules.Channel.B2B.Core.Pages
                 return _bcpchkSysCatalogCheckbox;
             }
         }
+
+        /// <summary>
+        /// Catalog Enabled checkbox under Buyer Catalog - Processing Rules section
+        /// </summary>
+        private IWebElement _bcpchkSPLFlagCheckbox;
+        public IWebElement BcpchkSPLFlagCheckbox
+        {
+            get
+            {
+                if (_bcpchkSPLFlagCheckbox == null)
+                    _bcpchkSPLFlagCheckbox = webDriver.FindElement(By.XPath("//*[@id='chkSPL']"), new TimeSpan(0, 0, 30));
+                return _bcpchkSPLFlagCheckbox;
+            }
+        }
         /// <summary>
         /// Cross reference checkbox under Buyer Catalog - Processing Rules section
         /// </summary>
@@ -193,6 +207,48 @@ namespace Modules.Channel.B2B.Core.Pages
                 if (_bcpchkCrossRefernceUpdate == null)
                     _bcpchkCrossRefernceUpdate = webDriver.FindElement(By.Id("chkCrossRefUpdate"), new TimeSpan(0, 0, 30));
                 return _bcpchkCrossRefernceUpdate;
+            }
+        }
+
+        /// <summary>
+        /// Cross reference Std config checkbox under Buyer Catalog - Processing Rules section
+        /// </summary>
+        private IWebElement _bcpchkCrossRefernceStdUpdate;
+        public IWebElement BcpchkCrossRefernceStdUpdate
+        {
+            get
+            {
+                if (_bcpchkCrossRefernceStdUpdate == null)
+                    _bcpchkCrossRefernceStdUpdate = webDriver.FindElement(By.Id("chkCrossRefSTDUpdate"), new TimeSpan(0, 0, 30));
+                return _bcpchkCrossRefernceStdUpdate;
+            }
+        }
+
+        /// <summary>
+        /// Cross reference Snp checkbox under Buyer Catalog - Processing Rules section
+        /// </summary>
+        private IWebElement _bcpchkCrossRefernceSnpUpdate;
+        public IWebElement BcpchkCrossRefernceSnpUpdate
+        {
+            get
+            {
+                if (_bcpchkCrossRefernceSnpUpdate == null)
+                    _bcpchkCrossRefernceSnpUpdate = webDriver.FindElement(By.Id("chkCrossRefSNPUpdate"), new TimeSpan(0, 0, 30));
+                return _bcpchkCrossRefernceSnpUpdate;
+            }
+        }
+
+        /// <summary>
+        /// Cross reference Snp checkbox under Buyer Catalog - Processing Rules section
+        /// </summary>
+        private IWebElement _bcpchkCrossRefernceSysUpdate;
+        public IWebElement BcpchkCrossRefernceSysUpdate
+        {
+            get
+            {
+                if (_bcpchkCrossRefernceSysUpdate == null)
+                    _bcpchkCrossRefernceSysUpdate = webDriver.FindElement(By.Id("chkCrossRefSYSUpdate"), new TimeSpan(0, 0, 30));
+                return _bcpchkCrossRefernceSysUpdate;
             }
         }
         /// <summary>
@@ -982,7 +1038,7 @@ namespace Modules.Channel.B2B.Core.Pages
         private bool VerifyAutoInventoryRefreshIntervalDropdowns(string autoInventoryRefreshIntervalLabelText)
         {
             var thirdRow = InventoryFeedSectionTable.FindElement(By.XPath("tbody/tr[3]"));
-            
+
             if (
                 !thirdRow.FindElement(By.XPath("td[1]/span[@id='ContentPageHolder_lblAutomatedATSInterval']"))
                     .Text.Equals(autoInventoryRefreshIntervalLabelText))

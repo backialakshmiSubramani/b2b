@@ -362,6 +362,14 @@ namespace Modules.Channel.B2B.Core.Pages
             return ThreadIdInTable.Text.Trim();
         }
 
+        public void SearchPoNumber(string poNumber)
+        {
+            PoNumberElement.SendKeys(poNumber);
+            javaScriptExecutor.ExecuteScript("arguments[0].click();", IncludeInsertLogCheckBox);
+            javaScriptExecutor.ExecuteScript("arguments[0].click();", SubmitLink);
+            webDriver.WaitForPageLoad(new TimeSpan(0, 0, 20));
+        }
+
         #endregion
     }
 }

@@ -128,6 +128,21 @@ namespace Modules.Channel.B2B.Common
             return inputXml;
         }
 
+        public static string GeneratePoCblwithoutCrt(string fileName, string orderId, string identityName, string supplierPartId, string unitPrice, string quantity)
+        {
+            XDocument doc = XDocument.Load(fileName);
+            doc.XPathSelectElement("//BuyerRefNum/Reference/RefNum").SetValue(orderId);
+            doc.XPathSelectElement("//BuyerParty/Party/ListOfIdentifier/Identifier/Agency").Attribute("AgencyOther").SetValue(identityName);
+            doc.XPathSelectElement("//SupplierPartNum/PartNum/PartIDExt").SetValue(supplierPartId);
+            doc.XPathSelectElement("//BuyerPartNum/PartNum/PartIDExt").SetValue(supplierPartId);
+            doc.XPathSelectElement("//ManufacturerPartNum/PartNum/PartIDExt").SetValue(supplierPartId);
+            doc.XPathSelectElement("//BuyerExpectedUnitPrice/Price/UnitPrice").SetValue(unitPrice);
+            doc.XPathSelectElement("//Quantity/Qty").SetValue(quantity);
+
+            var inputXml = "<?xml version='1.0' encoding='utf-8'?>" + doc.ToString();
+            return inputXml;
+        }
+
         private static string GeneratePoCxml(string fileName, string identityName, string deploymentMode, string orderId, string unitPrice, string supplierPartId, string b2BCrtEndUserId)
         {
             XDocument doc = XDocument.Load(fileName);

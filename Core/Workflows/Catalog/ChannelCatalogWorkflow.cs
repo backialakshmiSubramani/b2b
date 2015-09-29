@@ -21,9 +21,9 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         private B2BCatalogPackagingDataUploadPage b2BCatalogPackagingDataUploadPage;
         private B2BAutoCatalogListPage b2BAutoCatalogListPage;
         private IJavaScriptExecutor javaScriptExecutor;
-        const string MMDDYYYY = "MM/dd/yyyy";
+        private const string MMDDYYYY = "MM/dd/yyyy";
         private int HeaderRowsCount = 0, Headercount = 0, subHeaderRows = 0;
-        
+
         /// <summary>
         /// Constructor for ChannelCatalogWorkflow
         /// </summary>
@@ -3097,6 +3097,155 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         }
 
         /// <summary>
+        /// Verifies SPL Flag checkbox is present in Auto BHC section. 
+        /// </summary>
+        public bool VerifySplFlaginAutoBhcSection(string environment, string profileName)
+        {
+            GoToBuyerCatalogTab(environment, profileName);
+            b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+            b2BBuyerCatalogPage.EditScheduleButton.Click();
+            b2BBuyerCatalogPage.SetTextBoxValue(b2BBuyerCatalogPage.OriginalCatalogStartDate,
+                DateTime.Now.AddDays(1).ToString(MMDDYYYY));
+            if (!b2BBuyerCatalogPage.BcpchkSPLFlagCheckbox.Selected)
+            {
+                b2BBuyerCatalogPage.BcpchkSPLFlagCheckbox.Click();
+                b2BBuyerCatalogPage.UpdateButton.Click();
+                b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+                b2BBuyerCatalogPage.AutomatedBhcCatalogProcessingRules.Click();
+                b2BBuyerCatalogPage.EditScheduleButton.Click();
+                b2BBuyerCatalogPage.SetTextBoxValue(b2BBuyerCatalogPage.OriginalCatalogStartDate,
+                    DateTime.Now.AddDays(1).ToString(MMDDYYYY));
+                if (!b2BBuyerCatalogPage.BcpchkSPLFlagCheckbox.Selected)
+                {
+                    return false;
+                }
+                return true;
+            }
+            else
+            {
+                b2BBuyerCatalogPage.BcpchkSPLFlagCheckbox.Click();
+                b2BBuyerCatalogPage.UpdateButton.Click();
+                b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+                b2BBuyerCatalogPage.AutomatedBhcCatalogProcessingRules.Click();
+                b2BBuyerCatalogPage.EditScheduleButton.Click();
+                b2BBuyerCatalogPage.SetTextBoxValue(b2BBuyerCatalogPage.OriginalCatalogStartDate,
+                    DateTime.Now.AddDays(1).ToString(MMDDYYYY));
+                if (b2BBuyerCatalogPage.BcpchkSPLFlagCheckbox.Selected)
+                {
+                    return false;
+                }
+                return true;
+            }
+        }
+
+        /// <summary>
+        /// To verify the logging of change in Remove Items with LT under audit history section
+        /// </summary>
+        /// <param name="environment"></param>
+        /// <param name="profile"></param>
+        /// <param name="removeItemswithLtAuditHistoryProperty"></param>
+        /// <returns></returns>
+        public bool AuditHistoryRemoveItemswithLt(string environment, string profile,
+            string removeItemswithLtAuditHistoryProperty)
+        {
+            var newValue = string.Empty;
+            var oldValue = string.Empty;
+            GoToBuyerCatalogTab(environment, profile);
+            b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+            oldValue = b2BBuyerCatalogPage.BcpchkRemoveItemsWithLTAbove3Days.Selected.ToString();
+            b2BBuyerCatalogPage.BcpchkRemoveItemsWithLTAbove3Days.Click();
+            newValue = b2BBuyerCatalogPage.BcpchkRemoveItemsWithLTAbove3Days.Selected.ToString();
+            b2BBuyerCatalogPage.UpdateButton.Click();
+            return VerifyAuditHistoryRow(oldValue, newValue, removeItemswithLtAuditHistoryProperty);
+
+        }
+
+        /// <summary>
+        /// To verify the logging of change in Cross ref Std under audit history section
+        /// </summary>
+        /// <param name="environment"></param>
+        /// <param name="profile"></param>
+        /// <param name="crossrefstdAuditHistoryProperty"></param>
+        /// <returns></returns>
+        public bool AuditHistoryCrossRefStd(string environment, string profile, string crossrefstdAuditHistoryProperty)
+        {
+            var newValue = string.Empty;
+            var oldValue = string.Empty;
+            GoToBuyerCatalogTab(environment, profile);
+            b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+            oldValue = b2BBuyerCatalogPage.BcpchkCrossRefernceStdUpdate.Selected.ToString();
+            b2BBuyerCatalogPage.BcpchkCrossRefernceStdUpdate.Click();
+            newValue = b2BBuyerCatalogPage.BcpchkCrossRefernceStdUpdate.Selected.ToString();
+            b2BBuyerCatalogPage.UpdateButton.Click();
+            return VerifyAuditHistoryRow(oldValue, newValue, crossrefstdAuditHistoryProperty);
+
+        }
+
+        /// <summary>
+        /// To verify the logging of change in Cross Ref SNP under audit history section
+        /// </summary>
+        /// <param name="environment"></param>
+        /// <param name="profile"></param>
+        /// <param name="crossrefsnpAuditHistoryProperty"></param>
+        /// <returns></returns>
+        public bool AuditHistoryCrossRefSnp(string environment, string profile, string crossrefsnpAuditHistoryProperty)
+        {
+            var newValue = string.Empty;
+            var oldValue = string.Empty;
+            GoToBuyerCatalogTab(environment, profile);
+            b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+            oldValue = b2BBuyerCatalogPage.BcpchkCrossRefernceSnpUpdate.Selected.ToString();
+            b2BBuyerCatalogPage.BcpchkCrossRefernceSnpUpdate.Click();
+            newValue = b2BBuyerCatalogPage.BcpchkCrossRefernceSnpUpdate.Selected.ToString();
+            b2BBuyerCatalogPage.UpdateButton.Click();
+            return VerifyAuditHistoryRow(oldValue, newValue, crossrefsnpAuditHistoryProperty);
+
+        }
+
+        /// <summary>
+        /// To verify the logging of change in Remove Items with LT under audit history section
+        /// </summary>
+        /// <param name="environment"></param>
+        /// <param name="profile"></param>
+        /// <param name="crossrefsysAuditHistoryProperty"></param>
+        /// <returns></returns>
+        public bool AuditHistoryCrossRefSys(string environment, string profile, string crossrefsysAuditHistoryProperty)
+        {
+            var newValue = string.Empty;
+            var oldValue = string.Empty;
+            GoToBuyerCatalogTab(environment, profile);
+            b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+            oldValue = b2BBuyerCatalogPage.BcpchkCrossRefernceSysUpdate.Selected.ToString();
+            b2BBuyerCatalogPage.BcpchkCrossRefernceSysUpdate.Click();
+            newValue = b2BBuyerCatalogPage.BcpchkCrossRefernceSysUpdate.Selected.ToString();
+            b2BBuyerCatalogPage.UpdateButton.Click();
+            return VerifyAuditHistoryRow(oldValue, newValue, crossrefsysAuditHistoryProperty);
+
+        }
+
+        /// <summary>
+        /// To verify the logging of change in Enable SPL/distributor under audit history section
+        /// </summary>
+        /// <param name="environment"></param>
+        /// <param name="profile"></param>
+        /// <param name="enableSplAuditHistoryProperty"></param>
+        /// <returns></returns>
+        public bool AuditHistoryEnableSpl(string environment, string profile, string enableSplAuditHistoryProperty)
+        {
+            var newValue = string.Empty;
+            var oldValue = string.Empty;
+            GoToBuyerCatalogTab(environment, profile);
+            b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+            b2BBuyerCatalogPage.EditScheduleButton.Click();
+            oldValue = b2BBuyerCatalogPage.BcpchkSPLFlagCheckbox.Selected.ToString();
+            b2BBuyerCatalogPage.BcpchkSPLFlagCheckbox.Click();
+            newValue = b2BBuyerCatalogPage.BcpchkSPLFlagCheckbox.Selected.ToString();
+            b2BBuyerCatalogPage.UpdateButton.Click();
+            return VerifyAuditHistoryRow(oldValue, newValue, enableSplAuditHistoryProperty);
+
+        }
+
+        /// <summary>
         /// Verifies Cross reference checkbox is present in Auto BHC section. 
         /// </summary>
         public bool VerifyCrossRefCheckboxinAutoBhcSection(string environment, string profileName)
@@ -3115,21 +3264,269 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                 }
                 return true;
             }
-            else
+
+            b2BBuyerCatalogPage.BcpchkCrossRefernceUpdate.Click();
+            b2BBuyerCatalogPage.UpdateButton.Click();
+            b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+            b2BBuyerCatalogPage.AutomatedBhcCatalogProcessingRules.Click();
+            if (b2BBuyerCatalogPage.BcpchkCrossRefernceUpdate.Selected)
             {
-                b2BBuyerCatalogPage.BcpchkCrossRefernceUpdate.Click();
+                return false;
+            }
+            return true;
+
+        }
+
+        /// <summary>
+        /// Verifies Cross reference Std config checkbox is present in Auto BHC section. 
+        /// </summary>
+        public bool VerifyCrossRefstdConfigsCheckboxinAutoBhcSection(string environment, string profileName)
+        {
+            GoToBuyerCatalogTab(environment, profileName);
+            b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+            if (!b2BBuyerCatalogPage.BcpchkCrossRefernceStdUpdate.Selected)
+            {
+                b2BBuyerCatalogPage.BcpchkCrossRefernceStdUpdate.Click();
                 b2BBuyerCatalogPage.UpdateButton.Click();
                 b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
                 b2BBuyerCatalogPage.AutomatedBhcCatalogProcessingRules.Click();
-                if (b2BBuyerCatalogPage.BcpchkCrossRefernceUpdate.Selected)
+                if (!b2BBuyerCatalogPage.BcpchkCrossRefernceStdUpdate.Selected)
                 {
                     return false;
                 }
                 return true;
             }
-        }
-    }
 
+            b2BBuyerCatalogPage.BcpchkCrossRefernceStdUpdate.Click();
+            b2BBuyerCatalogPage.UpdateButton.Click();
+            b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+            b2BBuyerCatalogPage.AutomatedBhcCatalogProcessingRules.Click();
+            if (b2BBuyerCatalogPage.BcpchkCrossRefernceStdUpdate.Selected)
+            {
+                return false;
+            }
+            return true;
+
+        }
+
+        /// <summary>
+        /// Verifies Cross reference SNP checkbox is present in Auto BHC section. 
+        /// </summary>
+        public bool VerifyCrossRefSnpCheckboxinAutoBhcSection(string environment, string profileName)
+        {
+            GoToBuyerCatalogTab(environment, profileName);
+            b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+            if (!b2BBuyerCatalogPage.BcpchkCrossRefernceSnpUpdate.Selected)
+            {
+                b2BBuyerCatalogPage.BcpchkCrossRefernceSnpUpdate.Click();
+                b2BBuyerCatalogPage.UpdateButton.Click();
+                b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+                b2BBuyerCatalogPage.AutomatedBhcCatalogProcessingRules.Click();
+                if (!b2BBuyerCatalogPage.BcpchkCrossRefernceSnpUpdate.Selected)
+                {
+                    return false;
+                }
+                return true;
+            }
+
+            b2BBuyerCatalogPage.BcpchkCrossRefernceSnpUpdate.Click();
+            b2BBuyerCatalogPage.UpdateButton.Click();
+            b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+            b2BBuyerCatalogPage.AutomatedBhcCatalogProcessingRules.Click();
+            if (b2BBuyerCatalogPage.BcpchkCrossRefernceSnpUpdate.Selected)
+            {
+                return false;
+            }
+            return true;
+
+        }
+
+        /// <summary>
+        /// Verifies Cross reference SYS checkbox is present in Auto BHC section. 
+        /// </summary>
+        public bool VerifyCrossRefSysCheckboxinAutoBhcSection(string environment, string profileName)
+        {
+            GoToBuyerCatalogTab(environment, profileName);
+            b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+            if (!b2BBuyerCatalogPage.BcpchkCrossRefernceSysUpdate.Selected)
+            {
+                b2BBuyerCatalogPage.BcpchkCrossRefernceSysUpdate.Click();
+                b2BBuyerCatalogPage.UpdateButton.Click();
+                b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+                b2BBuyerCatalogPage.AutomatedBhcCatalogProcessingRules.Click();
+                if (!b2BBuyerCatalogPage.BcpchkCrossRefernceSysUpdate.Selected)
+                {
+                    return false;
+                }
+                return true;
+            }
+
+            b2BBuyerCatalogPage.BcpchkCrossRefernceSysUpdate.Click();
+            b2BBuyerCatalogPage.UpdateButton.Click();
+            b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+            b2BBuyerCatalogPage.AutomatedBhcCatalogProcessingRules.Click();
+            if (b2BBuyerCatalogPage.BcpchkCrossRefernceSysUpdate.Selected)
+            {
+                return false;
+            }
+            return true;
+
+        }
+
+        /// <summary>
+        /// Turn ON Auto CRT update by Config type = STD->Verify configuration type would be defaulted to STD automatically. 
+        /// </summary>
+        public bool VerifyAutoCrtStddefaulttoConfigtypeStd(string environment, string profileName)
+        {
+            GoToBuyerCatalogTab(environment, profileName);
+            b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+            b2BBuyerCatalogPage.EditScheduleButton.Click();
+            b2BBuyerCatalogPage.SetTextBoxValue(b2BBuyerCatalogPage.OriginalCatalogStartDate,
+                DateTime.Now.AddDays(1).ToString(MMDDYYYY));
+            if (!b2BBuyerCatalogPage.CatalogConfigStandard.Selected)
+            {
+                b2BBuyerCatalogPage.CatalogConfigStandard.Click();
+                if (b2BBuyerCatalogPage.BcpchkCrossRefernceStdUpdate.Selected)
+                {
+                    b2BBuyerCatalogPage.UpdateButton.Click();
+                    b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+                    b2BBuyerCatalogPage.AutomatedBhcCatalogProcessingRules.Click();
+                    webDriver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromMinutes(2));
+                    b2BBuyerCatalogPage.EditScheduleButton.Click();
+                    b2BBuyerCatalogPage.SetTextBoxValue(b2BBuyerCatalogPage.OriginalCatalogStartDate,
+                        DateTime.Now.AddDays(1).ToString(MMDDYYYY));
+                    webDriver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromMinutes(2));
+                    if (b2BBuyerCatalogPage.CatalogConfigStandard.Selected &&
+                        b2BBuyerCatalogPage.BcpchkCrossRefernceStdUpdate.Selected)
+                    {
+                        return true;
+                    }
+                    return false;
+                }
+                return false;
+            }
+            b2BBuyerCatalogPage.CatalogConfigStandard.Click();
+            if (!b2BBuyerCatalogPage.BcpchkCrossRefernceStdUpdate.Selected)
+            {
+                b2BBuyerCatalogPage.UpdateButton.Click();
+                b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+                b2BBuyerCatalogPage.AutomatedBhcCatalogProcessingRules.Click();
+                webDriver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromMinutes(2));
+                b2BBuyerCatalogPage.EditScheduleButton.Click();
+                b2BBuyerCatalogPage.SetTextBoxValue(b2BBuyerCatalogPage.OriginalCatalogStartDate,
+                    DateTime.Now.AddDays(1).ToString(MMDDYYYY));
+                webDriver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromMinutes(2));
+                if (!(b2BBuyerCatalogPage.CatalogConfigStandard.Selected &&
+                    b2BBuyerCatalogPage.BcpchkCrossRefernceStdUpdate.Selected))
+                {
+                    return true;
+                }
+                return false;
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Turn ON Auto CRT update by Config type = Sys->Verify configuration type would be defaulted to Sys automatically. 
+        /// </summary>
+        public bool VerifyAutoCrtSysdefaulttoConfigtypeSys(string environment, string profileName)
+        {
+            GoToBuyerCatalogTab(environment, profileName);
+            b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+            b2BBuyerCatalogPage.EditScheduleButton.Click();
+            b2BBuyerCatalogPage.SetTextBoxValue(b2BBuyerCatalogPage.OriginalCatalogStartDate,
+                DateTime.Now.AddDays(1).ToString(MMDDYYYY));
+            if (!b2BBuyerCatalogPage.BcpchkSysCatalogCheckbox.Selected)
+            {
+                b2BBuyerCatalogPage.BcpchkSysCatalogCheckbox.Click();
+                if (b2BBuyerCatalogPage.BcpchkCrossRefernceSysUpdate.Selected)
+                {
+                    b2BBuyerCatalogPage.UpdateButton.Click();
+                    b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+                    b2BBuyerCatalogPage.AutomatedBhcCatalogProcessingRules.Click();
+                    webDriver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromMinutes(2));
+                    b2BBuyerCatalogPage.EditScheduleButton.Click();
+                    b2BBuyerCatalogPage.SetTextBoxValue(b2BBuyerCatalogPage.OriginalCatalogStartDate,
+                        DateTime.Now.AddDays(1).ToString(MMDDYYYY));
+                    if (b2BBuyerCatalogPage.BcpchkSysCatalogCheckbox.Selected &&
+                        b2BBuyerCatalogPage.BcpchkCrossRefernceSysUpdate.Selected)
+                    {
+                        return true;
+                    }
+                    return false;
+                }
+                return false;
+            }
+            b2BBuyerCatalogPage.BcpchkSysCatalogCheckbox.Click();
+            if (!b2BBuyerCatalogPage.BcpchkCrossRefernceSysUpdate.Selected)
+            {
+                b2BBuyerCatalogPage.UpdateButton.Click();
+                b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+                b2BBuyerCatalogPage.AutomatedBhcCatalogProcessingRules.Click();
+                webDriver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromMinutes(2));
+                b2BBuyerCatalogPage.EditScheduleButton.Click();
+                b2BBuyerCatalogPage.SetTextBoxValue(b2BBuyerCatalogPage.OriginalCatalogStartDate,
+                    DateTime.Now.AddDays(1).ToString(MMDDYYYY));
+                if (! b2BBuyerCatalogPage.BcpchkSysCatalogCheckbox.Selected &&
+                    b2BBuyerCatalogPage.BcpchkCrossRefernceSysUpdate.Selected)
+                {
+                    return true;
+                }
+                return false;
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Req 877481- Existing Profile - PROD - Turn ON/OFF Auto CRT update by Config type = SNP->Verify configuration type would be defaulted to SnP automatically or not
+        /// </summary>
+        public bool VerifyAutoCrtSnpdefaulttoConfigtypeSnp(string environment, string profileName)
+        {
+            GoToBuyerCatalogTab(environment, profileName);
+            b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+            b2BBuyerCatalogPage.EditScheduleButton.Click();
+            b2BBuyerCatalogPage.SetTextBoxValue(b2BBuyerCatalogPage.OriginalCatalogStartDate,
+                DateTime.Now.AddDays(1).ToString(MMDDYYYY));
+            if (!b2BBuyerCatalogPage.CatalogConfigSnP.Selected)
+            {
+                b2BBuyerCatalogPage.CatalogConfigSnP.Click();
+                if (b2BBuyerCatalogPage.BcpchkCrossRefernceSnpUpdate.Selected)
+                {
+                    b2BBuyerCatalogPage.UpdateButton.Click();
+                    b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+                    b2BBuyerCatalogPage.AutomatedBhcCatalogProcessingRules.Click();
+                    b2BBuyerCatalogPage.EditScheduleButton.Click();
+                    b2BBuyerCatalogPage.SetTextBoxValue(b2BBuyerCatalogPage.OriginalCatalogStartDate,
+                        DateTime.Now.AddDays(1).ToString(MMDDYYYY));
+                    if (b2BBuyerCatalogPage.CatalogConfigSnP.Selected &&
+                        b2BBuyerCatalogPage.BcpchkCrossRefernceSnpUpdate.Selected)
+                    {
+                        return true;
+                    }
+                    return false;
+                }
+                return false;
+            }
+            b2BBuyerCatalogPage.CatalogConfigSnP.Click();
+            if (!b2BBuyerCatalogPage.BcpchkCrossRefernceSnpUpdate.Selected)
+            {
+                b2BBuyerCatalogPage.UpdateButton.Click();
+                b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+                b2BBuyerCatalogPage.AutomatedBhcCatalogProcessingRules.Click();
+                b2BBuyerCatalogPage.EditScheduleButton.Click();
+                b2BBuyerCatalogPage.SetTextBoxValue(b2BBuyerCatalogPage.OriginalCatalogStartDate,
+                    DateTime.Now.AddDays(1).ToString(MMDDYYYY));
+                if (! b2BBuyerCatalogPage.CatalogConfigSnP.Selected &&
+                    b2BBuyerCatalogPage.BcpchkCrossRefernceSnpUpdate.Selected)
+                {
+                    return true;
+                }
+                return false;
+            }
+            return false;
+        }
+
+    }
 
     /// <summary>
     /// Enum to restrict the types of frequencies used

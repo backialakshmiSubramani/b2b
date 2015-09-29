@@ -33,7 +33,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         /// Verifies links on Channel UX page.
         /// </summary>
         /// <param name="environment"></param>
-        /// <param name="profileName"></param>
+        /// <param name="linksTextTestData"></param>
         public bool Verifyandretrievelinks(string environment, string linksTextTestData)
         {
             string[] LinkTestStringValue = linksTextTestData.Split(',');
