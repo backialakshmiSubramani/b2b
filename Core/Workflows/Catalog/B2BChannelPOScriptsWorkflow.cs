@@ -13,6 +13,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Web.UI.WebControls;
 using Dell.Adept.UI.Web.Support.Extensions.WebElement;
@@ -37,6 +38,8 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         private B2BLogReportPage B2BLogReportPage;
         private GcmMainPage GcmMainPage;
         private GcmFindEOrderPage GcmFindEOrderPage;
+        private string uniquePoRefNum;
+        private string dpid;
         /// <summary>
         /// Constructor to hand off webDriver
         /// </summary>
@@ -58,10 +61,10 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         /// <param name="supplierPartIdExt"></param>
         /// <param name="unitPrice"></param>
         /// <param name="quantity"></param>
-        public bool VerifyPoPosting(string qatoolsTargetUrl, string fileName, string poRefNum,
+        public string VerifyPoPosting(string qatoolsTargetUrl, string fileName, string poRefNum,
             string identityName, string supplierPartIdExt, string unitPrice, string quantity)
         {
-            var uniquePoRefNum = poRefNum + DateTime.Today.ToString("yyMMdd") + DateTime.Now.ToString("HHmmss");
+            uniquePoRefNum = poRefNum + DateTime.Today.ToString("yyMMdd") + DateTime.Now.ToString("HHmmss");
             B2BQaToolsPage = new B2BQaToolsPage(webDriver);
             B2BQaToolsPage.PasteTargetUrl(qatoolsTargetUrl);
             var file = PoXmlGenerator.GeneratePoCblwithoutCrt(fileName, uniquePoRefNum, identityName, supplierPartIdExt,
@@ -69,98 +72,54 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             B2BQaToolsPage.PasteInputXml(file);
             webDriver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromMinutes(2));
             B2BQaToolsPage.ClickSubmitMessage();
-            if (B2BQaToolsPage.GetSubmissionResult().Equals("XML Response received from server Code: 200. Message: PO = " + uniquePoRefNum))
+            if (
+                 B2BQaToolsPage.GetSubmissionResult()
+                    .Equals("XML Response received from server Code: 200. Message: PO = " + uniquePoRefNum))
             {
-                return true;
+                return uniquePoRefNum;
             }
-            return false;
-        }
+            throw new Exception("Error while posting PO");
+   }
         
         /// <summary>
         /// Verifies Po Posting and check in log report.
         /// </summary>
-        /// <param name="qatoolsTargetUrl"></param>
-        /// <param name="fileName"></param>
-        /// <param name="poRefNum"></param>
-        /// <param name="identityName"></param>
-        /// <param name="supplierPartIdExt"></param>
-        /// <param name="unitPrice"></param>
-        /// <param name="quantity"></param>
-        /// <param name="logReport"></param>
-        public bool VerifyPoPostingandcheckinLogreport(string qatoolsTargetUrl, string fileName, string poRefNum,
-            string identityName, string supplierPartIdExt, string unitPrice, string quantity, string logReport)
+       /// <param name="logReport"></param>
+        public string RetrievePodpidFromLogReport(string logReport)
         {
-            var uniquePoRefNum = poRefNum + DateTime.Today.ToString("yyMMdd") + DateTime.Now.ToString("HHmmss");
-            B2BQaToolsPage = new B2BQaToolsPage(webDriver);
-            B2BQaToolsPage.PasteTargetUrl(qatoolsTargetUrl);
-            var file = PoXmlGenerator.GeneratePoCblwithoutCrt(fileName, uniquePoRefNum, identityName, supplierPartIdExt,
-                unitPrice, quantity);
-            B2BQaToolsPage.PasteInputXml(file);
-            webDriver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromMinutes(2));
-            B2BQaToolsPage.ClickSubmitMessage();
-            if (B2BQaToolsPage.GetSubmissionResult().Equals("XML Response received from server Code: 200. Message: PO = " + uniquePoRefNum))
-            {
+            
+            
                 webDriver.Navigate().GoToUrl(logReport);
                 webDriver.Navigate().GoToUrl(logReport);
                 B2BLogReportPage= new B2BLogReportPage(webDriver);
                 B2BLogReportPage.SearchPoNumber(uniquePoRefNum);
-                var dpid= B2BLogReportPage.FindDellPurchaseId("Continue Purchase Order: Purchase Order Success:");
-                if (!dpid.Equals(string.Empty))
+                dpid = B2BLogReportPage.FindDellPurchaseId("Continue Purchase Order: Purchase Order Success:");
+             if (!dpid.Equals(string.Empty))
                 {
-                    return true;
+                    return B2BLogReportPage.FindDellPurchaseId("Continue Purchase Order: Purchase Order Success:");
                 }
-                return false;
-            }
-            return false;
+            throw new Exception("Error while getting dpid from log report");
+            
         }
-
+           
+        
         /// <summary>
         /// Verifies Po Posting and get dpid from log report and verify in GCM.
         /// </summary>
-        /// <param name="qatoolsTargetUrl"></param>
-        /// <param name="fileName"></param>
-        /// <param name="poRefNum"></param>
-        /// <param name="identityName"></param>
-        /// <param name="supplierPartIdExt"></param>
-        /// <param name="unitPrice"></param>
-        /// <param name="quantity"></param>
-        /// <param name="logReport"></param>
         /// <param name="gcmUrl"></param>
-        public bool VerifyPoPostingandgetdpidfromLogreportandcheckinGcm(string qatoolsTargetUrl, string fileName, string poRefNum,
-            string identityName, string supplierPartIdExt, string unitPrice, string quantity, string logReport, string gcmUrl)
+        public bool VerifyPodpidInGcm(string gcmUrl)
         {
-            var uniquePoRefNum = poRefNum + DateTime.Today.ToString("yyMMdd") + DateTime.Now.ToString("HHmmss");
-            B2BQaToolsPage = new B2BQaToolsPage(webDriver);
-            B2BQaToolsPage.PasteTargetUrl(qatoolsTargetUrl);
-            var file = PoXmlGenerator.GeneratePoCblwithoutCrt(fileName, uniquePoRefNum, identityName, supplierPartIdExt,
-                unitPrice, quantity);
-            B2BQaToolsPage.PasteInputXml(file);
-            webDriver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromMinutes(2));
-            B2BQaToolsPage.ClickSubmitMessage();
-            if (B2BQaToolsPage.GetSubmissionResult().Equals("XML Response received from server Code: 200. Message: PO = " + uniquePoRefNum))
-            {
-                webDriver.Navigate().GoToUrl(logReport);
-                webDriver.Navigate().GoToUrl(logReport);
-                B2BLogReportPage = new B2BLogReportPage(webDriver);
-                B2BLogReportPage.SearchPoNumber(uniquePoRefNum);
-                var dpid = B2BLogReportPage.FindDellPurchaseId("Continue Purchase Order: Purchase Order Success:");
-                if (!dpid.Equals(string.Empty))
-                {
                     webDriver.Navigate().GoToUrl(gcmUrl);
                     GcmMainPage= new GcmMainPage(webDriver);
                     GcmMainPage.ClickDomsElement();
                     GcmFindEOrderPage= new GcmFindEOrderPage(webDriver);
                     string orderStatus = GcmFindEOrderPage.SearchByDpidAndGetOrderStatus(dpid);
                     webDriver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromMinutes(1));
-                    if (orderStatus.Equals("Available") || orderStatus.Equals("Complete"))
-                    {
-                        return true;
-                    }
-                    return false;
-                }
-                return false;
+            if (orderStatus.Equals("Available") || orderStatus.Equals("Complete"))
+            {
+                return true;
             }
-            return false;
+            throw new Exception("Status is not Available or Complete in GCM page. Check manually with this dpid:" + dpid);
         }
     }
 }

@@ -1137,7 +1137,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             b2BHomePage.AutoCatalogListPageLink.Click();
             webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
             b2BAutoCatalogListPage = new B2BAutoCatalogListPage(webDriver);
-            WaitForPageRefresh();
+            webDriver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromSeconds(60));
             b2BAutoCatalogListPage.ThreadId.SendKeys(profilename);
             b2BAutoCatalogListPage.SearchCatalogLink.Click();
             WaitForPageRefresh();
@@ -1167,7 +1167,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             b2BHomePage.AutoCatalogListPageLink.Click();
             webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
             b2BAutoCatalogListPage = new B2BAutoCatalogListPage(webDriver);
-            WaitForPageRefresh();
+            webDriver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromSeconds(60));
             b2BAutoCatalogListPage.ScheduledCheckbox.Click();
             b2BAutoCatalogListPage.SearchCatalogLink.Click();
             WaitForPageRefresh();
@@ -1196,7 +1196,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             b2BHomePage.AutoCatalogListPageLink.Click();
             webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
             b2BAutoCatalogListPage = new B2BAutoCatalogListPage(webDriver);
-            WaitForPageRefresh();
+            webDriver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromSeconds(60));
             b2BAutoCatalogListPage.ThreadId.SendKeys(profilename);
             b2BAutoCatalogListPage.SearchCatalogLink.Click();
             WaitForPageRefresh();
@@ -2987,6 +2987,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             b2BCatalogPackagingDataUploadPage = new B2BCatalogPackagingDataUploadPage(webDriver);
             b2BCatalogPackagingDataUploadPage.FileUpload.SendKeys(System.IO.Directory.GetCurrentDirectory() + @"\" + fileToBeUploaded);
             b2BCatalogPackagingDataUploadPage.UploadButton.Click();
+            webDriver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromSeconds(120));
             var uploadAlert = webDriver.SwitchTo().Alert();
             uploadAlert.Accept();
             WaitForPageRefresh();
