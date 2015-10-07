@@ -78,7 +78,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             {
                 return uniquePoRefNum;
             }
-            throw new Exception("Error while posting PO");
+            throw new Exception("Error while posting PO" + uniquePoRefNum);
    }
         
         /// <summary>
