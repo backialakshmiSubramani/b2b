@@ -12,6 +12,7 @@
 // ***********************************************************************
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Collections.ObjectModel;
 using System.Data;
 using System.Linq;
@@ -31,6 +32,7 @@ using Dell.Adept.UI.Web.Support.Extensions.WebDriver;
 using Dell.Adept.UI.Web.Support.Extensions.WebElement;
 using Dell.Adept.UI.Web.Support.Locators;
 using Dell.Adept.UI.Web.Support;
+using System.IO;
 
 
 namespace Modules.Channel.B2B.Core.Pages
@@ -847,6 +849,7 @@ namespace Modules.Channel.B2B.Core.Pages
 
         /// <summary>
         /// 'Click to Run Once' button under 'Inventory Feed - Processing Rules' section
+        /// Click to Run Once Button - to perform catalog Inventory Feed manually
         /// </summary>
         public IWebElement ClickToRunOnceButton
         {
@@ -918,6 +921,31 @@ namespace Modules.Channel.B2B.Core.Pages
                 return _autoInventoryMinutesDropdown ??
                        (_autoInventoryMinutesDropdown =
                            webDriver.FindElement(By.Id("ContentPageHolder_dd_AutomatedATSIntervalmn"),
+                               new TimeSpan(0, 0, 10)));
+            }
+        }
+
+        private List<IWebElement> _checkedIdentityList;
+        public List<IWebElement> checkedIdentityList
+        {
+            get
+            {
+                _checkedIdentityList = webDriver.FindElements(By.XPath("//label[contains(@for,'chklistIdenties_')]"), new TimeSpan(0, 0, 30)).ToList();
+                return _checkedIdentityList;
+            }
+        }
+
+        private IWebElement _automatetedBHCSectionPlus;
+        /// <summary>
+        /// Automated BHC section main DIV
+        /// </summary>
+        public IWebElement AutomatetedBHCSectionPlus
+        {
+            get
+            {
+                return _automatetedBHCSectionPlus ??
+                       (_automatetedBHCSectionPlus =
+                           webDriver.FindElement(By.Id("autobhccatalogprocessingrulesplus"),
                                new TimeSpan(0, 0, 10)));
             }
         }
@@ -1080,6 +1108,45 @@ namespace Modules.Channel.B2B.Core.Pages
             return true;
         }
 
+        /// <summary>
+        /// Click on Click to Run once button
+        /// </summary>
+        /// <returns>The <see cref="bool"/></returns>
+        public bool ClickToRunOnce()
+        {
+            try
+            {
+                Console.WriteLine("Clicking on ClickToRunOnce Button..");
+                ClickToRunOnceButton.Click();
+                Console.WriteLine("Done!");
+                Console.WriteLine("Inventory Feed Request Status : {0}", ConfirmationLabel.Text);
+                return true;
+            }
+            catch { return false; }
+        }
+
+        /// <summary>
+        /// Verify the status message displayed after click to Run once button
+        /// </summary>
+        /// <returns>The <see cref="bool"/></returns>
+        public bool VerifyClickToRunOnceRequestStatus(string statusMsg)
+        {
+            if (string.Compare(ConfirmationLabel.Text.Trim(), statusMsg.Trim(), true) == 0) return true;
+            else return false;
+        }
+
+        /// <summary>
+        /// to get all the identites for the profile name and th eenvironment provided
+        /// Environment can be passed if this is used somewhere else independently
+        /// </summary>
+        /// <returns>The <see cref="List<string>"/></returns>
+        public List<string> GetIdentities()
+        {
+            //Expand Auto BHC Section
+            AutomatedBhcCatalogProcessingRules.Click(); // Click to Expand BHC section
+            // Now coding for only enabled Identites. Which are picked from Auto BHC catalog panel.
+            return checkedIdentityList.Select(e => e.Text).ToList();
+        }
         #endregion
     }
 }

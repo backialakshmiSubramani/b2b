@@ -34,17 +34,25 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
         /// <param name="profileName"></param>
         public void GoToBuyerCatalogTab(string environment, string profileName)
         {
+            Console.WriteLine("Selecting Environment..");
             b2BHomePage.SelectEnvironment(environment);
+            Console.WriteLine("Done!");
+            Console.WriteLine("Clicking on B2B Profile List..");
             b2BHomePage.ClickB2BProfileList();
+            Console.WriteLine("Done!");
 
+            Console.WriteLine("Searching for Profile by Customer Name : {0}" + profileName);
             b2BCustomerProfileListPage = new B2BCustomerProfileListPage(webDriver);
             b2BCustomerProfileListPage.SearchProfile("Customer Name", profileName);
             b2BCustomerProfileListPage.ClickSearchedProfile(profileName);
 
             b2BManageProfileIdentitiesPage = new B2BManageProfileIdentitiesPage(webDriver);
             Console.WriteLine("Opened Profile Page for profile: {0}", profileName);
+
+            Console.WriteLine("Clicking on BuyerCatalogTab..");
             b2BManageProfileIdentitiesPage.BuyerCatalogTab.Click();
             WaitForPageRefresh();
+            Console.WriteLine("Done!");
         }
 
         /// <summary>

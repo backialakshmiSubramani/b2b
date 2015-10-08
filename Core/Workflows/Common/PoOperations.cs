@@ -472,9 +472,9 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
         /// <param name="profileName"></param>
         /// <param name="quote"></param>
         /// <returns></returns>
-       
+
         public bool MatchValuesInPoXmlAndMapperXml(
-         
+
             string poNumber,
             string expectedDpidMessage,
             string mapperRequestMessage,
@@ -500,7 +500,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
                 Console.WriteLine("Dpid not found. Stopping verification");
                 return false;
             }
-           
+
 
             if (!B2BLogReportPage.FindMessageAndGoToLogDetailPage(mapperRequestMessage))
             {
@@ -736,7 +736,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
 
             var mapperXml = XDocument.Parse(strXml);
             var savedPoCbl = XDocument.Load("CblTemplate.xml");
-            
+
 
             if (
                 !mapperXml.XPathSelectElement("//PONumber")
@@ -771,7 +771,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
                 }
                 Console.WriteLine("LineItem Number verified");
             }
-            
+
             var mapperVendorPartNumber = mapperXml.XPathSelectElements("//LineItems/MapperRequestPOLine/VendorPartNumber").FirstOrDefault();
             var poVendorPartNumber = savedPoCbl.XPathSelectElements("//ListOfOrderDetail/OrderDetail/BaseItemDetail/ManufacturerPartNum/PartNum/PartID").FirstOrDefault();
             if (mapperVendorPartNumber != null && poVendorPartNumber != null)
@@ -845,11 +845,11 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
                 return false;
             }
             Console.WriteLine("LineItem Number verified");
-            quote =  quote;
+            quote = quote;
 
             //Quote #
             if (quote.Contains("\\") && !mapperXml.XPathSelectElement("//PORequestXml/PurchaseOrder/ListOfOrderDetail/OrderDetail/BaseItemDetail/SupplierPartNum/PartNum/PartIDExt").Value.
-                Equals(quote.Replace("\\","-")))//CIF
+                Equals(quote.Replace("\\", "-")))//CIF
             {
                 return false;
             }
@@ -1305,9 +1305,9 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
             }
             if (!itemIds.OrderBy(x => x).SequenceEqual(idsFromFulfillment.OrderBy(x => x)))
             {
-                 return false;
+                return false;
             }
-           
+
             if (!B2BLogReportPage.FindMessageAndGoToLogDetailPage(mapperRequestMessage))
             {
                 return false;
@@ -1331,7 +1331,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
 
             if (!itemIdsFromDb.Any())
             {
-                 return false;
+                return false;
             }
             if (!itemIds.OrderBy(x => x).SequenceEqual(itemIdsFromDb.Select(i => i.ToLower()).OrderBy(x => x)))
             {
@@ -1453,6 +1453,24 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
         public int? GetNumberOfUnitsShippedBasedOnOrderNumber(string orderId)
         {
             return AsnDataAccess.GetNumberOfUnitsShippedBasedOnOrderNumber(orderId);
+        }
+
+        public static string getEnvCodes(RunEnvironment Env)
+        {
+            string EnvCode = string.Empty;
+            switch (Env)
+            {
+                case RunEnvironment.Production:
+                    EnvCode = "PROD";
+                    break;
+                case RunEnvironment.Preview:
+                    EnvCode = "PREV";
+                    break;
+                default:
+                    EnvCode = "PROD";
+                    break;
+            }
+            return EnvCode;
         }
     }
 
