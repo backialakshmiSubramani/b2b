@@ -112,6 +112,29 @@ namespace Modules.Channel.B2B.Core.Pages
         }
 
         /// <summary>
+        /// Select status Drop down
+        /// </summary>
+        public IWebElement SelectStatus
+        {
+            get
+            {
+                return
+                    webDriver.FindElement(
+                        By.XPath("//select[@ng-model='CatalogStatusId']"));
+
+            }
+        }
+
+        /// <summary>
+        /// Std config type check box
+        /// </summary>
+        public IWebElement StdConfigTypeCheckbox
+        {
+            get { return webDriver.FindElement(By.XPath(".//*[@id='myForm']/table/tbody/tr/td[1]/table/tbody/tr[4]/td[4]/input[1]")); }
+        }
+
+        
+        /// <summary>
         /// Catalog Name text box
         /// </summary>
         public IWebElement CatalogName
@@ -341,6 +364,19 @@ namespace Modules.Channel.B2B.Core.Pages
                 .Click();
         }
 
+        /// <summary>
+        /// Selects the status from the Select drop down
+        /// </summary>
+        /// <param name="status"></param>
+        public void SelectTheStatus(string status)
+        {
+            webDriver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromSeconds(60));
+            webDriver.FindElement(By.XPath("//div[@ng-model='CatalogStatusId']/a")).Click();
+            webDriver.FindElement(By.XPath("//div[@ng-model='CatalogStatusId']/div/div[@class='custom-select-search']/input")).SendKeys(status);
+            webDriver.FindElement(By.XPath("//div[@ng-model='CatalogStatusId']/div/ul/li/a[contains(text(),'" + status + "')]")).Click();            
+        }
+
+        
         #endregion
 
         /// <summary>

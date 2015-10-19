@@ -3527,7 +3527,72 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             return false;
         }
 
-    }
+        ///<summary>
+        /// Verifies Original/Delta catalog on clicking Published status in Auto CatalogList page.
+        /// </summary>
+        public bool VerifyOriginalDeltaCatonclickingPublishedcheckboxinAutoCatalogListPage(string environment, string statusDropdown)
+        {
+            b2BHomePage.SelectEnvironment(environment);
+            b2BHomePage.AutoCatalogListPageLink.Click();
+            webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
+            b2BAutoCatalogListPage = new B2BAutoCatalogListPage(webDriver);
+            webDriver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromSeconds(120));
+            b2BAutoCatalogListPage.SelectTheStatus(statusDropdown);
+            b2BAutoCatalogListPage.SearchCatalogLink.Click(); webDriver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromSeconds(60));
+            var firststatusElement = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[3];
+            var Status = firststatusElement.Text;
+            if (!Status.Equals(statusDropdown))
+            {
+                return false;
+            }
+            return true;
+        }
+
+        ///<summary>
+        /// Verifies Original/Delta catalog on clicking Published status and std config in Auto Catalog List page.
+        /// </summary>
+        public bool VerifyOriginalDeltaCatonclickingPublishedandStdConfigcheckboxinAutoCatalogListPage(string environment, 
+            string statusDropdown)
+        {
+            b2BHomePage.SelectEnvironment(environment);
+            b2BHomePage.AutoCatalogListPageLink.Click();
+            webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
+            b2BAutoCatalogListPage = new B2BAutoCatalogListPage(webDriver);
+            webDriver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromSeconds(60));
+            b2BAutoCatalogListPage.SelectTheStatus(statusDropdown);
+            b2BAutoCatalogListPage.StdConfigTypeCheckbox.Click();
+            return (b2BAutoCatalogListPage.StdConfigTypeCheckbox.Selected);
+        }
+
+        ///<summary>
+        /// Verifies Original/Delta catalog on clicking std config in Auto Catalog List page.
+        /// </summary>
+        public bool VerifyOriginalDeltaCatonclickingStdconfigcheckboxinAutoCatalogListPage(string environment)
+        {
+            b2BHomePage.SelectEnvironment(environment);
+            b2BHomePage.AutoCatalogListPageLink.Click();
+            webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
+            b2BAutoCatalogListPage = new B2BAutoCatalogListPage(webDriver);
+            webDriver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromSeconds(60));
+            b2BAutoCatalogListPage.StdConfigTypeCheckbox.Click();
+            return b2BAutoCatalogListPage.StdConfigTypeCheckbox.Selected;
+        }
+        ///<summary>
+        /// Verifies Original/Delta catalog on clicking Test Harness checkbox and std config in Auto Catalog List page.
+        /// </summary>
+        public bool VerifyOriginalDeltaCatonclickingTestHarnessandStdConfigcheckboxinAutoCatalogListPage(string environment, 
+            string testHarnesscreated, string  testHarnessFailed)
+        {
+            b2BHomePage.SelectEnvironment(environment);
+            b2BHomePage.AutoCatalogListPageLink.Click();
+            webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
+            b2BAutoCatalogListPage = new B2BAutoCatalogListPage(webDriver);
+            webDriver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromSeconds(60));
+            b2BAutoCatalogListPage.TestHarnessCheckbox.Click();
+            b2BAutoCatalogListPage.StdConfigTypeCheckbox.Click();
+            return (b2BAutoCatalogListPage.TestHarnessCheckbox.Selected && b2BAutoCatalogListPage.StdConfigTypeCheckbox.Selected);
+        }
+        }
 
     /// <summary>
     /// Enum to restrict the types of frequencies used
