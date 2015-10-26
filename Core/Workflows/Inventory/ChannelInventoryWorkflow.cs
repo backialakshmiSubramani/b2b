@@ -393,18 +393,18 @@ namespace Modules.Channel.B2B.Core.Workflows.Inventory
                 .FirstOrDefault();
         }
 
-        public bool ClickToRunOnce(DataRow ClickToRunOncetestData, RunEnvironment Env)
+        public bool ClickToRunOnce(DataRow clickToRunOnceTestData, RunEnvironment environment)
         {
             b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
-            string profileName = ClickToRunOncetestData["ProfileName"].ToString();
-            string statusMsg = ClickToRunOncetestData["inventoryFeedRequestStatusMsg"].ToString();
-            string atsFeedLocation = ClickToRunOncetestData["AtsFeedLocation"].ToString();
-            string atsFeedPrefix = ClickToRunOncetestData["AtsFeedPrefix"].ToString();
-            string atsFeedExtension = ClickToRunOncetestData["AtsFeedExtension"].ToString();
-            string atsFileTimeDiff = ClickToRunOncetestData["inventoryFileGenerationTimeDifference"].ToString();
+            string profileName = clickToRunOnceTestData["ProfileName"].ToString();
+            string statusMsg = clickToRunOnceTestData["InventoryFeedRequestStatusMsg"].ToString();
+            string atsFeedLocation = clickToRunOnceTestData["AtsFeedLocation"].ToString();
+            string atsFeedPrefix = clickToRunOnceTestData["AtsFeedPrefix"].ToString();
+            string atsFeedExtension = clickToRunOnceTestData["AtsFeedExtension"].ToString();
+            string atsFileTimeDiff = clickToRunOnceTestData["InventoryFileGenerationTimeDifference"].ToString();
 
             //Search for the profile and go to Buyer Catalog tab
-            accessProfile.GoToBuyerCatalogTab(Env.ToString(), profileName);
+            accessProfile.GoToBuyerCatalogTab(environment.ToString(), profileName);
 
             // Click on ClickToRunOnce button
             b2BBuyerCatalogPage.ClickToRunOnce().Should().BeTrue();
@@ -413,7 +413,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Inventory
             b2BBuyerCatalogPage.VerifyClickToRunOnceRequestStatus(statusMsg).Should().BeTrue();
 
             // Verify Inventory Feeds generated for the enabled identites in the selected profile
-            VerifyFeedGeneration(profileName, PoOperations.getEnvCodes(Env), atsFeedLocation, atsFeedPrefix, atsFeedExtension, atsFileTimeDiff).Should().BeTrue();
+            VerifyFeedGeneration(profileName, PoOperations.GetEnvironmentCode(environment), atsFeedLocation, atsFeedPrefix, atsFeedExtension, atsFileTimeDiff).Should().BeTrue();
             return true;
         }
 

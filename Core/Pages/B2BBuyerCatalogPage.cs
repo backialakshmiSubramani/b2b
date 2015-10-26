@@ -12,7 +12,6 @@
 // ***********************************************************************
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Collections.ObjectModel;
 using System.Data;
 using System.Linq;
@@ -926,27 +925,12 @@ namespace Modules.Channel.B2B.Core.Pages
         }
 
         private List<IWebElement> _checkedIdentityList;
-        public List<IWebElement> checkedIdentityList
+        public List<IWebElement> CheckedIdentityList
         {
             get
             {
                 _checkedIdentityList = webDriver.FindElements(By.XPath("//label[contains(@for,'chklistIdenties_')]"), new TimeSpan(0, 0, 30)).ToList();
                 return _checkedIdentityList;
-            }
-        }
-
-        private IWebElement _automatetedBHCSectionPlus;
-        /// <summary>
-        /// Automated BHC section main DIV
-        /// </summary>
-        public IWebElement AutomatetedBHCSectionPlus
-        {
-            get
-            {
-                return _automatetedBHCSectionPlus ??
-                       (_automatetedBHCSectionPlus =
-                           webDriver.FindElement(By.Id("autobhccatalogprocessingrulesplus"),
-                               new TimeSpan(0, 0, 10)));
             }
         }
 
@@ -1145,7 +1129,7 @@ namespace Modules.Channel.B2B.Core.Pages
             //Expand Auto BHC Section
             AutomatedBhcCatalogProcessingRules.Click(); // Click to Expand BHC section
             // Now coding for only enabled Identites. Which are picked from Auto BHC catalog panel.
-            return checkedIdentityList.Select(e => e.Text).ToList();
+            return CheckedIdentityList.Select(e => e.Text).ToList();
         }
         #endregion
     }

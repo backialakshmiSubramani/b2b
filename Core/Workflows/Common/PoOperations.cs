@@ -1455,22 +1455,22 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
             return AsnDataAccess.GetNumberOfUnitsShippedBasedOnOrderNumber(orderId);
         }
 
-        public static string getEnvCodes(RunEnvironment Env)
+        public static string GetEnvironmentCode(RunEnvironment environment)
         {
-            string EnvCode = string.Empty;
-            switch (Env)
+            string environmentCode;
+            switch (environment)
             {
                 case RunEnvironment.Production:
-                    EnvCode = "PROD";
+                    environmentCode = "PROD";
                     break;
                 case RunEnvironment.Preview:
-                    EnvCode = "PREV";
+                    environmentCode = "PREV";
                     break;
                 default:
-                    EnvCode = "PROD";
+                    environmentCode = "PROD";
                     break;
             }
-            return EnvCode;
+            return environmentCode;
         }
     }
 
