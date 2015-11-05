@@ -26,6 +26,7 @@ using Dell.Adept.UI.Web.Support.Extensions.WebDriver;
 using Dell.Adept.UI.Web.Support.Extensions.WebElement;
 using Dell.Adept.UI.Web.Support.Locators;
 using Dell.Adept.UI.Web.Support;
+using Modules.Channel.B2B.Common;
 
 namespace Modules.Channel.B2B.Core.Pages
 {
@@ -50,7 +51,7 @@ namespace Modules.Channel.B2B.Core.Pages
             Name = "B2B Home Page";
             //Url = webDriver.Url;
             ProductUnit = "Channel";
-            webDriver.WaitForPageLoad(new TimeSpan(0, 0, 10));
+            this.webDriver.WaitForPageLoad(new TimeSpan(0, 0, 10));
         }
 
         /// <summary>
@@ -297,9 +298,17 @@ namespace Modules.Channel.B2B.Core.Pages
         {
             EnvironmentList.SelectByText(environmentValue);
             Console.WriteLine("B2B environment selected is: ** {0} **", environmentValue);
-            ////GoButton.Click();
             javaScriptExecutor.ExecuteScript("arguments[0].click();", GoButton);
-            webDriver.WaitForPageLoad(new TimeSpan(0, 0, 10));
+           // webDriver.WaitForPageLoadNew(new TimeSpan(0, 0, 10));
+        }
+
+        public void OpenPackageUploadPage()
+        {
+            ChannelCatalogUxLink.WaitForElementVisible(TimeSpan.FromSeconds(10));
+            ChannelCatalogUxLink.Click();
+            webDriver.WaitForPageLoad(TimeSpan.FromSeconds(20));
+            webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
+
         }
 
         #endregion

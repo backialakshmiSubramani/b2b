@@ -7,6 +7,12 @@ using FluentAssertions;
 using Modules.Channel.B2B.Core.Pages;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Support.PageObjects;
+using Modules.Channel.B2B.Common;
+using OpenQA.Selenium.Support.UI;
+using Dell.Adept.UI.Web.Support.Extensions.WebDriver;
+using System.Data;
+using Modules.Channel.B2B.DAL.ChannelCatalog;
+using Modules.Channel.B2B.DAL;
 
 namespace Modules.Channel.B2B.Core.Workflows.Catalog
 {
@@ -172,11 +178,11 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         /// <param name="fileToBeUploaded"></param>
         /// <param name="uploadMessage"></param>
         /// <returns></returns>
-        public bool VerifyOkClickOnUploadAlert(string environment, string fileToBeUploaded, string uploadMessage)
+        public bool VerifyOkClickOnUploadAlert(ConstantObjects.B2BEnvironment environment, string fileToBeUploaded, string uploadMessage)
         {
-            b2BHomePage.SelectEnvironment(environment);
+            b2BHomePage.SelectEnvironment(environment.ToString());
             b2BHomePage.ChannelCatalogUxLink.Click();
-            WaitForPageRefresh();
+            webDriver.WaitForPageLoad(TimeSpan.FromSeconds(10));
             webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
             return UploadAndCheckMessageAndValidate(fileToBeUploaded, uploadMessage);
         }
@@ -1129,9 +1135,8 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         ///<summary>
         /// Verifies country region and currency fields for original/delta created/published catalogs in Auto Cat List Page
         /// </summary>
-        public bool VerifyCountryCodepublishedcreatedInAutoCatListPage(string environment, string profilename,string status,
+        public bool VerifyCountryCodepublishedcreatedInAutoCatListPage(string environment, string profilename, string status,
             string CountryCode, string region, string currencyCode)
-
         {
             b2BHomePage.SelectEnvironment(environment);
             b2BHomePage.AutoCatalogListPageLink.Click();
@@ -1251,7 +1256,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         /// Verifies the presence and functionality of Test Harness Checkbox for failed catalogs in Auto Cataog List Page.
         /// </summary>
         /// <returns></returns>
-        public bool VerifyTestHarnessCheckboxFailedInAutoCatalogListPage(string environment,string profilename, string status)
+        public bool VerifyTestHarnessCheckboxFailedInAutoCatalogListPage(string environment, string profilename, string status)
         {
             b2BHomePage.SelectEnvironment(environment);
             b2BHomePage.AutoCatalogListPageLink.Click();
@@ -2559,7 +2564,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         ///// Retrieve Delta Published Auto BHC Config Quote ID thru Part Viewer. Verify all required info in the table
         ///// </summary>
         ///// <returns></returns>
-        public bool VerifyRetrieveCatalogConfigAquoteId(string environment, string quoteid, string Headervalue,string HeaderRowvalue, string SubHeadervalue, string SubRowvalue1, string subRowvalue2)
+        public bool VerifyRetrieveCatalogConfigAquoteId(string environment, string quoteid, string Headervalue, string HeaderRowvalue, string SubHeadervalue, string SubRowvalue1, string subRowvalue2)
         {
 
             b2BHomePage.SelectEnvironment(environment);
@@ -3468,7 +3473,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                 b2BBuyerCatalogPage.EditScheduleButton.Click();
                 b2BBuyerCatalogPage.SetTextBoxValue(b2BBuyerCatalogPage.OriginalCatalogStartDate,
                     DateTime.Now.AddDays(1).ToString(MMDDYYYY));
-                if (! b2BBuyerCatalogPage.BcpchkSysCatalogCheckbox.Selected &&
+                if (!b2BBuyerCatalogPage.BcpchkSysCatalogCheckbox.Selected &&
                     b2BBuyerCatalogPage.BcpchkCrossRefernceSysUpdate.Selected)
                 {
                     return true;
@@ -3517,7 +3522,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                 b2BBuyerCatalogPage.EditScheduleButton.Click();
                 b2BBuyerCatalogPage.SetTextBoxValue(b2BBuyerCatalogPage.OriginalCatalogStartDate,
                     DateTime.Now.AddDays(1).ToString(MMDDYYYY));
-                if (! b2BBuyerCatalogPage.CatalogConfigSnP.Selected &&
+                if (!b2BBuyerCatalogPage.CatalogConfigSnP.Selected &&
                     b2BBuyerCatalogPage.BcpchkCrossRefernceSnpUpdate.Selected)
                 {
                     return true;
@@ -3525,6 +3530,128 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                 return false;
             }
             return false;
+        }
+
+
+        public void VerifyRoundOffValuesPackageUploadForAllFieldsProd(ConstantObjects.B2BEnvironment b2BEnvironment, string fileToUpload, string message)
+        {
+            b2BHomePage.SelectEnvironment(b2BEnvironment.ToString());
+            b2BHomePage.OpenPackageUploadPage();
+
+            b2BCatalogPackagingDataUploadPage = new B2BCatalogPackagingDataUploadPage(webDriver);
+            b2BCatalogPackagingDataUploadPage.UploadExcelFile(fileToUpload);
+            b2BCatalogPackagingDataUploadPage.UploadMessage.Text.Trim().Equals(message);
+
+            string excelQuery = @"select [Order code],LOB,[Config Name],[Ship Weight],[Package Length],[Package Width],[Package Height],[Pallet Length],[Pallet Width],[Pallet Height],[Pallet Units / Layer],[Pallet Layer / Pallet],[Pallet Units / Pallet] FROM [B2B_Catalog_matching_table$]";
+
+            DataTable excelTable = UtilityMethods.GetDataFromExcel(@"PackagingData.xlsx", excelQuery);
+
+            for (int iteration = 0; iteration < 3; iteration++)
+            {
+                int index = new Random().Next(0, excelTable.Rows.Count - 1);
+                Channel_Catalog_PackagingData dbData = ChannelCatalogProdDataAccess.GetPackagingDetails(excelTable.Rows[index]["Order code"].ToString());
+
+                Console.WriteLine("Data validation for Order Code: " + excelTable.Rows[index]["Order code"].ToString());
+                dbData.ShipWeight.Should().Be(excelTable.Rows[index]["Ship Weight"].RoundValue(),"Ship Weight mismatch");
+                dbData.PackageLength.Should().Be(excelTable.Rows[index]["Package Length"].RoundValue(), "Package Length mismatch");
+                dbData.PackageWidth.Should().Be(excelTable.Rows[index]["Package Width"].RoundValue(),"Package Width mismatch");
+                dbData.PackageHeight.Should().Be(excelTable.Rows[index]["Package Height"].RoundValue(),"Package Height mismatch");
+                dbData.PalletLength.Should().Be(excelTable.Rows[index]["Pallet Length"].RoundValue(),"Pallet Length mismatch");
+                dbData.PalletWidth.Should().Be(excelTable.Rows[index]["Pallet Width"].RoundValue(),"Pallet Width mismatch");
+                dbData.PalletHeight.Should().Be(excelTable.Rows[index]["Pallet Height"].RoundValue(),"Pallet Height mismatch");
+                dbData.PalletUnitsPerLayer.Should().Be(excelTable.Rows[index]["Pallet Units / Layer"].RoundValue(),"Pallet Units / Layer mismatch");
+                dbData.PalletLayerPerPallet.Should().Be(excelTable.Rows[index]["Pallet Layer / Pallet"].RoundValue(), "Pallet Layer / Pallet mismatch");
+                dbData.PalletUnitsPerPallet.Should().Be(excelTable.Rows[index]["Pallet Units / Pallet"].RoundValue(), "Pallet Units / Pallet mismatch");
+            }
+        }
+        
+        public void VerifyRoundOffValuesPackageUploadForAllFieldsPrev(ConstantObjects.B2BEnvironment b2BEnvironment, string fileToUpload, string message)
+        {
+            b2BHomePage.SelectEnvironment(b2BEnvironment.ToString());
+            b2BHomePage.OpenPackageUploadPage();
+
+            b2BCatalogPackagingDataUploadPage = new B2BCatalogPackagingDataUploadPage(webDriver);
+            b2BCatalogPackagingDataUploadPage.UploadExcelFile(fileToUpload);
+            b2BCatalogPackagingDataUploadPage.UploadMessage.Text.Trim().Equals(message);
+
+            string excelQuery = @"select [Order code],LOB,[Config Name],[Ship Weight],[Package Length],[Package Width],[Package Height],[Pallet Length],[Pallet Width],[Pallet Height],[Pallet Units / Layer],[Pallet Layer / Pallet],[Pallet Units / Pallet] FROM [B2B_Catalog_matching_table$]";
+
+            DataTable excelTable = UtilityMethods.GetDataFromExcel(@"PackagingData.xlsx", excelQuery);
+
+            for (int iteration = 0; iteration < 3; iteration++)
+            {
+                int index = new Random().Next(0, excelTable.Rows.Count - 1);
+                Channel_Catalog_PackagingData dbData = ChannelCatalogPrevDataAccess.GetPackagingDetails(excelTable.Rows[index]["Order code"].ToString());
+
+                Console.WriteLine("Data validation for Order Code: " + excelTable.Rows[index]["Order code"].ToString());
+                dbData.ShipWeight.Should().Be(excelTable.Rows[index]["Ship Weight"].RoundValue(), "Ship Weight mismatch");
+                dbData.PackageLength.Should().Be(excelTable.Rows[index]["Package Length"].RoundValue(), "Package Length mismatch");
+                dbData.PackageWidth.Should().Be(excelTable.Rows[index]["Package Width"].RoundValue(), "Package Width mismatch");
+                dbData.PackageHeight.Should().Be(excelTable.Rows[index]["Package Height"].RoundValue(), "Package Height mismatch");
+                dbData.PalletLength.Should().Be(excelTable.Rows[index]["Pallet Length"].RoundValue(), "Pallet Length mismatch");
+                dbData.PalletWidth.Should().Be(excelTable.Rows[index]["Pallet Width"].RoundValue(), "Pallet Width mismatch");
+                dbData.PalletHeight.Should().Be(excelTable.Rows[index]["Pallet Height"].RoundValue(), "Pallet Height mismatch");
+                dbData.PalletUnitsPerLayer.Should().Be(excelTable.Rows[index]["Pallet Units / Layer"].RoundValue(), "Pallet Units / Layer mismatch");
+                dbData.PalletLayerPerPallet.Should().Be(excelTable.Rows[index]["Pallet Layer / Pallet"].RoundValue(), "Pallet Layer / Pallet mismatch");
+                dbData.PalletUnitsPerPallet.Should().Be(excelTable.Rows[index]["Pallet Units / Pallet"].RoundValue(), "Pallet Units / Pallet mismatch");
+            }
+        }
+
+        public void VerifyAuditHistoryRecordsForPackageUpload(ConstantObjects.B2BEnvironment b2BEnvironment, string fileToUpload, string message)
+        {
+            b2BHomePage.SelectEnvironment(b2BEnvironment.ToString());
+            b2BHomePage.OpenPackageUploadPage();
+
+            b2BCatalogPackagingDataUploadPage = new B2BCatalogPackagingDataUploadPage(webDriver);
+            DateTime timeBeforeUpload = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "Central Standard Time");
+            b2BCatalogPackagingDataUploadPage.UploadExcelFile(fileToUpload);
+            b2BCatalogPackagingDataUploadPage.UploadMessage.WaitForElementDisplayed(TimeSpan.FromSeconds(10));
+            b2BCatalogPackagingDataUploadPage.UploadMessage.Text.Trim().Equals(message);
+
+            b2BCatalogPackagingDataUploadPage.AuditHistoryTable.WaitForTableLoadComplete(60);
+            IReadOnlyCollection<IWebElement> historyRows = b2BCatalogPackagingDataUploadPage.AuditHistoryRecords;
+            historyRows.Count.Should().BeInRange(1, 13);
+            Console.WriteLine(historyRows.Count);
+
+            IReadOnlyCollection<IWebElement> latestRowValues = b2BCatalogPackagingDataUploadPage.GetAuditHistoryRowValues(historyRows.ElementAt(0));
+            latestRowValues.ElementAt(0).Text.Should().Be(fileToUpload);
+            latestRowValues.ElementAt(1).Text.Should().Be(Environment.UserName);
+            Convert.ToDateTime(latestRowValues.ElementAt(2).Text).Should().BeAfter(timeBeforeUpload);
+        }
+
+        public void VerifyPackageUploadForNullAndInvalidValues(ConstantObjects.B2BEnvironment b2BEnvironment, string fileToUpload, string errorMessage)
+        {
+            b2BHomePage = new B2BHomePage(webDriver);
+            b2BHomePage.SelectEnvironment(b2BEnvironment.ToString());
+            b2BHomePage.OpenPackageUploadPage();
+
+            b2BCatalogPackagingDataUploadPage = new B2BCatalogPackagingDataUploadPage(webDriver);
+            b2BCatalogPackagingDataUploadPage.UploadExcelFile(fileToUpload);
+            b2BCatalogPackagingDataUploadPage.UploadMessage.Text.Should().Be(errorMessage);
+        }
+
+        public void VerifyNewFieldsPackageUploadProd(ConstantObjects.B2BEnvironment b2BEnvironment, string fileToUpload, string message)
+        {
+            b2BHomePage.SelectEnvironment(b2BEnvironment.ToString());
+            b2BHomePage.OpenPackageUploadPage();
+
+            DateTime timeBeforeUpload = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "Central Standard Time");
+            b2BCatalogPackagingDataUploadPage = new B2BCatalogPackagingDataUploadPage(webDriver);
+            b2BCatalogPackagingDataUploadPage.UploadExcelFile(fileToUpload);
+            b2BCatalogPackagingDataUploadPage.UploadMessage.WaitForElementDisplayed(TimeSpan.FromSeconds(10));
+            b2BCatalogPackagingDataUploadPage.UploadMessage.Text.Trim().Equals(message);
+
+            string excelQuery = @"select [Order code],LOB,[Config Name],ROUND([Ship Weight],0) as [Ship Weight],ROUND([Package Length],0) as [Package Length],ROUND([Package Width],0) as [Package Width],ROUND([Package Height],0) as [Package Height],ROUND([Pallet Length],0) as [Pallet Length],ROUND([Pallet Width],0) as [Pallet Width],ROUND([Pallet Height],0) as [Pallet Height],ROUND([Pallet Units / Layer],0) as [Pallet Units / Layer],ROUND([Pallet Layer / Pallet],0) as [Pallet Layer / Pallet],ROUND([Pallet Units / Pallet],0) as [Pallet Units / Pallet] FROM [B2B_Catalog_matching_table$]";
+            DataTable excelTable = UtilityMethods.GetDataFromExcel(@"PackagingData.xlsx", excelQuery);
+
+            Channel_Catalog_PackagingData dbData = ChannelCatalogProdDataAccess.GetPackagingDetails(excelTable.Rows[0]["Order code"].ToString());
+
+            dbData.PalletLength.Should().Be(Convert.ToInt32(excelTable.Rows[0]["Pallet Length"]));
+            dbData.PalletWidth.Should().Be(Convert.ToInt32(excelTable.Rows[0]["Pallet Width"]));
+            dbData.PalletHeight.Should().Be(Convert.ToInt32(excelTable.Rows[0]["Pallet Height"]));
+            dbData.PalletUnitsPerLayer.Should().Be(Convert.ToInt32(excelTable.Rows[0]["Pallet Units / Layer"]));
+            dbData.PalletLayerPerPallet.Should().Be(Convert.ToInt32(excelTable.Rows[0]["Pallet Layer / Pallet"]));
+            dbData.PalletUnitsPerPallet.Should().Be(Convert.ToInt32(excelTable.Rows[0]["Pallet Units / Pallet"]));
         }
 
         ///<summary>
@@ -3592,7 +3719,30 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             b2BAutoCatalogListPage.StdConfigTypeCheckbox.Click();
             return (b2BAutoCatalogListPage.TestHarnessCheckbox.Selected && b2BAutoCatalogListPage.StdConfigTypeCheckbox.Selected);
         }
+        public void VerifyNewFieldsPackageUploadPrev(ConstantObjects.B2BEnvironment b2BEnvironment, string fileToUpload, string message)
+        {
+            b2BHomePage.SelectEnvironment(b2BEnvironment.ToString());
+            b2BHomePage.OpenPackageUploadPage();
+
+            b2BCatalogPackagingDataUploadPage = new B2BCatalogPackagingDataUploadPage(webDriver);
+            DateTime timeBeforeUpload = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "Central Standard Time");
+            b2BCatalogPackagingDataUploadPage.UploadExcelFile(fileToUpload);
+            b2BCatalogPackagingDataUploadPage.UploadMessage.WaitForElementDisplayed(TimeSpan.FromSeconds(10));
+            b2BCatalogPackagingDataUploadPage.UploadMessage.Text.Trim().Equals(message);
+
+            string excelQuery = @"select [Order code],LOB,[Config Name],ROUND([Ship Weight],0) as [Ship Weight],ROUND([Package Length],0) as [Package Length],ROUND([Package Width],0) as [Package Width],ROUND([Package Height],0) as [Package Height],ROUND([Pallet Length],0) as [Pallet Length],ROUND([Pallet Width],0) as [Pallet Width],ROUND([Pallet Height],0) as [Pallet Height],ROUND([Pallet Units / Layer],0) as [Pallet Units / Layer],ROUND([Pallet Layer / Pallet],0) as [Pallet Layer / Pallet],ROUND([Pallet Units / Pallet],0) as [Pallet Units / Pallet] FROM [B2B_Catalog_matching_table$]";
+            DataTable excelTable = UtilityMethods.GetDataFromExcel(@"PackagingData.xlsx", excelQuery);
+
+            Channel_Catalog_PackagingData dbData = ChannelCatalogPrevDataAccess.GetPackagingDetails(excelTable.Rows[0]["Order code"].ToString());
+
+            dbData.PalletLength.Should().Be(Convert.ToInt32(excelTable.Rows[0]["Pallet Length"]));
+            dbData.PalletWidth.Should().Be(Convert.ToInt32(excelTable.Rows[0]["Pallet Width"]));
+            dbData.PalletHeight.Should().Be(Convert.ToInt32(excelTable.Rows[0]["Pallet Height"]));
+            dbData.PalletUnitsPerLayer.Should().Be(Convert.ToInt32(excelTable.Rows[0]["Pallet Units / Layer"]));
+            dbData.PalletLayerPerPallet.Should().Be(Convert.ToInt32(excelTable.Rows[0]["Pallet Layer / Pallet"]));
+            dbData.PalletUnitsPerPallet.Should().Be(Convert.ToInt32(excelTable.Rows[0]["Pallet Units / Pallet"]));
         }
+    }
 
     /// <summary>
     /// Enum to restrict the types of frequencies used

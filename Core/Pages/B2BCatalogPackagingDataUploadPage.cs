@@ -21,6 +21,7 @@ using Dell.Adept.UI.Web.Support;
 using Dell.Adept.UI.Web.Support.Extensions.WebDriver;
 using Dell.Adept.UI.Web.Support.Extensions.WebElement;
 using Dell.Adept.UI.Web.Support.Locators;
+using Modules.Channel.B2B.Common;
 
 
 namespace Modules.Channel.B2B.Core.Pages
@@ -44,6 +45,7 @@ namespace Modules.Channel.B2B.Core.Pages
             Name = "Channel Catalog Packaging Data Upload Page";
             Url = webDriver.Url;
             ProductUnit = "Channel";
+            this.webDriver.WaitForPageLoad(TimeSpan.FromMinutes(1));
         }
 
         /// <summary>
@@ -105,6 +107,38 @@ namespace Modules.Channel.B2B.Core.Pages
             }
         }
 
+        public IReadOnlyCollection<IWebElement> AuditHistoryRecords
+        {
+            get
+            {
+                webDriver.WaitForPageLoad(TimeSpan.FromSeconds(5));
+                return webDriver.FindElements(AdeptBy.Attribute(ElementTag.tr, "ng-repeat", "history in auditHistories"));
+            }
+        }
+
+        public IWebElement AuditHistoryTable
+        {
+            get
+            {
+                return webDriver.FindElement(By.XPath("/html/body/div/section/div/div[2]/div/div/table/tbody/tr[2]/td/div/table"));
+            }
+        }
+
         #endregion
+
+        internal void UploadExcelFile(string fileToUpload)
+        {
+            Console.WriteLine(System.IO.Directory.GetCurrentDirectory());
+            FileUpload.SendKeys(System.IO.Directory.GetCurrentDirectory() + @"\" + fileToUpload);
+            UploadButton.Click();
+            webDriver.WaitGetAlert();
+            webDriver.SwitchTo().Alert().Accept();
+           // webDriver.WaitForPageLoad(TimeSpan.FromSeconds(10));
+        }
+
+        internal IReadOnlyCollection<IWebElement> GetAuditHistoryRowValues(IWebElement auditHistoryRow)
+        {
+            return auditHistoryRow.FindElements(By.TagName("td"));
+        }
     }
 }
