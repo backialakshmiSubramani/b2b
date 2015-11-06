@@ -3540,13 +3540,13 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
 
             b2BCatalogPackagingDataUploadPage = new B2BCatalogPackagingDataUploadPage(webDriver);
             b2BCatalogPackagingDataUploadPage.UploadExcelFile(fileToUpload);
-            b2BCatalogPackagingDataUploadPage.UploadMessage.Text.Trim().Equals(message);
+            b2BCatalogPackagingDataUploadPage.UploadMessage.Text.Trim().Should().Be(message,"Incorrect message for packaging file upload");
 
             string excelQuery = @"select [Order code],LOB,[Config Name],[Ship Weight],[Package Length],[Package Width],[Package Height],[Pallet Length],[Pallet Width],[Pallet Height],[Pallet Units / Layer],[Pallet Layer / Pallet],[Pallet Units / Pallet] FROM [B2B_Catalog_matching_table$]";
 
             DataTable excelTable = UtilityMethods.GetDataFromExcel(@"PackagingData.xlsx", excelQuery);
 
-            for (int iteration = 0; iteration < 3; iteration++)
+            for (int iteration = 0; iteration < 10; iteration++)
             {
                 int index = new Random().Next(0, excelTable.Rows.Count - 1);
                 Channel_Catalog_PackagingData dbData = ChannelCatalogProdDataAccess.GetPackagingDetails(excelTable.Rows[index]["Order code"].ToString());
@@ -3578,7 +3578,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
 
             DataTable excelTable = UtilityMethods.GetDataFromExcel(@"PackagingData.xlsx", excelQuery);
 
-            for (int iteration = 0; iteration < 3; iteration++)
+            for (int iteration = 0; iteration < 10; iteration++)
             {
                 int index = new Random().Next(0, excelTable.Rows.Count - 1);
                 Channel_Catalog_PackagingData dbData = ChannelCatalogPrevDataAccess.GetPackagingDetails(excelTable.Rows[index]["Order code"].ToString());
