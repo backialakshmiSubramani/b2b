@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Configuration;
 using System.Data;
 using System.Linq;
 using Dell.Adept.UI.Web.Support.Extensions.WebElement;
@@ -6,8 +7,6 @@ using OpenQA.Selenium;
 using Modules.Channel.B2B.Core.Pages;
 using Modules.Channel.B2B.Core.Workflows.Common;
 using Modules.Channel.B2B.DAL.Inventory;
-using System.Collections.Generic;
-using FluentAssertions;
 using System.IO;
 using System.Globalization;
 
@@ -85,6 +84,14 @@ namespace Modules.Channel.B2B.Core.Workflows.Inventory
         {
             accessProfile.GoToBuyerCatalogTab(environment, profileName);
             b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+
+            if (b2BBuyerCatalogPage.EnableAutoInventoryCheckbox.Selected)
+            {
+                b2BBuyerCatalogPage.EnableAutoInventoryCheckbox.Click();
+                b2BBuyerCatalogPage.UpdateButton.Click();
+                accessProfile.WaitForPageRefresh();
+                b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+            }
 
             if (!b2BBuyerCatalogPage.VerifyRefreshIntervalDropdownsAreDisabled())
             {
@@ -382,10 +389,14 @@ namespace Modules.Channel.B2B.Core.Workflows.Inventory
         /// Returns the last_mod_date of the profile provided
         /// </summary>
         /// <param name="profileName"></param>
+        /// <param name="isPreview"></param>
         /// <returns>The <see cref="DateTime"/></returns>
-        private DateTime? GetLastModifiedDate(string profileName)
+        private DateTime? GetLastModifiedDate(string profileName, bool isPreview = false)
         {
-            b2BEntities = new B2BEntities();
+            b2BEntities =
+                new B2BEntities(isPreview
+                    ? ConfigurationManager.ConnectionStrings["B2BPrevEntities"].ToString()
+                    : ConfigurationManager.ConnectionStrings["B2BProdEntities"].ToString());
 
             return (from cm in b2BEntities.b2b_profile
                     where cm.user_id == profileName
@@ -393,98 +404,94 @@ namespace Modules.Channel.B2B.Core.Workflows.Inventory
                 .FirstOrDefault();
         }
 
-        public bool ClickToRunOnce(DataRow clickToRunOnceTestData, RunEnvironment environment)
+        public bool ClickToRunOnce(string environment, string profileName, string statusMessage, string atsFeedLocation,
+            string atsFeedPrefix, string atsFeedExtension, int atsFileTimeDifference)
         {
-            b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
-            string profileName = clickToRunOnceTestData["ProfileName"].ToString();
-            string statusMsg = clickToRunOnceTestData["InventoryFeedRequestStatusMsg"].ToString();
-            string atsFeedLocation = clickToRunOnceTestData["AtsFeedLocation"].ToString();
-            string atsFeedPrefix = clickToRunOnceTestData["AtsFeedPrefix"].ToString();
-            string atsFeedExtension = clickToRunOnceTestData["AtsFeedExtension"].ToString();
-            string atsFileTimeDiff = clickToRunOnceTestData["InventoryFileGenerationTimeDifference"].ToString();
+            DateTime utcTime;
 
             //Search for the profile and go to Buyer Catalog tab
-            accessProfile.GoToBuyerCatalogTab(environment.ToString(), profileName);
+            accessProfile.GoToBuyerCatalogTab(environment, profileName);
+
+            b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
 
             // Click on ClickToRunOnce button
-            b2BBuyerCatalogPage.ClickToRunOnce().Should().BeTrue();
+            if (!b2BBuyerCatalogPage.ClickToRunOnce(statusMessage, out utcTime))
+            {
+                return false;
+            }
 
-            //Verufy ClickToRunOnce request status message
-            b2BBuyerCatalogPage.VerifyClickToRunOnceRequestStatus(statusMsg).Should().BeTrue();
+            b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
 
             // Verify Inventory Feeds generated for the enabled identites in the selected profile
-            VerifyFeedGeneration(profileName, PoOperations.GetEnvironmentCode(environment), atsFeedLocation, atsFeedPrefix, atsFeedExtension, atsFileTimeDiff).Should().BeTrue();
-            return true;
+            return VerifyFeedGeneration(environment, atsFeedLocation, atsFeedPrefix, atsFeedExtension, utcTime, atsFileTimeDifference);
         }
 
         /// <summary>
         /// Verify the feed generation after clicking on ClickToRunOnce button
         /// </summary>
         /// <returns>The <see cref="bool"/></returns>
-        public bool VerifyFeedGeneration(string profileName, string environment, string atsFeedLocation, string atsFeedPrefix, string atsFeedExtn, string atsFileTimeDiff)
+        public bool VerifyFeedGeneration(string environment, string atsFeedLocation, string atsFeedPrefix, string atsFeedExtension, DateTime utcTime, int atsFileTimeDifference)
         {
-            b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+            var centralTime = TimeZoneInfo.ConvertTimeFromUtc(utcTime,
+                TimeZoneInfo.FindSystemTimeZoneById("Central Standard Time"));
 
-            string fileName = string.Empty;
+            var noOfFilesGenerated = 0;
+            var directory = new DirectoryInfo(atsFeedLocation);
+
             var identities = b2BBuyerCatalogPage.GetIdentities();
-            if (identities != null)
+
+            if (identities.Any())
             {
-                foreach (string identity in identities)
+                identities.ForEach(identity =>
                 {
-                    Console.WriteLine("Searching for Inventory file for identity : {0}", identity);
-                    return getLatestInventoryFileGenerated(atsFeedLocation + @"\" + environment, atsFeedPrefix + "_" + identity + "_", atsFileTimeDiff);
-                }
-                return false;
+                    Console.WriteLine("Searching for Inventory Feed for identity : {0}", identity);
+                    var newFileName = atsFeedPrefix + "_" + identity + "_" + centralTime.ToString("MMddHHmmss") + "." +
+                                      atsFeedExtension;
+
+                    if (directory.EnumerateFiles(newFileName).Any())
+                    {
+                        noOfFilesGenerated++;
+                    }
+                    else
+                    {
+                        Console.WriteLine("No file found with name {0}", newFileName);
+                        Console.WriteLine("Getting the latest file for identity: {0}", identity);
+
+                        var filesForIdentity = directory.EnumerateFiles(atsFeedPrefix + "_" + identity + "_" + "*" + atsFeedExtension);
+
+                        if (filesForIdentity.Any())
+                        {
+                            if (
+                                filesForIdentity.OrderByDescending(f => f.CreationTimeUtc)
+                                    .First()
+                                    .CreationTimeUtc.Subtract(utcTime)
+                                    .TotalSeconds <= atsFileTimeDifference)
+                            {
+                                noOfFilesGenerated++;
+                            }
+                            else
+                            {
+                                Console.WriteLine(
+                                    "No Inventory Feed created within {0} seconds of 'Click to Run Once' for Identity: {1} in environment: {2}",
+                                    atsFileTimeDifference, identity, environment);
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine("No Inventory Feed found for Identity: {0} in environment: {1}", identity, environment);
+                        }
+                    }
+                });
             }
-            else
+
+            if (identities.Count() == noOfFilesGenerated)
             {
-                Console.WriteLine("No Enabled Identites Found for the profile !!");
+                Console.WriteLine("Inventory Feeds generated for all identities");
                 return true;
             }
+
+            Console.WriteLine("No Enabled Identites Found for the profile !!");
+            return false;
         }
-
-        /// <summary>
-        ///Get the latest Inventory File Generated
-        /// </summary>
-        /// <returns>The <see cref="bool"/></returns>
-        public bool getLatestInventoryFileGenerated(string atsFeedLocation, string feedFileName, string timeDifference)
-        {
-            var directory = new DirectoryInfo(atsFeedLocation);
-            string fileFound = string.Empty;
-            DateTime inventoryFileTimeStamp;
-
-            Console.WriteLine("Searching for the Inventory file in the Directory : {0} ", atsFeedLocation);
-            Console.WriteLine("Searching for the Inventory file Name [Without TimeStamp] : {0} ", feedFileName);
-
-            if (directory.EnumerateFiles(feedFileName + "*" + ".csv").Any())
-            {
-                fileFound = (directory.EnumerateFiles(feedFileName + "*" + ".csv")
-                        .OrderByDescending(f => f.CreationTimeUtc)
-                        .First()
-                        .FullName);
-                Console.WriteLine("Inventory File found for the given Identity : " + fileFound);
-
-                inventoryFileTimeStamp = DateTime.ParseExact(fileFound.Split('_')[2].Split('.')[0], "MMddHHmmss", CultureInfo.CreateSpecificCulture("en-US"));
-
-                //if (DateTimeOffset.UtcNow.Subtract(inventoryFileTimeStamp).TotalMinutes < Convert.ToDouble(timeDifference))
-                DateTime CSTNow = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("Central Standard Time"));
-                if (CSTNow.Subtract(inventoryFileTimeStamp).TotalMinutes < Convert.ToDouble(timeDifference))
-                {
-                    Console.WriteLine("The Latest Inventory File found is created within {0} minutes.", timeDifference);
-                    return true;
-                }
-                else
-                {
-                    Console.WriteLine("The Latest Inventory File found is created much before the time difference [ {0} minutes ] specified.", timeDifference);
-                    return false;
-                }
-            }
-            else
-            {
-                Console.WriteLine("No inventory file found for the selected identity.");
-                return false;
-            }
-        }
-
     }
 }

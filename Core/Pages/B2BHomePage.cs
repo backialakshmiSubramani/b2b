@@ -26,7 +26,7 @@ using Dell.Adept.UI.Web.Support.Extensions.WebDriver;
 using Dell.Adept.UI.Web.Support.Extensions.WebElement;
 using Dell.Adept.UI.Web.Support.Locators;
 using Dell.Adept.UI.Web.Support;
-using Modules.Channel.B2B.Common;
+using Modules.Channel.EUDC.Core.Pages;
 
 namespace Modules.Channel.B2B.Core.Pages
 {
@@ -51,7 +51,8 @@ namespace Modules.Channel.B2B.Core.Pages
             Name = "B2B Home Page";
             //Url = webDriver.Url;
             ProductUnit = "Channel";
-            this.webDriver.WaitForPageLoad(new TimeSpan(0, 0, 10));
+            //this.webDriver.WaitForPageLoad(new TimeSpan(0, 0, 10));
+            PageUtility.WaitForPageRefresh(webDriver);
         }
 
         /// <summary>
@@ -224,21 +225,24 @@ namespace Modules.Channel.B2B.Core.Pages
         {
             ////B2BProfileListLink.Click();
             javaScriptExecutor.ExecuteScript("arguments[0].click();", B2BProfileListLink);
-            webDriver.WaitForPageLoad(new TimeSpan(0, 0, 20));
+            //webDriver.WaitForPageLoad(new TimeSpan(0, 0, 20));
+            PageUtility.WaitForPageRefresh(webDriver);
         }
 
         public void ClickCrossReferenceListLink()
         {
             ////CrossReferenceListLink.Click();
             javaScriptExecutor.ExecuteScript("arguments[0].click();", CrossReferenceListLink);
-            webDriver.WaitForPageLoad(new TimeSpan(0, 0, 10));
+            //webDriver.WaitForPageLoad(new TimeSpan(0, 0, 10));
+            PageUtility.WaitForPageRefresh(webDriver);
         }
 
         public void ClickCrAssociationList()
         {
             ////CrAssociationlist.Click();
             javaScriptExecutor.ExecuteScript("arguments[0].click();", CrAssociationlist);
-            webDriver.WaitForPageLoad(new TimeSpan(0, 0, 10));
+            //webDriver.WaitForPageLoad(new TimeSpan(0, 0, 10));
+            PageUtility.WaitForPageRefresh(webDriver);
         }
 
         public void ClickQaTools3()
@@ -246,7 +250,8 @@ namespace Modules.Channel.B2B.Core.Pages
             ////QaTools3.Click();
             javaScriptExecutor.ExecuteScript("arguments[0].click();", QaTools3);
 
-            webDriver.WaitForPageLoad(new TimeSpan(0, 0, 10));
+            //webDriver.WaitForPageLoad(new TimeSpan(0, 0, 10));
+            PageUtility.WaitForPageRefresh(webDriver);
             var newWindow = webDriver.WindowHandles.LastOrDefault();
             webDriver.SwitchTo().Window(newWindow);
             Console.WriteLine("Url after switching is: {0}", webDriver.Url);
@@ -257,14 +262,16 @@ namespace Modules.Channel.B2B.Core.Pages
         {
             ////LogReport.Click();
             javaScriptExecutor.ExecuteScript("arguments[0].click();", LogReport);
-            webDriver.WaitForPageLoad(new TimeSpan(0, 0, 10));
+            //webDriver.WaitForPageLoad(new TimeSpan(0, 0, 10));
+            PageUtility.WaitForPageRefresh(webDriver);
         }
 
         public void ClickOnBuyerCatalogLink()
         {
             ////BuyerCatalogLink.Click();
             javaScriptExecutor.ExecuteScript("arguments[0].click();", BuyerCatalogLink);
-            webDriver.WaitForPageLoad(new TimeSpan(0, 0, 10));
+            //webDriver.WaitForPageLoad(new TimeSpan(0, 0, 10));
+            PageUtility.WaitForPageRefresh(webDriver);
         }
 
         public void ClickBuyerCatalogAdmin()
@@ -299,16 +306,16 @@ namespace Modules.Channel.B2B.Core.Pages
             EnvironmentList.SelectByText(environmentValue);
             Console.WriteLine("B2B environment selected is: ** {0} **", environmentValue);
             javaScriptExecutor.ExecuteScript("arguments[0].click();", GoButton);
-           // webDriver.WaitForPageLoadNew(new TimeSpan(0, 0, 10));
+            PageUtility.WaitForPageRefresh(webDriver);
         }
 
         public void OpenPackageUploadPage()
         {
             ChannelCatalogUxLink.WaitForElementVisible(TimeSpan.FromSeconds(10));
             ChannelCatalogUxLink.Click();
-            webDriver.WaitForPageLoad(TimeSpan.FromSeconds(20));
+            //webDriver.WaitForPageLoad(TimeSpan.FromSeconds(20));
+            PageUtility.WaitForPageRefresh(webDriver);
             webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
-
         }
 
         #endregion

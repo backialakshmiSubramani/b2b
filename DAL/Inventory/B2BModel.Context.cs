@@ -12,19 +12,19 @@ namespace Modules.Channel.B2B.DAL.Inventory
     using System;
     using System.Data.Entity;
     using System.Data.Entity.Infrastructure;
-    
+
     public partial class B2BEntities : DbContext
     {
-        public B2BEntities()
-            : base("name=B2BEntities")
+        public B2BEntities(string connectionString)
+            : base(connectionString)
         {
         }
-    
+
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
             throw new UnintentionalCodeFirstException();
         }
-    
+
         public virtual DbSet<b2b_profile> b2b_profile { get; set; }
     }
 }

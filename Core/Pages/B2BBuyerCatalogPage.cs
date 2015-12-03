@@ -32,7 +32,7 @@ using Dell.Adept.UI.Web.Support.Extensions.WebElement;
 using Dell.Adept.UI.Web.Support.Locators;
 using Dell.Adept.UI.Web.Support;
 using System.IO;
-
+using Modules.Channel.EUDC.Core.Pages;
 
 namespace Modules.Channel.B2B.Core.Pages
 {
@@ -54,7 +54,8 @@ namespace Modules.Channel.B2B.Core.Pages
         {
             this.webDriver = webDriver;
             javaScriptExecutor = (IJavaScriptExecutor)this.webDriver;
-            Thread.Sleep(5000);
+            //Thread.Sleep(5000);
+            PageUtility.WaitForPageRefresh(webDriver);
         }
 
         #endregion
@@ -1096,38 +1097,25 @@ namespace Modules.Channel.B2B.Core.Pages
         /// Click on Click to Run once button
         /// </summary>
         /// <returns>The <see cref="bool"/></returns>
-        public bool ClickToRunOnce()
+        public bool ClickToRunOnce(string statusMessage, out DateTime utcTime)
         {
-            try
-            {
-                Console.WriteLine("Clicking on ClickToRunOnce Button..");
-                ClickToRunOnceButton.Click();
-                Console.WriteLine("Done!");
-                Console.WriteLine("Inventory Feed Request Status : {0}", ConfirmationLabel.Text);
-                return true;
-            }
-            catch { return false; }
+            Console.WriteLine("Clicking on ClickToRunOnce Button..");
+            ClickToRunOnceButton.Click();
+            utcTime = DateTime.UtcNow;
+            PageUtility.WaitForPageRefresh(webDriver);
+            Console.WriteLine("Done!");
+            Console.WriteLine("Inventory Feed Request Status : {0}", ConfirmationLabel.Text);
+            return string.Equals(ConfirmationLabel.Text.Trim(), statusMessage);
         }
 
         /// <summary>
-        /// Verify the status message displayed after click to Run once button
+        /// to get all the identites for the profile name provided
         /// </summary>
-        /// <returns>The <see cref="bool"/></returns>
-        public bool VerifyClickToRunOnceRequestStatus(string statusMsg)
-        {
-            if (string.Compare(ConfirmationLabel.Text.Trim(), statusMsg.Trim(), true) == 0) return true;
-            else return false;
-        }
-
-        /// <summary>
-        /// to get all the identites for the profile name and th eenvironment provided
-        /// Environment can be passed if this is used somewhere else independently
-        /// </summary>
-        /// <returns>The <see cref="List<string>"/></returns>
+        /// <returns>List of enabled Identity Names</returns>
         public List<string> GetIdentities()
         {
             //Expand Auto BHC Section
-            AutomatedBhcCatalogProcessingRules.Click(); // Click to Expand BHC section
+            AutomatedBhcCatalogProcessingRules.Click();
             // Now coding for only enabled Identites. Which are picked from Auto BHC catalog panel.
             return CheckedIdentityList.Select(e => e.Text).ToList();
         }

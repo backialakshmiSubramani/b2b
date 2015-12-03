@@ -1454,24 +1454,6 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
         {
             return AsnDataAccess.GetNumberOfUnitsShippedBasedOnOrderNumber(orderId);
         }
-
-        public static string GetEnvironmentCode(RunEnvironment environment)
-        {
-            string environmentCode;
-            switch (environment)
-            {
-                case RunEnvironment.Production:
-                    environmentCode = "PROD";
-                    break;
-                case RunEnvironment.Preview:
-                    environmentCode = "PREV";
-                    break;
-                default:
-                    environmentCode = "PROD";
-                    break;
-            }
-            return environmentCode;
-        }
     }
 
     public enum Workflow

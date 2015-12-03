@@ -51,7 +51,8 @@ namespace Modules.Channel.B2B.Core.Pages
             //Name = "";
             //Url = "";
             //ProductUnit = "";
-            Thread.Sleep(5000);
+            //Thread.Sleep(5000);
+            PageUtility.WaitForPageRefresh(webDriver);
         }
 
         /// <summary>
@@ -216,21 +217,10 @@ namespace Modules.Channel.B2B.Core.Pages
             webDriver.WaitForElementDisplayed(By.LinkText(linkText), TimeSpan.FromSeconds(30));
             var elem = webDriver.FindElement(By.LinkText(linkText));
             javaScriptExecutor.ExecuteScript("arguments[0].click();", elem);
-            Thread.Sleep(1000);
-            webDriver.WaitForPageLoad(new TimeSpan(0, 0, 60));
+            //Thread.Sleep(1000);
+            //webDriver.WaitForPageLoad(new TimeSpan(0, 0, 60));
+            PageUtility.WaitForPageRefresh(webDriver);
         }
-
-        public B2BBuyerCatalogPage ClickB2BsearchedProfile()
-        {
-            webDriver.WaitForElementDisplayed(By.Id("ContentPageHolder_grdCustomerProfilelists_hypCustomerName_0"), TimeSpan.FromSeconds(30));
-            var elem = webDriver.FindElement(By.Id("ContentPageHolder_grdCustomerProfilelists_hypCustomerName_0"));
-            javaScriptExecutor.ExecuteScript("arguments[0].click();", elem);
-            webDriver.WaitForPageLoad(new TimeSpan(0, 0, 60));
-
-            return new B2BBuyerCatalogPage(this.webDriver);
-
-        }
-
 
         #endregion
 
@@ -249,19 +239,22 @@ namespace Modules.Channel.B2B.Core.Pages
             ////SearchLink.Click();
             javaScriptExecutor.ExecuteScript("arguments[0].click();", SearchLink);
             // Thread.Sleep(5000);
-            webDriver.WaitForPageLoad(TimeSpan.FromSeconds(20));
+            //webDriver.WaitForPageLoad(TimeSpan.FromSeconds(20));
+            PageUtility.WaitForPageRefresh(webDriver);
         }
 
         public void AdvanceSearchAsnEnabledProfile()
         {
             ////AdvancedSearchLink.Click();
             javaScriptExecutor.ExecuteScript("arguments[0].click();", AdvancedSearchLink);
-            webDriver.WaitForPageLoad(TimeSpan.FromSeconds(10));
+            //webDriver.WaitForPageLoad(TimeSpan.FromSeconds(10));
+            PageUtility.WaitForPageRefresh(webDriver);
             ////ChannelAsnCheckbox.Click();
             javaScriptExecutor.ExecuteScript("arguments[0].click();", ChannelAsnCheckbox);
             ////AdvanceSearchBtn.Click();
             javaScriptExecutor.ExecuteScript("arguments[0].click();", AdvanceSearchBtn);
-            webDriver.WaitForPageLoad(TimeSpan.FromSeconds(10));
+            //webDriver.WaitForPageLoad(TimeSpan.FromSeconds(10));
+            PageUtility.WaitForPageRefresh(webDriver);
         }
 
         public bool VerifyProfileSearchResult(string ProfileName, string ClickProfile)
@@ -291,7 +284,8 @@ namespace Modules.Channel.B2B.Core.Pages
                     {
                         ////PaginationArrow.Click();
                         javaScriptExecutor.ExecuteScript("arguments[0].click();", PaginationArrow);
-                        webDriver.WaitForPageLoad(TimeSpan.FromSeconds(20));
+                        //webDriver.WaitForPageLoad(TimeSpan.FromSeconds(20));
+                        PageUtility.WaitForPageRefresh(webDriver);
                     }
                     else
                     {

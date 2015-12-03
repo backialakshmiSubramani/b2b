@@ -47,7 +47,8 @@ namespace Modules.Channel.B2B.Core.Pages
             Name = PageTitleHeader.Text;
             //Url = "";
             //ProductUnit = "";
-            webDriver.WaitForPageLoad(new TimeSpan(0, 0, PageUtility.PageTimeOut));
+            //webDriver.WaitForPageLoad(new TimeSpan(0, 0, PageUtility.PageTimeOut));
+            PageUtility.WaitForPageRefresh(webDriver);
         }
 
         /// <summary>
