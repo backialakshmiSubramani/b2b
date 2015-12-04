@@ -84,5 +84,24 @@ namespace Modules.Channel.B2B.Common
         {
             return ConvertValue<int>(Math.Round(ConvertValue<decimal>(value), MidpointRounding.AwayFromZero));
         }
+
+        public static IWebElement FindElement(this IWebDriver driver, By by, int timeoutInSeconds)
+        {
+            if (timeoutInSeconds > 0)
+            {
+                var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(timeoutInSeconds));
+                return wait.Until(drv => drv.FindElement(by));
+            }
+            return driver.FindElement(by);
+        }
+
+        public static void WaitForElement(this IWebDriver driver, By by, int timeoutInSeconds)
+        {
+            if (timeoutInSeconds > 0)
+            {
+                var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(timeoutInSeconds));
+                wait.Until(drv => drv.FindElement(by));
+            }
+        }
     }
 }

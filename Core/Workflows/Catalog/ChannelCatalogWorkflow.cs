@@ -1161,14 +1161,14 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             return false;
 
         }
-        
+
         ///<summary>
         /// Verified country region and currency fields for scheduled catalogs
         /// </summary>
         /// <returns></returns>
         public bool VerifyCountryCodeScheduledInAutoCatalogListPage(string environment, string status)
         {
-           b2BHomePage.SelectEnvironment(environment);
+            b2BHomePage.SelectEnvironment(environment);
             b2BHomePage.AutoCatalogListPageLink.Click();
             webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
             b2BAutoCatalogListPage = new B2BAutoCatalogListPage(webDriver);
@@ -1225,7 +1225,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         /// Verifies the presence and functionality of Test harness Checkbox for created catalogs in Auto Cataog List Page.
         /// </summary>
         /// <returns></returns>
-        public bool VerifyTestHarnessCheckboxInAutoCatalogListPage(string environment, 
+        public bool VerifyTestHarnessCheckboxInAutoCatalogListPage(string environment,
             string profilename, string countrycode, string regionCode, string currencycode, string status)
         {
             b2BHomePage.SelectEnvironment(environment);
@@ -1305,10 +1305,10 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             if (Type.Equals(type) && Status.Equals(status))
             {
                 DownloadLinkElement.Click();
-                    return true;
-                }
-            return false;
+                return true;
             }
+            return false;
+        }
 
         ///// <summary>
         ///// Verifies the presence of Download link for Failed catalogs in Auto Cat List page
@@ -1420,7 +1420,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             }
             return false;
         }
-        
+
         ///// <summary>
         ///// Verifies the presence of Download link for Created through Test harness in Auto Cat List page
         ///// </summary>
@@ -1506,7 +1506,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             if (CatalogNamefromLocator.Equals(catalogName))
             {
                 return true;
-                }
+            }
             return false;
         }
 
@@ -1529,7 +1529,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             if (statusTimefromLocator.Equals(statusTime))
             {
                 return true;
-                }
+            }
             return false;
         }
 
@@ -1544,10 +1544,11 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
             b2BAutoCatalogListPage = new B2BAutoCatalogListPage(webDriver);
             WaitForPageRefresh();
+            webDriver.WaitForElementVisible(By.Id("txtThreadId"), TimeSpan.FromSeconds(30));
             b2BAutoCatalogListPage.ThreadId.SendKeys(profile);
             b2BAutoCatalogListPage.TestHarnessCheckbox.Click();
             b2BAutoCatalogListPage.SearchCatalogLink.Click();
-            WaitForPageRefresh();
+            // WaitForPageRefresh();
             var statusTimeElement = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[4];
             var statusTimefromLocator = statusTimeElement.Text;
             if (statusTimefromLocator.Equals(statusTime))
@@ -1623,7 +1624,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             b2BBuyerCatalogPage.CatalogConfigStandard.Click();
             b2BBuyerCatalogPage.UpdateButton.Click();
             return true;
-            }
+        }
 
         ///// <summary>
         ///// Verifies RemoveItems Lt Checkbox default Value for existing profile
@@ -1658,7 +1659,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                 return true;
             }
             else return false;
-            
+
         }
 
         /// <summary>
@@ -1737,14 +1738,14 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                         r.FindElements(By.TagName("td"))[1].Text.ToLowerInvariant()
                             .Equals(profileName.ToLowerInvariant())))
                 return false;
-           
+
             if (
                 !b2BAutoCatalogListPage.CatalogListTableRows.All(
                     r =>
                         r.FindElements(By.TagName("td"))[2].Text.ToLowerInvariant().Equals("delta") ||
                         r.FindElements(By.TagName("td"))[2].Text.ToLowerInvariant().Equals("original")))
                 return false;
-                                
+
             if (
                  !b2BAutoCatalogListPage.CatalogListTableRows.All(
                      r =>
@@ -2617,7 +2618,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                 if (HeaderTextfromLocator.Equals(HeadTestdata))
                 {
                     Headercount++;
-                }           
+                }
             }
             //HeaderRows
             for (int z = 1; z < HeaderRowStringValue.Length; z++)
@@ -2632,8 +2633,8 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                     HeaderRowsCount++;
                 }
             }
-           // Sub Header and Sub Rows Table1
-            
+            // Sub Header and Sub Rows Table1
+
             if (Headercount.Equals(9) && HeaderRowsCount.Equals(9) && subHeaderRows.Equals(8))
             {
                 return true;
@@ -3044,7 +3045,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
 
             return newValue.Equals(newv);
         }
-        
+
         /// <summary>
         /// Verifies Sys checkbox is present and non editable in Auto Cat List page. 
         /// </summary>
@@ -3055,12 +3056,17 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             b2BHomePage.AutoCatalogListPageLink.Click();
             webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
             b2BAutoCatalogListPage = new B2BAutoCatalogListPage(webDriver);
-            WaitForPageRefresh();
-            var firstSysElement = webDriver.FindElement(By.XPath("//table[@st-safe-src='Catalogs']/tbody/tr/td[16]/input"));
-            var sysCheckbox = firstSysElement.GetAttribute("disabled");
-            if (!sysCheckbox.Equals("true"))
+            webDriver.WaitForElement(By.Id("previousUpButton"), 30);
+            var firstSysElements = webDriver.FindElements(By.CssSelector("[ng-model='Catalog.IsSystem']"));
+            Console.WriteLine("Element Count : " + firstSysElements.Count);
+            foreach (var sysEelement in firstSysElements)
             {
-                return false;
+                if (sysEelement.Enabled)
+                {
+                    Console.WriteLine("Failed");
+                    return false;
+                }
+                Console.WriteLine("Passed");
             }
             return true;
         }
@@ -3540,7 +3546,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
 
             b2BCatalogPackagingDataUploadPage = new B2BCatalogPackagingDataUploadPage(webDriver);
             b2BCatalogPackagingDataUploadPage.UploadExcelFile(fileToUpload);
-            b2BCatalogPackagingDataUploadPage.UploadMessage.Text.Trim().Should().Be(message,"Incorrect message for packaging file upload");
+            b2BCatalogPackagingDataUploadPage.UploadMessage.Text.Trim().Should().Be(message, "Incorrect message for packaging file upload");
 
             string excelQuery = @"select [Order code],LOB,[Config Name],[Ship Weight],[Package Length],[Package Width],[Package Height],[Pallet Length],[Pallet Width],[Pallet Height],[Pallet Units / Layer],[Pallet Layer / Pallet],[Pallet Units / Pallet] FROM [B2B_Catalog_matching_table$]";
 
@@ -3552,19 +3558,19 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                 Channel_Catalog_PackagingData dbData = ChannelCatalogProdDataAccess.GetPackagingDetails(excelTable.Rows[index]["Order code"].ToString());
 
                 Console.WriteLine("Data validation for Order Code: " + excelTable.Rows[index]["Order code"].ToString());
-                dbData.ShipWeight.Should().Be(excelTable.Rows[index]["Ship Weight"].RoundValue(),"Ship Weight mismatch");
+                dbData.ShipWeight.Should().Be(excelTable.Rows[index]["Ship Weight"].RoundValue(), "Ship Weight mismatch");
                 dbData.PackageLength.Should().Be(excelTable.Rows[index]["Package Length"].RoundValue(), "Package Length mismatch");
-                dbData.PackageWidth.Should().Be(excelTable.Rows[index]["Package Width"].RoundValue(),"Package Width mismatch");
-                dbData.PackageHeight.Should().Be(excelTable.Rows[index]["Package Height"].RoundValue(),"Package Height mismatch");
-                dbData.PalletLength.Should().Be(excelTable.Rows[index]["Pallet Length"].RoundValue(),"Pallet Length mismatch");
-                dbData.PalletWidth.Should().Be(excelTable.Rows[index]["Pallet Width"].RoundValue(),"Pallet Width mismatch");
-                dbData.PalletHeight.Should().Be(excelTable.Rows[index]["Pallet Height"].RoundValue(),"Pallet Height mismatch");
-                dbData.PalletUnitsPerLayer.Should().Be(excelTable.Rows[index]["Pallet Units / Layer"].RoundValue(),"Pallet Units / Layer mismatch");
+                dbData.PackageWidth.Should().Be(excelTable.Rows[index]["Package Width"].RoundValue(), "Package Width mismatch");
+                dbData.PackageHeight.Should().Be(excelTable.Rows[index]["Package Height"].RoundValue(), "Package Height mismatch");
+                dbData.PalletLength.Should().Be(excelTable.Rows[index]["Pallet Length"].RoundValue(), "Pallet Length mismatch");
+                dbData.PalletWidth.Should().Be(excelTable.Rows[index]["Pallet Width"].RoundValue(), "Pallet Width mismatch");
+                dbData.PalletHeight.Should().Be(excelTable.Rows[index]["Pallet Height"].RoundValue(), "Pallet Height mismatch");
+                dbData.PalletUnitsPerLayer.Should().Be(excelTable.Rows[index]["Pallet Units / Layer"].RoundValue(), "Pallet Units / Layer mismatch");
                 dbData.PalletLayerPerPallet.Should().Be(excelTable.Rows[index]["Pallet Layer / Pallet"].RoundValue(), "Pallet Layer / Pallet mismatch");
                 dbData.PalletUnitsPerPallet.Should().Be(excelTable.Rows[index]["Pallet Units / Pallet"].RoundValue(), "Pallet Units / Pallet mismatch");
             }
         }
-        
+
         public void VerifyRoundOffValuesPackageUploadForAllFieldsPrev(ConstantObjects.B2BEnvironment b2BEnvironment, string fileToUpload, string message)
         {
             b2BHomePage.SelectEnvironment(b2BEnvironment.ToString());
@@ -3678,7 +3684,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         ///<summary>
         /// Verifies Original/Delta catalog on clicking Published status and std config in Auto Catalog List page.
         /// </summary>
-        public bool VerifyOriginalDeltaCatonclickingPublishedandStdConfigcheckboxinAutoCatalogListPage(string environment, 
+        public bool VerifyOriginalDeltaCatonclickingPublishedandStdConfigcheckboxinAutoCatalogListPage(string environment,
             string statusDropdown)
         {
             b2BHomePage.SelectEnvironment(environment);
@@ -3707,8 +3713,8 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         ///<summary>
         /// Verifies Original/Delta catalog on clicking Test Harness checkbox and std config in Auto Catalog List page.
         /// </summary>
-        public bool VerifyOriginalDeltaCatonclickingTestHarnessandStdConfigcheckboxinAutoCatalogListPage(string environment, 
-            string testHarnesscreated, string  testHarnessFailed)
+        public bool VerifyOriginalDeltaCatonclickingTestHarnessandStdConfigcheckboxinAutoCatalogListPage(string environment,
+            string testHarnesscreated, string testHarnessFailed)
         {
             b2BHomePage.SelectEnvironment(environment);
             b2BHomePage.AutoCatalogListPageLink.Click();

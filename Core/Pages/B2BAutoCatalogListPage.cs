@@ -22,7 +22,7 @@ using Dell.Adept.UI.Web.Support;
 using Dell.Adept.UI.Web.Support.Extensions.WebDriver;
 using Dell.Adept.UI.Web.Support.Extensions.WebElement;
 using Dell.Adept.UI.Web.Support.Locators;
-
+using Modules.Channel.B2B.Common;
 
 namespace Modules.Channel.B2B.Core.Pages
 {
@@ -45,7 +45,8 @@ namespace Modules.Channel.B2B.Core.Pages
             Name = "Channel Catalog List Page";
             Url = webDriver.Url;
             ProductUnit = "Channel";
-
+            this.webDriver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromMinutes(1));
+            this.webDriver.WaitForPageLoad(TimeSpan.FromMinutes(1));
         }
 
         /// <summary>
@@ -94,7 +95,7 @@ namespace Modules.Channel.B2B.Core.Pages
                 return
                     webDriver.FindElement(
                         By.XPath("//select[@ng-model='customer']"));
-               
+
             }
         }
 
@@ -133,7 +134,7 @@ namespace Modules.Channel.B2B.Core.Pages
             get { return webDriver.FindElement(By.XPath(".//*[@id='myForm']/table/tbody/tr/td[1]/table/tbody/tr[4]/td[4]/input[1]")); }
         }
 
-        
+
         /// <summary>
         /// Catalog Name text box
         /// </summary>
@@ -147,7 +148,7 @@ namespace Modules.Channel.B2B.Core.Pages
         /// </summary>
         public IWebElement ThreadId
         {
-            get { return webDriver.FindElement(By.Id("txtThreadId")); }
+            get { return this.webDriver.FindElement(By.Id("txtThreadId"), 30); }
         }
 
         /// <summary>
@@ -192,7 +193,8 @@ namespace Modules.Channel.B2B.Core.Pages
         {
             get
             {
-                return webDriver.FindElement(By.XPath("//*[@id='myForm']/table/tbody/tr/td[1]/table/tbody/tr[4]/td[4]/input[2]"));
+                return this.webDriver.FindElement(By.XPath("//input[@ng-model='parHarness']"), 30);
+                //return webDriver.FindElement(By.XPath("//*[@id='myForm']/table/tbody/tr/td[1]/table/tbody/tr[4]/td[4]/input[2]"));
             }
         }
 
@@ -231,7 +233,7 @@ namespace Modules.Channel.B2B.Core.Pages
             get { return webDriver.FindElement(By.Id("lnkClear")); }
         }
 
-        
+
         /// <summary>
         /// Auto Catalog List Page results Table 
         /// </summary>
@@ -278,8 +280,8 @@ namespace Modules.Channel.B2B.Core.Pages
             get { return webDriver.FindElements(By.XPath("//*[@id='quoteTable']/tbody[1]/tr[1]")); }
         }
 
-        
-         ///<summary>
+
+        ///<summary>
         /// Part Viewer Page '+' First Button
         /// </summary>
         public IWebElement PartViewerPlusButton
@@ -309,7 +311,7 @@ namespace Modules.Channel.B2B.Core.Pages
         /// </summary>
         public IWebElement PartViewerSecondPlusButton
         {
-            get { return webDriver.FindElement(By.XPath("//*[@id='quoteTable']/tbody[2]/tr[1]/td[1]/img")); } 
+            get { return webDriver.FindElement(By.XPath("//*[@id='quoteTable']/tbody[2]/tr[1]/td[1]/img")); }
         }
 
         ///<summary>
@@ -336,7 +338,7 @@ namespace Modules.Channel.B2B.Core.Pages
 
             get { return webDriver.FindElements(By.XPath("//*[@id='quoteTable']/tbody[2]/tr[2]/td[2]/table/tbody/tr")); }
         }
-        
+
         #endregion
 
         #region Helper Methods
@@ -373,10 +375,10 @@ namespace Modules.Channel.B2B.Core.Pages
             webDriver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromSeconds(60));
             webDriver.FindElement(By.XPath("//div[@ng-model='CatalogStatusId']/a")).Click();
             webDriver.FindElement(By.XPath("//div[@ng-model='CatalogStatusId']/div/div[@class='custom-select-search']/input")).SendKeys(status);
-            webDriver.FindElement(By.XPath("//div[@ng-model='CatalogStatusId']/div/ul/li/a[contains(text(),'" + status + "')]")).Click();            
+            webDriver.FindElement(By.XPath("//div[@ng-model='CatalogStatusId']/div/ul/li/a[contains(text(),'" + status + "')]")).Click();
         }
 
-        
+
         #endregion
 
         /// <summary>
@@ -395,7 +397,7 @@ namespace Modules.Channel.B2B.Core.Pages
             {
                 webDriver.FindElement(By.XPath("//input[@ng-model='search.UserName']")).SendKeys(identity);
                 webDriver.FindElement(By.XPath("//div[@ng-model='Identity']//div[@class='dropdown-menu ng-scope']//ul[@role='menu']/li[@class='ng-scope']/a[@role='menuitem']")).Click();
-                
+
             }
         }
     }
