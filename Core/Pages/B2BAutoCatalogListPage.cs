@@ -45,8 +45,8 @@ namespace Modules.Channel.B2B.Core.Pages
             Name = "Channel Catalog List Page";
             Url = webDriver.Url;
             ProductUnit = "Channel";
-            this.webDriver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromMinutes(1));
-            this.webDriver.WaitForPageLoad(TimeSpan.FromMinutes(1));
+            this.webDriver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromSeconds(30));
+            this.webDriver.WaitForPageLoad(TimeSpan.FromSeconds(30));
         }
 
         /// <summary>
@@ -337,6 +337,22 @@ namespace Modules.Channel.B2B.Core.Pages
         {
 
             get { return webDriver.FindElements(By.XPath("//*[@id='quoteTable']/tbody[2]/tr[2]/td[2]/table/tbody/tr")); }
+        }
+
+        public IWebElement NextButton
+        {
+            get
+            {
+                return webDriver.FindElement(By.XPath("//input[@id='nextUpButton']"));
+            }
+        }
+
+        public IWebElement CatalogsTable
+        {
+            get
+            {
+                return webDriver.FindElement(By.XPath("//table[@st-table='Channel' and @st-safe-src='Catalogs']"));
+            }
         }
 
         #endregion

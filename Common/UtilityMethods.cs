@@ -95,13 +95,37 @@ namespace Modules.Channel.B2B.Common
             return driver.FindElement(by);
         }
 
-        public static void WaitForElement(this IWebDriver driver, By by, int timeoutInSeconds)
+        public static void WaitForElement(this IWebDriver driver, IWebElement element, int timeoutInSeconds = 30)
         {
-            if (timeoutInSeconds > 0)
+            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(timeoutInSeconds));
+            wait.Until<bool>(d =>
             {
-                var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(timeoutInSeconds));
-                wait.Until(drv => drv.FindElement(by));
-            }
+                if (element.Displayed)
+                    return true;
+                return false;
+            });
+        }
+
+        public static void WaitForTableRowCount(this IWebDriver driver, IWebElement element, int rowCount, int timeoutInSeconds = 30)
+        {
+            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(timeoutInSeconds));
+            wait.Until<bool>(d =>
+            {
+                if (element.FindElement(By.TagName("tbody")).FindElements(By.TagName("tr")).Count == rowCount)
+                    return true;
+                return false;
+            });
+        }
+
+        public static void WaitForElement(this IWebDriver driver, By by, int timeoutInSeconds = 30)
+        {
+            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(timeoutInSeconds));
+            wait.Until<bool>(d =>
+            {
+                if (driver.FindElement(by).Displayed)
+                    return true;
+                return false;
+            });
         }
     }
 }
