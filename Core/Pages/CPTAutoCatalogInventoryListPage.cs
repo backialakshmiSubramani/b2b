@@ -23,13 +23,14 @@ using Dell.Adept.UI.Web.Support.Extensions.WebDriver;
 using Dell.Adept.UI.Web.Support.Extensions.WebElement;
 using Dell.Adept.UI.Web.Support.Locators;
 using Modules.Channel.B2B.Common;
+using Modules.Channel.EUDC.Core.Pages;
 
 namespace Modules.Channel.B2B.Core.Pages
 {
     /// <summary>
     /// This base class is the where all specific page classes will be derived.
     /// </summary>
-    public class B2BAutoCatalogListPage : PageBase
+    public class CPTAutoCatalogInventoryListPage : PageBase
     {
         IWebDriver webDriver;
 
@@ -37,7 +38,7 @@ namespace Modules.Channel.B2B.Core.Pages
         /// Constructor to hand off webDriver
         /// </summary>
         /// <param name="webDriver"></param>
-        public B2BAutoCatalogListPage(IWebDriver webDriver)
+        public CPTAutoCatalogInventoryListPage(IWebDriver webDriver)
             : base(ref webDriver)
         {
             this.webDriver = webDriver;
@@ -75,6 +76,25 @@ namespace Modules.Channel.B2B.Core.Pages
         public IWebElement PageHeader
         {
             get { return webDriver.FindElement(By.XPath("//*[@id='lblPageTitle']")); }
+        }
+
+        /// <summary>
+        /// Dropdown menu at the top right corner of the page
+        /// </summary>
+        public IWebElement DropdownMenuLink
+        {
+            get { return webDriver.FindElement(By.ClassName("btn-group")); }
+        }
+
+        /// <summary>
+        /// List of links in the dropdown menu at the top right corner of the page
+        /// </summary>
+        public ReadOnlyCollection<IWebElement> DropdownMenuItems
+        {
+            get
+            {
+                return DropdownMenuLink.FindElements(By.XPath("ul/li/a"));
+            }
         }
 
         /// <summary>
@@ -148,7 +168,7 @@ namespace Modules.Channel.B2B.Core.Pages
         /// </summary>
         public IWebElement ThreadId
         {
-            get { return this.webDriver.FindElement(By.Id("txtThreadId"), 30); }
+            get { return webDriver.FindElement(By.Id("txtThreadId"), 30); }
         }
 
         /// <summary>
@@ -187,6 +207,17 @@ namespace Modules.Channel.B2B.Core.Pages
         }
 
         /// <summary>
+        /// Catalog Type - Inventory Checkbox
+        /// </summary>
+        public IWebElement InventoryCheckbox
+        {
+            get
+            {
+                return webDriver.FindElement(AdeptBy.Attribute(ElementTag.input, "value", "Inventory"));
+            }
+        }
+
+        /// <summary>
         /// Test harness checkbox
         /// </summary>
         public IWebElement TestHarnessCheckbox
@@ -218,9 +249,9 @@ namespace Modules.Channel.B2B.Core.Pages
         }
 
         /// <summary>
-        /// Search Catalog hyperlink
+        /// Search Records hyperlink
         /// </summary>
-        public IWebElement SearchCatalogLink
+        public IWebElement SearchRecordsLink
         {
             get { return webDriver.FindElement(By.Id("lnkSearch")); }
         }
@@ -233,6 +264,13 @@ namespace Modules.Channel.B2B.Core.Pages
             get { return webDriver.FindElement(By.Id("lnkClear")); }
         }
 
+        /// <summary>
+        /// Disclaimer for Inventory
+        /// </summary>
+        public IWebElement InventoryDisclaimer
+        {
+            get { return webDriver.FindElement(By.Id("lblDisclaimer")); }
+        }
 
         /// <summary>
         /// Auto Catalog List Page results Table 

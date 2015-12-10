@@ -8,7 +8,6 @@ using Modules.Channel.B2B.Core.Pages;
 using Modules.Channel.B2B.Core.Workflows.Common;
 using Modules.Channel.B2B.DAL.Inventory;
 using System.IO;
-using System.Globalization;
 
 namespace Modules.Channel.B2B.Core.Workflows.Inventory
 {
@@ -21,6 +20,8 @@ namespace Modules.Channel.B2B.Core.Workflows.Inventory
         private AccessProfile accessProfile;
         private B2BBuyerCatalogPage b2BBuyerCatalogPage;
         private B2BEntities b2BEntities;
+        private B2BHomePage b2BHomePage;
+        private CPTAutoCatalogInventoryListPage cPTAutoCatalogInventoryListPage;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ChannelInventoryWorkflow"/> class.
@@ -30,6 +31,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Inventory
         {
             this.webDriver = webDriver;
             accessProfile = new AccessProfile(webDriver);
+            b2BHomePage = new B2BHomePage(webDriver);
         }
 
         /// <summary>
@@ -430,7 +432,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Inventory
         /// Verify the feed generation after clicking on ClickToRunOnce button
         /// </summary>
         /// <returns>The <see cref="bool"/></returns>
-        public bool VerifyFeedGeneration(string environment, string atsFeedLocation, string atsFeedPrefix, string atsFeedExtension, DateTime utcTime, int atsFileTimeDifference)
+        private bool VerifyFeedGeneration(string environment, string atsFeedLocation, string atsFeedPrefix, string atsFeedExtension, DateTime utcTime, int atsFileTimeDifference)
         {
             var centralTime = TimeZoneInfo.ConvertTimeFromUtc(utcTime,
                 TimeZoneInfo.FindSystemTimeZoneById("Central Standard Time"));
@@ -492,6 +494,65 @@ namespace Modules.Channel.B2B.Core.Workflows.Inventory
 
             Console.WriteLine("No Enabled Identites Found for the profile !!");
             return false;
+        }
+
+        public bool VerifyCPTChangesForAutoInventory(RunEnvironment environment, string pageHeader, string inventoryLabel, string searchRecordsLinkText, string autoInventoryDisclaimer)
+        {
+            b2BHomePage.SelectEnvironment(environment.ToString());
+            b2BHomePage.OpenAutoCatalogInventoryListPage();
+            cPTAutoCatalogInventoryListPage = new CPTAutoCatalogInventoryListPage(webDriver);
+
+            // Verify the header is changed to 'Auto Catalog & Inventory List'
+            if (!cPTAutoCatalogInventoryListPage.PageHeader.Text.Equals(pageHeader))
+            {
+                return false;
+            }
+
+            // Verify the link in the top right corner drop menu is reads 'Auto Catalog & Inventory List'
+            cPTAutoCatalogInventoryListPage.DropdownMenuLink.Click();
+
+            if (!cPTAutoCatalogInventoryListPage.DropdownMenuItems.ElementAt(1).Text.Equals(pageHeader))
+            {
+                return false;
+            }
+
+            // Verify the checkbox with Inventory Label is available
+            try
+            {
+                if (!cPTAutoCatalogInventoryListPage.InventoryCheckbox.FindElement(By.XPath("..")).Text.Contains(inventoryLabel))
+                {
+                    return false;
+                }
+            }
+            catch (NoSuchElementException)
+            {
+                Console.WriteLine("Inventory Checkbox not available");
+                return false;
+            }
+
+            // Verify the search link text is changed to 'Search Records'
+            if (!cPTAutoCatalogInventoryListPage.SearchRecordsLink.Text.Equals(searchRecordsLinkText))
+            {
+                Console.WriteLine("Search Link Text is not: <{0}>", searchRecordsLinkText);
+                return false;
+            }
+
+            // Verify the Inventory Disclaimer text mactches 'Disclaimer: Not all capability is valid for Inventory record.'
+            try
+            {
+                if (!cPTAutoCatalogInventoryListPage.InventoryDisclaimer.Text.Equals(autoInventoryDisclaimer))
+                {
+                    Console.WriteLine("Inventory Disclaimer text does not match: <{0}>", autoInventoryDisclaimer);
+                    return false;
+                }
+            }
+            catch (NoSuchElementException)
+            {
+                Console.WriteLine("Disclaimer not available");
+                return false;
+            }
+
+            return true;
         }
     }
 }

@@ -203,9 +203,13 @@ namespace Modules.Channel.B2B.Core.Pages
         /// <summary>
         /// Automated Catalog List Page
         /// </summary>
-        public IWebElement AutoCatalogListPageLink
+        public IWebElement AutoCatalogInventoryListPageLink
         {
-            get { return webDriver.FindElement(By.LinkText("Auto Catalog List")); }
+            get
+            {
+                //return webDriver.FindElement(By.LinkText("Auto Catalog & Inventory List"));
+                return webDriver.FindElement(By.LinkText("Auto Catalog List"));
+            }
         }
 
         /// <summary>
@@ -316,6 +320,17 @@ namespace Modules.Channel.B2B.Core.Pages
             //webDriver.WaitForPageLoad(TimeSpan.FromSeconds(20));
             PageUtility.WaitForPageRefresh(webDriver);
             webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
+        }
+
+        /// <summary>
+        /// Use this method to navigate to the CPT Auto Catalog & Inventory List Page
+        /// </summary>
+        public void OpenAutoCatalogInventoryListPage()
+        {
+            AutoCatalogInventoryListPageLink.Click();
+            PageUtility.WaitForPageRefresh(webDriver);
+            webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
+            PageUtility.WaitForPageRefresh(webDriver);
         }
 
         #endregion

@@ -25,7 +25,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         private B2BBuyerCatalogPage b2BBuyerCatalogPage;
         private B2BProfileSettingsGeneralPage b2BProfileSettingsGeneralPage;
         private B2BCatalogPackagingDataUploadPage b2BCatalogPackagingDataUploadPage;
-        private B2BAutoCatalogListPage b2BAutoCatalogListPage;
+        private CPTAutoCatalogInventoryListPage b2BAutoCatalogListPage;
         private IJavaScriptExecutor javaScriptExecutor;
         private const string MMDDYYYY = "MM/dd/yyyy";
         private int HeaderRowsCount = 0, Headercount = 0, subHeaderRows = 0;
@@ -361,9 +361,9 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             var autoCatStatus = autoCatalogStatus.Split(',');
             var autoCatStatusDescription = autoCatalogStatusDescription.Split(',');
             b2BHomePage.SelectEnvironment(environment);
-            b2BHomePage.AutoCatalogListPageLink.Click();
+            b2BHomePage.AutoCatalogInventoryListPageLink.Click();
             webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
-            b2BAutoCatalogListPage = new B2BAutoCatalogListPage(webDriver);
+            b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
             WaitForPageRefresh();
             var statusDictionary = b2BAutoCatalogListPage.GetStatusDictionary();
             return CheckDictionary(statusDictionary, autoCatStatus, autoCatStatusDescription);
@@ -1029,10 +1029,10 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         public bool VerifyNavigationToAutoCatalogListPage(string environment, string pageHeaderText)
         {
             b2BHomePage.SelectEnvironment(environment);
-            b2BHomePage.AutoCatalogListPageLink.Click();
+            b2BHomePage.AutoCatalogInventoryListPageLink.Click();
             webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
             WaitForPageRefresh();
-            b2BAutoCatalogListPage = new B2BAutoCatalogListPage(webDriver);
+            b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
             webDriver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromSeconds(30));
             return b2BAutoCatalogListPage.PageHeader.Text.Contains(pageHeaderText);
         }
@@ -1047,9 +1047,9 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         public bool VerifyClearAllLink(string environment, string profileName, string identities)
         {
             b2BHomePage.SelectEnvironment(environment);
-            b2BHomePage.AutoCatalogListPageLink.Click();
+            b2BHomePage.AutoCatalogInventoryListPageLink.Click();
             webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
-            b2BAutoCatalogListPage = new B2BAutoCatalogListPage(webDriver);
+            b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
             WaitForPageRefresh();
 
             b2BAutoCatalogListPage.SelectTheCustomer(profileName);
@@ -1111,9 +1111,9 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         public bool VerifyThreadIdLinkInAutoCatalogListPage(string environment)
         {
             b2BHomePage.SelectEnvironment(environment);
-            b2BHomePage.AutoCatalogListPageLink.Click();
+            b2BHomePage.AutoCatalogInventoryListPageLink.Click();
             webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
-            b2BAutoCatalogListPage = new B2BAutoCatalogListPage(webDriver);
+            b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
             WaitForPageRefresh();
             var firstThreadIdElement = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[8];
             var threadId = firstThreadIdElement.Text;
@@ -1139,12 +1139,12 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             string CountryCode, string region, string currencyCode)
         {
             b2BHomePage.SelectEnvironment(environment);
-            b2BHomePage.AutoCatalogListPageLink.Click();
+            b2BHomePage.AutoCatalogInventoryListPageLink.Click();
             webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
-            b2BAutoCatalogListPage = new B2BAutoCatalogListPage(webDriver);
+            b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
             webDriver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromSeconds(60));
             b2BAutoCatalogListPage.ThreadId.SendKeys(profilename);
-            b2BAutoCatalogListPage.SearchCatalogLink.Click();
+            b2BAutoCatalogListPage.SearchRecordsLink.Click();
             WaitForPageRefresh();
             var firststatusElement = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[3];
             var Status = firststatusElement.Text;
@@ -1169,12 +1169,12 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         public bool VerifyCountryCodeScheduledInAutoCatalogListPage(string environment, string status)
         {
             b2BHomePage.SelectEnvironment(environment);
-            b2BHomePage.AutoCatalogListPageLink.Click();
+            b2BHomePage.AutoCatalogInventoryListPageLink.Click();
             webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
-            b2BAutoCatalogListPage = new B2BAutoCatalogListPage(webDriver);
+            b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
             webDriver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromSeconds(60));
             b2BAutoCatalogListPage.ScheduledCheckbox.Click();
-            b2BAutoCatalogListPage.SearchCatalogLink.Click();
+            b2BAutoCatalogListPage.SearchRecordsLink.Click();
             WaitForPageRefresh();
             var firststatusElement = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[3];
             var Status = firststatusElement.Text;
@@ -1198,12 +1198,12 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         public bool VerifyCountryCodeFailedInAutoCatalogListPage(string environment, string profilename, string status)
         {
             b2BHomePage.SelectEnvironment(environment);
-            b2BHomePage.AutoCatalogListPageLink.Click();
+            b2BHomePage.AutoCatalogInventoryListPageLink.Click();
             webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
-            b2BAutoCatalogListPage = new B2BAutoCatalogListPage(webDriver);
+            b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
             webDriver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromSeconds(60));
             b2BAutoCatalogListPage.ThreadId.SendKeys(profilename);
-            b2BAutoCatalogListPage.SearchCatalogLink.Click();
+            b2BAutoCatalogListPage.SearchRecordsLink.Click();
             WaitForPageRefresh();
             var firststatusElement = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[3];
             var Status = firststatusElement.Text;
@@ -1229,13 +1229,13 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             string profilename, string countrycode, string regionCode, string currencycode, string status)
         {
             b2BHomePage.SelectEnvironment(environment);
-            b2BHomePage.AutoCatalogListPageLink.Click();
+            b2BHomePage.AutoCatalogInventoryListPageLink.Click();
             webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
-            b2BAutoCatalogListPage = new B2BAutoCatalogListPage(webDriver);
+            b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
             WaitForPageRefresh();
             b2BAutoCatalogListPage.ThreadId.SendKeys(profilename);
             b2BAutoCatalogListPage.TestHarnessCheckbox.Click();
-            b2BAutoCatalogListPage.SearchCatalogLink.Click();
+            b2BAutoCatalogListPage.SearchRecordsLink.Click();
             WaitForPageRefresh();
             var firststatusElement = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[3];
             var Status = firststatusElement.Text;
@@ -1259,13 +1259,13 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         public bool VerifyTestHarnessCheckboxFailedInAutoCatalogListPage(string environment, string profilename, string status)
         {
             b2BHomePage.SelectEnvironment(environment);
-            b2BHomePage.AutoCatalogListPageLink.Click();
+            b2BHomePage.AutoCatalogInventoryListPageLink.Click();
             webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
-            b2BAutoCatalogListPage = new B2BAutoCatalogListPage(webDriver);
+            b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
             WaitForPageRefresh();
             b2BAutoCatalogListPage.ThreadId.SendKeys(profilename);
             b2BAutoCatalogListPage.TestHarnessCheckbox.Click();
-            b2BAutoCatalogListPage.SearchCatalogLink.Click();
+            b2BAutoCatalogListPage.SearchRecordsLink.Click();
             WaitForPageRefresh();
             var firststatusElement = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[3];
             var Status = firststatusElement.Text;
@@ -1290,12 +1290,12 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         {
 
             b2BHomePage.SelectEnvironment(environment);
-            b2BHomePage.AutoCatalogListPageLink.Click();
+            b2BHomePage.AutoCatalogInventoryListPageLink.Click();
             webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
-            b2BAutoCatalogListPage = new B2BAutoCatalogListPage(webDriver);
+            b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
             WaitForPageRefresh();
             b2BAutoCatalogListPage.ThreadId.SendKeys(profilename);
-            b2BAutoCatalogListPage.SearchCatalogLink.Click();
+            b2BAutoCatalogListPage.SearchRecordsLink.Click();
             WaitForPageRefresh();
             var firstTypeElement = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[2];
             var Type = firstTypeElement.Text;
@@ -1317,12 +1317,12 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         public bool VerifyDownloadLinkFailedOrigInAutoCatListPage(string environment, string profilename, string type, string status)
         {
             b2BHomePage.SelectEnvironment(environment);
-            b2BHomePage.AutoCatalogListPageLink.Click();
+            b2BHomePage.AutoCatalogInventoryListPageLink.Click();
             webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
-            b2BAutoCatalogListPage = new B2BAutoCatalogListPage(webDriver);
+            b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
             WaitForPageRefresh();
             b2BAutoCatalogListPage.ThreadId.SendKeys(profilename);
-            b2BAutoCatalogListPage.SearchCatalogLink.Click();
+            b2BAutoCatalogListPage.SearchRecordsLink.Click();
             WaitForPageRefresh();
             var firstTypeElement =
                 b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[2];
@@ -1353,13 +1353,13 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         {
 
             b2BHomePage.SelectEnvironment(environment);
-            b2BHomePage.AutoCatalogListPageLink.Click();
+            b2BHomePage.AutoCatalogInventoryListPageLink.Click();
             webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
-            b2BAutoCatalogListPage = new B2BAutoCatalogListPage(webDriver);
+            b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
             WaitForPageRefresh();
             b2BAutoCatalogListPage.ScheduledCheckbox.Click();
             b2BAutoCatalogListPage.OriginalCatalogCheckbox.Click();
-            b2BAutoCatalogListPage.SearchCatalogLink.Click();
+            b2BAutoCatalogListPage.SearchRecordsLink.Click();
             WaitForPageRefresh();
             var firstTypeElement =
                 b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[2];
@@ -1392,13 +1392,13 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         {
 
             b2BHomePage.SelectEnvironment(environment);
-            b2BHomePage.AutoCatalogListPageLink.Click();
+            b2BHomePage.AutoCatalogInventoryListPageLink.Click();
             webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
-            b2BAutoCatalogListPage = new B2BAutoCatalogListPage(webDriver);
+            b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
             WaitForPageRefresh();
             b2BAutoCatalogListPage.ScheduledCheckbox.Click();
             b2BAutoCatalogListPage.DeltaCatalogCheckbox.Click();
-            b2BAutoCatalogListPage.SearchCatalogLink.Click();
+            b2BAutoCatalogListPage.SearchRecordsLink.Click();
             WaitForPageRefresh();
             var firstTypeElement =
                 b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[2];
@@ -1429,13 +1429,13 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         {
 
             b2BHomePage.SelectEnvironment(environment);
-            b2BHomePage.AutoCatalogListPageLink.Click();
+            b2BHomePage.AutoCatalogInventoryListPageLink.Click();
             webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
-            b2BAutoCatalogListPage = new B2BAutoCatalogListPage(webDriver);
+            b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
             WaitForPageRefresh();
             b2BAutoCatalogListPage.ThreadId.SendKeys(profilename);
             b2BAutoCatalogListPage.TestHarnessCheckbox.Click();
-            b2BAutoCatalogListPage.SearchCatalogLink.Click();
+            b2BAutoCatalogListPage.SearchRecordsLink.Click();
             WaitForPageRefresh();
             var firststatusElement = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[3];
             var Status = firststatusElement.Text;
@@ -1458,13 +1458,13 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         {
 
             b2BHomePage.SelectEnvironment(environment);
-            b2BHomePage.AutoCatalogListPageLink.Click();
+            b2BHomePage.AutoCatalogInventoryListPageLink.Click();
             webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
-            b2BAutoCatalogListPage = new B2BAutoCatalogListPage(webDriver);
+            b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
             WaitForPageRefresh();
             b2BAutoCatalogListPage.ThreadId.SendKeys(profile);
             b2BAutoCatalogListPage.TestHarnessCheckbox.Click();
-            b2BAutoCatalogListPage.SearchCatalogLink.Click();
+            b2BAutoCatalogListPage.SearchRecordsLink.Click();
             WaitForPageRefresh();
             var firstTypeElement =
                 b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[2];
@@ -1494,12 +1494,12 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         public bool VerifyCatalogNameInAutoCatListPage(string environment, string profile, string catalogName)
         {
             b2BHomePage.SelectEnvironment(environment);
-            b2BHomePage.AutoCatalogListPageLink.Click();
+            b2BHomePage.AutoCatalogInventoryListPageLink.Click();
             webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
-            b2BAutoCatalogListPage = new B2BAutoCatalogListPage(webDriver);
+            b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
             WaitForPageRefresh();
             b2BAutoCatalogListPage.ThreadId.SendKeys(profile);
-            b2BAutoCatalogListPage.SearchCatalogLink.Click();
+            b2BAutoCatalogListPage.SearchRecordsLink.Click();
             WaitForPageRefresh();
             var catalogNameElement = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[0];
             var CatalogNamefromLocator = catalogNameElement.Text;
@@ -1517,12 +1517,12 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         public bool VerifyStatusTimeInAutoCatListPage(string environment, string profile, string statusTime)
         {
             b2BHomePage.SelectEnvironment(environment);
-            b2BHomePage.AutoCatalogListPageLink.Click();
-            b2BAutoCatalogListPage = new B2BAutoCatalogListPage(webDriver);
+            b2BHomePage.AutoCatalogInventoryListPageLink.Click();
+            b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
             webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
             webDriver.WaitForElement(b2BAutoCatalogListPage.NextButton);
             b2BAutoCatalogListPage.ThreadId.SendKeys(profile);
-            b2BAutoCatalogListPage.SearchCatalogLink.Click();
+            b2BAutoCatalogListPage.SearchRecordsLink.Click();
             webDriver.WaitForTableRowCount(b2BAutoCatalogListPage.CatalogsTable, 1);
             var statusTimeElement = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[4];
             if (statusTimeElement.Text.Equals(statusTime))
@@ -1537,13 +1537,13 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         public bool VerifyStatusTimeforTestHarnessInAutoCatListPage(string environment, string profile, string statusTime)
         {
             b2BHomePage.SelectEnvironment(environment);
-            b2BHomePage.AutoCatalogListPageLink.Click();
-            b2BAutoCatalogListPage = new B2BAutoCatalogListPage(webDriver);
+            b2BHomePage.AutoCatalogInventoryListPageLink.Click();
+            b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
             webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
             webDriver.WaitForElement(b2BAutoCatalogListPage.NextButton);
             b2BAutoCatalogListPage.TestHarnessCheckbox.Click();
             b2BAutoCatalogListPage.ThreadId.SendKeys(profile);
-            b2BAutoCatalogListPage.SearchCatalogLink.Click();
+            b2BAutoCatalogListPage.SearchRecordsLink.Click();
             webDriver.WaitForTableRowCount(b2BAutoCatalogListPage.CatalogsTable,1);
             var statusTimeElement = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[4];
             if (statusTimeElement.Text.Equals(statusTime))
@@ -1558,12 +1558,12 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         public bool VerifyProfileNameAutoCatPage(string environment, string profile, string profileName)
         {
             b2BHomePage.SelectEnvironment(environment);
-            b2BHomePage.AutoCatalogListPageLink.Click();
-            b2BAutoCatalogListPage = new B2BAutoCatalogListPage(webDriver);
+            b2BHomePage.AutoCatalogInventoryListPageLink.Click();
+            b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
             webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
             webDriver.WaitForElement(b2BAutoCatalogListPage.NextButton);
             b2BAutoCatalogListPage.ThreadId.SendKeys(profile);
-            b2BAutoCatalogListPage.SearchCatalogLink.Click();
+            b2BAutoCatalogListPage.SearchRecordsLink.Click();
             webDriver.WaitForTableRowCount(b2BAutoCatalogListPage.CatalogsTable, 1);
             var profileNameElement = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[1];
             var profileNamefromLocator = profileNameElement.Text;
@@ -1581,13 +1581,13 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         public bool VerifyProfileNameforTestHarnessAutoCatPage(string environment, string profile)
         {
             b2BHomePage.SelectEnvironment(environment);
-            b2BHomePage.AutoCatalogListPageLink.Click();
+            b2BHomePage.AutoCatalogInventoryListPageLink.Click();
             webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
-            b2BAutoCatalogListPage = new B2BAutoCatalogListPage(webDriver);
+            b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
             WaitForPageRefresh();
             b2BAutoCatalogListPage.ThreadId.SendKeys(profile);
             b2BAutoCatalogListPage.TestHarnessCheckbox.Click();
-            b2BAutoCatalogListPage.SearchCatalogLink.Click();
+            b2BAutoCatalogListPage.SearchRecordsLink.Click();
             WaitForPageRefresh();
             var profileNameElement = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[1];
             var profileNamefromLocator = profileNameElement.Text;
@@ -1664,9 +1664,9 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         public bool VerifySelectCustomerFieldOnAutoCatalogListPage(string environment, string profileName)
         {
             b2BHomePage.SelectEnvironment(environment);
-            b2BHomePage.AutoCatalogListPageLink.Click();
+            b2BHomePage.AutoCatalogInventoryListPageLink.Click();
             webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
-            b2BAutoCatalogListPage = new B2BAutoCatalogListPage(webDriver);
+            b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
             WaitForPageRefresh();
             return b2BAutoCatalogListPage.SelectCustomer.Select().Options.Count() > 1 &&
                    b2BAutoCatalogListPage.SelectCustomer.Select().Options.Any(o => o.GetAttribute("text").Equals(profileName));
@@ -1683,9 +1683,9 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         {
             var identityList = identities.Split(',');
             b2BHomePage.SelectEnvironment(environment);
-            b2BHomePage.AutoCatalogListPageLink.Click();
+            b2BHomePage.AutoCatalogInventoryListPageLink.Click();
             webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
-            b2BAutoCatalogListPage = new B2BAutoCatalogListPage(webDriver);
+            b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
             WaitForPageRefresh();
             b2BAutoCatalogListPage.SelectTheCustomer(profileName);
             WaitForPageRefresh();
@@ -1714,15 +1714,15 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         public bool VerifySearchResultsOnAutoCatalogListPage(string environment, string profileName, string identity)
         {
             b2BHomePage.SelectEnvironment(environment);
-            b2BHomePage.AutoCatalogListPageLink.Click();
+            b2BHomePage.AutoCatalogInventoryListPageLink.Click();
             webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
-            b2BAutoCatalogListPage = new B2BAutoCatalogListPage(webDriver);
+            b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
             WaitForPageRefresh();
             b2BAutoCatalogListPage.SelectTheCustomer(profileName);
             WaitForPageRefresh();
             b2BAutoCatalogListPage.SelectTheIdentity(identity);
             webDriver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromSeconds(60));
-            b2BAutoCatalogListPage.SearchCatalogLink.Click();
+            b2BAutoCatalogListPage.SearchRecordsLink.Click();
             WaitForPageRefresh();
 
             if (
@@ -2564,7 +2564,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             b2BHomePage.SelectEnvironment(environment);
             b2BHomePage.AutoCatalogPartViewerLink.Click();
             webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
-            b2BAutoCatalogListPage = new B2BAutoCatalogListPage(webDriver);
+            b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
             WaitForPageRefresh();
             webDriver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromMinutes(5));
             b2BAutoCatalogListPage.PartViewerQuoteIdsLink.SendKeys(quoteid);
@@ -3045,8 +3045,8 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         public bool VerifySysCheckboxinAutoCatListPage(string environment)
         {
             b2BHomePage.SelectEnvironment(environment);
-            b2BHomePage.AutoCatalogListPageLink.Click();
-            b2BAutoCatalogListPage = new B2BAutoCatalogListPage(webDriver);
+            b2BHomePage.AutoCatalogInventoryListPageLink.Click();
+            b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
             webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
             webDriver.WaitForElement(b2BAutoCatalogListPage.NextButton);
             var firstSysElements = webDriver.FindElements(By.XPath("//input[@ng-model='Catalog.IsSystem' and @type='checkbox']"));
@@ -3653,12 +3653,12 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         public bool VerifyOriginalDeltaCatonclickingPublishedcheckboxinAutoCatalogListPage(string environment, string statusDropdown)
         {
             b2BHomePage.SelectEnvironment(environment);
-            b2BHomePage.AutoCatalogListPageLink.Click();
+            b2BHomePage.AutoCatalogInventoryListPageLink.Click();
             webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
-            b2BAutoCatalogListPage = new B2BAutoCatalogListPage(webDriver);
+            b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
             webDriver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromSeconds(120));
             b2BAutoCatalogListPage.SelectTheStatus(statusDropdown);
-            b2BAutoCatalogListPage.SearchCatalogLink.Click(); webDriver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromSeconds(60));
+            b2BAutoCatalogListPage.SearchRecordsLink.Click(); webDriver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromSeconds(60));
             var firststatusElement = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[3];
             var Status = firststatusElement.Text;
             if (!Status.Equals(statusDropdown))
@@ -3675,9 +3675,9 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             string statusDropdown)
         {
             b2BHomePage.SelectEnvironment(environment);
-            b2BHomePage.AutoCatalogListPageLink.Click();
+            b2BHomePage.AutoCatalogInventoryListPageLink.Click();
             webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
-            b2BAutoCatalogListPage = new B2BAutoCatalogListPage(webDriver);
+            b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
             webDriver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromSeconds(60));
             b2BAutoCatalogListPage.SelectTheStatus(statusDropdown);
             b2BAutoCatalogListPage.StdConfigTypeCheckbox.Click();
@@ -3690,9 +3690,9 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         public bool VerifyOriginalDeltaCatonclickingStdconfigcheckboxinAutoCatalogListPage(string environment)
         {
             b2BHomePage.SelectEnvironment(environment);
-            b2BHomePage.AutoCatalogListPageLink.Click();
+            b2BHomePage.AutoCatalogInventoryListPageLink.Click();
             webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
-            b2BAutoCatalogListPage = new B2BAutoCatalogListPage(webDriver);
+            b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
             webDriver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromSeconds(60));
             b2BAutoCatalogListPage.StdConfigTypeCheckbox.Click();
             return b2BAutoCatalogListPage.StdConfigTypeCheckbox.Selected;
@@ -3704,9 +3704,9 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             string testHarnesscreated, string testHarnessFailed)
         {
             b2BHomePage.SelectEnvironment(environment);
-            b2BHomePage.AutoCatalogListPageLink.Click();
+            b2BHomePage.AutoCatalogInventoryListPageLink.Click();
             webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
-            b2BAutoCatalogListPage = new B2BAutoCatalogListPage(webDriver);
+            b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
             webDriver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromSeconds(60));
             b2BAutoCatalogListPage.TestHarnessCheckbox.Click();
             b2BAutoCatalogListPage.StdConfigTypeCheckbox.Click();
