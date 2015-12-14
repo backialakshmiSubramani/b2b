@@ -186,6 +186,48 @@ namespace Modules.Channel.B2B.Core.Pages
         }
 
         /// <summary>
+        /// Catalog Configuration SYS:Default Options
+        /// </summary>
+        private IWebElement _catalogConfigSysDefaultOptionsCheckbox;
+        public IWebElement CatalogConfigSysDefaultOptionsCheckbox
+        {
+            get
+            {
+                if (_catalogConfigSysDefaultOptionsCheckbox == null)
+                    _catalogConfigSysDefaultOptionsCheckbox = webDriver.FindElement(By.Id("chk_BC_IsDefaultOptionEnabledForSystem"), new TimeSpan(0, 0, 30));
+                return _catalogConfigSysDefaultOptionsCheckbox;
+            }
+        }
+
+        /// <summary>
+        /// Catalog Configuration SYS:Final Price
+        /// </summary>
+        private IWebElement _catalogConfigSysFinalPriceCheckbox;
+        public IWebElement CatalogConfigSysFinalPriceCheckbox
+        {
+            get
+            {
+                if (_catalogConfigSysFinalPriceCheckbox == null)
+                    _catalogConfigSysFinalPriceCheckbox = webDriver.FindElement(By.Id("chk_BC_IsFinalPriceEnabledForSystem"), new TimeSpan(0, 0, 30));
+                return _catalogConfigSysFinalPriceCheckbox;
+            }
+        }
+
+        /// <summary>
+        /// Catalog Configuration SYS:Final Price
+        /// </summary>
+        private IWebElement _catalogConfigSysSkuDetailsCheckbox;
+        public IWebElement CatalogConfigSysSkuDetailsCheckbox
+        {
+            get
+            {
+                if (_catalogConfigSysSkuDetailsCheckbox == null)
+                    _catalogConfigSysSkuDetailsCheckbox = webDriver.FindElement(By.Id("chk_BC_IsSkuDetailsEnabledForSystem"), new TimeSpan(0, 0, 30));
+                return _catalogConfigSysSkuDetailsCheckbox;
+            }
+        }
+
+        /// <summary>
         /// Catalog Enabled checkbox under Buyer Catalog - Processing Rules section
         /// </summary>
         private IWebElement _bcpchkSPLFlagCheckbox;

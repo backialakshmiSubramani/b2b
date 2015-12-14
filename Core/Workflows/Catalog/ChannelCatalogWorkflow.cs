@@ -3094,6 +3094,169 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                 return true;
             }
         }
+        
+        /// <summary>
+        /// Verifies System Catalog Sub options in Auto BHC section when System Catalog is set as True. 
+        /// </summary>
+        public bool VerifySystemCatalogSubOptionsinAutoBhcSection(string environment, string profileName)
+        {
+            GoToBuyerCatalogTab(environment, profileName);
+            b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+            if (!b2BBuyerCatalogPage.EnableCatalogAutoGeneration.Selected)
+            {
+                b2BBuyerCatalogPage.EnableCatalogAutoGeneration.Click();
+                b2BBuyerCatalogPage.BuyerCatalogFirstIdentity.Click();
+            }
+            else
+            {
+                b2BBuyerCatalogPage.EditScheduleButton.Click();
+            }
+            b2BBuyerCatalogPage.SetTextBoxValue(b2BBuyerCatalogPage.OriginalCatalogStartDate, DateTime.Now.AddDays(1).ToString(MMDDYYYY));
+            if (!b2BBuyerCatalogPage.BcpchkSysCatalogCheckbox.Selected)
+            {
+                b2BBuyerCatalogPage.BcpchkSysCatalogCheckbox.Click();
+                b2BBuyerCatalogPage.CatalogConfigSysDefaultOptionsCheckbox.Click();
+                b2BBuyerCatalogPage.CatalogConfigSysFinalPriceCheckbox.Click();
+                b2BBuyerCatalogPage.CatalogConfigSysSkuDetailsCheckbox.Click();
+                b2BBuyerCatalogPage.UpdateButton.Click();
+                b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+                b2BBuyerCatalogPage.AutomatedBhcCatalogProcessingRules.Click();
+                b2BBuyerCatalogPage.EditScheduleButton.Click();
+                if (!(b2BBuyerCatalogPage.BcpchkSysCatalogCheckbox.Selected &&
+                    b2BBuyerCatalogPage.CatalogConfigSysDefaultOptionsCheckbox.Selected &&
+                    b2BBuyerCatalogPage.CatalogConfigSysFinalPriceCheckbox.Selected &&
+                    b2BBuyerCatalogPage.CatalogConfigSysSkuDetailsCheckbox.Selected)
+                    )
+                {
+                    return false;
+                }
+                return true;
+            }
+            else
+            {
+                b2BBuyerCatalogPage.BcpchkSysCatalogCheckbox.Click();
+                b2BBuyerCatalogPage.BcpchkSysCatalogCheckbox.Click();
+                b2BBuyerCatalogPage.CatalogConfigSysDefaultOptionsCheckbox.Click();
+                b2BBuyerCatalogPage.CatalogConfigSysFinalPriceCheckbox.Click();
+                b2BBuyerCatalogPage.CatalogConfigSysSkuDetailsCheckbox.Click();
+                b2BBuyerCatalogPage.UpdateButton.Click();
+                b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+                b2BBuyerCatalogPage.AutomatedBhcCatalogProcessingRules.Click();
+                b2BBuyerCatalogPage.EditScheduleButton.Click();
+                if (!(b2BBuyerCatalogPage.BcpchkSysCatalogCheckbox.Selected &&
+                   b2BBuyerCatalogPage.CatalogConfigSysDefaultOptionsCheckbox.Selected &&
+                   b2BBuyerCatalogPage.CatalogConfigSysFinalPriceCheckbox.Selected &&
+                   b2BBuyerCatalogPage.CatalogConfigSysSkuDetailsCheckbox.Selected)
+                   )
+                {
+                    return false;
+                }
+                return true;
+            }
+        }
+
+        /// <summary>
+        /// Verifies System Catalog and STD Sub options in Auto BHC section when System Catalog and STD are set as True. 
+        /// </summary>
+        public bool VerifySystemAndSTDCatalogSubOptionsinAutoBhcSection(string environment, string profileName)
+        {
+            GoToBuyerCatalogTab(environment, profileName);
+            b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+            if (!b2BBuyerCatalogPage.EnableCatalogAutoGeneration.Selected)
+            {
+                b2BBuyerCatalogPage.EnableCatalogAutoGeneration.Click();
+                b2BBuyerCatalogPage.BuyerCatalogFirstIdentity.Click();
+            }
+            else
+            {
+                b2BBuyerCatalogPage.EditScheduleButton.Click();
+            }
+            b2BBuyerCatalogPage.SetTextBoxValue(b2BBuyerCatalogPage.OriginalCatalogStartDate, DateTime.Now.AddDays(1).ToString(MMDDYYYY));
+            if (!b2BBuyerCatalogPage.BcpchkSysCatalogCheckbox.Selected)
+            {
+                b2BBuyerCatalogPage.BcpchkSysCatalogCheckbox.Click();
+                b2BBuyerCatalogPage.CatalogConfigSysDefaultOptionsCheckbox.Click();
+                b2BBuyerCatalogPage.CatalogConfigSysFinalPriceCheckbox.Click();
+                b2BBuyerCatalogPage.CatalogConfigSysSkuDetailsCheckbox.Click();
+
+                if (!b2BBuyerCatalogPage.CatalogConfigStandard.Selected)
+                {
+                    b2BBuyerCatalogPage.CatalogConfigStandard.Click();
+                    b2BBuyerCatalogPage.CatalogConfigIncludeDefaultOptions.Click();
+                    b2BBuyerCatalogPage.CatalogConfigIncludeFinalPrice.Click();
+                    b2BBuyerCatalogPage.CatalogConfigIncludeSkuDetails.Click();
+                }
+                else
+                {
+                    b2BBuyerCatalogPage.CatalogConfigStandard.Click();
+                    b2BBuyerCatalogPage.CatalogConfigStandard.Click();
+                    b2BBuyerCatalogPage.CatalogConfigIncludeDefaultOptions.Click();
+                    b2BBuyerCatalogPage.CatalogConfigIncludeFinalPrice.Click();
+                    b2BBuyerCatalogPage.CatalogConfigIncludeSkuDetails.Click();
+                }
+
+                b2BBuyerCatalogPage.UpdateButton.Click();
+                b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+                b2BBuyerCatalogPage.AutomatedBhcCatalogProcessingRules.Click();
+                b2BBuyerCatalogPage.EditScheduleButton.Click();
+                if (!(b2BBuyerCatalogPage.BcpchkSysCatalogCheckbox.Selected &&
+                    b2BBuyerCatalogPage.CatalogConfigSysDefaultOptionsCheckbox.Selected &&
+                    b2BBuyerCatalogPage.CatalogConfigSysFinalPriceCheckbox.Selected &&
+                    b2BBuyerCatalogPage.CatalogConfigSysSkuDetailsCheckbox.Selected &&
+                    b2BBuyerCatalogPage.CatalogConfigStandard.Selected &&
+                    b2BBuyerCatalogPage.CatalogConfigIncludeDefaultOptions.Selected &&
+                    b2BBuyerCatalogPage.CatalogConfigIncludeFinalPrice.Selected &&
+                    b2BBuyerCatalogPage.CatalogConfigIncludeSkuDetails.Selected)
+                    )
+                {
+                    return false;
+                }
+                return true;
+            }
+            else
+            {
+                b2BBuyerCatalogPage.BcpchkSysCatalogCheckbox.Click();
+                b2BBuyerCatalogPage.BcpchkSysCatalogCheckbox.Click();
+                b2BBuyerCatalogPage.CatalogConfigSysDefaultOptionsCheckbox.Click();
+                b2BBuyerCatalogPage.CatalogConfigSysFinalPriceCheckbox.Click();
+                b2BBuyerCatalogPage.CatalogConfigSysSkuDetailsCheckbox.Click();
+
+                if (!b2BBuyerCatalogPage.CatalogConfigStandard.Selected)
+                {
+                    b2BBuyerCatalogPage.CatalogConfigStandard.Click();
+                    b2BBuyerCatalogPage.CatalogConfigIncludeDefaultOptions.Click();
+                    b2BBuyerCatalogPage.CatalogConfigIncludeFinalPrice.Click();
+                    b2BBuyerCatalogPage.CatalogConfigIncludeSkuDetails.Click();
+                }
+                else
+                {
+                    b2BBuyerCatalogPage.CatalogConfigStandard.Click();
+                    b2BBuyerCatalogPage.CatalogConfigStandard.Click();
+                    b2BBuyerCatalogPage.CatalogConfigIncludeDefaultOptions.Click();
+                    b2BBuyerCatalogPage.CatalogConfigIncludeFinalPrice.Click();
+                    b2BBuyerCatalogPage.CatalogConfigIncludeSkuDetails.Click();
+                }
+
+                b2BBuyerCatalogPage.UpdateButton.Click();
+                b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+                b2BBuyerCatalogPage.AutomatedBhcCatalogProcessingRules.Click();
+                b2BBuyerCatalogPage.EditScheduleButton.Click();
+                if (!(b2BBuyerCatalogPage.BcpchkSysCatalogCheckbox.Selected &&
+                    b2BBuyerCatalogPage.CatalogConfigSysDefaultOptionsCheckbox.Selected &&
+                    b2BBuyerCatalogPage.CatalogConfigSysFinalPriceCheckbox.Selected &&
+                    b2BBuyerCatalogPage.CatalogConfigSysSkuDetailsCheckbox.Selected &&
+                    b2BBuyerCatalogPage.CatalogConfigStandard.Selected &&
+                    b2BBuyerCatalogPage.CatalogConfigIncludeDefaultOptions.Selected &&
+                    b2BBuyerCatalogPage.CatalogConfigIncludeFinalPrice.Selected &&
+                    b2BBuyerCatalogPage.CatalogConfigIncludeSkuDetails.Selected)
+                    )
+                {
+                    return false;
+                }
+                return true;
+            }
+        }
+
 
         /// <summary>
         /// Verifies SPL Flag checkbox is present in Auto BHC section. 
