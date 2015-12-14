@@ -52,7 +52,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         }
         
         /// <summary>
-        /// Verifies Po Posting.
+        /// Verifies Po Posting with CBL1.
         /// </summary>
         /// <param name="qatoolsTargetUrl"></param>
         /// <param name="fileName"></param>
@@ -120,6 +120,68 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                 return true;
             }
             throw new Exception("Status is not Available or Complete in GCM page. Check manually with this dpid:" + dpid);
+        }
+
+
+        /// <summary>
+        /// Verifies Po Posting with CBL3.
+        /// </summary>
+        /// <param name="qatoolsTargetUrl"></param>
+        /// <param name="fileName"></param>
+        /// <param name="poRefNum"></param>
+        /// <param name="identityName"></param>
+        /// <param name="supplierPartIdExt"></param>
+        /// <param name="unitPrice"></param>
+        /// <param name="quantity"></param>
+        public string VerifyPoPostingwithCbl3(string qatoolsTargetUrl, string fileName, string poRefNum,
+            string identityName, string supplierPartIdExt, string unitPrice, string quantity)
+        {
+            uniquePoRefNum = poRefNum + DateTime.Today.ToString("yyMMdd") + DateTime.Now.ToString("HHmmss");
+            B2BQaToolsPage = new B2BQaToolsPage(webDriver);
+            B2BQaToolsPage.PasteTargetUrl(qatoolsTargetUrl);
+            var file = PoXmlGenerator.GeneratePoCbl3(fileName, uniquePoRefNum, identityName, supplierPartIdExt,
+                unitPrice, quantity);
+            B2BQaToolsPage.PasteInputXml(file);
+            webDriver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromMinutes(2));
+            B2BQaToolsPage.ClickSubmitMessage();
+            if (
+                 B2BQaToolsPage.GetSubmissionResult()
+                    .Equals("XML Response received from server Code: 200. Message: PO = " + uniquePoRefNum))
+            {
+                return uniquePoRefNum;
+            }
+            throw new Exception("Error while posting PO" + uniquePoRefNum);
+        }
+
+        /// <summary>
+        /// Verifies Po Posting with CXML.
+        /// </summary>
+        /// <param name="qatoolsTargetUrl"></param>
+        /// <param name="fileName"></param>
+        /// <param name="poRefNum"></param>
+        /// /// <param name="profileName"></param>
+        /// <param name="identityName"></param>
+        /// <param name="supplierPartIdExt"></param>
+        /// <param name="unitPrice"></param>
+        /// <param name="quantity"></param>
+        public string VerifyPoPostingwithCxml(string qatoolsTargetUrl, string fileName, string poRefNum,
+            string profileName,string identityName, string supplierPartIdExt, string unitPrice, string quantity)
+        {
+            uniquePoRefNum = poRefNum + DateTime.Today.ToString("yyMMdd") + DateTime.Now.ToString("HHmmss");
+            B2BQaToolsPage = new B2BQaToolsPage(webDriver);
+            B2BQaToolsPage.PasteTargetUrl(qatoolsTargetUrl);
+            var file = PoXmlGenerator.GeneratePoCxmll(fileName, uniquePoRefNum,profileName,
+                identityName, supplierPartIdExt,unitPrice, quantity);
+            B2BQaToolsPage.PasteInputXml(file);
+            webDriver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromMinutes(2));
+            B2BQaToolsPage.ClickSubmitMessage();
+            if (
+                 B2BQaToolsPage.GetSubmissionResult()
+                    .Equals("XML Response received from server Code: 200. Message: PO = " + uniquePoRefNum))
+            {
+                return uniquePoRefNum;
+            }
+            throw new Exception("Error while posting PO" + uniquePoRefNum);
         }
     }
 }

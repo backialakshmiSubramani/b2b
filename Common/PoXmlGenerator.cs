@@ -143,6 +143,35 @@ namespace Modules.Channel.B2B.Common
             return inputXml;
         }
 
+        public static string GeneratePoCbl3(string fileName, string orderId, string identityName, string supplierPartId, string unitPrice, string quantity)
+        {
+            XDocument doc = XDocument.Load(fileName);
+            doc.XPathSelectElement("//OrderNumber/BuyerOrderNumber").SetValue(orderId);
+            doc.XPathSelectElement("//OrderParty/BuyerParty/Party/PartyID/Identifier/Agency/AgencyCodedOther").SetValue(identityName);
+            doc.XPathSelectElement("//ItemIdentifiers/PartNumbers/SellerPartNumber/PartNum/PartIDExt").SetValue(supplierPartId);
+            doc.XPathSelectElement("//ItemIdentifiers/PartNumbers/BuyerPartNumber/PartNum/PartIDExt").SetValue(supplierPartId);
+            doc.XPathSelectElement("//PricingDetail/ListOfPrice/Price/UnitPrice/UnitPriceValue").SetValue(unitPrice);
+            doc.XPathSelectElement("//TotalQuantity/Quantity/QuantityValue").SetValue(quantity);
+
+            var inputXml = "<?xml version='1.0' encoding='utf-8'?>" + doc.ToString();
+            return inputXml;
+        }
+
+        public static string GeneratePoCxmll(string fileName, string orderId,string profileName, string identityName, 
+            string supplierPartId, string unitPrice, string quantity)
+        {
+            XDocument doc = XDocument.Load(fileName);
+            doc.XPathSelectElement("//From/Credential/Identity").SetValue(profileName);
+            doc.XPathSelectElement("//Sender/Credential/Identity").SetValue(identityName);
+            doc.XPathSelectElement("//Request/OrderRequest/OrderRequestHeader").Attribute("orderID").SetValue(orderId);
+            doc.XPathSelectElement("//Request/OrderRequest/ItemOut/ItemDetail/UnitPrice/Money").SetValue(unitPrice);
+            doc.XPathSelectElement("//Request/OrderRequest/ItemOut/ItemID/SupplierPartID").SetValue(supplierPartId);
+            doc.XPathSelectElement("//Request/OrderRequest/ItemOut/ItemID/SupplierPartAuxiliaryID").SetValue(supplierPartId);
+            doc.XPathSelectElement("//ItemOut").Attribute("quantity").SetValue(quantity);
+
+            var inputXml = "<?xml version='1.0' encoding='utf-8'?>" + doc.ToString();
+            return inputXml;
+        }
         private static string GeneratePoCxml(string fileName, string identityName, string deploymentMode, string orderId, string unitPrice, string supplierPartId, string b2BCrtEndUserId)
         {
             XDocument doc = XDocument.Load(fileName);
