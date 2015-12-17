@@ -3898,6 +3898,24 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             dbData.PalletLayerPerPallet.Should().Be(Convert.ToInt32(excelTable.Rows[0]["Pallet Layer / Pallet"]));
             dbData.PalletUnitsPerPallet.Should().Be(Convert.ToInt32(excelTable.Rows[0]["Pallet Units / Pallet"]));
         }
+
+        public void VerifyRegionInGeneralAndAutoBHC(ConstantObjects.B2BEnvironment b2BEnvironment, string profileName, string expectedRegion)
+        {
+            B2BHomePage b2BHomePage = new B2BHomePage(webDriver);
+            b2BHomePage.SelectEnvironment(b2BEnvironment.ToString());
+            b2BHomePage.ClickB2BProfileList();
+            B2BCustomerProfileListPage b2BCustomerProfileListPage = new B2BCustomerProfileListPage(webDriver);
+            b2BCustomerProfileListPage.SearchProfile("Customer Name", profileName);
+            b2BCustomerProfileListPage.ClickSearchedProfile(profileName);
+            B2BManageProfileIdentitiesPage b2BManageProfileIdentitiesPage = new B2BManageProfileIdentitiesPage(webDriver);
+            string regionName = b2BManageProfileIdentitiesPage.RegionName_Globalization.Text.Split(':')[1].Trim();
+            regionName.Should().Be(expectedRegion);
+            b2BManageProfileIdentitiesPage.BuyerCatalogTab.Click();
+            b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+            b2BBuyerCatalogPage.AutomatedBhcCatalogProcessingRules.Click();
+            b2BBuyerCatalogPage.EnableCatalogAutoGeneration.WaitForElementDisplayed(TimeSpan.FromSeconds(30));
+            b2BBuyerCatalogPage.CatalogRegion.Text.Should().Be(regionName);
+        }
     }
 
     /// <summary>

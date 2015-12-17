@@ -114,6 +114,14 @@ namespace Modules.Channel.B2B.Core.Pages
             }
         }
 
+        public IWebElement RegionName_Globalization
+        {
+            get
+            {
+                return webDriver.FindElement(By.XPath("//select[@id='ContentPageHolder_lstProfileContextData']/option[contains(text(),'Region')]"));
+            }
+        }
+
         #endregion
     }
 }
