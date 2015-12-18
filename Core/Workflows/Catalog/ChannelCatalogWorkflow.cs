@@ -1114,8 +1114,10 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             b2BHomePage.AutoCatalogInventoryListPageLink.Click();
             webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
             b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
-            WaitForPageRefresh();
+            webDriver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromSeconds(60));
+            
             b2BAutoCatalogListPage.SearchRecordsLink.Click();
+            WaitForPageRefresh();
             var firstThreadIdElement = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[8];
             var threadId = firstThreadIdElement.Text;
 
@@ -1128,6 +1130,40 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             var threadIdLink = firstThreadIdElement.FindElement(By.TagName("a"));
             threadId = threadIdLink.Text;
             threadIdLink.Click();
+            webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
+            WaitForPageRefresh();
+            return webDriver.Url.ToLowerInvariant().Contains("b2blogreportb.aspx?threadid=" + threadId);
+        }
+
+        /// <summary>
+        /// Verifies the presence and functionality of Thread Id link in Auto Cataog List Page
+        /// </summary>
+        /// <param name="environment"></param>
+        /// <returns></returns>
+        public bool VerifyThreadIdLinkInAutoCatalogListPage(string environment, string profilename)
+        {
+            b2BHomePage.SelectEnvironment(environment);
+            b2BHomePage.AutoCatalogInventoryListPageLink.Click();
+            webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
+            b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
+            webDriver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromSeconds(60));
+
+            b2BAutoCatalogListPage.ThreadId.SendKeys(profilename);
+            b2BAutoCatalogListPage.SearchRecordsLink.Click();
+            WaitForPageRefresh();
+            var firstThreadIdElement = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[8];
+            var threadId = firstThreadIdElement.Text;
+
+            if (!firstThreadIdElement.ElementExists(By.TagName("a")))
+            {
+                Console.WriteLine("Thread ID column with value **{0}** is not a hyperlink ", threadId);
+                return false;
+            }
+
+            var threadIdLink = firstThreadIdElement.FindElement(By.TagName("a"));
+            threadId = threadIdLink.Text;
+            threadIdLink.Click();
+            WaitForPageRefresh();
             webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
             WaitForPageRefresh();
             return webDriver.Url.ToLowerInvariant().Contains("b2blogreportb.aspx?threadid=" + threadId);
