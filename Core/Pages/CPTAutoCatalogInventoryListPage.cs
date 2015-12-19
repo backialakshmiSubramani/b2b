@@ -103,6 +103,11 @@ namespace Modules.Channel.B2B.Core.Pages
         public ReadOnlyCollection<IWebElement> StatusTable
         {
             get { return webDriver.FindElements(By.XPath("//form/table[1]/tbody/tr[1]/td[3]/table/tbody/tr[td]")); }
+
+            //get 
+            //{ 
+            //    return webDriver.FindElements(By.XPath(".//*[@id='myForm']/table/tbody/tr/td[3]/table/tbody")); 
+            //}
         }
 
         /// <summary>
@@ -403,6 +408,15 @@ namespace Modules.Channel.B2B.Core.Pages
         /// <returns></returns>
         public IDictionary<string, string> GetStatusDictionary()
         {
+            //var rows = StatusTable[0].FindElements(By.TagName("tr"));
+            //Dictionary<string, string> statusAndDescription = new Dictionary<string, string>();
+            //for (int i = 1; i < rows.Count; i++)
+            //{
+            //    var columns = rows[i].FindElements(By.TagName("td"));
+            //    statusAndDescription.Add(columns[0].Text, columns[1].Text);
+            //}
+            //return statusAndDescription;
+
             return StatusTable.ToDictionary(element => element.FindElements(By.TagName("td"))[0].Text,
                 element => element.FindElements(By.TagName("td"))[1].Text);
         }
