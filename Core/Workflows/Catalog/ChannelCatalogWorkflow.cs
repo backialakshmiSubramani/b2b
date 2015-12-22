@@ -1116,7 +1116,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
             b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
             webDriver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromSeconds(60));
-            
+
             b2BAutoCatalogListPage.SearchRecordsLink.Click();
             WaitForPageRefresh();
             var firstThreadIdElement = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[8];
@@ -1273,7 +1273,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             b2BAutoCatalogListPage.SearchRecordsLink.Click();
             WaitForPageRefresh();
             var firststatusElement = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[3];
-            var Status = firststatusElement.Text; 
+            var Status = firststatusElement.Text;
             string countryCode = string.Empty;
             string regioncode = string.Empty;
             string cUrrencycode = string.Empty;
@@ -1292,7 +1292,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                 do
                 {
                     firststatusElement = b2BAutoCatalogListPage.CatalogListTableRows[i].FindElements(By.TagName("td"))[3];
-                    Status = firststatusElement.Text; 
+                    Status = firststatusElement.Text;
                     var firstCountryCodeElement = b2BAutoCatalogListPage.CatalogListTableRows[i].FindElements(By.TagName("td"))[9];
                     countryCode = firstCountryCodeElement.Text;
                     var firstregioncode = b2BAutoCatalogListPage.CatalogListTableRows[i].FindElements(By.TagName("td"))[11];
@@ -1301,7 +1301,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                     cUrrencycode = firstcurrencycode.Text;
                     i++;
                 } while (!Status.Equals(status));
-                
+
             }
             if (countryCode.Equals(countrycode) && regioncode.Equals(regionCode) && cUrrencycode.Equals(currencycode) && Status.Equals(status))
             {
@@ -1371,8 +1371,8 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
 
             b2BHomePage.SelectEnvironment(environment);
             b2BHomePage.AutoCatalogInventoryListPageLink.Click();
-            webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
             b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
+            webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
             WaitForPageRefresh();
             b2BAutoCatalogListPage.ThreadId.SendKeys(profilename);
             b2BAutoCatalogListPage.SearchRecordsLink.Click();
@@ -1381,7 +1381,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             var Type = firstTypeElement.Text;
             var firststatusElement = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[3];
             var Status = firststatusElement.Text;
-            var DownloadLinkElement = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[18];
+            var DownloadLinkElement = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[19];
             if (Type.Equals(type) && Status.Equals(status))
             {
                 DownloadLinkElement.Click();
@@ -1434,8 +1434,8 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
 
             b2BHomePage.SelectEnvironment(environment);
             b2BHomePage.AutoCatalogInventoryListPageLink.Click();
-            webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
             b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
+            webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
             WaitForPageRefresh();
             b2BAutoCatalogListPage.ScheduledCheckbox.Click();
             b2BAutoCatalogListPage.OriginalCatalogCheckbox.Click();
@@ -1449,7 +1449,8 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             var Status = firststatusElement.Text;
 
             var DownloadLinkElement =
-                b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[18];
+                b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[19];
+
             String download = DownloadLinkElement.FindElement(By.ClassName("ng-hide")).GetAttribute("value");
             if (Type.Equals(type) && Status.Equals(status))
             {
@@ -1510,18 +1511,18 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
 
             b2BHomePage.SelectEnvironment(environment);
             b2BHomePage.AutoCatalogInventoryListPageLink.Click();
-            webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
             b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
+            webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
             WaitForPageRefresh();
-            b2BAutoCatalogListPage.ThreadId.SendKeys(profilename);
             b2BAutoCatalogListPage.TestHarnessCheckbox.Click();
+            b2BAutoCatalogListPage.ThreadId.SendKeys(profilename);
             b2BAutoCatalogListPage.SearchRecordsLink.Click();
             WaitForPageRefresh();
             var firststatusElement = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[3];
             var Status = firststatusElement.Text;
             var firstTypeElement = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[2];
             var Type = firstTypeElement.Text;
-            var DownloadLinkElement = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[18];
+            var DownloadLinkElement = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[19];
             if (Type.Equals(type) && Status.Equals(status))
             {
                 DownloadLinkElement.Click();
@@ -1631,7 +1632,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             b2BAutoCatalogListPage.TestHarnessCheckbox.Click();
             b2BAutoCatalogListPage.ThreadId.SendKeys(profile);
             b2BAutoCatalogListPage.SearchRecordsLink.Click();
-            webDriver.WaitForTableRowCount(b2BAutoCatalogListPage.CatalogsTable,1);
+            webDriver.WaitForTableRowCount(b2BAutoCatalogListPage.CatalogsTable, 1);
             var statusTimeElement = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[4];
             if (statusTimeElement.Text.Equals(statusTime))
                 return true;
@@ -1740,7 +1741,8 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                 b2BBuyerCatalogPage.UpdateButton.Click();
                 return true;
             }
-            else return false;
+            else 
+                return false;
 
         }
 
@@ -3185,7 +3187,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                 return true;
             }
         }
-        
+
         /// <summary>
         /// Verifies System Catalog Sub options in Auto BHC section when System Catalog is set as True. 
         /// </summary>
@@ -4007,8 +4009,60 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             b2BBuyerCatalogPage.EnableCatalogAutoGeneration.WaitForElementDisplayed(TimeSpan.FromSeconds(30));
             b2BBuyerCatalogPage.CatalogRegion.Text.Should().Be(regionName);
         }
-    }
 
+        /// <summary>
+        /// Verifies the search results on Auto Catalog List Page
+        /// </summary>
+        /// <param name="environment"></param>
+        /// <param name="profileName"></param>
+        /// <param name="identity"></param>
+        /// <returns></returns>
+        public bool VerifyCatalogSearchWithScheduledStatus(string environment)
+        {
+            b2BHomePage.SelectEnvironment(environment);
+            b2BHomePage.AutoCatalogInventoryListPageLink.Click();
+            b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
+            webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
+            WaitForPageRefresh();
+            b2BAutoCatalogListPage.ScheduledCheckbox.Click();
+            b2BAutoCatalogListPage.SearchRecordsLink.Click();
+            WaitForPageRefresh();
+
+            if (!(b2BAutoCatalogListPage.CatalogListTableRows.Count > 0))
+                return false;
+
+            if (
+                 !b2BAutoCatalogListPage.CatalogListTableRows.All(
+                     r =>
+                         r.FindElements(By.TagName("td"))[3].Text.Equals(
+                             b2BAutoCatalogListPage.StatusTable[0].FindElements(By.TagName("td"))[0].Text)))
+                return false;
+
+            try
+            {
+                var i = 1;
+                var noOfPages = b2BAutoCatalogListPage.NoOfPages.Text.Split(' ');
+                while (Convert.ToInt32(noOfPages[2]) > i)
+                {
+                    b2BAutoCatalogListPage.NextButton.Click();
+                    if (
+                        !b2BAutoCatalogListPage.CatalogListTableRows.All(
+                            r =>
+                                r.FindElements(By.TagName("td"))[3].Text.Equals(
+                                    b2BAutoCatalogListPage.StatusTable[0].FindElements(By.TagName("td"))[0].Text)))
+                        return false;
+
+                    i++;
+                }
+            }
+            catch 
+            { 
+                //ignored 
+            }           
+
+            return true;
+        }
+    }
     /// <summary>
     /// Enum to restrict the types of frequencies used
     /// </summary>

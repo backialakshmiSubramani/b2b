@@ -286,6 +286,14 @@ namespace Modules.Channel.B2B.Core.Pages
             get { return webDriver.FindElements(By.XPath("//table[@st-safe-src='Catalogs']/tbody/tr")); }
         }
 
+        /// <summary>
+        /// No of pages
+        /// </summary>
+        public IWebElement NoOfPages
+        {
+            get { return webDriver.FindElement(By.XPath("//span[@class='ng-scope']/span/span[2]/span")); }
+        }
+
         ///<summary>
         /// Auto Catalog Part Viewer Quote Ids Link
         /// </summary>
