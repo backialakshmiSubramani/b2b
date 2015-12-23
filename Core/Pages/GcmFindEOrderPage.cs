@@ -93,7 +93,8 @@ namespace Modules.Channel.B2B.Core.Pages
         {
             get
             {
-                return webDriver.FindElement(By.XPath("//table[@id='tblContent']/tbody/tr[2]/td[3]/table[3]/tbody/tr[5]/td[2]/table/tbody/tr[3]/td[2]"));
+                //return webDriver.FindElement(By.XPath("//table[@id='tblContent']/tbody/tr[2]/td[3]/table[3]/tbody/tr[5]/td[2]/table/tbody/tr[3]/td[2]"));
+                return webDriver.FindElement(By.XPath("//*[@id='tblContent']/tbody/tr[2]/td[3]/table[3]/tbody/tr[5]/td[2]/table/tbody/tr[2]/td[2]"));
             }
         }
 

@@ -491,6 +491,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         /// <returns></returns>
         public bool VerifyRequestedByAutopopulationForExistingProfile(string environment, string profileName, string scheduleSaveConfirmation, string windowsLogin)
         {
+            var centralTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("Central Standard Time")).AddHours(2);
             GoToBuyerCatalogTab(environment, profileName);
             if (!b2BBuyerCatalogPage.BcpCatalogEnabled.Selected)
                 b2BBuyerCatalogPage.BcpCatalogEnabled.Click();
@@ -522,7 +523,10 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             if (!b2BBuyerCatalogPage.CatalogConfigStandard.Selected)
                 b2BBuyerCatalogPage.CatalogConfigStandard.Click();
             b2BBuyerCatalogPage.CatalogConfigUpsellDownSell.Click();
+            var originalTimeOfSend = centralTime.Hour.ToString();
+            b2BBuyerCatalogPage.OriginalTimeOfSend.Select().SelectByValue(originalTimeOfSend);
             b2BBuyerCatalogPage.UpdateButton.Click();
+            WaitForPageRefresh();
             if (!b2BBuyerCatalogPage.ConfirmationLabel.Text.ToLowerInvariant().Equals(scheduleSaveConfirmation))
             {
                 Console.WriteLine("The auto catalog setting were not saved successfully.");
@@ -3053,10 +3057,13 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         private bool UploadAndCheckMessageAndValidate(string fileToBeUploaded, string uploadMessage)
         {
             b2BCatalogPackagingDataUploadPage = new B2BCatalogPackagingDataUploadPage(webDriver);
+            webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
             b2BCatalogPackagingDataUploadPage.FileUpload.SendKeys(System.IO.Directory.GetCurrentDirectory() + @"\" + fileToBeUploaded);
             b2BCatalogPackagingDataUploadPage.UploadButton.Click();
+            webDriver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromSeconds(120));
+            Thread.Sleep(5000);
             var uploadAlert = webDriver.SwitchTo().Alert();
-            uploadAlert.Accept();
+                uploadAlert.Accept();
             WaitForPageRefresh();
             Console.WriteLine("Message received on upload: **{0}**",
                 b2BCatalogPackagingDataUploadPage.UploadMessage.Text);
@@ -3075,11 +3082,17 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             string uploadMessageEndsWith)
         {
             b2BCatalogPackagingDataUploadPage = new B2BCatalogPackagingDataUploadPage(webDriver);
+            webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
             b2BCatalogPackagingDataUploadPage.FileUpload.SendKeys(System.IO.Directory.GetCurrentDirectory() + @"\" + fileToBeUploaded);
             b2BCatalogPackagingDataUploadPage.UploadButton.Click();
             webDriver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromSeconds(120));
-            var uploadAlert = webDriver.SwitchTo().Alert();
-            uploadAlert.Accept();
+            Thread.Sleep(5000);
+            try
+            {
+                var uploadAlert = webDriver.SwitchTo().Alert();
+                uploadAlert.Accept();
+            }
+            catch { }
             WaitForPageRefresh();
             Console.WriteLine("Message received on upload: **{0}**",
                 b2BCatalogPackagingDataUploadPage.UploadMessage.Text);
@@ -3097,8 +3110,13 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             b2BCatalogPackagingDataUploadPage = new B2BCatalogPackagingDataUploadPage(webDriver);
             b2BCatalogPackagingDataUploadPage.FileUpload.SendKeys(System.IO.Directory.GetCurrentDirectory() + @"\" + fileToBeUploaded);
             b2BCatalogPackagingDataUploadPage.UploadButton.Click();
-            var uploadAlert = webDriver.SwitchTo().Alert();
-            uploadAlert.Accept();
+            webDriver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromSeconds(120));
+            try
+            {
+                var uploadAlert = webDriver.SwitchTo().Alert();
+                uploadAlert.Accept();
+            }
+            catch { }
             WaitForPageRefresh();
             Console.WriteLine("Message received on upload: **{0}**",
                 b2BCatalogPackagingDataUploadPage.UploadMessage.Text);
@@ -3717,13 +3735,13 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             {
                 b2BBuyerCatalogPage.UpdateButton.Click();
                 b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
-                b2BBuyerCatalogPage.AutomatedBhcCatalogProcessingRules.Click();
+                //b2BBuyerCatalogPage.AutomatedBhcCatalogProcessingRules.Click();
                 webDriver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromMinutes(2));
                 b2BBuyerCatalogPage.EditScheduleButton.Click();
                 b2BBuyerCatalogPage.SetTextBoxValue(b2BBuyerCatalogPage.OriginalCatalogStartDate,
                     DateTime.Now.AddDays(1).ToString(MMDDYYYY));
-                if (!b2BBuyerCatalogPage.BcpchkSysCatalogCheckbox.Selected &&
-                    b2BBuyerCatalogPage.BcpchkCrossRefernceSysUpdate.Selected)
+                if (!(b2BBuyerCatalogPage.BcpchkSysCatalogCheckbox.Selected &&
+                    b2BBuyerCatalogPage.BcpchkCrossRefernceSysUpdate.Selected))
                 {
                     return true;
                 }
