@@ -491,7 +491,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         /// <returns></returns>
         public bool VerifyRequestedByAutopopulationForExistingProfile(string environment, string profileName, string scheduleSaveConfirmation, string windowsLogin)
         {
-            var centralTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("Central Standard Time")).AddHours(2);
+            var centralTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("Central Standard Time")).AddHours(1);
             GoToBuyerCatalogTab(environment, profileName);
             if (!b2BBuyerCatalogPage.BcpCatalogEnabled.Selected)
                 b2BBuyerCatalogPage.BcpCatalogEnabled.Click();
@@ -524,6 +524,11 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                 b2BBuyerCatalogPage.CatalogConfigStandard.Click();
             b2BBuyerCatalogPage.CatalogConfigUpsellDownSell.Click();
             var originalTimeOfSend = centralTime.Hour.ToString();
+            if (originalTimeOfSend == "0")
+            {
+                b2BBuyerCatalogPage.SetTextBoxValue(b2BBuyerCatalogPage.OriginalCatalogStartDate, DateTime.Now.AddDays(1).ToString(MMDDYYYY));
+                b2BBuyerCatalogPage.SetTextBoxValue(b2BBuyerCatalogPage.DeltaCatalogStartDate, DateTime.Now.AddDays(2).ToString(MMDDYYYY));
+            }
             b2BBuyerCatalogPage.OriginalTimeOfSend.Select().SelectByValue(originalTimeOfSend);
             b2BBuyerCatalogPage.UpdateButton.Click();
             WaitForPageRefresh();
@@ -1210,8 +1215,8 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         {
             b2BHomePage.SelectEnvironment(environment);
             b2BHomePage.AutoCatalogInventoryListPageLink.Click();
-            webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
             b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
+            webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
             webDriver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromSeconds(60));
             b2BAutoCatalogListPage.ScheduledCheckbox.Click();
             b2BAutoCatalogListPage.SearchRecordsLink.Click();
@@ -1239,8 +1244,8 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         {
             b2BHomePage.SelectEnvironment(environment);
             b2BHomePage.AutoCatalogInventoryListPageLink.Click();
-            webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
             b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
+            webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
             webDriver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromSeconds(60));
             b2BAutoCatalogListPage.ThreadId.SendKeys(profilename);
             b2BAutoCatalogListPage.SearchRecordsLink.Click();
@@ -1806,14 +1811,14 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         /// <param name="profileName"></param>
         /// <param name="identity"></param>
         /// <returns></returns>
-        public bool VerifySearchResultsOnAutoCatalogListPage(string environment, string profileName, string identity)
+        public bool VerifySearchResultsOnAutoCatalogListPage(string environment, string customerName, string profileName, string identity)
         {
             b2BHomePage.SelectEnvironment(environment);
             b2BHomePage.AutoCatalogInventoryListPageLink.Click();
             b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
             webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
             WaitForPageRefresh();
-            b2BAutoCatalogListPage.SelectTheCustomer(profileName);
+            b2BAutoCatalogListPage.SelectTheCustomer(customerName);
             WaitForPageRefresh();
             b2BAutoCatalogListPage.SelectTheIdentity(identity);
             webDriver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromSeconds(60));
@@ -2690,8 +2695,8 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                 var SubRowTable2 = webDriver.FindElements(By.XPath(TableXpath_First + Table2SubRow_End))[j];
                 var subRowTable2fromLocator = SubRowTable2.Text;
                 var subHeaderTestdata = SubHeaderStringValue[j];
-                var subRow1Testdata = SubRow1StringValue[j];
-                var subRow2Testdata = subRow2StringValue[j];
+                var subRow1Testdata = SubRow1StringValue[j].Replace('_',',');
+                var subRow2Testdata = subRow2StringValue[j].Replace('_', ',');
                 if (subHeaderTable1fromLocator.Equals(subHeaderTestdata) && subRowTable1fromLocator.Equals(subRow1Testdata) && subHeadingtable2fromLocator.Equals(subHeaderTestdata) && subRowTable2fromLocator.Equals(subRow2Testdata))
                 {
                     subHeaderRows++;
@@ -3735,7 +3740,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             {
                 b2BBuyerCatalogPage.UpdateButton.Click();
                 b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
-                //b2BBuyerCatalogPage.AutomatedBhcCatalogProcessingRules.Click();
+                b2BBuyerCatalogPage.AutomatedBhcCatalogProcessingRules.Click();
                 webDriver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromMinutes(2));
                 b2BBuyerCatalogPage.EditScheduleButton.Click();
                 b2BBuyerCatalogPage.SetTextBoxValue(b2BBuyerCatalogPage.OriginalCatalogStartDate,
