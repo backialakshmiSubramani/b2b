@@ -1784,8 +1784,8 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             var identityList = identities.Split(',');
             b2BHomePage.SelectEnvironment(environment);
             b2BHomePage.AutoCatalogInventoryListPageLink.Click();
-            webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
             b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
+            webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
             WaitForPageRefresh();
             b2BAutoCatalogListPage.SelectTheCustomer(profileName);
             WaitForPageRefresh();
@@ -3666,6 +3666,9 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                 b2BBuyerCatalogPage.CatalogConfigStandard.Click();
                 if (b2BBuyerCatalogPage.BcpchkCrossRefernceStdUpdate.Selected)
                 {
+                    if (!b2BBuyerCatalogPage.BcpchkSysCatalogCheckbox.Selected)
+                        b2BBuyerCatalogPage.BcpchkSysCatalogCheckbox.Click();
+
                     b2BBuyerCatalogPage.UpdateButton.Click();
                     b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
                     b2BBuyerCatalogPage.AutomatedBhcCatalogProcessingRules.Click();
@@ -3686,6 +3689,9 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             b2BBuyerCatalogPage.CatalogConfigStandard.Click();
             if (!b2BBuyerCatalogPage.BcpchkCrossRefernceStdUpdate.Selected)
             {
+                if (!b2BBuyerCatalogPage.BcpchkSysCatalogCheckbox.Selected)
+                    b2BBuyerCatalogPage.BcpchkSysCatalogCheckbox.Click();
+
                 b2BBuyerCatalogPage.UpdateButton.Click();
                 b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
                 b2BBuyerCatalogPage.AutomatedBhcCatalogProcessingRules.Click();
@@ -3719,6 +3725,9 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                 b2BBuyerCatalogPage.BcpchkSysCatalogCheckbox.Click();
                 if (b2BBuyerCatalogPage.BcpchkCrossRefernceSysUpdate.Selected)
                 {
+                    if (!b2BBuyerCatalogPage.CatalogConfigStandard.Selected)
+                        b2BBuyerCatalogPage.CatalogConfigStandard.Click();
+
                     b2BBuyerCatalogPage.UpdateButton.Click();
                     b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
                     b2BBuyerCatalogPage.AutomatedBhcCatalogProcessingRules.Click();
@@ -3738,6 +3747,8 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             b2BBuyerCatalogPage.BcpchkSysCatalogCheckbox.Click();
             if (!b2BBuyerCatalogPage.BcpchkCrossRefernceSysUpdate.Selected)
             {
+                if (!b2BBuyerCatalogPage.CatalogConfigStandard.Selected)
+                    b2BBuyerCatalogPage.CatalogConfigStandard.Click();
                 b2BBuyerCatalogPage.UpdateButton.Click();
                 b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
                 b2BBuyerCatalogPage.AutomatedBhcCatalogProcessingRules.Click();
@@ -3770,6 +3781,9 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                 b2BBuyerCatalogPage.CatalogConfigSnP.Click();
                 if (b2BBuyerCatalogPage.BcpchkCrossRefernceSnpUpdate.Selected)
                 {
+                    if (!b2BBuyerCatalogPage.BcpchkSysCatalogCheckbox.Selected)
+                        b2BBuyerCatalogPage.BcpchkSysCatalogCheckbox.Click();
+
                     b2BBuyerCatalogPage.UpdateButton.Click();
                     b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
                     b2BBuyerCatalogPage.AutomatedBhcCatalogProcessingRules.Click();
@@ -3788,6 +3802,9 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             b2BBuyerCatalogPage.CatalogConfigSnP.Click();
             if (!b2BBuyerCatalogPage.BcpchkCrossRefernceSnpUpdate.Selected)
             {
+                if (!b2BBuyerCatalogPage.BcpchkSysCatalogCheckbox.Selected)
+                    b2BBuyerCatalogPage.BcpchkSysCatalogCheckbox.Click();
+
                 b2BBuyerCatalogPage.UpdateButton.Click();
                 b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
                 b2BBuyerCatalogPage.AutomatedBhcCatalogProcessingRules.Click();
