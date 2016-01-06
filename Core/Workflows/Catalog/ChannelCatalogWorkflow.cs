@@ -3904,7 +3904,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
 
             IReadOnlyCollection<IWebElement> latestRowValues = b2BCatalogPackagingDataUploadPage.GetAuditHistoryRowValues(historyRows.ElementAt(0));
             latestRowValues.ElementAt(0).Text.Should().Be(fileToUpload);
-            latestRowValues.ElementAt(1).Text.Should().Be(Environment.UserName);
+            latestRowValues.ElementAt(1).Text.ToLowerInvariant().Should().Be(Environment.UserName.ToLowerInvariant());
             Convert.ToDateTime(latestRowValues.ElementAt(2).Text).Should().BeAfter(timeBeforeUpload);
         }
 
