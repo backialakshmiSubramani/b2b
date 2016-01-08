@@ -554,5 +554,53 @@ namespace Modules.Channel.B2B.Core.Workflows.Inventory
 
             return true;
         }
+
+        public bool VerifyAutoCatalogListPageDoesNotAutoLoad(RunEnvironment environment)
+        {
+            b2BHomePage.SelectEnvironment(environment.ToString());
+            b2BHomePage.OpenAutoCatalogInventoryListPage();
+            cPTAutoCatalogInventoryListPage = new CPTAutoCatalogInventoryListPage(webDriver);
+
+            // Verify that default search is not returning any records(Prev and next buttons won't b available)
+
+            try
+            {
+
+                if (!cPTAutoCatalogInventoryListPage.WebDriver.FindElement(By.Id("nextUpButton")).IsElementVisible())
+                {
+                    Console.WriteLine("Records are not loaded");
+                    return true;
+                }
+            }
+            catch (NoSuchElementException)
+            {
+                Console.WriteLine("Records are loaded");
+                return false;
+            }
+
+            return false;
+
+        }
+
+        public bool VerifyAutoCatalogListPageLinkText(RunEnvironment environment)
+        {
+            b2BHomePage.SelectEnvironment(environment.ToString());
+            try
+            {
+                if (!b2BHomePage.AutoCatalogInventoryListPageLink.IsElementVisible())
+                {
+                    Console.WriteLine("Auto Catalog & Inventory List Page link is not available");
+                    return false;
+                }
+            }
+            catch (NoSuchElementException)
+            {
+                Console.WriteLine("Auto Catalog & Inventory List Page link is not available");
+                return false;
+            }
+
+            return true;
+        }
     }
+
 }

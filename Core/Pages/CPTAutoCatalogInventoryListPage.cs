@@ -394,7 +394,7 @@ namespace Modules.Channel.B2B.Core.Pages
         {
             get
             {
-                return webDriver.FindElement(By.XPath("//input[@id='nextUpButton']"));
+                return webDriver.FindElement(By.Id("nextUpButton"));
             }
         }
 
@@ -403,6 +403,15 @@ namespace Modules.Channel.B2B.Core.Pages
             get
             {
                 return webDriver.FindElement(By.XPath("//table[@st-table='Channel' and @st-safe-src='Catalogs']"));
+            }
+        }
+
+        public IWebElement PrevButton
+        {
+            get
+            {
+                return webDriver.FindElement(By.Id("previousUpButton")); 
+                
             }
         }
 

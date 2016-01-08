@@ -208,7 +208,6 @@ namespace Modules.Channel.B2B.Core.Pages
             get
             {
                 return webDriver.FindElement(By.LinkText("Auto Catalog & Inventory List"));
-                //return webDriver.FindElement(By.LinkText("Auto Catalog List"));
             }
         }
 
