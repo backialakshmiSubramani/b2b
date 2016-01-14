@@ -75,7 +75,7 @@ namespace Modules.Channel.B2B.Core.Pages
         /// </summary>
         public IWebElement PageHeader
         {
-            get { return webDriver.FindElement(By.XPath("//*[@id='lblPageTitle']")); }
+            get { return webDriver.FindElement(By.Id("lblPageTitle")); }
         }
 
         /// <summary>
@@ -156,10 +156,14 @@ namespace Modules.Channel.B2B.Core.Pages
         /// </summary>
         public IWebElement StdConfigTypeCheckbox
         {
-            get { return webDriver.FindElement(By.XPath(".//*[@id='myForm']/table/tbody/tr/td[1]/table/tbody/tr[4]/td[4]/input[1]")); }
+            get
+            {
+                return
+                    webDriver.FindElement(
+                        By.XPath("//input[@ng-model='parIsStandardConfig']"));
+            }
         }
-
-
+        
         /// <summary>
         /// Catalog Name text box
         /// </summary>
@@ -181,7 +185,7 @@ namespace Modules.Channel.B2B.Core.Pages
         /// </summary>
         public IWebElement CreationDateStart
         {
-            get { return webDriver.FindElement(By.Name("dtStartDate")); }
+            get { return webDriver.FindElement(By.Id("dtStartDate")); }
         }
 
         /// <summary>
@@ -189,7 +193,7 @@ namespace Modules.Channel.B2B.Core.Pages
         /// </summary>
         public IWebElement CreationDateEnd
         {
-            get { return webDriver.FindElement(By.Name("dtEndDate")); }
+            get { return webDriver.FindElement(By.Id("dtEndDate")); }
         }
 
         /// <summary>
@@ -282,8 +286,15 @@ namespace Modules.Channel.B2B.Core.Pages
         /// </summary>
         public ReadOnlyCollection<IWebElement> CatalogListTableRows
         {
-            //table[@st-safe-src='Catalogs']/tbody/tr
             get { return webDriver.FindElements(By.XPath("//table[@st-safe-src='Catalogs']/tbody/tr")); }
+        }
+
+        /// <summary>
+        /// Auto Catalog List Page results Table Header
+        /// </summary>
+        public IWebElement CatalogListTableHeader
+        {
+            get { return webDriver.FindElement(By.XPath("//table[@st-safe-src='Catalogs']/thead")); }
         }
 
         /// <summary>
@@ -330,8 +341,7 @@ namespace Modules.Channel.B2B.Core.Pages
 
             get { return webDriver.FindElements(By.XPath("//*[@id='quoteTable']/tbody[1]/tr[1]")); }
         }
-
-
+        
         ///<summary>
         /// Part Viewer Page '+' First Button
         /// </summary>
@@ -373,6 +383,7 @@ namespace Modules.Channel.B2B.Core.Pages
 
             get { return webDriver.FindElements(By.XPath("//*[@id='quoteTable']/tbody[2]/tr[1]")); }
         }
+      
         ///<summary>
         /// Part Viewer Sub Header after clicking second plus button
         /// </summary>
@@ -410,9 +421,24 @@ namespace Modules.Channel.B2B.Core.Pages
         {
             get
             {
-                return webDriver.FindElement(By.Id("previousUpButton")); 
-                
+                return webDriver.FindElement(By.Id("previousUpButton"));
             }
+        }
+
+        /// <summary>
+        /// Text box in the paging section
+        /// </summary>
+        public IWebElement PageNumberTextbox
+        {
+            get { return webDriver.FindElement(By.XPath("//page-select/input")); }
+        }
+
+        /// <summary>
+        /// Span element containing the elements related to paging
+        /// </summary>
+        public IWebElement PagingSpan
+        {
+            get { return webDriver.FindElement(By.XPath("//span[page-select]")); }
         }
 
         #endregion
@@ -463,9 +489,6 @@ namespace Modules.Channel.B2B.Core.Pages
             webDriver.FindElement(By.XPath("//div[@ng-model='CatalogStatusId']/div/ul/li/a[contains(text(),'" + status + "')]")).Click();
         }
 
-
-        #endregion
-
         /// <summary>
         /// Selects the identity from the identities listed
         /// if not specified, selects the first identity from the drop down
@@ -485,5 +508,18 @@ namespace Modules.Channel.B2B.Core.Pages
 
             }
         }
+
+        /// <summary>
+        /// Verified if all the records on the current page are Inventory Feeds
+        /// </summary>
+        /// <returns></returns>
+        public bool AreAllRowsInventory()
+        {
+            return
+                CatalogListTableRows.All(
+                    r => r.FindElements(By.TagName("td"))[2].Text.ToLowerInvariant().Equals("inventory"));
+        }
+
+        #endregion
     }
 }

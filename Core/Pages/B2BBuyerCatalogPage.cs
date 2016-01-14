@@ -1161,6 +1161,18 @@ namespace Modules.Channel.B2B.Core.Pages
             // Now coding for only enabled Identites. Which are picked from Auto BHC catalog panel.
             return CheckedIdentityList.Select(e => e.Text).ToList();
         }
+
+        /// <summary>
+        /// Verifies if the 'Number of Automated Inventory Feeds' textbox is present
+        /// </summary>
+        /// <param name="noOfOccurrenceLabelText"></param>
+        /// <returns>The <see cref="bool"/></returns>
+        public bool VerifyPresenceOfNumberOfOccurrenceField(string noOfOccurrenceLabelText)
+        {
+            return InventoryFeedSectionTable.ElementExists(By.Id("ContentPageHolder_txt_NumberOfInvFeedPreview")) ||
+                   InventoryFeedSectionTable.Text.Contains(noOfOccurrenceLabelText);
+        }
+
         #endregion
     }
 }

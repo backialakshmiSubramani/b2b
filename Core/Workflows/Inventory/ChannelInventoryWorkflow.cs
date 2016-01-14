@@ -8,6 +8,7 @@ using Modules.Channel.B2B.Core.Pages;
 using Modules.Channel.B2B.Core.Workflows.Common;
 using Modules.Channel.B2B.DAL.Inventory;
 using System.IO;
+using Modules.Channel.EUDC.Core.Pages;
 
 namespace Modules.Channel.B2B.Core.Workflows.Inventory
 {
@@ -51,7 +52,6 @@ namespace Modules.Channel.B2B.Core.Workflows.Inventory
         {
             accessProfile.GoToBuyerCatalogTab(environment, profileName);
             b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
-            b2BBuyerCatalogPage.ClickToRunOnceButton.WaitForElementDisplayed(TimeSpan.FromSeconds(30));
 
             return b2BBuyerCatalogPage.VerifyInventoryFeedSectionFields(clickToRunOnceButtonLabelText,
                 clickToRunOnceButtonText, enableAutoInventoryLabelText, autoInventoryRefreshIntervalLabelText);
@@ -600,6 +600,90 @@ namespace Modules.Channel.B2B.Core.Workflows.Inventory
             }
 
             return true;
+        }
+
+        /// <summary>
+        /// Use this method to verify if the 'Inventory' checkbox on 'Auto Catalog & Inventory List Page' is selectable
+        /// </summary>
+        /// <param name="environment"></param>
+        /// <returns></returns>
+        public bool IsInventoryCheckboxSelectable(RunEnvironment environment)
+        {
+            b2BHomePage.SelectEnvironment(environment.ToString());
+            b2BHomePage.OpenAutoCatalogInventoryListPage();
+            cPTAutoCatalogInventoryListPage = new CPTAutoCatalogInventoryListPage(webDriver);
+            cPTAutoCatalogInventoryListPage.InventoryCheckbox.Click();
+
+            return cPTAutoCatalogInventoryListPage.InventoryCheckbox.Selected;
+        }
+
+        /// <summary>
+        /// Use this method to verify if the Clear All link clears the results table
+        /// </summary>
+        /// <param name="environment"></param>
+        /// <returns></returns>
+        public bool VerifyClearAllLink(RunEnvironment environment)
+        {
+            SearchInventoryRecords(environment);
+            cPTAutoCatalogInventoryListPage.ClearAllLink.Click();
+            return !cPTAutoCatalogInventoryListPage.CatalogListTableHeader.Displayed;
+        }
+
+        private void SearchInventoryRecords(RunEnvironment environment)
+        {
+            b2BHomePage.SelectEnvironment(environment.ToString());
+            b2BHomePage.OpenAutoCatalogInventoryListPage();
+            cPTAutoCatalogInventoryListPage = new CPTAutoCatalogInventoryListPage(webDriver);
+            cPTAutoCatalogInventoryListPage.InventoryCheckbox.Click();
+            cPTAutoCatalogInventoryListPage.SearchRecordsLink.Click();
+            PageUtility.WaitForPageRefresh(webDriver);
+        }
+
+        /// <summary>
+        /// Verifies if all the records displayed in multiple pages are Inventory records
+        /// </summary>
+        /// <param name="environment"></param>
+        /// <returns></returns>
+        public bool VerifyInventorySearchRecords(RunEnvironment environment)
+        {
+            SearchInventoryRecords(environment);
+
+            if (!cPTAutoCatalogInventoryListPage.AreAllRowsInventory())
+            {
+                return false;
+            }
+
+            if (!cPTAutoCatalogInventoryListPage.PagingSpan.Displayed) return true;
+
+            do
+            {
+                cPTAutoCatalogInventoryListPage.NextButton.Click();
+
+                if (!cPTAutoCatalogInventoryListPage.AreAllRowsInventory())
+                {
+                    return false;
+                }
+            } while (Convert.ToInt32(cPTAutoCatalogInventoryListPage.PageNumberTextbox.GetAttribute("value")) <
+                     Convert.ToInt32(cPTAutoCatalogInventoryListPage.PagingSpan.Text.Split(' ').Last()));
+
+            return true;
+        }
+
+        /// <summary>
+        /// Accesses the B2B Profile & verifies if the 
+        /// 'Number of Automated Inventory Feeds' textbox is present
+        /// </summary>
+        /// <param name="environment"></param>
+        /// <param name="profileName"></param>
+        /// <param name="noOfOccurrenceLabelText"></param>
+        /// <returns>The <see cref="bool"/></returns>
+        public bool VerifyPresenceOfNumberOfOccurrenceField(string environment, string profileName,
+            string noOfOccurrenceLabelText)
+        {
+            accessProfile.GoToBuyerCatalogTab(environment, profileName);
+            b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+
+            return b2BBuyerCatalogPage.VerifyPresenceOfNumberOfOccurrenceField(noOfOccurrenceLabelText);
         }
     }
 
