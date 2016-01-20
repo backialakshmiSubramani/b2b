@@ -685,6 +685,17 @@ namespace Modules.Channel.B2B.Core.Workflows.Inventory
 
             return b2BBuyerCatalogPage.VerifyPresenceOfNumberOfOccurrenceField(noOfOccurrenceLabelText);
         }
+
+        public int VerifyNumberOfMostRecentRecords(RunEnvironment environment)
+        {
+            b2BHomePage.SelectEnvironment(environment.ToString());
+            b2BHomePage.OpenAutoCatalogInventoryListPage();
+            cPTAutoCatalogInventoryListPage = new CPTAutoCatalogInventoryListPage(webDriver);
+            cPTAutoCatalogInventoryListPage.SearchRecordsLink.Click();
+            return cPTAutoCatalogInventoryListPage.CatalogListTableRows.Count();
+        }
+
+
     }
 
 }
