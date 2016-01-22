@@ -138,6 +138,34 @@ namespace Modules.Channel.B2B.Core.Pages
         }
 
         /// <summary>
+        /// Region Drop down
+        /// </summary>
+        public IWebElement SelectRegion
+        {
+            get
+            {
+                return
+                    webDriver.FindElement(
+                        By.XPath("//select[@ng-model='region']"));
+
+            }
+        }
+
+        /// <summary>
+        /// Country Drop down
+        /// </summary>
+        public IWebElement SelectCountry
+        {
+            get
+            {
+                return
+                    webDriver.FindElement(
+                        By.XPath("//select[@ng-model='country']"));
+            }
+        }
+
+
+        /// <summary>
         /// Select status Drop down
         /// </summary>
         public IWebElement SelectStatus
@@ -475,6 +503,39 @@ namespace Modules.Channel.B2B.Core.Pages
                 .SendKeys(profileName);
             webDriver.FindElement(By.XPath("//div[@ng-model='customer']/div/ul/li[1]/a[text()='" + profileName + "']"))
                 .Click();
+        }
+
+        /// <summary>
+        /// Selects the specified Region from the Select Region drop down
+        /// </summary>
+        /// <param name="profileName"></param>
+        public void SelectTheRegion(string regionName)
+        {
+            webDriver.FindElement(By.XPath("//div[@ng-model='region']/a")).Click();
+            webDriver.FindElement(By.XPath("//div[@ng-model='region']/div/div[@class='custom-select-search']/input"))
+                .SendKeys(regionName);
+            webDriver.FindElement(By.XPath("//div[@ng-model='region']/div/ul/li[1]/a[text()='" + regionName + "']"))
+                .Click();
+        }
+
+        /// <summary>
+        /// Selects the country from the country listed
+        /// if not specified, selects the first country from the drop down
+        /// </summary>
+        /// <param name="identity"></param>
+        public void SelectTheCountry(string country = "")
+        {
+            webDriver.FindElement(By.XPath("//div[@ng-model='country']/a")).Click();
+            if (string.IsNullOrEmpty(country))
+            {
+                webDriver.FindElements(By.XPath("//div[@ng-model='country']/div/ul/li[1]/a"))[0].Click();
+            }
+            else
+            {
+                webDriver.FindElement(By.XPath("//input[@ng-model='search.UserName']")).SendKeys(country);
+                webDriver.FindElement(By.XPath("//div[@ng-model='Identity']//div[@class='dropdown-menu ng-scope']//ul[@role='menu']/li[@class='ng-scope']/a[@role='menuitem']")).Click();
+
+            }
         }
 
         /// <summary>

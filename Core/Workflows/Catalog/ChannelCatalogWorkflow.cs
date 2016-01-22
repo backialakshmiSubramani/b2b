@@ -1628,6 +1628,31 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         }
 
         ///// <summary>
+        ///// Verifies Region and Country Codes in Auto Cat List page
+        ///// </summary>
+        ///// <returns></returns>
+        public bool VerifyCountryandRegionCodesInAutoCatListPage(string environment, string region, string country, string countryCode)
+        {
+            b2BHomePage.SelectEnvironment(environment);
+            b2BHomePage.AutoCatalogInventoryListPageLink.Click();
+            b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
+            webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
+            //webDriver.WaitForElement(b2BAutoCatalogListPage.NextButton);
+            WaitForPageRefresh();
+            b2BAutoCatalogListPage.SelectTheRegion(region);
+            b2BAutoCatalogListPage.SelectTheCountry(country);
+            b2BAutoCatalogListPage.SearchRecordsLink.Click();
+            WaitForPageRefresh();
+            webDriver.WaitForTableRowCount(b2BAutoCatalogListPage.CatalogsTable, 1);
+            var countryCodeElement = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[9];
+            var regionCodeElement = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[10];
+            if (countryCodeElement.Text.Equals(countryCode) && countryCodeElement.Text.Equals(countryCode))
+                return true;
+            return false;
+        }
+
+
+        ///// <summary>
         ///// Verifies Status Time in Auto Cat List page for Test Harness
         ///// </summary>
         ///// <returns></returns>
@@ -1803,6 +1828,57 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                 "No. of identities passed for profile **{0}** does not match with the no. of identities in Identities drop down", profileName);
             return false;
         }
+
+
+        /// <summary>
+        /// Verifies the Select Region drop down on the Auto Catalog List Page
+        /// </summary>
+        /// <param name="environment"></param>
+        /// <param name="regionName"></param>
+        /// <returns></returns>
+        public bool VerifyRegionFieldOnAutoCatalogListPage(string environment, string regionName)
+        {
+            b2BHomePage.SelectEnvironment(environment);
+            b2BHomePage.AutoCatalogInventoryListPageLink.Click();
+            b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
+            webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
+            WaitForPageRefresh();
+            return b2BAutoCatalogListPage.SelectRegion.Select().Options.Count() > 1 &&
+                   b2BAutoCatalogListPage.SelectRegion.Select().Options.Any(o => o.GetAttribute("text").Equals(regionName));
+        }
+
+        /// <summary>
+        /// Verifies the Identity drop down on the Auto Catalog List Page
+        /// </summary>
+        /// <param name="environment"></param>
+        /// <param name="regionName"></param>
+        /// <param name="countryName"></param>
+        /// <returns></returns>
+        public bool VerifyCountryFieldOnAutoCatalogListPage(string environment, string regionName, string countryName)
+        {
+            var identityList = countryName.Split(',');
+            b2BHomePage.SelectEnvironment(environment);
+            b2BHomePage.AutoCatalogInventoryListPageLink.Click();
+            b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
+            webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
+            WaitForPageRefresh();
+            b2BAutoCatalogListPage.SelectTheRegion(regionName);
+            WaitForPageRefresh();
+            if (identityList.Count() ==
+                b2BAutoCatalogListPage.SelectCountry.Select()
+                    .Options.Count(o => !string.IsNullOrEmpty(o.GetAttribute("text"))))
+            {
+                return
+                    b2BAutoCatalogListPage.SelectCountry.Select()
+                        .Options.Where(o => !string.IsNullOrEmpty(o.GetAttribute("text")))
+                        .All(option => identityList.Contains(option.GetAttribute("text")));
+            }
+
+            Console.WriteLine(
+                "No. of countryNames passed for Region **{0}** does not match with the no. of countryNames in countryNames drop down", regionName);
+            return false;
+        }
+
 
         /// <summary>
         /// Verifies the search results on Auto Catalog List Page
