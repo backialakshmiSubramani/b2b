@@ -1631,16 +1631,45 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         ///// Verifies Region and Country Codes in Auto Cat List page
         ///// </summary>
         ///// <returns></returns>
-        public bool VerifyCountryandRegionCodesInAutoCatListPage(string environment, string region, string country, string countryCode)
+        public bool VerifyCountryandRegionCodesInAutoCatListPage(string environment, string region, string country, string regionCode, string countryCode, string customerName="", string identity="",
+                                                                 string catalogName="", string creationStartDate="", string creationEndDate="", 
+                                                                 string status="", string configurationType="", string catalogType="")
         {
             b2BHomePage.SelectEnvironment(environment);
             b2BHomePage.AutoCatalogInventoryListPageLink.Click();
             b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
             webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
-            //webDriver.WaitForElement(b2BAutoCatalogListPage.NextButton);
             WaitForPageRefresh();
             b2BAutoCatalogListPage.SelectTheRegion(region);
             b2BAutoCatalogListPage.SelectTheCountry(country);
+            
+            if (customerName!= "")
+            {b2BAutoCatalogListPage.SelectTheCustomer(customerName);}
+
+            if (identity != "")
+            { b2BAutoCatalogListPage.SelectTheIdentity(identity); }
+
+            if (catalogName != "")
+            { b2BAutoCatalogListPage.SelectTheCustomer(customerName); }
+
+            if (creationStartDate != "")
+            { b2BBuyerCatalogPage.SetTextBoxValue(b2BBuyerCatalogPage.OriginalCatalogStartDate, DateTime.Now.AddDays(1).ToString(MMDDYYYY)); }
+               
+            if (creationEndDate != "")
+            { b2BBuyerCatalogPage.SetTextBoxValue(b2BBuyerCatalogPage.OriginalCatalogStartDate, DateTime.Now.AddDays(1).ToString(MMDDYYYY)); }
+
+            if (status != "")
+            { b2BAutoCatalogListPage.SelectTheStatus(status); }
+
+            if (configurationType != "")
+            { b2BAutoCatalogListPage.ConfigTypeSTDCheckbox.Click(); }
+
+            if (catalogType != "")
+            { b2BAutoCatalogListPage.CatalogTypeOriginalCheckbox.Click(); }
+
+
+
+            
             b2BAutoCatalogListPage.SearchRecordsLink.Click();
             WaitForPageRefresh();
             webDriver.WaitForTableRowCount(b2BAutoCatalogListPage.CatalogsTable, 1);

@@ -469,6 +469,20 @@ namespace Modules.Channel.B2B.Core.Pages
             get { return webDriver.FindElement(By.XPath("//span[page-select]")); }
         }
 
+        /// <summary>
+        /// STD Config Type
+        /// </summary>
+        public IWebElement ConfigTypeSTDCheckbox
+        {
+            get { return webDriver.FindElement(By.XPath("//[@id='myForm']/table/tbody/tr/td[1]/table/tbody/tr[4]/td[4]/input[1]")); }
+        }
+        /// <summary>
+        /// Span element containing the elements related to paging
+        /// </summary>
+        public IWebElement CatalogTypeOriginalCheckbox
+        {
+            get { return webDriver.FindElement(By.XPath("//[@id='myForm']/table/tbody/tr/td[1]/table/tbody/tr[5]/td[2]/input[2]")); }
+        }
         #endregion
 
         #region Helper Methods
