@@ -483,6 +483,17 @@ namespace Modules.Channel.B2B.Core.Pages
         {
             get { return webDriver.FindElement(By.XPath("//*[@id='myForm']/table/tbody/tr/td[1]/table/tbody/tr[6]/td[2]/input[2]")); }
         }
+
+        /// <summary>
+        /// Span element containing the elements related to paging
+        /// </summary>
+        public IWebElement RegionDropDown
+        {
+            get
+            { return webDriver.FindElement(By.XPath("//div[@ng-model='region']/a")); }
+               
+        }
+
         #endregion
 
         #region Helper Methods

@@ -1647,25 +1647,31 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             {b2BAutoCatalogListPage.SelectTheCustomer(customerName);}
 
             if (identity != "")
-            { b2BAutoCatalogListPage.SelectTheIdentity(identity); }
+            {
+             b2BAutoCatalogListPage.SelectTheCustomer(customerName);
+             b2BAutoCatalogListPage.SelectTheIdentity(identity); }
 
             if (catalogName != "")
             { b2BAutoCatalogListPage.CatalogName.SendKeys(catalogName); }
 
             if (creationStartDate != "")
-            { b2BBuyerCatalogPage.SetTextBoxValue(b2BBuyerCatalogPage.OriginalCatalogStartDate, DateTime.Now.AddDays(1).ToString(MMDDYYYY)); }
+            { b2BAutoCatalogListPage.SelectTheStatus(status); 
+              b2BBuyerCatalogPage.SetTextBoxValue(b2BBuyerCatalogPage.OriginalCatalogStartDate, DateTime.Now.AddDays(1).ToString(MMDDYYYY)); }
                
             if (creationEndDate != "")
-            { b2BBuyerCatalogPage.SetTextBoxValue(b2BBuyerCatalogPage.OriginalCatalogStartDate, DateTime.Now.AddDays(1).ToString(MMDDYYYY)); }
+            {b2BAutoCatalogListPage.SelectTheStatus(status); 
+             b2BBuyerCatalogPage.SetTextBoxValue(b2BBuyerCatalogPage.OriginalCatalogStartDate, DateTime.Now.AddDays(1).ToString(MMDDYYYY)); }
 
             if (status != "")
             { b2BAutoCatalogListPage.SelectTheStatus(status); }
 
             if (configurationType != "")
-            { b2BAutoCatalogListPage.ConfigTypeSTDCheckbox.Click(); }
+            { b2BAutoCatalogListPage.SelectTheStatus(status); 
+              b2BAutoCatalogListPage.ConfigTypeSTDCheckbox.Click(); }
 
             if (catalogType != "")
-            { b2BAutoCatalogListPage.CatalogTypeOriginalCheckbox.Click(); }
+            { b2BAutoCatalogListPage.SelectTheStatus(status); 
+              b2BAutoCatalogListPage.CatalogTypeOriginalCheckbox.Click(); }
 
 
 
@@ -1679,7 +1685,24 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             return false;
         }
 
+        ///// <summary>
+        ///// Verifies Region and Country Codes in Auto Cat List page
+        ///// </summary>
+        ///// <returns></returns>
+        public bool VerifyCountryandRegionFieldsInAutoCatListPage(string environment)
+        {
+            b2BHomePage.SelectEnvironment(environment);
+            b2BHomePage.AutoCatalogInventoryListPageLink.Click();
+            b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
+            webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
+            WaitForPageRefresh();
+            if (b2BAutoCatalogListPage.RegionDropDown.Enabled)
+                return true;
+          //  b2BAutoCatalogListPage.SelectTheCountry(country);
 
+          
+            return false;
+        }
         ///// <summary>
         ///// Verifies Status Time in Auto Cat List page for Test Harness
         ///// </summary>
