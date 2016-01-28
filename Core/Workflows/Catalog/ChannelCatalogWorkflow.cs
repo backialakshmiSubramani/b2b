@@ -1696,7 +1696,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
             webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
             WaitForPageRefresh();
-            if (b2BAutoCatalogListPage.RegionDropDown.Enabled)
+            if (b2BAutoCatalogListPage.RegionDropDown.Enabled && b2BAutoCatalogListPage.CountryDropDown.Enabled)
                 return true;
           //  b2BAutoCatalogListPage.SelectTheCountry(country);
 

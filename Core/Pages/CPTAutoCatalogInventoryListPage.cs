@@ -485,7 +485,7 @@ namespace Modules.Channel.B2B.Core.Pages
         }
 
         /// <summary>
-        /// Span element containing the elements related to paging
+        /// RegionDropDown element
         /// </summary>
         public IWebElement RegionDropDown
         {
@@ -494,6 +494,15 @@ namespace Modules.Channel.B2B.Core.Pages
                
         }
 
+        /// <summary>
+        /// CountryDropDown element
+        /// </summary>
+        public IWebElement CountryDropDown
+        {
+            get
+            { return webDriver.FindElement(By.XPath("//div[@class='dropdown custom-select']/a")); }
+
+        }
         #endregion
 
         #region Helper Methods
