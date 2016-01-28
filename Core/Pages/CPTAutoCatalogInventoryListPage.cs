@@ -474,14 +474,14 @@ namespace Modules.Channel.B2B.Core.Pages
         /// </summary>
         public IWebElement ConfigTypeSTDCheckbox
         {
-            get { return webDriver.FindElement(By.XPath("//[@id='myForm']/table/tbody/tr/td[1]/table/tbody/tr[4]/td[4]/input[1]")); }
+            get { return webDriver.FindElement(By.XPath("//*[@id='myForm']/table/tbody/tr/td[1]/table/tbody/tr[5]/td[4]/input[1]")); }
         }
         /// <summary>
         /// Span element containing the elements related to paging
         /// </summary>
         public IWebElement CatalogTypeOriginalCheckbox
         {
-            get { return webDriver.FindElement(By.XPath("//[@id='myForm']/table/tbody/tr/td[1]/table/tbody/tr[5]/td[2]/input[2]")); }
+            get { return webDriver.FindElement(By.XPath("//*[@id='myForm']/table/tbody/tr/td[1]/table/tbody/tr[6]/td[2]/input[2]")); }
         }
         #endregion
 
@@ -539,17 +539,27 @@ namespace Modules.Channel.B2B.Core.Pages
         /// <param name="identity"></param>
         public void SelectTheCountry(string country = "")
         {
-            webDriver.FindElement(By.XPath("//div[@ng-model='country']/a")).Click();
-            if (string.IsNullOrEmpty(country))
-            {
-                webDriver.FindElements(By.XPath("//div[@ng-model='country']/div/ul/li[1]/a"))[0].Click();
-            }
-            else
-            {
-                webDriver.FindElement(By.XPath("//input[@ng-model='search.UserName']")).SendKeys(country);
-                webDriver.FindElement(By.XPath("//div[@ng-model='Identity']//div[@class='dropdown-menu ng-scope']//ul[@role='menu']/li[@class='ng-scope']/a[@role='menuitem']")).Click();
+            webDriver.FindElement(By.XPath("//div[@class='dropdown custom-select']/a")).Click();
+            webDriver.FindElement(By.XPath("//input[@ng-model='search.Name']")).SendKeys(country);
+            webDriver.FindElement(By.XPath("//*[@id='myForm']/table/tbody/tr/td[1]/table/tbody/tr[1]/td[4]/div/div/div/ul/li[1]/input")).Click();
 
-            }
+
+            //webDriver.FindElement(By.XPath("//div[@ng-model='Identity']//div[@class='dropdown-menu ng-scope']//ul[@role='menu']/li[@class='ng-scope']/a[@role='menuitem']")).Click();
+            ////webDriver.FindElement(By.XPath("//div[@class='dropdown-menu countries']/div/[@class='custom-select-search']/input"))
+            ////   .SendKeys(country);
+            //webDriver.FindElement(By.XPath("//div[@class='dropdown-menu countries']/div/ul/li[1]/a[text()='" + country + "']"))
+            //   .Click();
+
+            //if (string.IsNullOrEmpty(country))
+            //{
+            //    webDriver.FindElements(By.XPath("//div[@ng-model='country']/div/ul/li[1]/a"))[0].Click();
+            //}
+            //else
+            //{
+            //    webDriver.FindElement(By.XPath("//input[@ng-model='search.UserName']")).SendKeys(country);
+            //    webDriver.FindElement(By.XPath("//div[@ng-model='Identity']//div[@class='dropdown-menu ng-scope']//ul[@role='menu']/li[@class='ng-scope']/a[@role='menuitem']")).Click();
+
+            //}
         }
 
         /// <summary>

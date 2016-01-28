@@ -1650,7 +1650,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             { b2BAutoCatalogListPage.SelectTheIdentity(identity); }
 
             if (catalogName != "")
-            { b2BAutoCatalogListPage.SelectTheCustomer(customerName); }
+            { b2BAutoCatalogListPage.CatalogName.SendKeys(catalogName); }
 
             if (creationStartDate != "")
             { b2BBuyerCatalogPage.SetTextBoxValue(b2BBuyerCatalogPage.OriginalCatalogStartDate, DateTime.Now.AddDays(1).ToString(MMDDYYYY)); }
@@ -1672,7 +1672,6 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             
             b2BAutoCatalogListPage.SearchRecordsLink.Click();
             WaitForPageRefresh();
-            webDriver.WaitForTableRowCount(b2BAutoCatalogListPage.CatalogsTable, 1);
             var countryCodeElement = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[9];
             var regionCodeElement = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[10];
             if (countryCodeElement.Text.Equals(countryCode) && countryCodeElement.Text.Equals(countryCode))
