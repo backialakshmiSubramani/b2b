@@ -561,8 +561,8 @@ namespace Modules.Channel.B2B.Core.Pages
         {
             webDriver.FindElement(By.XPath("//div[@class='dropdown custom-select']/a")).Click();
             webDriver.FindElement(By.XPath("//input[@ng-model='search.Name']")).SendKeys(country);
-            webDriver.FindElement(By.XPath("//*[@id='myForm']/table/tbody/tr/td[1]/table/tbody/tr[1]/td[4]/div/div/div/ul/li[1]/input")).Click();
-
+            //webDriver.FindElement(By.XPath("//*[@id='myForm']/table/tbody/tr/td[1]/table/tbody/tr[1]/td[4]/div/div/div/ul/li[1]/input")).Click();
+            webDriver.FindElement(By.XPath("//div[@class='dropdown-menu countries']//ul[@role='menu']/li[@class='ng-binding ng-scope']/input[@ng-model='checked']")).Click();
 
             //webDriver.FindElement(By.XPath("//div[@ng-model='Identity']//div[@class='dropdown-menu ng-scope']//ul[@role='menu']/li[@class='ng-scope']/a[@role='menuitem']")).Click();
             ////webDriver.FindElement(By.XPath("//div[@class='dropdown-menu countries']/div/[@class='custom-select-search']/input"))

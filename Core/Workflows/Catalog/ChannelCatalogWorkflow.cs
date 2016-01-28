@@ -1118,14 +1118,15 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         /// </summary>
         /// <param name="environment"></param>
         /// <returns></returns>
-        public bool VerifyThreadIdLinkInAutoCatalogListPage(string environment)
+        public bool VerifyThreadIdLinkInAutoCatalogListPage(string environment, string region, string country)
         {
             b2BHomePage.SelectEnvironment(environment);
             b2BHomePage.AutoCatalogInventoryListPageLink.Click();
             webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
             b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
             webDriver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromSeconds(60));
-
+            b2BAutoCatalogListPage.SelectTheRegion(region);
+            b2BAutoCatalogListPage.SelectTheCountry(country);
             b2BAutoCatalogListPage.SearchRecordsLink.Click();
             WaitForPageRefresh();
             var firstThreadIdElement = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[8];
@@ -1150,13 +1151,15 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         /// </summary>
         /// <param name="environment"></param>
         /// <returns></returns>
-        public bool VerifyThreadIdLinkInAutoCatalogListPage(string environment, string profilename)
+        public bool VerifyThreadIdLinkInAutoCatalogListPage(string environment, string profilename, string region, string country)
         {
             b2BHomePage.SelectEnvironment(environment);
             b2BHomePage.AutoCatalogInventoryListPageLink.Click();
             b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
             webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
             WaitForPageRefresh();
+            b2BAutoCatalogListPage.SelectTheRegion(region);
+            b2BAutoCatalogListPage.SelectTheCountry(country);
             b2BAutoCatalogListPage.ThreadId.SendKeys(profilename);
             b2BAutoCatalogListPage.SearchRecordsLink.Click();
             WaitForPageRefresh();
@@ -1182,12 +1185,14 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         /// Verifies country region and currency fields for original/delta created/published catalogs in Auto Cat List Page
         /// </summary>
         public bool VerifyCountryCodepublishedcreatedInAutoCatListPage(string environment, string profilename, string status,
-            string CountryCode, string region, string currencyCode)
+            string CountryCode, string region, string currencyCode, string regionName, string countryName)
         {
             b2BHomePage.SelectEnvironment(environment);
             b2BHomePage.AutoCatalogInventoryListPageLink.Click();
             b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
             webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
+            b2BAutoCatalogListPage.SelectTheRegion(regionName);
+            b2BAutoCatalogListPage.SelectTheCountry(countryName);
             b2BAutoCatalogListPage.ThreadId.SendKeys(profilename);
             b2BAutoCatalogListPage.SearchRecordsLink.Click();
             WaitForPageRefresh();
@@ -1271,7 +1276,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         /// </summary>
         /// <returns></returns>
         public bool VerifyTestHarnessCheckboxInAutoCatalogListPage(string environment,
-            string profilename, string countrycode, string regionCode, string currencycode, string status)
+            string profilename, string countrycode, string regionCode, string currencycode, string status, string regionName, string countryName)
         {
             b2BHomePage.SelectEnvironment(environment);
             b2BHomePage.AutoCatalogInventoryListPageLink.Click();
@@ -1279,6 +1284,8 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
             WaitForPageRefresh();
             b2BAutoCatalogListPage.TestHarnessCheckbox.Click();
+            b2BAutoCatalogListPage.SelectTheRegion(regionName);
+            b2BAutoCatalogListPage.SelectTheCountry(countryName);
             b2BAutoCatalogListPage.SearchRecordsLink.Click();
             WaitForPageRefresh();
             var firststatusElement = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[3];
@@ -1375,7 +1382,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         ///// Verifies the presence of Download link for original/delta published/Created catalogs in Auto Cat List page
         ///// </summary>
         ///// <returns></returns>
-        public bool VerifyDownloadLinkInAutoCatListPage(string environment, string profilename, string type, string status)
+        public bool VerifyDownloadLinkInAutoCatListPage(string environment, string profilename, string type, string status, string region, string country)
         {
 
             b2BHomePage.SelectEnvironment(environment);
@@ -1383,6 +1390,8 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
             webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
             WaitForPageRefresh();
+            b2BAutoCatalogListPage.SelectTheRegion(region);
+            b2BAutoCatalogListPage.SelectTheCountry(country);
             b2BAutoCatalogListPage.ThreadId.SendKeys(profilename);
             b2BAutoCatalogListPage.SearchRecordsLink.Click();
             WaitForPageRefresh();
@@ -1390,7 +1399,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             var Type = firstTypeElement.Text;
             var firststatusElement = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[3];
             var Status = firststatusElement.Text;
-            var DownloadLinkElement = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[19];
+            var DownloadLinkElement = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[25];
             if (Type.Equals(type) && Status.Equals(status))
             {
                 DownloadLinkElement.Click();
@@ -1609,7 +1618,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         ///// Verifies Status Time in Auto Cat List page
         ///// </summary>
         ///// <returns></returns>
-        public bool VerifyStatusTimeInAutoCatListPage(string environment, string profile, string statusTime)
+        public bool VerifyStatusTimeInAutoCatListPage(string environment, string profile, string statusTime,string region, string country)
         {
             b2BHomePage.SelectEnvironment(environment);
             b2BHomePage.AutoCatalogInventoryListPageLink.Click();
@@ -1617,6 +1626,8 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
             //webDriver.WaitForElement(b2BAutoCatalogListPage.NextButton);
             WaitForPageRefresh();
+            b2BAutoCatalogListPage.SelectTheRegion(region);
+            b2BAutoCatalogListPage.SelectTheCountry(country);
             b2BAutoCatalogListPage.ThreadId.SendKeys(profile);
             b2BAutoCatalogListPage.SearchRecordsLink.Click();
             WaitForPageRefresh();
@@ -1938,7 +1949,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         /// <param name="profileName"></param>
         /// <param name="identity"></param>
         /// <returns></returns>
-        public bool VerifySearchResultsOnAutoCatalogListPage(string environment, string customerName, string profileName, string identity)
+        public bool VerifySearchResultsOnAutoCatalogListPage(string environment, string customerName, string profileName, string identity, string region, string country)
         {
             b2BHomePage.SelectEnvironment(environment);
             b2BHomePage.AutoCatalogInventoryListPageLink.Click();
@@ -1949,6 +1960,8 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             WaitForPageRefresh();
             b2BAutoCatalogListPage.SelectTheIdentity(identity);
             webDriver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromSeconds(60));
+            b2BAutoCatalogListPage.SelectTheRegion(region);
+            b2BAutoCatalogListPage.SelectTheCountry(country);
             b2BAutoCatalogListPage.SearchRecordsLink.Click();
             WaitForPageRefresh();
 
