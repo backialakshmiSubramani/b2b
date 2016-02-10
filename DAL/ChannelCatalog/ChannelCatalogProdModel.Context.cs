@@ -26,5 +26,6 @@ namespace Modules.Channel.B2B.DAL.ChannelCatalog
         }
     
         public virtual DbSet<Channel_Catalog_PackagingData> Channel_Catalog_PackagingData { get; set; }
+        public virtual DbSet<CatalogMaster_Auto> CatalogMaster_Auto { get; set; }
     }
 }

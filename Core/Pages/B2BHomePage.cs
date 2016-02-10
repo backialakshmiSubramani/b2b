@@ -52,7 +52,7 @@ namespace Modules.Channel.B2B.Core.Pages
             //Url = webDriver.Url;
             ProductUnit = "Channel";
             //this.webDriver.WaitForPageLoad(new TimeSpan(0, 0, 10));
-            PageUtility.WaitForPageRefresh(webDriver);
+            //PageUtility.WaitForPageRefresh(webDriver);
         }
 
         /// <summary>

@@ -24,6 +24,7 @@ using Dell.Adept.UI.Web.Support.Extensions.WebElement;
 using Dell.Adept.UI.Web.Support.Locators;
 using Modules.Channel.B2B.Common;
 using Modules.Channel.EUDC.Core.Pages;
+using System.Threading;
 
 namespace Modules.Channel.B2B.Core.Pages
 {
@@ -191,7 +192,7 @@ namespace Modules.Channel.B2B.Core.Pages
                         By.XPath("//input[@ng-model='parIsStandardConfig']"));
             }
         }
-        
+
         /// <summary>
         /// Catalog Name text box
         /// </summary>
@@ -369,7 +370,7 @@ namespace Modules.Channel.B2B.Core.Pages
 
             get { return webDriver.FindElements(By.XPath("//*[@id='quoteTable']/tbody[1]/tr[1]")); }
         }
-        
+
         ///<summary>
         /// Part Viewer Page '+' First Button
         /// </summary>
@@ -411,7 +412,7 @@ namespace Modules.Channel.B2B.Core.Pages
 
             get { return webDriver.FindElements(By.XPath("//*[@id='quoteTable']/tbody[2]/tr[1]")); }
         }
-      
+
         ///<summary>
         /// Part Viewer Sub Header after clicking second plus button
         /// </summary>
@@ -491,7 +492,39 @@ namespace Modules.Channel.B2B.Core.Pages
         {
             get
             { return webDriver.FindElement(By.XPath("//div[@ng-model='region']/a")); }
-               
+
+        }
+
+        public IWebElement SelectCustomerNameSpan
+        {
+            get
+            {
+                return webDriver.FindElement(By.XPath("//span[contains(text(),'Select Customer Profile')]"));
+            }
+        }
+
+        public IWebElement SelectIdentityNameSpan
+        {
+            get
+            {
+                return webDriver.FindElement(By.XPath("//span[contains(text(),'Select Profile Identity')]"));
+            }
+        }
+
+        public IWebElement SelectRegionSpan
+        {
+            get
+            {
+                return webDriver.FindElement(By.XPath("//span[contains(text(),'Select Region')]"));
+            }
+        }
+
+        public IWebElement SelectCountrySpan
+        {
+            get
+            {
+                return webDriver.FindElement(By.XPath("//span[contains(text(),'Select Country')]"));
+            }
         }
 
         /// <summary>
@@ -594,6 +627,48 @@ namespace Modules.Channel.B2B.Core.Pages
             webDriver.FindElement(By.XPath("//div[@ng-model='CatalogStatusId']/div/ul/li/a[contains(text(),'" + status + "')]")).Click();
         }
 
+        public IWebElement GetDownloadButton(int rowIndex)
+        {
+            return CatalogsTable.FindElement(By.CssSelector("tbody>tr:nth-of-type(" + rowIndex + ")>td[title=' download']>input[type='image']"));
+        }
+
+        public void WaitForCatalogInSearchResult(DateTime createdTime, CatalogOperation operation)
+        {
+            DateTime lastStatusDate;
+            double timeOutInSecs = CatalogTimeOuts.CatalogSearchTimeOut.TotalSeconds;
+            string op = (operation == CatalogOperation.Create ? "Created" : "Published");
+            string status;
+
+            while (timeOutInSecs > 0)
+            {
+                lastStatusDate = Convert.ToDateTime(CatalogsTable.GetCellValue(1, "Last Status Date"), System.Globalization.CultureInfo.InvariantCulture);
+                status = CatalogsTable.GetCellValue(1, "Status");
+
+                if (lastStatusDate.AddMinutes(1) > createdTime && status == op)
+                    break;
+                else
+                {
+                    SearchRecordsLink.Click();
+                    Thread.Sleep(TimeSpan.FromSeconds(10));
+                    timeOutInSecs -= 10;
+                }
+            }
+        }
+
+        public void SearchCatalogs(Region region, string profileName, string identityName)
+        {
+            SelectOption(SelectRegionSpan, region.ConvertToString());
+            SelectOption(SelectCustomerNameSpan, profileName);
+            SelectOption(SelectIdentityNameSpan, identityName.ToUpper());
+            SearchRecordsLink.Click();
+            CatalogsTable.WaitForElementVisible(TimeSpan.FromSeconds(30));
+        }
+
+        public string GetCatalogValue(int rowIndex, int colIndex)
+        {
+            return CatalogsTable.FindElement(By.CssSelector("tr:nth-of-type(" + rowIndex + ")>td:nth-of-type(" + colIndex + ")")).Text.Trim();
+        }
+
         /// <summary>
         /// Selects the identity from the identities listed
         /// if not specified, selects the first identity from the drop down
@@ -623,6 +698,13 @@ namespace Modules.Channel.B2B.Core.Pages
             return
                 CatalogListTableRows.All(
                     r => r.FindElements(By.TagName("td"))[2].Text.ToLowerInvariant().Equals("inventory"));
+        }
+
+        public void SelectOption(IWebElement webElement, string optionText)
+        {
+            webElement.Click();
+            IWebElement textElement = webElement.FindElement(By.XPath("../following-sibling::div/child::ul/child::li/a[contains(text(),'" + optionText + "')]"));
+            textElement.Click();
         }
 
         #endregion

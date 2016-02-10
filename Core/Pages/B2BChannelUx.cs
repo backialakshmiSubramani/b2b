@@ -23,6 +23,7 @@ using Dell.Adept.UI.Web.Support.Extensions.WebDriver;
 using Dell.Adept.UI.Web.Support.Extensions.WebElement;
 using Dell.Adept.UI.Web.Support.Locators;
 using OpenQA.Selenium.Support.UI;
+using System.Threading;
 
 namespace Modules.Channel.B2B.Core.Pages
 {
@@ -92,7 +93,7 @@ namespace Modules.Channel.B2B.Core.Pages
                             By.XPath("//*[@id='homepage-var']/div/div[2]/div/table[1]/tbody/tr/td[2]/select")));
             }
         }
-               
+
         /// <summary>
         /// Channel UX Home Right side menu
         /// </summary>
@@ -105,8 +106,69 @@ namespace Modules.Channel.B2B.Core.Pages
         /// Channel UX Home right side dropdown value -'Home'
         /// </summary>
         public IWebElement Rightside_dropdown_Home
-        { get { return webDriver.FindElement(By.XPath("//div[@class='btn-group open']/ul/li[1]")); }
+        {
+            get { return webDriver.FindElement(By.XPath("//div[@class='btn-group open']/ul/li[1]")); }
         }
+
+        #region Publish to Processor
+
+        public IWebElement SelectCustomerProfileDiv
+        {
+            get
+            {
+                return webDriver.FindElement(By.CssSelector("div[ng-model='publishToProcessorProfileList']"));
+            }
+        }
+
+        public IWebElement SelectProfileIdentityDiv
+        {
+            get
+            {
+                return webDriver.FindElement(By.CssSelector("div[ng-model='publishToProcessorPerson']"));
+            }
+        }
+
+        public IWebElement ProductionEnvRadioButton
+        {
+            get
+            {
+                return webDriver.FindElement(By.CssSelector(("input[id='publishToProcessorENV'][value='Production']")));
+            }
+        }
+
+        public IWebElement PreviewEnvRadioButton
+        {
+            get
+            {
+                return webDriver.FindElement(By.CssSelector(("input[id='publishToProcessorENV'][value='Preview']")));
+            }
+        }
+
+        public IWebElement OriginalRadioButton
+        {
+            get
+            {
+                return webDriver.FindElement(By.CssSelector(("input[id='CatalogType'][value='O']")));
+            }
+        }
+
+        public IWebElement DeltaRadioButton
+        {
+            get
+            {
+                return webDriver.FindElement(By.CssSelector(("input[id='CatalogType'][value='D']")));
+            }
+        }
+
+        public IWebElement ClickToPublishButton
+        {
+            get
+            {
+                return webDriver.FindElement(By.XPath("//button[text()='Click To Publish Catalog']"));
+            }
+        }
+
+        #endregion
 
         #endregion
 
@@ -119,7 +181,22 @@ namespace Modules.Channel.B2B.Core.Pages
         {
             EnvironmentList.SelectByText(environmentValue);
             Console.WriteLine("B2B environment selected is: ** {0} **", environmentValue);
-            }
+        }
+
+        public void SelectOption(IWebElement webElement, string optionText)
+        {
+            webDriver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromMinutes(1));
+            webElement.Click();
+            IWebElement textElement = webElement.FindElement(By.XPath("div/ul/child::li/a/div/strong[contains(text(),'" + optionText + "')]"));
+            textElement.Click();
+
+            //webElement.Click();
+            //IWebElement text = webElement.FindElement(By.CssSelector("input[type='text']"));
+            //text.SendKeys(optionText);
+            ////IWebElement optionEle = webElement.FindElement(By.CssSelector("ul[role='menu'] li:nth-of-type(1)"));
+            //IWebElement optionEle = webElement.FindElement(By.XPath("//ul[@role='menu']/li[1]/a[div/strong[contains(text(),'" + optionText + "')]]"));
+            //optionEle.Click();
+        }
 
         #endregion
     }

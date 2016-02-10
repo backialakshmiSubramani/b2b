@@ -131,7 +131,7 @@ namespace Modules.Channel.B2B.Core.Pages
             Console.WriteLine(System.IO.Directory.GetCurrentDirectory());
             FileUpload.SendKeys(System.IO.Directory.GetCurrentDirectory() + @"\" + fileToUpload);
             UploadButton.Click();
-            webDriver.WaitGetAlert();
+            webDriver.WaitGetAlert(CatalogTimeOuts.AlertTimeOut);
             webDriver.SwitchTo().Alert().Accept();
            // webDriver.WaitForPageLoad(TimeSpan.FromSeconds(10));
         }

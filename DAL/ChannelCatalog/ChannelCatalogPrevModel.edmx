@@ -4,7 +4,45 @@
   <edmx:Runtime>
     <!-- SSDL content -->
     <edmx:StorageModels>
-      <Schema Namespace="ChannelCatalogPrevModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+    <Schema Namespace="ChannelCatalogPrevModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="CatalogMaster_Auto">
+          <Key>
+            <PropertyRef Name="CatalogId" />
+          </Key>
+          <Property Name="CatalogId" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="CatalogName" Type="varchar" MaxLength="150" Nullable="false" />
+          <Property Name="User_Name" Type="varchar" MaxLength="50" />
+          <Property Name="AccessGroup" Type="uniqueidentifier" />
+          <Property Name="ProfileId" Type="bigint" Nullable="false" />
+          <Property Name="CreateDate" Type="datetime" Nullable="false" />
+          <Property Name="ValidityStartDate" Type="datetime" Nullable="false" />
+          <Property Name="ValidityEndDate" Type="datetime" Nullable="false" />
+          <Property Name="CatalogFormatTypeId" Type="smallint" />
+          <Property Name="CatalogStatusId" Type="int" />
+          <Property Name="IsStandardConfig" Type="bit" />
+          <Property Name="IsUpDnSaleEnabled" Type="bit" />
+          <Property Name="IsSNPEnabled" Type="bit" />
+          <Property Name="IsAbsolutePriceEnabled" Type="bit" />
+          <Property Name="IsDefaultOptionEnabled" Type="bit" />
+          <Property Name="IsOptionTypeEnabled" Type="bit" />
+          <Property Name="IsFinalPriceEnabled" Type="bit" />
+          <Property Name="IsSkuDetailsEnabled" Type="bit" />
+          <Property Name="ThreadId" Type="int" />
+          <Property Name="GPShipToCountry" Type="varchar" MaxLength="50" />
+          <Property Name="GPShipToCurrency" Type="varchar" MaxLength="50" />
+          <Property Name="isGlobalPortal" Type="bit" />
+          <Property Name="ExternalMailingAddresses" Type="varchar" MaxLength="1000" />
+          <Property Name="CatalogHeaderXml" Type="xml" />
+          <Property Name="AppRegion" Type="varchar" MaxLength="50" />
+          <Property Name="Catalog_Type" Type="char" MaxLength="1" />
+          <Property Name="ParentCatalogId" Type="bigint" />
+          <Property Name="IsCatalogPublished" Type="bit" />
+          <Property Name="InternalMailingAddresses" Type="varchar" MaxLength="500" />
+          <Property Name="IdentityId" Type="uniqueidentifier" />
+          <Property Name="CustomerId" Type="varchar" MaxLength="20" />
+          <Property Name="ProfileName" Type="varchar" MaxLength="50" />
+          <Property Name="IsSystem" Type="bit" />
+        </EntityType>
         <EntityType Name="Channel_Catalog_PackagingData">
           <Key>
             <PropertyRef Name="OrderCode" />
@@ -24,10 +62,10 @@
           <Property Name="PalletUnitsPerPallet" Type="int" />
         </EntityType>
         <EntityContainer Name="ChannelCatalogPrevModelStoreContainer">
+          <EntitySet Name="CatalogMaster_Auto" EntityType="Self.CatalogMaster_Auto" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Channel_Catalog_PackagingData" EntityType="Self.Channel_Catalog_PackagingData" Schema="dbo" store:Type="Tables" />
         </EntityContainer>
-      </Schema>
-    </edmx:StorageModels>
+      </Schema></edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
       <Schema Namespace="ChannelCatalogPrevModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
@@ -51,7 +89,46 @@
         </EntityType>
         <EntityContainer Name="ChannelCatalogPrevEntities" annotation:LazyLoadingEnabled="true">
           <EntitySet Name="Channel_Catalog_PackagingData" EntityType="Self.Channel_Catalog_PackagingData" />
+          <EntitySet Name="CatalogMaster_Auto" EntityType="ChannelCatalogPrevModel.CatalogMaster_Auto" />
         </EntityContainer>
+        <EntityType Name="CatalogMaster_Auto">
+          <Key>
+            <PropertyRef Name="CatalogId" />
+          </Key>
+          <Property Name="CatalogId" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="CatalogName" Type="String" Nullable="false" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="User_Name" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="AccessGroup" Type="Guid" />
+          <Property Name="ProfileId" Type="Int64" Nullable="false" />
+          <Property Name="CreateDate" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="ValidityStartDate" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="ValidityEndDate" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="CatalogFormatTypeId" Type="Int16" />
+          <Property Name="CatalogStatusId" Type="Int32" />
+          <Property Name="IsStandardConfig" Type="Boolean" />
+          <Property Name="IsUpDnSaleEnabled" Type="Boolean" />
+          <Property Name="IsSNPEnabled" Type="Boolean" />
+          <Property Name="IsAbsolutePriceEnabled" Type="Boolean" />
+          <Property Name="IsDefaultOptionEnabled" Type="Boolean" />
+          <Property Name="IsOptionTypeEnabled" Type="Boolean" />
+          <Property Name="IsFinalPriceEnabled" Type="Boolean" />
+          <Property Name="IsSkuDetailsEnabled" Type="Boolean" />
+          <Property Name="ThreadId" Type="Int32" />
+          <Property Name="GPShipToCountry" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="GPShipToCurrency" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="isGlobalPortal" Type="Boolean" />
+          <Property Name="ExternalMailingAddresses" Type="String" MaxLength="1000" FixedLength="false" Unicode="false" />
+          <Property Name="CatalogHeaderXml" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="AppRegion" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="Catalog_Type" Type="String" MaxLength="1" FixedLength="true" Unicode="false" />
+          <Property Name="ParentCatalogId" Type="Int64" />
+          <Property Name="IsCatalogPublished" Type="Boolean" />
+          <Property Name="InternalMailingAddresses" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
+          <Property Name="IdentityId" Type="Guid" />
+          <Property Name="CustomerId" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="ProfileName" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="IsSystem" Type="Boolean" />
+        </EntityType>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -74,6 +151,45 @@
                 <ScalarProperty Name="PalletUnitsPerLayer" ColumnName="PalletUnitsPerLayer" />
                 <ScalarProperty Name="PalletLayerPerPallet" ColumnName="PalletLayerPerPallet" />
                 <ScalarProperty Name="PalletUnitsPerPallet" ColumnName="PalletUnitsPerPallet" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="CatalogMaster_Auto">
+            <EntityTypeMapping TypeName="ChannelCatalogPrevModel.CatalogMaster_Auto">
+              <MappingFragment StoreEntitySet="CatalogMaster_Auto">
+                <ScalarProperty Name="IsSystem" ColumnName="IsSystem" />
+                <ScalarProperty Name="ProfileName" ColumnName="ProfileName" />
+                <ScalarProperty Name="CustomerId" ColumnName="CustomerId" />
+                <ScalarProperty Name="IdentityId" ColumnName="IdentityId" />
+                <ScalarProperty Name="InternalMailingAddresses" ColumnName="InternalMailingAddresses" />
+                <ScalarProperty Name="IsCatalogPublished" ColumnName="IsCatalogPublished" />
+                <ScalarProperty Name="ParentCatalogId" ColumnName="ParentCatalogId" />
+                <ScalarProperty Name="Catalog_Type" ColumnName="Catalog_Type" />
+                <ScalarProperty Name="AppRegion" ColumnName="AppRegion" />
+                <ScalarProperty Name="CatalogHeaderXml" ColumnName="CatalogHeaderXml" />
+                <ScalarProperty Name="ExternalMailingAddresses" ColumnName="ExternalMailingAddresses" />
+                <ScalarProperty Name="isGlobalPortal" ColumnName="isGlobalPortal" />
+                <ScalarProperty Name="GPShipToCurrency" ColumnName="GPShipToCurrency" />
+                <ScalarProperty Name="GPShipToCountry" ColumnName="GPShipToCountry" />
+                <ScalarProperty Name="ThreadId" ColumnName="ThreadId" />
+                <ScalarProperty Name="IsSkuDetailsEnabled" ColumnName="IsSkuDetailsEnabled" />
+                <ScalarProperty Name="IsFinalPriceEnabled" ColumnName="IsFinalPriceEnabled" />
+                <ScalarProperty Name="IsOptionTypeEnabled" ColumnName="IsOptionTypeEnabled" />
+                <ScalarProperty Name="IsDefaultOptionEnabled" ColumnName="IsDefaultOptionEnabled" />
+                <ScalarProperty Name="IsAbsolutePriceEnabled" ColumnName="IsAbsolutePriceEnabled" />
+                <ScalarProperty Name="IsSNPEnabled" ColumnName="IsSNPEnabled" />
+                <ScalarProperty Name="IsUpDnSaleEnabled" ColumnName="IsUpDnSaleEnabled" />
+                <ScalarProperty Name="IsStandardConfig" ColumnName="IsStandardConfig" />
+                <ScalarProperty Name="CatalogStatusId" ColumnName="CatalogStatusId" />
+                <ScalarProperty Name="CatalogFormatTypeId" ColumnName="CatalogFormatTypeId" />
+                <ScalarProperty Name="ValidityEndDate" ColumnName="ValidityEndDate" />
+                <ScalarProperty Name="ValidityStartDate" ColumnName="ValidityStartDate" />
+                <ScalarProperty Name="CreateDate" ColumnName="CreateDate" />
+                <ScalarProperty Name="ProfileId" ColumnName="ProfileId" />
+                <ScalarProperty Name="AccessGroup" ColumnName="AccessGroup" />
+                <ScalarProperty Name="User_Name" ColumnName="User_Name" />
+                <ScalarProperty Name="CatalogName" ColumnName="CatalogName" />
+                <ScalarProperty Name="CatalogId" ColumnName="CatalogId" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

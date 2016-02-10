@@ -13,6 +13,7 @@ using Dell.Adept.UI.Web.Support.Extensions.WebDriver;
 using System.Data;
 using Modules.Channel.B2B.DAL.ChannelCatalog;
 using Modules.Channel.B2B.DAL;
+using System.Configuration;
 
 namespace Modules.Channel.B2B.Core.Workflows.Catalog
 {
@@ -178,7 +179,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         /// <param name="fileToBeUploaded"></param>
         /// <param name="uploadMessage"></param>
         /// <returns></returns>
-        public bool VerifyOkClickOnUploadAlert(ConstantObjects.B2BEnvironment environment, string fileToBeUploaded, string uploadMessage)
+        public bool VerifyOkClickOnUploadAlert(B2BEnvironment environment, string fileToBeUploaded, string uploadMessage)
         {
             b2BHomePage.SelectEnvironment(environment.ToString());
             b2BHomePage.ChannelCatalogUxLink.Click();
@@ -1837,7 +1838,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                 b2BBuyerCatalogPage.UpdateButton.Click();
                 return true;
             }
-            else 
+            else
                 return false;
 
         }
@@ -2835,7 +2836,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                 var SubRowTable2 = webDriver.FindElements(By.XPath(TableXpath_First + Table2SubRow_End))[j];
                 var subRowTable2fromLocator = SubRowTable2.Text;
                 var subHeaderTestdata = SubHeaderStringValue[j];
-                var subRow1Testdata = SubRow1StringValue[j].Replace('_',',');
+                var subRow1Testdata = SubRow1StringValue[j].Replace('_', ',');
                 var subRow2Testdata = subRow2StringValue[j].Replace('_', ',');
                 if (subHeaderTable1fromLocator.Equals(subHeaderTestdata) && subRowTable1fromLocator.Equals(subRow1Testdata) && subHeadingtable2fromLocator.Equals(subHeaderTestdata) && subRowTable2fromLocator.Equals(subRow2Testdata))
                 {
@@ -3208,7 +3209,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             webDriver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromSeconds(120));
             Thread.Sleep(5000);
             var uploadAlert = webDriver.SwitchTo().Alert();
-                uploadAlert.Accept();
+            uploadAlert.Accept();
             WaitForPageRefresh();
             Console.WriteLine("Message received on upload: **{0}**",
                 b2BCatalogPackagingDataUploadPage.UploadMessage.Text);
@@ -3962,7 +3963,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         }
 
 
-        public void VerifyRoundOffValuesPackageUploadForAllFieldsProd(ConstantObjects.B2BEnvironment b2BEnvironment, string fileToUpload, string message)
+        public void VerifyRoundOffValuesPackageUploadForAllFieldsProd(B2BEnvironment b2BEnvironment, string fileToUpload, string message)
         {
             b2BHomePage.SelectEnvironment(b2BEnvironment.ToString());
             b2BHomePage.OpenPackageUploadPage();
@@ -3994,7 +3995,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             }
         }
 
-        public void VerifyRoundOffValuesPackageUploadForAllFieldsPrev(ConstantObjects.B2BEnvironment b2BEnvironment, string fileToUpload, string message)
+        public void VerifyRoundOffValuesPackageUploadForAllFieldsPrev(B2BEnvironment b2BEnvironment, string fileToUpload, string message)
         {
             b2BHomePage.SelectEnvironment(b2BEnvironment.ToString());
             b2BHomePage.OpenPackageUploadPage();
@@ -4026,7 +4027,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             }
         }
 
-        public void VerifyAuditHistoryRecordsForPackageUpload(ConstantObjects.B2BEnvironment b2BEnvironment, string fileToUpload, string message)
+        public void VerifyAuditHistoryRecordsForPackageUpload(B2BEnvironment b2BEnvironment, string fileToUpload, string message)
         {
             b2BHomePage.SelectEnvironment(b2BEnvironment.ToString());
             b2BHomePage.OpenPackageUploadPage();
@@ -4037,7 +4038,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             b2BCatalogPackagingDataUploadPage.UploadMessage.WaitForElementDisplayed(TimeSpan.FromSeconds(10));
             b2BCatalogPackagingDataUploadPage.UploadMessage.Text.Trim().Equals(message);
 
-            b2BCatalogPackagingDataUploadPage.AuditHistoryTable.WaitForTableLoadComplete(60);
+            b2BCatalogPackagingDataUploadPage.AuditHistoryTable.WaitForTableLoadComplete(TimeSpan.FromMinutes(1));
             IReadOnlyCollection<IWebElement> historyRows = b2BCatalogPackagingDataUploadPage.AuditHistoryRecords;
             historyRows.Count.Should().BeInRange(1, 13);
             Console.WriteLine(historyRows.Count);
@@ -4048,7 +4049,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             Convert.ToDateTime(latestRowValues.ElementAt(2).Text).Should().BeAfter(timeBeforeUpload);
         }
 
-        public void VerifyPackageUploadForNullAndInvalidValues(ConstantObjects.B2BEnvironment b2BEnvironment, string fileToUpload, string errorMessage)
+        public void VerifyPackageUploadForNullAndInvalidValues(B2BEnvironment b2BEnvironment, string fileToUpload, string errorMessage)
         {
             b2BHomePage = new B2BHomePage(webDriver);
             b2BHomePage.SelectEnvironment(b2BEnvironment.ToString());
@@ -4059,7 +4060,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             b2BCatalogPackagingDataUploadPage.UploadMessage.Text.Should().Be(errorMessage);
         }
 
-        public void VerifyNewFieldsPackageUploadProd(ConstantObjects.B2BEnvironment b2BEnvironment, string fileToUpload, string message)
+        public void VerifyNewFieldsPackageUploadProd(B2BEnvironment b2BEnvironment, string fileToUpload, string message)
         {
             b2BHomePage.SelectEnvironment(b2BEnvironment.ToString());
             b2BHomePage.OpenPackageUploadPage();
@@ -4148,7 +4149,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             b2BAutoCatalogListPage.StdConfigTypeCheckbox.Click();
             return (b2BAutoCatalogListPage.TestHarnessCheckbox.Selected && b2BAutoCatalogListPage.StdConfigTypeCheckbox.Selected);
         }
-        public void VerifyNewFieldsPackageUploadPrev(ConstantObjects.B2BEnvironment b2BEnvironment, string fileToUpload, string message)
+        public void VerifyNewFieldsPackageUploadPrev(B2BEnvironment b2BEnvironment, string fileToUpload, string message)
         {
             b2BHomePage.SelectEnvironment(b2BEnvironment.ToString());
             b2BHomePage.OpenPackageUploadPage();
@@ -4172,7 +4173,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             dbData.PalletUnitsPerPallet.Should().Be(Convert.ToInt32(excelTable.Rows[0]["Pallet Units / Pallet"]));
         }
 
-        public void VerifyRegionInGeneralAndAutoBHC(ConstantObjects.B2BEnvironment b2BEnvironment, string profileName, string expectedRegion)
+        public void VerifyRegionInGeneralAndAutoBHC(B2BEnvironment b2BEnvironment, string profileName, string expectedRegion)
         {
             B2BHomePage b2BHomePage = new B2BHomePage(webDriver);
             b2BHomePage.SelectEnvironment(b2BEnvironment.ToString());
@@ -4235,14 +4236,28 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                     i++;
                 }
             }
-            catch 
-            { 
+            catch
+            {
                 //ignored 
-            }           
+            }
 
             return true;
         }
+
+        public void VerifyOriginalCatalogForConfig(B2BEnvironment environment, Region region, string profileName, string identityName, CatalogOperation operation, CatalogType catalogType)
+        {
+            DateTime beforeSchedTime = DateTime.Now;
+
+            ChannelUxWorkflow uxWorkflow = new ChannelUxWorkflow(webDriver);
+            uxWorkflow.PublishCatalogByClickOnce(environment, profileName, identityName, catalogType);
+
+            string filePath = uxWorkflow.SearchAndDownloadCatalog(environment, region, profileName, identityName, beforeSchedTime, operation);
+
+            uxWorkflow.ValidateCatalogXML(region,CatalogItemType.ConfigWithDefaultOptions, CatalogType.Original, identityName, filePath, beforeSchedTime).Should().BeTrue("Error: Data mismatch for Catalog XML content with expected values");
+            //uxWorkflow.ValidateCatalogEMails(identityName, beforeSchedTime, operation);
+        }
     }
+
     /// <summary>
     /// Enum to restrict the types of frequencies used
     /// </summary>
