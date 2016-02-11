@@ -657,7 +657,7 @@ namespace Modules.Channel.B2B.Core.Pages
 
         public void SearchCatalogs(Region region, string profileName, string identityName)
         {
-            SelectOption(SelectRegionSpan, region.ConvertToString());
+            //SelectOption(SelectRegionSpan, region.ConvertToString());
             SelectOption(SelectCustomerNameSpan, profileName);
             SelectOption(SelectIdentityNameSpan, identityName.ToUpper());
             SearchRecordsLink.Click();
