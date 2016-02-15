@@ -117,6 +117,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             string schemaPath = Path.Combine(System.Environment.CurrentDirectory, "CatalogSchema.xsd");
 
             string message = XMLSchemaValidator.ValidateSchema(filePath, schemaPath);
+            message.Should().Be(string.Empty, "Error: One or more tags failed scehma validation. Please check the log for complete details");
 
             B2BXML xmlObj = XMLDeserializer<B2BXML>.DeserializeFromXmlFile(filePath);
             string fileName = new FileInfo(filePath).Name;
