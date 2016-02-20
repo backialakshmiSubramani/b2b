@@ -1619,7 +1619,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         ///// Verifies Status Time in Auto Cat List page
         ///// </summary>
         ///// <returns></returns>
-        public bool VerifyStatusTimeInAutoCatListPage(string environment, string profile, string statusTime,string region, string country)
+        public bool VerifyStatusTimeInAutoCatListPage(string environment, string profile, string statusTime, string region, string country)
         {
             b2BHomePage.SelectEnvironment(environment);
             b2BHomePage.AutoCatalogInventoryListPageLink.Click();
@@ -1643,9 +1643,9 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         ///// Verifies Region and Country Codes in Auto Cat List page
         ///// </summary>
         ///// <returns></returns>
-        public bool VerifyCountryandRegionCodesInAutoCatListPage(string environment, string region, string country, string regionCode, string countryCode, string customerName="", string identity="",
-                                                                 string catalogName="", string creationStartDate="", string creationEndDate="", 
-                                                                 string status="", string configurationType="", string catalogType="")
+        public bool VerifyCountryandRegionCodesInAutoCatListPage(string environment, string region, string country, string regionCode, string countryCode, string customerName = "", string identity = "",
+                                                                 string catalogName = "", string creationStartDate = "", string creationEndDate = "",
+                                                                 string status = "", string configurationType = "", string catalogType = "")
         {
             b2BHomePage.SelectEnvironment(environment);
             b2BHomePage.AutoCatalogInventoryListPageLink.Click();
@@ -1654,40 +1654,49 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             WaitForPageRefresh();
             b2BAutoCatalogListPage.SelectTheRegion(region);
             b2BAutoCatalogListPage.SelectTheCountry(country);
-            
-            if (customerName!= "")
-            {b2BAutoCatalogListPage.SelectTheCustomer(customerName);}
+
+            if (customerName != "")
+            { b2BAutoCatalogListPage.SelectTheCustomer(customerName); }
 
             if (identity != "")
             {
-             b2BAutoCatalogListPage.SelectTheCustomer(customerName);
-             b2BAutoCatalogListPage.SelectTheIdentity(identity); }
+                b2BAutoCatalogListPage.SelectTheCustomer(customerName);
+                b2BAutoCatalogListPage.SelectTheIdentity(identity);
+            }
 
             if (catalogName != "")
             { b2BAutoCatalogListPage.CatalogName.SendKeys(catalogName); }
 
             if (creationStartDate != "")
-            { b2BAutoCatalogListPage.SelectTheStatus(status); 
-              b2BBuyerCatalogPage.SetTextBoxValue(b2BBuyerCatalogPage.OriginalCatalogStartDate, DateTime.Now.AddDays(1).ToString(MMDDYYYY)); }
-               
+            {
+                b2BAutoCatalogListPage.SelectTheStatus(status);
+                b2BBuyerCatalogPage.SetTextBoxValue(b2BBuyerCatalogPage.OriginalCatalogStartDate, DateTime.Now.AddDays(1).ToString(MMDDYYYY));
+            }
+
             if (creationEndDate != "")
-            {b2BAutoCatalogListPage.SelectTheStatus(status); 
-             b2BBuyerCatalogPage.SetTextBoxValue(b2BBuyerCatalogPage.OriginalCatalogStartDate, DateTime.Now.AddDays(1).ToString(MMDDYYYY)); }
+            {
+                b2BAutoCatalogListPage.SelectTheStatus(status);
+                b2BBuyerCatalogPage.SetTextBoxValue(b2BBuyerCatalogPage.OriginalCatalogStartDate, DateTime.Now.AddDays(1).ToString(MMDDYYYY));
+            }
 
             if (status != "")
             { b2BAutoCatalogListPage.SelectTheStatus(status); }
 
             if (configurationType != "")
-            { b2BAutoCatalogListPage.SelectTheStatus(status); 
-              b2BAutoCatalogListPage.ConfigTypeSTDCheckbox.Click(); }
+            {
+                b2BAutoCatalogListPage.SelectTheStatus(status);
+                b2BAutoCatalogListPage.ConfigTypeSTDCheckbox.Click();
+            }
 
             if (catalogType != "")
-            { b2BAutoCatalogListPage.SelectTheStatus(status); 
-              b2BAutoCatalogListPage.CatalogTypeOriginalCheckbox.Click(); }
+            {
+                b2BAutoCatalogListPage.SelectTheStatus(status);
+                b2BAutoCatalogListPage.CatalogTypeOriginalCheckbox.Click();
+            }
 
 
 
-            
+
             b2BAutoCatalogListPage.SearchRecordsLink.Click();
             WaitForPageRefresh();
             var countryCodeElement = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[9];
@@ -1710,9 +1719,9 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             WaitForPageRefresh();
             if (b2BAutoCatalogListPage.RegionDropDown.Enabled && b2BAutoCatalogListPage.CountryDropDown.Enabled)
                 return true;
-          //  b2BAutoCatalogListPage.SelectTheCountry(country);
+            //  b2BAutoCatalogListPage.SelectTheCountry(country);
 
-          
+
             return false;
         }
         ///// <summary>
@@ -4244,7 +4253,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             return true;
         }
 
-        public void VerifyOriginalCatalogForConfig(B2BEnvironment environment, Region region, string profileName, string identityName, CatalogOperation operation, CatalogType catalogType)
+        public void VerifyOriginalCatalogForConfig(B2BEnvironment environment, Region region, CatalogItemType catalogItemType, string profileName, string identityName, CatalogOperation operation, CatalogType catalogType)
         {
             DateTime beforeSchedTime = DateTime.Now;
 
@@ -4253,7 +4262,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
 
             string filePath = uxWorkflow.SearchAndDownloadCatalog(environment, region, profileName, identityName, beforeSchedTime, operation);
 
-            uxWorkflow.ValidateCatalogXML(region,CatalogItemType.ConfigWithDefaultOptions, CatalogType.Original, identityName, filePath, beforeSchedTime).Should().BeTrue("Error: Data mismatch for Catalog XML content with expected values");
+            uxWorkflow.ValidateCatalogXML(region, catalogItemType, CatalogType.Original, identityName, filePath, beforeSchedTime).Should().BeTrue("Error: Data mismatch for Catalog XML content with expected values");
             //uxWorkflow.ValidateCatalogEMails(identityName, beforeSchedTime, operation);
         }
     }
