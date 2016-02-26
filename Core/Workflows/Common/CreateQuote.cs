@@ -8,7 +8,7 @@ using OpenQA.Selenium;
 using Modules.Channel.B2B.Core.Pages;
 using Modules.Channel.B2B.Common;
 using Modules.Channel.B2B.Core.Workflows.Common;
-using Modules.Channel.B2B.Core.Workflows.EUDC;
+
 
 //Adept Framework 
 using Dell.Adept.Core;

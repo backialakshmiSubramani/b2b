@@ -23,7 +23,6 @@ using Dell.Adept.UI.Web.Support.Extensions.WebDriver;
 using Dell.Adept.UI.Web.Support.Extensions.WebElement;
 using Dell.Adept.UI.Web.Support.Locators;
 using Modules.Channel.B2B.Common;
-using Modules.Channel.EUDC.Core.Pages;
 using System.Threading;
 
 namespace Modules.Channel.B2B.Core.Pages

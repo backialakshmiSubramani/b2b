@@ -16,8 +16,8 @@ using System.Text;
 using System.Linq;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Support.UI;
-using Modules.Channel.EUDC.Core.Pages;
 using System.Threading;
+
 //Adept Framework 
 using Dell.Adept.Core;
 using Dell.Adept.UI;

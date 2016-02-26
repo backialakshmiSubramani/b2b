@@ -8,7 +8,6 @@ using Modules.Channel.B2B.Core.Pages;
 using Modules.Channel.B2B.Core.Workflows.Common;
 using Modules.Channel.B2B.DAL.Inventory;
 using System.IO;
-using Modules.Channel.EUDC.Core.Pages;
 
 namespace Modules.Channel.B2B.Core.Workflows.Inventory
 {

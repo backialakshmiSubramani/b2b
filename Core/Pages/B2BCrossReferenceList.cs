@@ -14,7 +14,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using OpenQA.Selenium;
-using Modules.Channel.EUDC.Core.Pages;
+
 
 //Adept Framework 
 using Dell.Adept.Core;

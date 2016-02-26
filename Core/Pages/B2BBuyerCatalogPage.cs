@@ -32,7 +32,6 @@ using Dell.Adept.UI.Web.Support.Extensions.WebElement;
 using Dell.Adept.UI.Web.Support.Locators;
 using Dell.Adept.UI.Web.Support;
 using System.IO;
-using Modules.Channel.EUDC.Core.Pages;
 
 namespace Modules.Channel.B2B.Core.Pages
 {

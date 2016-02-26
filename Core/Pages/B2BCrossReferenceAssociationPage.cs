@@ -14,7 +14,6 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using OpenQA.Selenium;
-using Modules.Channel.EUDC.Core.Pages;
 using System.Linq;
 using System.Threading;
 
