@@ -845,7 +845,6 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
                 return false;
             }
             Console.WriteLine("LineItem Number verified");
-            quote = quote;
 
             //Quote #
             if (quote.Contains("\\") && !mapperXml.XPathSelectElement("//PORequestXml/PurchaseOrder/ListOfOrderDetail/OrderDetail/BaseItemDetail/SupplierPartNum/PartNum/PartIDExt").Value.
