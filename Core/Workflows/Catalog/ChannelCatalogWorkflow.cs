@@ -4265,6 +4265,34 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             uxWorkflow.ValidateCatalogXML(region, catalogItemType, CatalogType.Original, identityName, filePath, beforeSchedTime).Should().BeTrue("Error: Data mismatch for Catalog XML content with expected values");
             //uxWorkflow.ValidateCatalogEMails(identityName, beforeSchedTime, operation);
         }
+
+        public bool VerifyCatalogExpiresFieldValues(B2BEnvironment b2BEnvironment, string profileName, string expireDays)
+        {
+            var expireList = expireDays.Split(',');
+            GoToBuyerCatalogTab(b2BEnvironment.ToString(), profileName);
+            b2BBuyerCatalogPage.EditScheduleButton.Click();
+            if (expireList.Count() ==
+                b2BBuyerCatalogPage.CatalogExpire.Select()
+                    .Options.Count(o => !string.IsNullOrEmpty(o.GetAttribute("text"))))
+            {
+                return
+                    b2BBuyerCatalogPage.CatalogExpire.Select()
+                        .Options.Where(o => !string.IsNullOrEmpty(o.GetAttribute("text")))
+                        .All(option => expireList.Contains(option.GetAttribute("text")));
+            }
+
+            Console.WriteLine("No expired days shown in Catalog Expires Field");
+            return false;
+        }
+
+        public bool VerifyCatalogExpiresFieldDafaultValue(B2BEnvironment b2BEnvironment, string profileName, string expireDays)
+        {
+            GoToBuyerCatalogTab(b2BEnvironment.ToString(), profileName);
+            b2BBuyerCatalogPage.EditScheduleButton.Click();
+            SelectElement selectedValue = new SelectElement(b2BBuyerCatalogPage.CatalogExpire);
+            var wantedText = selectedValue.SelectedOption.Text;
+            return wantedText.Equals(expireDays);
+        }
     }
 
     /// <summary>

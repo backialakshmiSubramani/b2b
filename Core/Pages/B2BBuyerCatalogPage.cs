@@ -976,6 +976,22 @@ namespace Modules.Channel.B2B.Core.Pages
             }
         }
 
+        /// <summary>
+        /// Enable BHC Catalog Auto Generation Checkbox
+        /// </summary>
+        private IWebElement _catalogExpires;
+        public IWebElement CatalogExpire
+        {
+            get
+            {
+                if (_catalogExpires == null)
+                {
+                    _catalogExpires = webDriver.FindElement(By.Id("ddlCatalogExpiresInDays"),
+                        new TimeSpan(0, 0, 30));
+                }
+                return _catalogExpires;
+            }
+        }
         #endregion
 
         #region Helper Methods
