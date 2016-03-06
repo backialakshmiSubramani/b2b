@@ -562,13 +562,28 @@ namespace Modules.Channel.B2B.Core.Pages
         /// Selects the specified customer from the Select customer drop down
         /// </summary>
         /// <param name="profileName"></param>
-        public void SelectTheCustomer(string profileName)
+        public void SelectTheCustomer(string customerName)
         {
             webDriver.FindElement(By.XPath("//div[@ng-model='customer']/a")).Click();
             webDriver.FindElement(By.XPath("//div[@ng-model='customer']/div/div[@class='custom-select-search']/input"))
-                .SendKeys(profileName);
-            webDriver.FindElement(By.XPath("//div[@ng-model='customer']/div/ul/li[1]/a[text()='" + profileName + "']"))
+                .SendKeys(customerName);
+            webDriver.FindElement(By.XPath("//div[@ng-model='customer']/div/ul/li[1]/a[text()='" + customerName + "']"))
                 .Click();
+        }
+
+        /// <summary>
+        /// Selects the specified customer from the Select customer drop down
+        /// </summary>
+        /// <param name="profileName"></param>
+        public bool VerifyCustomerExists(string customerName)
+        {
+            webDriver.FindElement(By.XPath("//div[@ng-model='customer']/a")).Click();
+            webDriver.FindElement(By.XPath("//div[@ng-model='customer']/div/div[@class='custom-select-search']/input"))
+                .SendKeys(customerName);
+            if (webDriver.ElementExists(By.XPath("//div[@ng-model='customer']/div/ul/li[1]/a[text()='" + customerName + "']")))
+                return true;
+
+            return false;
         }
 
         /// <summary>

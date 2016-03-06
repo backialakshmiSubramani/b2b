@@ -1724,6 +1724,43 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
 
             return false;
         }
+
+        ///// <summary>
+        ///// Verifies Region and Country Codes in Auto Cat List page
+        ///// </summary>
+        ///// <returns></returns>
+        public bool VerifyCustomerListInAutoCatListPage(string environment, string region1, string customerName1, string region2, string customerName2, string country1 = "", string country2 = "")
+        {
+            b2BHomePage.SelectEnvironment(environment);
+            b2BHomePage.AutoCatalogInventoryListPageLink.Click();
+            b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
+            webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
+            WaitForPageRefresh();
+
+            bool tempCustomerName1 = false;
+            bool tempCustomerName2 = false;
+
+            b2BAutoCatalogListPage.SelectTheRegion(region1);
+            if (country1 != "")
+            { b2BAutoCatalogListPage.SelectTheCountry(country1); }
+            if (b2BAutoCatalogListPage.VerifyCustomerExists(customerName1))
+                tempCustomerName1 = true;
+            
+            b2BAutoCatalogListPage.SelectTheRegion(region2);
+            if (country2 != "")
+            { b2BAutoCatalogListPage.SelectTheCountry(country2); }
+            if (!(b2BAutoCatalogListPage.VerifyCustomerExists(customerName2)))
+                tempCustomerName2 = true;
+           
+            if(tempCustomerName1== true && tempCustomerName2 == true)
+                return true;
+
+            return false;
+
+
+
+        }
+
         ///// <summary>
         ///// Verifies Status Time in Auto Cat List page for Test Harness
         ///// </summary>
