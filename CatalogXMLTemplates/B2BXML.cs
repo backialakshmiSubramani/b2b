@@ -255,6 +255,9 @@ namespace CatalogTests.Common.CatalogXMLTemplates
         [XmlElement("BaseSKUId")]
         public string BaseSKUId { get; set; }
 
+        [XmlElement("FGASKUId")]
+        public string FGASKUId { get; set; }
+
         [XmlElement("ReplacementQuoteId")]
         public string ReplacementQuoteId { get; set; }
 
@@ -262,7 +265,7 @@ namespace CatalogTests.Common.CatalogXMLTemplates
         public string ItemType { get; set; }
 
         [XmlElement("ItemSKUinfo")]
-        public string ItemSkUinfo { get; set; }
+        public string ItemSKUinfo { get; set; }
 
         [XmlElement("FGAModNumber")]
         public string FGAModNumber { get; set; }
@@ -418,7 +421,7 @@ namespace CatalogTests.Common.CatalogXMLTemplates
         public decimal DeltaPrice { get; set; }
         
         [XmlElement("FinalPrice")]
-        public string FinalPrice { get; set; }
+        public decimal FinalPrice { get; set; }
 
         [XmlElement("IsMultiQtyOption")]
         public string IsMultiQtyOption { get; set; }

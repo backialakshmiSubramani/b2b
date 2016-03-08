@@ -212,7 +212,8 @@ namespace Modules.Channel.B2B.Common
             Type valueType = typeof(T);
 
             bool result = Convert.ChangeType(actualValue, typeof(T)).Equals((Convert.ChangeType(expectedValue, typeof(T))));
-            Console.WriteLine(string.Format("[FieldName]: {0} ---- [Actual]: {1}, [Expected]: {2} ---- [Match]: {3}", fieldName, actualValue, expectedValue, result));
+            if (!result)
+                Console.WriteLine(string.Format("[FieldName]: {0} ---- [Actual]: {1}, [Expected]: {2} ---- [Match]: {3}", fieldName, actualValue, expectedValue, result));
 
             return result;
         }
@@ -251,12 +252,12 @@ namespace Modules.Channel.B2B.Common
             for (int i = 0; i < columnNames.Count; i++)
                 if (columnNames[i] == columnName)
                 {
-                    columnIndex = i+1;
+                    columnIndex = i + 1;
                     break;
                 }
 
             if (columnIndex == 0)
-                throw new Exception("Error: Table does not contain the given column name: "+columnName);
+                throw new Exception("Error: Table does not contain the given column name: " + columnName);
 
             return columnIndex;
         }
@@ -266,7 +267,7 @@ namespace Modules.Channel.B2B.Common
             int columnIndex = tableElement.GetColumnIndex(columnName);
             string cellValue = tableElement.FindElement(By.CssSelector("tbody tr:nth-of-type(" + rowIndex + ") td:nth-of-type(" + columnIndex + ")")).Text;
 
-            return cellValue; 
+            return cellValue;
         }
     }
 }

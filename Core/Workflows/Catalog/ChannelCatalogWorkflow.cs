@@ -1753,14 +1753,14 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             { b2BAutoCatalogListPage.SelectTheCountry(country1); }
             if (b2BAutoCatalogListPage.VerifyCustomerExists(customerName1))
                 tempCustomerName1 = true;
-            
+
             b2BAutoCatalogListPage.SelectTheRegion(region2);
             if (country2 != "")
             { b2BAutoCatalogListPage.SelectTheCountry(country2); }
             if (!(b2BAutoCatalogListPage.VerifyCustomerExists(customerName2)))
                 tempCustomerName2 = true;
-           
-            if(tempCustomerName1== true && tempCustomerName2 == true)
+
+            if (tempCustomerName1 == true && tempCustomerName2 == true)
                 return true;
 
             return false;
@@ -1773,7 +1773,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         ///// Verifies Status Time in Auto Cat List page for Test Harness
         ///// </summary>
         ///// <returns></returns>
-        public bool VerifyStatusTimeforTestHarnessInAutoCatListPage(string environment, string profile,string statusTime,string regionName, string countryName)
+        public bool VerifyStatusTimeforTestHarnessInAutoCatListPage(string environment, string profile, string statusTime, string regionName, string countryName)
         {
             b2BHomePage.SelectEnvironment(environment);
             b2BHomePage.AutoCatalogInventoryListPageLink.Click();
@@ -1825,13 +1825,15 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         ///// Verifies Profile Name for Test Harness for existing profile
         ///// </summary>
         ///// <returns></returns>
-        public bool VerifyProfileNameforTestHarnessAutoCatPage(string environment, string profile)
+        public bool VerifyProfileNameforTestHarnessAutoCatPage(string environment, string profile, string regionName, string countryName)
         {
             b2BHomePage.SelectEnvironment(environment);
             b2BHomePage.AutoCatalogInventoryListPageLink.Click();
             webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
             b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
             WaitForPageRefresh();
+            b2BAutoCatalogListPage.SelectTheRegion(regionName);
+            b2BAutoCatalogListPage.SelectTheCountry(countryName);
             b2BAutoCatalogListPage.TestHarnessCheckbox.Click();
             b2BAutoCatalogListPage.ThreadId.SendKeys(profile);
             b2BAutoCatalogListPage.SearchRecordsLink.Click();
@@ -3942,11 +3944,11 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         {
             GoToBuyerCatalogTab(environment, profileName);
             b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
-            
+
             if (!b2BBuyerCatalogPage.EnableCatalogAutoGeneration.Selected)
                 b2BBuyerCatalogPage.EnableCatalogAutoGeneration.Click();
-            
-            if(!b2BBuyerCatalogPage.BuyerCatalogFirstIdentity.Selected)
+
+            if (!b2BBuyerCatalogPage.BuyerCatalogFirstIdentity.Selected)
                 b2BBuyerCatalogPage.BuyerCatalogFirstIdentity.Click();
 
             b2BBuyerCatalogPage.EditScheduleButton.Click();
@@ -4289,7 +4291,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             dbData.PalletUnitsPerPallet.Should().Be(Convert.ToInt32(excelTable.Rows[0]["Pallet Units / Pallet"]));
         }
 
-        public void VerifyRegionInGeneralAndAutoBHC(B2BEnvironment b2BEnvironment, string profileName, string expectedRegion)
+        public void VerifyRegionInGeneralAndAutoBHC(B2BEnvironment b2BEnvironment, string profileName)
         {
             B2BHomePage b2BHomePage = new B2BHomePage(webDriver);
             b2BHomePage.SelectEnvironment(b2BEnvironment.ToString());
@@ -4299,7 +4301,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             b2BCustomerProfileListPage.ClickSearchedProfile(profileName);
             B2BManageProfileIdentitiesPage b2BManageProfileIdentitiesPage = new B2BManageProfileIdentitiesPage(webDriver);
             string regionName = b2BManageProfileIdentitiesPage.RegionName_Globalization.Text.Split(':')[1].Trim();
-            regionName.Should().Be(expectedRegion);
+            regionName.Should().Be("US");
             b2BManageProfileIdentitiesPage.BuyerCatalogTab.Click();
             b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
             b2BBuyerCatalogPage.AutomatedBhcCatalogProcessingRules.Click();
@@ -4360,16 +4362,20 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             return true;
         }
 
-        public void VerifyOriginalCatalogForConfig(B2BEnvironment environment, Region region, CatalogItemType catalogItemType, string profileName, string identityName, CatalogOperation operation, CatalogType catalogType)
+        public void VerifyOriginalCatalogForConfig(B2BEnvironment b2BEnvironment, Region region, CatalogItemType catalogItemType, string profileName, string identityName, CatalogOperation catalogOperation, CatalogType catalogType)
         {
             DateTime beforeSchedTime = DateTime.Now;
 
             ChannelUxWorkflow uxWorkflow = new ChannelUxWorkflow(webDriver);
-            uxWorkflow.PublishCatalogByClickOnce(environment, profileName, identityName, catalogType);
+            uxWorkflow.PublishCatalogByClickOnce(b2BEnvironment, profileName, identityName, catalogType);
 
-            string filePath = uxWorkflow.SearchAndDownloadCatalog(environment, region, profileName, identityName, beforeSchedTime, operation);
+            //string filePath = uxWorkflow.SearchAndDownloadCatalog(environment, region, profileName, identityName, beforeSchedTime, operation);
+            webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["AutoCatalogListPageUrl"] + ((b2BEnvironment == B2BEnvironment.Production) ? "P" : "U"));
+            uxWorkflow.SearchCatalog(profileName, identityName, beforeSchedTime, catalogOperation);
+            uxWorkflow.ValidateCatalog(catalogItemType, catalogType, catalogOperation, beforeSchedTime);
+            string filePath = uxWorkflow.DownloadCatalog(identityName, beforeSchedTime);
 
-            uxWorkflow.ValidateCatalogXML(region, catalogItemType, CatalogType.Original, identityName, filePath, beforeSchedTime).Should().BeTrue("Error: Data mismatch for Catalog XML content with expected values");
+            uxWorkflow.ValidateCatalogXML(catalogItemType, catalogType, identityName, filePath, beforeSchedTime).Should().BeTrue("Error: Data mismatch for Catalog XML content with expected values");
             //uxWorkflow.ValidateCatalogEMails(identityName, beforeSchedTime, operation);
         }
 

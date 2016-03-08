@@ -79,29 +79,6 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             return true;
         }
 
-        public string SearchAndDownloadCatalog(B2BEnvironment environment, Region region, string profileName, string identityName, DateTime beforeSchedTime, CatalogOperation operation)
-        {
-            webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["AutoCatalogListPageUrl"] + ((environment == B2BEnvironment.Production) ? "P" : "U"));
-
-            CPTAutoCatalogInventoryListPage autoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
-            autoCatalogListPage.SearchCatalogs(region, profileName, identityName);
-            autoCatalogListPage.WaitForCatalogInSearchResult(beforeSchedTime.ConvertToUtcTimeZone(), operation);
-
-            autoCatalogListPage.CatalogsTable.GetCellValue(1, "Last Status Date").Trim().ConvertToDateTime().AddMinutes(1).Should().BeAfter(beforeSchedTime.ConvertToUtcTimeZone(), "Catalog is not displayed in Search Result");
-            autoCatalogListPage.CatalogsTable.GetCellValue(1, "Type").Should().Be("Original", "Expected Catalog type is incorrect");
-            autoCatalogListPage.CatalogsTable.GetCellValue(1, "Status").Should().Be(operation == CatalogOperation.Create ? "Created" : "Published", "Catalog creation failed");
-
-            autoCatalogListPage.GetDownloadButton(1).Click();
-            string downloadPath = ConfigurationManager.AppSettings["CatalogDownloadPath"];
-
-            webDriver.WaitForDownLoadToComplete(downloadPath, identityName, beforeSchedTime, TimeSpan.FromMinutes(1));
-            string fileName = new DirectoryInfo(downloadPath).GetFiles().AsEnumerable()
-                .Where(file => file.Name.Contains(identityName.ToUpper()) && file.CreationTime > beforeSchedTime)
-                .FirstOrDefault().FullName;
-
-            return fileName;
-        }
-
         /// <summary>
         /// Compares the content of Catalog XML
         /// </summary>
@@ -112,77 +89,240 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         /// <param name="anyTimeAfter">Time after which the XML is created</param>
         /// <param name="catalogItemBaseSKU">One of the Catalog Item SKU for which data needs to be validated</param>
         /// <returns></returns>
-        public bool ValidateCatalogXML(Region region, CatalogItemType catalogItemType, CatalogType catalogType, string identityName, string filePath, DateTime anyTimeAfter)
+        public bool ValidateCatalogXML(CatalogItemType catalogItemType, CatalogType catalogType, string identityName, string filePath, DateTime anyTimeAfter)
         {
             string schemaPath = Path.Combine(System.Environment.CurrentDirectory, "CatalogSchema.xsd");
 
             string message = XMLSchemaValidator.ValidateSchema(filePath, schemaPath);
             message.Should().Be(string.Empty, "Error: One or more tags failed scehma validation. Please check the log for complete details");
 
-            B2BXML xmlObj = XMLDeserializer<B2BXML>.DeserializeFromXmlFile(filePath);
+            B2BXML actualCatalog = XMLDeserializer<B2BXML>.DeserializeFromXmlFile(filePath);
+
+            string expectedCatalogFilePath = string.Empty;
+            switch (catalogItemType)
+            {
+                case CatalogItemType.ConfigWithDefaultOptions:
+                    expectedCatalogFilePath = Path.Combine(System.Environment.CurrentDirectory, "StdConfig_OC_Expected.xml");
+                    break;
+                case CatalogItemType.SNP:
+                    //expectedCatalogFilePath = Path.Combine(System.Environment.CurrentDirectory, "SnP_OC_Expected.xml");
+                    break;
+                case CatalogItemType.Systems:
+                    break;
+                case CatalogItemType.ConfigWithUpsellDownsell:
+                    break;
+                default:
+                    break;
+            }
+
+            B2BXML expectedCatalog = XMLDeserializer<B2BXML>.DeserializeFromXmlFile(expectedCatalogFilePath);
+
             string fileName = new FileInfo(filePath).Name;
             string catalogName = fileName.Split('.')[0];
 
-            CatalogProp catalogProp = new CatalogProp(region);
-
-            //CatalogMaster_Auto catalogMaster = ChannelCatalogProdDataAccess.GetCatalog(identityName, anyTimeAfter);
-
             bool matchFlag = true;
-            Console.WriteLine("Catalog Header Data Validation");
-            matchFlag &= UtilityMethods.CompareValues<string>("CatalogFormatType", xmlObj.BuyerCatalog.CatalogHeader.CatalogFormatType, catalogProp.CatalogFormatType);
-            matchFlag &= UtilityMethods.CompareValues<string>("CatalogName", xmlObj.BuyerCatalog.CatalogHeader.CatalogName, catalogName);
-            matchFlag &= UtilityMethods.CompareValues<string>("EffectiveDate", xmlObj.BuyerCatalog.CatalogHeader.EffectiveDate.ToString(), DateTime.Now.ConvertToUtcTimeZone().ToString("yyyy-MM-ddT00:00:00", System.Globalization.CultureInfo.InstalledUICulture));
-            matchFlag &= UtilityMethods.CompareValues<string>("ExpirationDate", xmlObj.BuyerCatalog.CatalogHeader.ExpirationDate.ToString(), DateTime.Now.ConvertToUtcTimeZone().AddMonths(6).ToString("yyyy-MM-ddT00:00:00", System.Globalization.CultureInfo.InstalledUICulture));
-            matchFlag &= UtilityMethods.CompareValues<string>("CountryCode", xmlObj.BuyerCatalog.CatalogHeader.CountryCode, catalogProp.CountryCode);
-            matchFlag &= UtilityMethods.CompareValues<string>("SubLocationCode", xmlObj.BuyerCatalog.CatalogHeader.SubLocationCode, catalogProp.SubLocationCode);
-            matchFlag &= UtilityMethods.CompareValues<string>("Buyer", xmlObj.BuyerCatalog.CatalogHeader.Buyer, identityName.ToUpper());
-            matchFlag &= UtilityMethods.CompareValues<string>("RequesterEmailId", xmlObj.BuyerCatalog.CatalogHeader.RequesterEmailId, catalogProp.RequesterEmailId);
-            //matchFlag &= UtilityMethods.CompareValues<long>(xmlObj.BuyerCatalog.CatalogHeader.CatalogId, catalogMaster.CatalogId); // Cannot validate as its dynamically generated
-            xmlObj.BuyerCatalog.CatalogHeader.ItemCount.Should().BeGreaterThan(0, "Error: Item Count in header is invalid");
-            matchFlag &= UtilityMethods.CompareValues<int>("ItemCount", xmlObj.BuyerCatalog.CatalogHeader.ItemCount, UtilityMethods.ConvertValue<byte>(xmlObj.BuyerCatalog.CatalogDetails.CatalogItem.Count()));
-            matchFlag &= UtilityMethods.CompareValues<string>("SupplierId", xmlObj.BuyerCatalog.CatalogHeader.SupplierId, catalogProp.SupplierId);
-            matchFlag &= UtilityMethods.CompareValues<string>("Comments", xmlObj.BuyerCatalog.CatalogHeader.Comments, catalogProp.Comments);
-            matchFlag &= UtilityMethods.CompareValues<bool>("SNPEnabled", xmlObj.BuyerCatalog.CatalogHeader.SNPEnabled, (catalogItemType == CatalogItemType.SNP ? true : false));
-            matchFlag &= UtilityMethods.CompareValues<bool>("SYSConfigEnabled", xmlObj.BuyerCatalog.CatalogHeader.SYSConfigEnabled, (catalogItemType == CatalogItemType.Systems ? true : false));
-            matchFlag &= UtilityMethods.CompareValues<bool>("StdConfigEnabled", xmlObj.BuyerCatalog.CatalogHeader.StdConfigEnabled, (catalogItemType == CatalogItemType.ConfigWithDefaultOptions ? true : false));
-            matchFlag &= UtilityMethods.CompareValues<bool>("StdConfigUpSellDownSellEnabled", xmlObj.BuyerCatalog.CatalogHeader.StdConfigUpSellDownSellEnabled, (catalogItemType == CatalogItemType.ConfigWithUpsellDownsell ? true : false));
-            matchFlag &= UtilityMethods.CompareValues<string>("Region", xmlObj.BuyerCatalog.CatalogHeader.Region, catalogProp.Region.ConvertToString());
-            matchFlag &= UtilityMethods.CompareValues<bool>("GPEnabled", xmlObj.BuyerCatalog.CatalogHeader.GPEnabled, catalogProp.GPEnabled);
-            matchFlag &= UtilityMethods.CompareValues<object>("GPShipToCurrency", xmlObj.BuyerCatalog.CatalogHeader.GPShipToCurrency, catalogProp.GPShipToCurrency);
-            matchFlag &= UtilityMethods.CompareValues<string>("GPShipToCountry", xmlObj.BuyerCatalog.CatalogHeader.GPShipToCountry, catalogProp.GPShipToCountry);
-            matchFlag &= UtilityMethods.CompareValues<string>("GPShipToLanguage", xmlObj.BuyerCatalog.CatalogHeader.GPShipToLanguage, catalogProp.GPShipToLanguage);
-            matchFlag &= UtilityMethods.CompareValues<string>("GPPurchaseOption", xmlObj.BuyerCatalog.CatalogHeader.GPPurchaseOption, catalogProp.GPPurchaseOption);
-            matchFlag &= UtilityMethods.CompareValues<bool>("CPFEnabled", xmlObj.BuyerCatalog.CatalogHeader.CPFEnabled, catalogProp.CPFEnabled);
-            matchFlag &= UtilityMethods.CompareValues<string>("IdentityUserName", xmlObj.BuyerCatalog.CatalogHeader.IdentityUserName, identityName.ToUpper());
-            matchFlag &= UtilityMethods.CompareValues<int>("GracePeriod", xmlObj.BuyerCatalog.CatalogHeader.GracePeriod, catalogProp.GracePeriod);
-            matchFlag &= UtilityMethods.CompareValues<long>("ProfileId", xmlObj.BuyerCatalog.CatalogHeader.ProfileId, catalogProp.ProfileId);
-            matchFlag &= UtilityMethods.CompareValues<string>("CustomerID", xmlObj.BuyerCatalog.CatalogHeader.CustomerID, catalogProp.CustomerID);
-            matchFlag &= UtilityMethods.CompareValues<string>("AccessGroup", xmlObj.BuyerCatalog.CatalogHeader.AccessGroup, catalogProp.AccessGroup);
-            matchFlag &= UtilityMethods.CompareValues<string>("MessageType", xmlObj.BuyerCatalog.CatalogHeader.MessageType, catalogProp.MessageType);
-            matchFlag &= UtilityMethods.CompareValues<string>("CatalogType", xmlObj.BuyerCatalog.CatalogHeader.CatalogType, catalogType.ToString());
-            matchFlag &= UtilityMethods.CompareValues<string>("Sender", xmlObj.BuyerCatalog.CatalogHeader.Sender, catalogProp.Sender);
-            matchFlag &= UtilityMethods.CompareValues<string>("Receiver", xmlObj.BuyerCatalog.CatalogHeader.Receiver, identityName.ToUpper());
-            matchFlag &= UtilityMethods.CompareValues<string>("CatalogDate", xmlObj.BuyerCatalog.CatalogHeader.CatalogDate.ToString(), DateTime.Now.ConvertToUtcTimeZone().ToString("MM/dd/yyyy 0:00:00", System.Globalization.CultureInfo.InvariantCulture));
+            matchFlag &= ValidateCatalogHeader(actualCatalog, expectedCatalog, catalogItemType, identityName, catalogName);
 
-            Console.WriteLine("Catalog Items Data Validation");
-            CatalogItem catalogItem = xmlObj.BuyerCatalog.CatalogDetails.CatalogItem.FirstOrDefault();
-            catalogItem.Should().NotBeNull("Error: No Catalog Items found");
-            matchFlag &= UtilityMethods.CompareValues<CatalogItemType>("CatalogItemType", catalogItem.CatalogItemType, catalogItemType);
+            if (catalogItemType == CatalogItemType.ConfigWithDefaultOptions) // Temporary check
+                matchFlag &= ValidateCatalogItems(actualCatalog, expectedCatalog);
 
             return matchFlag;
         }
 
-        public void ValidateCatalogEMails(string identityName, DateTime anyTimeAfter, CatalogOperation operation)
+        /// <summary>
+        /// Validate all the tags of Catalog Header
+        /// </summary>
+        /// <param name="actualCatalog"></param>
+        /// <param name="expectedCatalog"></param>
+        /// <param name="catalogItemType"></param>
+        /// <param name="identityName"></param>
+        /// <param name="catalogName"></param>
+        /// <returns></returns>
+        public bool ValidateCatalogHeader(B2BXML actualCatalog, B2BXML expectedCatalog, CatalogItemType catalogItemType, string identityName, string catalogName)
+        {
+            CatalogHeader actualCatalogHeader = actualCatalog.BuyerCatalog.CatalogHeader;
+            CatalogHeader expectedCatalogHeader = expectedCatalog.BuyerCatalog.CatalogHeader;
+
+            bool matchFlag = true;
+            Console.WriteLine("Catalog Header Data Validation");
+            matchFlag &= UtilityMethods.CompareValues<string>("CatalogFormatType", actualCatalogHeader.CatalogFormatType, expectedCatalogHeader.CatalogFormatType);
+            matchFlag &= UtilityMethods.CompareValues<string>("CatalogName", actualCatalogHeader.CatalogName, catalogName);
+            matchFlag &= UtilityMethods.CompareValues<string>("EffectiveDate", actualCatalogHeader.EffectiveDate.ToString(), DateTime.Now.ConvertToUtcTimeZone().ToString("yyyy-MM-ddT00:00:00", System.Globalization.CultureInfo.InstalledUICulture));
+            matchFlag &= UtilityMethods.CompareValues<string>("ExpirationDate", actualCatalogHeader.ExpirationDate.ToString(), DateTime.Now.ConvertToUtcTimeZone().AddDays(180).ToString("yyyy-MM-ddT00:00:00", System.Globalization.CultureInfo.InstalledUICulture));
+            matchFlag &= UtilityMethods.CompareValues<string>("CountryCode", actualCatalogHeader.CountryCode, expectedCatalogHeader.CountryCode);
+            matchFlag &= UtilityMethods.CompareValues<string>("SubLocationCode", actualCatalogHeader.SubLocationCode, expectedCatalogHeader.SubLocationCode);
+            matchFlag &= UtilityMethods.CompareValues<string>("Buyer", actualCatalogHeader.Buyer, identityName.ToUpper());
+            //matchFlag &= UtilityMethods.CompareValues<string>("RequesterEmailId", actualCatalogHeader.RequesterEmailId, expectedCatalogHeader.RequesterEmailId); // Excluding this field as this is dependent on the user who modifies the profile
+            matchFlag &= UtilityMethods.CompareValues<int>("ItemCount", actualCatalogHeader.ItemCount, expectedCatalog.BuyerCatalog.CatalogDetails.CatalogItem.Count());
+            matchFlag &= UtilityMethods.CompareValues<string>("SupplierId", actualCatalogHeader.SupplierId, expectedCatalogHeader.SupplierId);
+            matchFlag &= UtilityMethods.CompareValues<string>("Comments", actualCatalogHeader.Comments, expectedCatalogHeader.Comments);
+            matchFlag &= UtilityMethods.CompareValues<bool>("SNPEnabled", actualCatalogHeader.SNPEnabled, (catalogItemType == CatalogItemType.SNP ? true : false));
+            matchFlag &= UtilityMethods.CompareValues<bool>("SYSConfigEnabled", actualCatalogHeader.SYSConfigEnabled, (catalogItemType == CatalogItemType.Systems ? true : false));
+            matchFlag &= UtilityMethods.CompareValues<bool>("StdConfigEnabled", actualCatalogHeader.StdConfigEnabled, (catalogItemType == CatalogItemType.ConfigWithDefaultOptions ? true : false));
+            matchFlag &= UtilityMethods.CompareValues<bool>("StdConfigUpSellDownSellEnabled", actualCatalogHeader.StdConfigUpSellDownSellEnabled, (catalogItemType == CatalogItemType.ConfigWithUpsellDownsell ? true : false));
+            matchFlag &= UtilityMethods.CompareValues<string>("Region", actualCatalogHeader.Region, expectedCatalogHeader.Region);
+            matchFlag &= UtilityMethods.CompareValues<bool>("GPEnabled", actualCatalogHeader.GPEnabled, expectedCatalogHeader.GPEnabled);
+            matchFlag &= UtilityMethods.CompareValues<object>("GPShipToCurrency", actualCatalogHeader.GPShipToCurrency, expectedCatalogHeader.GPShipToCurrency);
+            matchFlag &= UtilityMethods.CompareValues<string>("GPShipToCountry", actualCatalogHeader.GPShipToCountry, expectedCatalogHeader.GPShipToCountry);
+            matchFlag &= UtilityMethods.CompareValues<string>("GPShipToLanguage", actualCatalogHeader.GPShipToLanguage, expectedCatalogHeader.GPShipToLanguage);
+            matchFlag &= UtilityMethods.CompareValues<string>("GPPurchaseOption", actualCatalogHeader.GPPurchaseOption, expectedCatalogHeader.GPPurchaseOption);
+            matchFlag &= UtilityMethods.CompareValues<bool>("CPFEnabled", actualCatalogHeader.CPFEnabled, expectedCatalogHeader.CPFEnabled);
+            matchFlag &= UtilityMethods.CompareValues<string>("IdentityUserName", actualCatalogHeader.IdentityUserName, identityName.ToUpper());
+            matchFlag &= UtilityMethods.CompareValues<int>("GracePeriod", actualCatalogHeader.GracePeriod, expectedCatalogHeader.GracePeriod);
+            matchFlag &= UtilityMethods.CompareValues<long>("ProfileId", actualCatalogHeader.ProfileId, expectedCatalogHeader.ProfileId);
+            matchFlag &= UtilityMethods.CompareValues<string>("CustomerID", actualCatalogHeader.CustomerID, expectedCatalogHeader.CustomerID);
+            matchFlag &= UtilityMethods.CompareValues<string>("AccessGroup", actualCatalogHeader.AccessGroup, expectedCatalogHeader.AccessGroup);
+            matchFlag &= UtilityMethods.CompareValues<string>("MessageType", actualCatalogHeader.MessageType, expectedCatalogHeader.MessageType);
+            matchFlag &= UtilityMethods.CompareValues<string>("CatalogType", actualCatalogHeader.CatalogType, expectedCatalogHeader.CatalogType);
+            matchFlag &= UtilityMethods.CompareValues<string>("Sender", actualCatalogHeader.Sender, expectedCatalogHeader.Sender);
+            matchFlag &= UtilityMethods.CompareValues<string>("Receiver", actualCatalogHeader.Receiver, identityName.ToUpper());
+            matchFlag &= UtilityMethods.CompareValues<string>("CatalogDate", actualCatalogHeader.CatalogDate.ToString(), DateTime.Now.ConvertToUtcTimeZone().ToString("MM/dd/yyyy 0:00:00", System.Globalization.CultureInfo.InvariantCulture));
+
+            return matchFlag;
+        }
+
+        /// <summary>
+        /// Validate all the tags of each Catalog Item
+        /// </summary>
+        /// <param name="actualCatalog"></param>
+        /// <param name="expectedCatalog"></param>
+        /// <returns></returns>
+        public bool ValidateCatalogItems(B2BXML actualCatalog, B2BXML expectedCatalog)
+        {
+            bool matchFlag = true;
+
+            Console.WriteLine("Catalog Items Data Validation");
+
+            actualCatalog.BuyerCatalog.CatalogDetails.CatalogItem.Count().Should().Be(expectedCatalog.BuyerCatalog.CatalogDetails.CatalogItem.Count(), "ERROR: Actual and Expected Catalog item count did not match");
+
+            foreach (CatalogItem actualCatalogItem in actualCatalog.BuyerCatalog.CatalogDetails.CatalogItem)
+            {
+                CatalogItem expectedCatalogItem = expectedCatalog.BuyerCatalog.CatalogDetails.CatalogItem.Where(ci => ci.ItemOrderCode == actualCatalogItem.ItemOrderCode).FirstOrDefault();
+
+                matchFlag &= UtilityMethods.CompareValues<CatalogItemType>("CatalogItemType", actualCatalogItem.CatalogItemType, expectedCatalogItem.CatalogItemType);
+                matchFlag &= UtilityMethods.CompareValues<string>("PrimaryCurrency", actualCatalogItem.PrimaryCurrency.CurrencyCode, actualCatalogItem.PrimaryCurrency.CurrencyCode);
+                matchFlag &= UtilityMethods.CompareValues<string>("AlternateCurrency", actualCatalogItem.AlternateCurrency.CurrencyCode, actualCatalogItem.AlternateCurrency.CurrencyCode);
+                matchFlag &= UtilityMethods.CompareValues<string>("ShortName", actualCatalogItem.ShortName, expectedCatalogItem.ShortName);
+                matchFlag &= UtilityMethods.CompareValues<string>("ItemDescription", actualCatalogItem.ItemDescription, expectedCatalogItem.ItemDescription);
+                matchFlag &= UtilityMethods.CompareValues<string>("UNSPSC", actualCatalogItem.UNSPSC, expectedCatalogItem.UNSPSC);
+                matchFlag &= UtilityMethods.CompareValues<string>("UOM", actualCatalogItem.UOM, expectedCatalogItem.UOM);
+                matchFlag &= UtilityMethods.CompareValues<decimal>("UnitPrice", actualCatalogItem.UnitPrice, expectedCatalogItem.UnitPrice);
+                matchFlag &= UtilityMethods.CompareValues<string>("SuplierPartAuxilaryId", actualCatalogItem.SuplierPartAuxilaryId, expectedCatalogItem.SuplierPartAuxilaryId);
+                matchFlag &= UtilityMethods.CompareValues<int>("LeadTime", actualCatalogItem.LeadTime, expectedCatalogItem.LeadTime);
+                matchFlag &= UtilityMethods.CompareValues<string>("SupplierURL", actualCatalogItem.SupplierURL, expectedCatalogItem.SupplierURL);
+                matchFlag &= UtilityMethods.CompareValues<string>("ImageURL", actualCatalogItem.ImageURL, expectedCatalogItem.ImageURL);
+                matchFlag &= UtilityMethods.CompareValues<string>("ManufacturerPartNumber", actualCatalogItem.ManufacturerPartNumber, expectedCatalogItem.ManufacturerPartNumber);
+                matchFlag &= UtilityMethods.CompareValues<string>("ManufacturerName", actualCatalogItem.ManufacturerName, expectedCatalogItem.ManufacturerName);
+                matchFlag &= UtilityMethods.CompareValues<string>("LongDescription", actualCatalogItem.LongDescription, expectedCatalogItem.LongDescription);
+                matchFlag &= UtilityMethods.CompareValues<string>("GrossWeight", actualCatalogItem.GrossWeight, expectedCatalogItem.GrossWeight);
+                matchFlag &= UtilityMethods.CompareValues<string>("Availability", actualCatalogItem.Availability, expectedCatalogItem.Availability);
+                matchFlag &= UtilityMethods.CompareValues<string>("CategoryLevel1", actualCatalogItem.CategoryLevel1, expectedCatalogItem.CategoryLevel1);
+                matchFlag &= UtilityMethods.CompareValues<string>("CategoryLevel2", actualCatalogItem.CategoryLevel2, expectedCatalogItem.CategoryLevel2);
+                matchFlag &= UtilityMethods.CompareValues<string>("DomsQuote", actualCatalogItem.DomsQuote, expectedCatalogItem.DomsQuote);
+                matchFlag &= UtilityMethods.CompareValues<string>("ItemOrderCode", actualCatalogItem.ItemOrderCode, expectedCatalogItem.ItemOrderCode);
+                matchFlag &= UtilityMethods.CompareValues<string>("BaseSKUId", actualCatalogItem.BaseSKUId, expectedCatalogItem.BaseSKUId);
+                matchFlag &= UtilityMethods.CompareValues<string>("FGASKUId", actualCatalogItem.FGASKUId, expectedCatalogItem.FGASKUId);
+                matchFlag &= UtilityMethods.CompareValues<string>("ReplacementQuoteId", actualCatalogItem.ReplacementQuoteId, expectedCatalogItem.ReplacementQuoteId);
+                matchFlag &= UtilityMethods.CompareValues<string>("ItemType", actualCatalogItem.ItemType, expectedCatalogItem.ItemType);
+                matchFlag &= UtilityMethods.CompareValues<string>("ItemSKUinfo", actualCatalogItem.ItemSKUinfo, expectedCatalogItem.ItemSKUinfo);
+                matchFlag &= UtilityMethods.CompareValues<string>("FGAModNumber", actualCatalogItem.FGAModNumber, expectedCatalogItem.FGAModNumber);
+                matchFlag &= UtilityMethods.CompareValues<string>("InventoryQty", actualCatalogItem.InventoryQty, expectedCatalogItem.InventoryQty);
+                matchFlag &= UtilityMethods.CompareValues<string>("ListPrice", actualCatalogItem.ListPrice, expectedCatalogItem.ListPrice);
+                matchFlag &= UtilityMethods.CompareValues<string>("UPC", actualCatalogItem.UPC, expectedCatalogItem.UPC);
+                matchFlag &= UtilityMethods.CompareValues<string>("ManufacturerCode", actualCatalogItem.ManufacturerCode, expectedCatalogItem.ManufacturerCode);
+                matchFlag &= UtilityMethods.CompareValues<string>("VPNReplacement", actualCatalogItem.VPNReplacement, expectedCatalogItem.VPNReplacement);
+                matchFlag &= UtilityMethods.CompareValues<string>("VPNEOLDate", actualCatalogItem.VPNEOLDate, expectedCatalogItem.VPNEOLDate);
+                matchFlag &= UtilityMethods.CompareValues<int>("PackageLength", actualCatalogItem.PackageLength, expectedCatalogItem.PackageLength);
+                matchFlag &= UtilityMethods.CompareValues<int>("PackageWidth", actualCatalogItem.PackageWidth, expectedCatalogItem.PackageWidth);
+                matchFlag &= UtilityMethods.CompareValues<int>("PackageHeight", actualCatalogItem.PackageHeight, expectedCatalogItem.PackageHeight);
+                matchFlag &= UtilityMethods.CompareValues<int>("PalletLength", actualCatalogItem.PalletLength, expectedCatalogItem.PalletLength);
+                matchFlag &= UtilityMethods.CompareValues<int>("PalletWidth", actualCatalogItem.PalletWidth, expectedCatalogItem.PalletWidth);
+                matchFlag &= UtilityMethods.CompareValues<int>("PalletHeight", actualCatalogItem.PalletHeight, expectedCatalogItem.PalletHeight);
+                matchFlag &= UtilityMethods.CompareValues<int>("PalletUnitsPerLayer", actualCatalogItem.PalletUnitsPerLayer, expectedCatalogItem.PalletUnitsPerLayer);
+                matchFlag &= UtilityMethods.CompareValues<int>("PalletLayerPerPallet", actualCatalogItem.PalletLayerPerPallet, expectedCatalogItem.PalletLayerPerPallet);
+                matchFlag &= UtilityMethods.CompareValues<int>("PalletUnitsPerPallet", actualCatalogItem.PalletUnitsPerPallet, expectedCatalogItem.PalletUnitsPerPallet);
+
+                // Part and Quote Id
+                if (!(matchFlag &= (!String.IsNullOrEmpty(actualCatalogItem.PartId))))
+                    Console.WriteLine("PartId is empty");
+                if (!(matchFlag &= (!String.IsNullOrEmpty(actualCatalogItem.QuoteId))))
+                    Console.WriteLine("QuoteId is empty");
+                if (!(matchFlag &= (!(actualCatalogItem.PartId != "BHC:" + actualCatalogItem.QuoteId))))
+                    Console.WriteLine("PartId and QuoteId validation failed");
+
+                // Modules
+                actualCatalogItem.Modules.Module.Count().Should().Be(expectedCatalogItem.Modules.Module.Count(), "ERROR: Module count mismatch for Order code: " + actualCatalogItem.ItemOrderCode);
+
+                foreach (CatalogItemModule actualmodule in actualCatalogItem.Modules.Module)
+                {
+                    CatalogItemModule expectedModule = expectedCatalogItem.Modules.Module.Where(em => em.ModuleId == actualmodule.ModuleId).FirstOrDefault();
+
+                    actualmodule.Options.Option.Count().Should().Be(expectedModule.Options.Option.Count(), "ERROR: Option count mismatch for Module ID: " + actualmodule.ModuleId.ToString());
+
+                    foreach (CatalogItemOption actualOption in actualmodule.Options.Option)
+                    {
+                        CatalogItemOption expectedOption = expectedModule.Options.Option.Where(eo => eo.OptionDesc == actualOption.OptionDesc).FirstOrDefault();
+
+                        actualOption.OptionSkuList.OptionSku.Count().Should().Be(expectedOption.OptionSkuList.OptionSku.Count(), "ERROR: Option SKU count mismtach for Option Desc: " + actualOption.OptionDesc);
+
+                        foreach (OptionSku actualOptionSku in actualOption.OptionSkuList.OptionSku)
+                        {
+                            OptionSku expectedOptionSku = expectedOption.OptionSkuList.OptionSku.Where(eo => eo.SkuId == actualOptionSku.SkuId).FirstOrDefault();
+
+                            matchFlag &= UtilityMethods.CompareValues<string>("Modules.Module.Options.Option.OptionSkuList.OptionSku.SkuId", actualOptionSku.SkuId, expectedOptionSku.SkuId);
+                            matchFlag &= UtilityMethods.CompareValues<string>("Modules.Module.Options.Option.OptionSkuList.OptionSku.SkuDescription", actualOptionSku.SkuDescription, expectedOptionSku.SkuDescription);
+                            matchFlag &= UtilityMethods.CompareValues<string>("Modules.Module.Options.Option.OptionSkuList.OptionSku.OptionId", actualOptionSku.OptionId, expectedOptionSku.OptionId);
+                            matchFlag &= UtilityMethods.CompareValues<decimal>("Modules.Module.Options.Option.OptionSkuList.OptionSku.SkuPrice", actualOptionSku.SkuPrice, expectedOptionSku.SkuPrice);
+                        }
+
+                        matchFlag &= UtilityMethods.CompareValues<string>("Modules.Module.Options.Option.OptionId", actualOption.OptionId, expectedOption.OptionId);
+                        matchFlag &= UtilityMethods.CompareValues<string>("Modules.Module.Options.Option.OptionDesc", actualOption.OptionDesc, expectedOption.OptionDesc);
+                        matchFlag &= UtilityMethods.CompareValues<bool>("Modules.Module.Options.Option.Selected", actualOption.Selected, expectedOption.Selected);
+                        matchFlag &= UtilityMethods.CompareValues<decimal>("Modules.Module.Options.Option.DeltaPrice", actualOption.DeltaPrice, expectedOption.DeltaPrice);
+                        matchFlag &= UtilityMethods.CompareValues<decimal>("Modules.Module.Options.Option.FinalPrice", actualOption.FinalPrice, expectedOption.FinalPrice);
+                    }
+                    matchFlag &= UtilityMethods.CompareValues<int>("Modules.Module.ModuleId", actualmodule.ModuleId, expectedModule.ModuleId);
+                    matchFlag &= UtilityMethods.CompareValues<string>("Modules.Module.ModuleDesc", actualmodule.ModuleDesc, expectedModule.ModuleDesc);
+                    matchFlag &= UtilityMethods.CompareValues<bool>("Modules.Module.Required", actualmodule.Required, expectedModule.Required);
+                    matchFlag &= UtilityMethods.CompareValues<bool>("Modules.Module.MultiSelect", actualmodule.MultiSelect, expectedModule.MultiSelect);
+                    matchFlag &= UtilityMethods.CompareValues<string>("Modules.Module.DefaultOptionId", actualmodule.DefaultOptionId, expectedModule.DefaultOptionId);
+                    matchFlag &= UtilityMethods.CompareValues<decimal>("Modules.Module.DefaultOptionPrice", actualmodule.DefaultOptionPrice, expectedModule.DefaultOptionPrice);
+                }
+
+                // Lease
+                matchFlag &= UtilityMethods.CompareValues<string>("Lease.LeaseTerms", actualCatalogItem.Lease.LeaseTerms, expectedCatalogItem.Lease.LeaseTerms);
+                matchFlag &= UtilityMethods.CompareValues<string>("Lease.Frequency", actualCatalogItem.Lease.Frequency, expectedCatalogItem.Lease.Frequency);
+                matchFlag &= UtilityMethods.CompareValues<decimal>("Lease.LeaseTerms", actualCatalogItem.Lease.LRF, expectedCatalogItem.Lease.LRF);
+                matchFlag &= UtilityMethods.CompareValues<string>("Lease.LeaseTerms", actualCatalogItem.Lease.Disposition, expectedCatalogItem.Lease.Disposition);
+                matchFlag &= UtilityMethods.CompareValues<decimal>("Lease.LeaseTerms", actualCatalogItem.Lease.ExpensedTotal, expectedCatalogItem.Lease.ExpensedTotal);
+
+                // Delta Comments
+                matchFlag &= UtilityMethods.CompareValues<string>("DeltaComments.Operation", actualCatalogItem.DeltaComments.Operation, expectedCatalogItem.DeltaComments.Operation);
+
+                // Delta Change
+                matchFlag &= UtilityMethods.CompareValues<DeltaStatus>("DeltaChange", actualCatalogItem.DeltaChange, expectedCatalogItem.DeltaChange);
+            }
+
+            return matchFlag;
+        }
+
+        /// <summary>
+        /// Validate emails for generated catalog
+        /// </summary>
+        /// <param name="identityName">Identity name</param>
+        /// <param name="anyTimeAfter">Time after which the catalog was generated</param>
+        /// <param name="catalogOperation">Catalog operation</param>
+        public void ValidateCatalogEMails(string identityName, DateTime anyTimeAfter, CatalogOperation catalogOperation)
         {
             EmailHelper emailHelper = new EmailHelper();
-            List<Item> emails = emailHelper.GetEmails("US B2B Support", identityName, anyTimeAfter, operation);
+            List<Item> emails = emailHelper.GetEmails("US B2B Support", identityName, anyTimeAfter, catalogOperation);
 
-            if (operation == CatalogOperation.Create)
+            if (catalogOperation == CatalogOperation.Create)
             {
                 emails.Count().Should().Be(1, "Error: Email count validation failed");
                 emails.ElementAt(0).Subject.Should().Contain("Test - B2B Original Catalog Create SUCCESS", "Error: Email Subject validation failed");
             }
-            else if (operation == CatalogOperation.CreateAndPublish)
+            else if (catalogOperation == CatalogOperation.CreateAndPublish)
             {
                 emails.Count().Should().Be(2, "Error: Email count validation failed");
                 emails.Where(e => e.Subject.Contains("Create")).ElementAt(0).Subject.Should().Contain("Test - B2B Original Catalog Create SUCCESS", "Error: Create Email Subject validation failed");
@@ -190,6 +330,13 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             }
         }
 
+        /// <summary>
+        /// Publish the catalog to Processor
+        /// </summary>
+        /// <param name="environment">Prod/Prev</param>
+        /// <param name="profileName">Name of Profile</param>
+        /// <param name="identityName">Name of Identity</param>
+        /// <param name="catalogType">Original/Delta</param>
         internal void PublishCatalogByClickOnce(B2BEnvironment environment, string profileName, string identityName, CatalogType catalogType)
         {
             webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["TestHarnessPageUrl"] + ((environment == B2BEnvironment.Production) ? "P" : "U"));
@@ -212,6 +359,87 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
 
             IAlert successAlert = webDriver.WaitGetAlert(CatalogTimeOuts.AlertTimeOut);
             successAlert.Accept();
+
+            Console.WriteLine("Profile Name: " + profileName);
+            Console.WriteLine("Identity Name: " + identityName);
+        }
+
+        /// <summary>
+        /// Search for a catalog in Auto Catalog List & Inventory page 
+        /// </summary>
+        /// <param name="profileName">Profile name</param>
+        /// <param name="identityName">Identity name</param>
+        /// <param name="anyTimeAfter">Time after which the catalog is processed</param>
+        /// <param name="operation">Catalog operation i.e. 'Create' or 'Create & Publish'</param>
+        public void SearchCatalog(string profileName, string identityName, DateTime anyTimeAfter, CatalogOperation operation)
+        {
+            CPTAutoCatalogInventoryListPage autoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
+            autoCatalogListPage.SelectOption(autoCatalogListPage.SelectRegionSpan, "US");
+            autoCatalogListPage.SelectOption(autoCatalogListPage.SelectCustomerNameSpan, profileName);
+            autoCatalogListPage.SelectOption(autoCatalogListPage.SelectIdentityNameSpan, identityName.ToUpper());
+            autoCatalogListPage.SearchRecordsLink.Click();
+            autoCatalogListPage.CatalogsTable.WaitForElementVisible(TimeSpan.FromSeconds(30));
+            autoCatalogListPage.WaitForCatalogInSearchResult(anyTimeAfter.ConvertToUtcTimeZone(), operation);
+        }
+
+        /// <summary>
+        /// Validate catalog details in Auto Catalog List & Inventory page
+        /// </summary>
+        /// <param name="catalogItemType">Catalog Item Type</param>
+        /// <param name="catalogType">Catalog Type</param>
+        /// <param name="catalogOperation">Catalog Operation</param>
+        /// <param name="anyTimeAfter">Time after which catalog was generated</param>
+        public void ValidateCatalog(CatalogItemType catalogItemType, CatalogType catalogType, CatalogOperation catalogOperation, DateTime anyTimeAfter)
+        {
+            CPTAutoCatalogInventoryListPage autoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
+            //bool Std = false, SnP = false, StdUD = false, Sys = false;
+
+            autoCatalogListPage.CatalogsTable.GetCellValue(1, "Last Status Date").Trim().ConvertToDateTime().AddMinutes(1).Should().BeAfter(anyTimeAfter.ConvertToUtcTimeZone(), "Catalog is not displayed in Search Result");
+            autoCatalogListPage.CatalogsTable.GetCellValue(1, "Type").Should().Be(catalogType.ConvertToString(), "Expected Catalog type is incorrect");
+            autoCatalogListPage.CatalogsTable.GetCellValue(1, "Status").Should().Be(catalogOperation == CatalogOperation.Create ? CatalogStatus.Created.ConvertToString() : CatalogStatus.Published.ConvertToString(), "Catalog creation failed");
+
+            //switch (catalogItemType)
+            //{
+            //    case CatalogItemType.ConfigWithDefaultOptions:
+            //        Std = true;
+            //        break;
+            //    case CatalogItemType.ConfigWithUpsellDownsell:
+            //        Std = true;
+            //        StdUD = true;
+            //        break;
+            //    case CatalogItemType.SNP:
+            //        SnP = true;
+            //        break;
+            //    case CatalogItemType.Systems:
+            //        Sys = true;
+            //        break;
+            //}
+
+            //autoCatalogListPage.CatalogsTable.GetCheckBoxFromCell(1, "Std").GetAttribute("checked").Should().Be(Std.ToString());
+            //autoCatalogListPage.CatalogsTable.GetCheckBoxFromCell(1, "U&D").GetAttribute("checked").Should().Be(StdUD.ToString());
+            //autoCatalogListPage.CatalogsTable.GetCheckBoxFromCell(1, "SnP").GetAttribute("checked").Should().Be(SnP.ToString());
+            //autoCatalogListPage.CatalogsTable.GetCheckBoxFromCell(1, "SYS").GetAttribute("checked").Should().Be(Sys.ToString());
+        }
+
+        /// <summary>
+        /// Download catalog from Auto Catalog List & Inventory page
+        /// </summary>
+        /// <param name="identityName">Identity Name</param>
+        /// <param name="anyTimeAfter">Time after which the catalog is processed</param>
+        /// <returns>File name for the downloaded catalog</returns>
+        public string DownloadCatalog(string identityName, DateTime anyTimeAfter)
+        {
+            CPTAutoCatalogInventoryListPage autoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
+
+            autoCatalogListPage.GetDownloadButton(1).Click();
+            string downloadPath = ConfigurationManager.AppSettings["CatalogDownloadPath"];
+
+            webDriver.WaitForDownLoadToComplete(downloadPath, identityName, anyTimeAfter, TimeSpan.FromMinutes(1));
+            string fileName = new DirectoryInfo(downloadPath).GetFiles().AsEnumerable()
+                .Where(file => file.Name.Contains(identityName.ToUpper()) && file.CreationTime > anyTimeAfter)
+                .FirstOrDefault().FullName;
+
+            return fileName;
         }
     }
 }

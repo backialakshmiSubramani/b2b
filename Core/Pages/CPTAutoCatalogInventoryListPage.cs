@@ -650,21 +650,21 @@ namespace Modules.Channel.B2B.Core.Pages
         {
             DateTime lastStatusDate;
             double timeOutInSecs = CatalogTimeOuts.CatalogSearchTimeOut.TotalSeconds;
-            string op = (operation == CatalogOperation.Create ? "Created" : "Published");
-            string status;
+            CatalogStatus catalogStatus = (operation == CatalogOperation.Create ? CatalogStatus.Created : CatalogStatus.Published);
+            CatalogStatus status;
 
             while (timeOutInSecs > 0)
             {
                 lastStatusDate = Convert.ToDateTime(CatalogsTable.GetCellValue(1, "Last Status Date"), System.Globalization.CultureInfo.InvariantCulture);
-                status = CatalogsTable.GetCellValue(1, "Status");
+                status = (CatalogStatus)Enum.Parse(typeof(CatalogStatus), CatalogsTable.GetCellValue(1, "Status"));
 
-                if (lastStatusDate.AddMinutes(1) > createdTime && status == op)
+                if (lastStatusDate.AddMinutes(1) > createdTime && (status == catalogStatus || status == CatalogStatus.Failed))
                     break;
                 else
                 {
                     SearchRecordsLink.Click();
-                    Thread.Sleep(TimeSpan.FromSeconds(10));
-                    timeOutInSecs -= 10;
+                    Thread.Sleep(TimeSpan.FromSeconds(5));
+                    timeOutInSecs -= 5;
                 }
             }
         }
