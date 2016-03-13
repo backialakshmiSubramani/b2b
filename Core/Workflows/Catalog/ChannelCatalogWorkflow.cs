@@ -88,7 +88,8 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             b2BProfileSettingsGeneralPage.EnterIdentityName(newProfileName);
             b2BProfileSettingsGeneralPage.EnterCustomerSet(customerSet);
             b2BProfileSettingsGeneralPage.SearchLink.Click();
-            WaitForPageRefresh(); WaitForPageRefresh();
+            WaitForPageRefresh(); WaitForPageRefresh(); WaitForPageRefresh();
+           // b2BProfileSettingsGeneralPage.SelectValidAccessGroupMsg.WaitForElementDisplayed(TimeSpan.FromSeconds(60));
             if (b2BProfileSettingsGeneralPage.SelectAccessGroupMsgDisplayed())
             {
                 b2BProfileSettingsGeneralPage.EnterAccessGroup(accessGroup);
@@ -4140,6 +4141,15 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             }
         }
 
+        public void VerifyPackageUploadForAllFieldsPrev(B2BEnvironment b2BEnvironment, string fileToUpload, string message)
+        {
+            b2BHomePage.SelectEnvironment(b2BEnvironment.ToString());
+            b2BHomePage.OpenPackageUploadPage();
+
+            b2BCatalogPackagingDataUploadPage = new B2BCatalogPackagingDataUploadPage(webDriver);
+            b2BCatalogPackagingDataUploadPage.UploadExcelFile(fileToUpload);
+            b2BCatalogPackagingDataUploadPage.UploadMessage.Text.Trim().Equals(message);
+        }
         public void VerifyAuditHistoryRecordsForPackageUpload(B2BEnvironment b2BEnvironment, string fileToUpload, string message)
         {
             b2BHomePage.SelectEnvironment(b2BEnvironment.ToString());

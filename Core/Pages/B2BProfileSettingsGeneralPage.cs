@@ -112,8 +112,11 @@ namespace Modules.Channel.B2B.Core.Pages
         {
             get
             {
-                webDriver.WaitForElement(By.XPath("//li[contains(text(),'Select valid AccessGroup')]"), TimeSpan.FromSeconds(60));
-                return webDriver.FindElement(By.XPath("//li[contains(text(),'Select valid AccessGroup')]"));
+                //webDriver.WaitForElement(By.XPath("//li[contains(text(),'Select valid AccessGroup')]"), TimeSpan.FromSeconds(60));
+                //return webDriver.FindElement(By.XPath("//li[contains(text(),'Select valid AccessGroup')]"));
+                webDriver.WaitForElement(By.XPath("//option[contains(text(),'Select an Item')]"), TimeSpan.FromSeconds(90));
+                webDriver.WaitForPageLoad(new TimeSpan(0, 0, 15));
+                return webDriver.FindElement(By.XPath("//option[contains(text(),'Select an Item')]"));
             }
         }
 
@@ -123,6 +126,7 @@ namespace Modules.Channel.B2B.Core.Pages
             get
             {
                 return new SelectElement(webDriver.FindElement(By.XPath("//select[contains(@id,'SelectAccessGroup')]")));
+                //return new SelectElement(webDriver.FindElement(By.XPath("//option[contains(@id,'SelectAccessGroup')]")));
             }
         }
 
@@ -190,6 +194,7 @@ namespace Modules.Channel.B2B.Core.Pages
 
         public bool SelectAccessGroupMsgDisplayed()
         {
+            SelectValidAccessGroupMsg.WaitForElementDisplayed(TimeSpan.FromSeconds(60));
             return SelectValidAccessGroupMsg.Displayed;
         }
 
