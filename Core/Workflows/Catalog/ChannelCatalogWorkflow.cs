@@ -1754,11 +1754,12 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             { b2BAutoCatalogListPage.SelectTheCountry(country1); }
             if (b2BAutoCatalogListPage.VerifyCustomerExists(customerName1))
                 tempCustomerName1 = true;
+            b2BAutoCatalogListPage.ClickClearAll();
 
             b2BAutoCatalogListPage.SelectTheRegion(region2);
             if (country2 != "")
             { b2BAutoCatalogListPage.SelectTheCountry(country2); }
-            if (!(b2BAutoCatalogListPage.VerifyCustomerExists(customerName2)))
+            if (!(b2BAutoCatalogListPage.VerifyCustomerExists(customerName1)))
                 tempCustomerName2 = true;
 
             if (tempCustomerName1 == true && tempCustomerName2 == true)

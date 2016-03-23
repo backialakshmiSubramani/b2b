@@ -147,7 +147,8 @@ namespace Modules.Channel.B2B.Common
         {
             XDocument doc = XDocument.Load(fileName);
             doc.XPathSelectElement("//OrderNumber/BuyerOrderNumber").SetValue(orderId);
-            doc.XPathSelectElement("//OrderParty/BuyerParty/Party/PartyID/Identifier/Agency/AgencyCodedOther").SetValue(identityName);
+            //doc.XPathSelectElement("//OrderParty/BuyerParty/Party/PartyID/Identifier/Agency/AgencyCodedOther").SetValue(identityName);
+            doc.XPathSelectElement("//OrderParty/BuyerParty/Party/ListOfIdentifier/Identifier/Agency/AgencyDescription").SetValue(identityName);
             doc.XPathSelectElement("//ItemIdentifiers/PartNumbers/SellerPartNumber/PartNum/PartIDExt").SetValue(supplierPartId);
             doc.XPathSelectElement("//ItemIdentifiers/PartNumbers/BuyerPartNumber/PartNum/PartIDExt").SetValue(supplierPartId);
             doc.XPathSelectElement("//PricingDetail/ListOfPrice/Price/UnitPrice/UnitPriceValue").SetValue(unitPrice);

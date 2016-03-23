@@ -641,6 +641,16 @@ namespace Modules.Channel.B2B.Core.Pages
             webDriver.FindElement(By.XPath("//div[@ng-model='CatalogStatusId']/div/ul/li/a[contains(text(),'" + status + "')]")).Click();
         }
 
+        /// <summary>
+        /// Clicks the Clear All Link
+        /// </summary>
+        /// <param name="status"></param>
+        public void ClickClearAll()
+        {
+            webDriver.FindElement(By.Id("lnkClear")).Click();
+           
+        }
+
         public IWebElement GetDownloadButton(int rowIndex)
         {
             return CatalogsTable.FindElement(By.CssSelector("tbody>tr:nth-of-type(" + rowIndex + ")>td[title=' download']>input[type='image']"));
