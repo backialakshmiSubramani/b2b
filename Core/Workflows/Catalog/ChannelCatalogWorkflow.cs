@@ -1831,8 +1831,8 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         {
             b2BHomePage.SelectEnvironment(environment);
             b2BHomePage.AutoCatalogInventoryListPageLink.Click();
-            webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
             b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
+            webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
             WaitForPageRefresh();
             b2BAutoCatalogListPage.SelectTheRegion(regionName);
             b2BAutoCatalogListPage.SelectTheCountry(countryName);
@@ -1939,7 +1939,8 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
             webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
             WaitForPageRefresh();
-            b2BAutoCatalogListPage.SelectTheCustomer(profileName);
+            b2BAutoCatalogListPage.SelectOption(b2BAutoCatalogListPage.SelectCustomerNameSpan, profileName);
+            //b2BAutoCatalogListPage.SelectTheCustomer(profileName);
             WaitForPageRefresh();
             if (identityList.Count() ==
                 b2BAutoCatalogListPage.SelectIdentity.Select()

@@ -99,32 +99,36 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             B2BXML actualCatalog = XMLDeserializer<B2BXML>.DeserializeFromXmlFile(filePath);
 
             string expectedCatalogFilePath = string.Empty;
+            string expectedCatalogFileName = string.Empty;
             switch (catalogItemType)
             {
                 case CatalogItemType.ConfigWithDefaultOptions:
-                    expectedCatalogFilePath = Path.Combine(System.Environment.CurrentDirectory, "StdConfig_OC_Expected.xml");
+                    expectedCatalogFileName = catalogType == CatalogType.Original ? "StdConfig_OC_Expected.xml" : "StdConfig_DC_Expected.xml";
                     break;
                 case CatalogItemType.SNP:
-                    //expectedCatalogFilePath = Path.Combine(System.Environment.CurrentDirectory, "SnP_OC_Expected.xml");
-                    break;
-                case CatalogItemType.Systems:
+                    expectedCatalogFileName = catalogType == CatalogType.Original ? "SnP_OC_Expected.xml" : "SnP_DC_Expected.xml";
                     break;
                 case CatalogItemType.ConfigWithUpsellDownsell:
+                    expectedCatalogFileName = catalogType == CatalogType.Original ? "StdConfigUD_OC_Expected.xml" : "StdConfigUD_DC_Expected.xml";
                     break;
                 default:
                     break;
             }
+            if (!String.IsNullOrEmpty(expectedCatalogFileName))
+                expectedCatalogFilePath = Path.Combine(System.Environment.CurrentDirectory, expectedCatalogFileName);
 
             B2BXML expectedCatalog = XMLDeserializer<B2BXML>.DeserializeFromXmlFile(expectedCatalogFilePath);
 
-            string fileName = new FileInfo(filePath).Name;
-            string catalogName = fileName.Split('.')[0];
+            string fileName = string.Empty;
+            string catalogName = string.Empty;
+            if (!String.IsNullOrEmpty(filePath))
+                fileName = new FileInfo(filePath).Name;
+            if(!String.IsNullOrEmpty(fileName))
+                catalogName = fileName.Split('.')[0];
 
             bool matchFlag = true;
             matchFlag &= ValidateCatalogHeader(actualCatalog, expectedCatalog, catalogItemType, identityName, catalogName);
-
-            if (catalogItemType == CatalogItemType.ConfigWithDefaultOptions) // Temporary check
-                matchFlag &= ValidateCatalogItems(actualCatalog, expectedCatalog);
+            matchFlag &= ValidateCatalogItems(actualCatalog, expectedCatalog);
 
             return matchFlag;
         }
@@ -197,8 +201,18 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
 
             foreach (CatalogItem actualCatalogItem in actualCatalog.BuyerCatalog.CatalogDetails.CatalogItem)
             {
-                CatalogItem expectedCatalogItem = expectedCatalog.BuyerCatalog.CatalogDetails.CatalogItem.Where(ci => ci.ItemOrderCode == actualCatalogItem.ItemOrderCode).FirstOrDefault();
+                CatalogItem expectedCatalogItem = null;
 
+                if (actualCatalogItem.CatalogItemType == CatalogItemType.SNP)
+                {
+                    expectedCatalogItem = expectedCatalog.BuyerCatalog.CatalogDetails.CatalogItem.Where(ci => ci.BaseSKUId == actualCatalogItem.BaseSKUId).FirstOrDefault();
+                    matchFlag &= (actualCatalogItem.PartId.Contains("BHC:"));
+                }
+                else
+                {
+                    expectedCatalogItem = expectedCatalog.BuyerCatalog.CatalogDetails.CatalogItem.Where(ci => ci.ItemOrderCode == actualCatalogItem.ItemOrderCode).FirstOrDefault();
+                    matchFlag &= !(actualCatalogItem.PartId != "BHC:" + actualCatalogItem.QuoteId);
+                }
                 matchFlag &= UtilityMethods.CompareValues<CatalogItemType>("CatalogItemType", actualCatalogItem.CatalogItemType, expectedCatalogItem.CatalogItemType);
                 matchFlag &= UtilityMethods.CompareValues<string>("PrimaryCurrency", actualCatalogItem.PrimaryCurrency.CurrencyCode, actualCatalogItem.PrimaryCurrency.CurrencyCode);
                 matchFlag &= UtilityMethods.CompareValues<string>("AlternateCurrency", actualCatalogItem.AlternateCurrency.CurrencyCode, actualCatalogItem.AlternateCurrency.CurrencyCode);
@@ -208,7 +222,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                 matchFlag &= UtilityMethods.CompareValues<string>("UOM", actualCatalogItem.UOM, expectedCatalogItem.UOM);
                 matchFlag &= UtilityMethods.CompareValues<decimal>("UnitPrice", actualCatalogItem.UnitPrice, expectedCatalogItem.UnitPrice);
                 matchFlag &= UtilityMethods.CompareValues<string>("SuplierPartAuxilaryId", actualCatalogItem.SuplierPartAuxilaryId, expectedCatalogItem.SuplierPartAuxilaryId);
-                matchFlag &= UtilityMethods.CompareValues<int>("LeadTime", actualCatalogItem.LeadTime, expectedCatalogItem.LeadTime);
+                //matchFlag &= UtilityMethods.CompareValues<int>("LeadTime", actualCatalogItem.LeadTime, expectedCatalogItem.LeadTime);
                 matchFlag &= UtilityMethods.CompareValues<string>("SupplierURL", actualCatalogItem.SupplierURL, expectedCatalogItem.SupplierURL);
                 matchFlag &= UtilityMethods.CompareValues<string>("ImageURL", actualCatalogItem.ImageURL, expectedCatalogItem.ImageURL);
                 matchFlag &= UtilityMethods.CompareValues<string>("ManufacturerPartNumber", actualCatalogItem.ManufacturerPartNumber, expectedCatalogItem.ManufacturerPartNumber);
@@ -242,13 +256,14 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                 matchFlag &= UtilityMethods.CompareValues<int>("PalletLayerPerPallet", actualCatalogItem.PalletLayerPerPallet, expectedCatalogItem.PalletLayerPerPallet);
                 matchFlag &= UtilityMethods.CompareValues<int>("PalletUnitsPerPallet", actualCatalogItem.PalletUnitsPerPallet, expectedCatalogItem.PalletUnitsPerPallet);
 
+                Console.WriteLine("PartId: " + actualCatalogItem.PartId);
+                Console.WriteLine("QuoteId: " + actualCatalogItem.QuoteId);
+
                 // Part and Quote Id
-                if (!(matchFlag &= (!String.IsNullOrEmpty(actualCatalogItem.PartId))))
-                    Console.WriteLine("PartId is empty");
-                if (!(matchFlag &= (!String.IsNullOrEmpty(actualCatalogItem.QuoteId))))
-                    Console.WriteLine("QuoteId is empty");
-                if (!(matchFlag &= (!(actualCatalogItem.PartId != "BHC:" + actualCatalogItem.QuoteId))))
-                    Console.WriteLine("PartId and QuoteId validation failed");
+                matchFlag &= !(String.IsNullOrEmpty(actualCatalogItem.PartId));
+                //Console.WriteLine("PartId is empty");
+                matchFlag &= !(String.IsNullOrEmpty(actualCatalogItem.QuoteId));
+                //Console.WriteLine("PartId is empty");
 
                 // Modules
                 actualCatalogItem.Modules.Module.Count().Should().Be(expectedCatalogItem.Modules.Module.Count(), "ERROR: Module count mismatch for Order code: " + actualCatalogItem.ItemOrderCode);
@@ -392,33 +407,9 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         public void ValidateCatalog(CatalogItemType catalogItemType, CatalogType catalogType, CatalogOperation catalogOperation, DateTime anyTimeAfter)
         {
             CPTAutoCatalogInventoryListPage autoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
-            //bool Std = false, SnP = false, StdUD = false, Sys = false;
-
             autoCatalogListPage.CatalogsTable.GetCellValue(1, "Last Status Date").Trim().ConvertToDateTime().AddMinutes(1).Should().BeAfter(anyTimeAfter.ConvertToUtcTimeZone(), "Catalog is not displayed in Search Result");
             autoCatalogListPage.CatalogsTable.GetCellValue(1, "Type").Should().Be(catalogType.ConvertToString(), "Expected Catalog type is incorrect");
             autoCatalogListPage.CatalogsTable.GetCellValue(1, "Status").Should().Be(catalogOperation == CatalogOperation.Create ? CatalogStatus.Created.ConvertToString() : CatalogStatus.Published.ConvertToString(), "Catalog creation failed");
-
-            //switch (catalogItemType)
-            //{
-            //    case CatalogItemType.ConfigWithDefaultOptions:
-            //        Std = true;
-            //        break;
-            //    case CatalogItemType.ConfigWithUpsellDownsell:
-            //        Std = true;
-            //        StdUD = true;
-            //        break;
-            //    case CatalogItemType.SNP:
-            //        SnP = true;
-            //        break;
-            //    case CatalogItemType.Systems:
-            //        Sys = true;
-            //        break;
-            //}
-
-            //autoCatalogListPage.CatalogsTable.GetCheckBoxFromCell(1, "Std").GetAttribute("checked").Should().Be(Std.ToString());
-            //autoCatalogListPage.CatalogsTable.GetCheckBoxFromCell(1, "U&D").GetAttribute("checked").Should().Be(StdUD.ToString());
-            //autoCatalogListPage.CatalogsTable.GetCheckBoxFromCell(1, "SnP").GetAttribute("checked").Should().Be(SnP.ToString());
-            //autoCatalogListPage.CatalogsTable.GetCheckBoxFromCell(1, "SYS").GetAttribute("checked").Should().Be(Sys.ToString());
         }
 
         /// <summary>
