@@ -432,5 +432,32 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
 
             return fileName;
         }
+
+        /// <summary>
+        /// It verifies whether Order code exests or not
+        /// </summary>
+        /// <param name="filePath">XML file path</param>
+        /// <param name="itemOrderCode">itemOrderCode that need to check</param>
+        /// <returns>If itemOrderCode exists it returns true</returns>
+        public bool VerifyOrderCodeExistsInCatalogFile(string filePath, string itemOrderCode)
+        {
+    
+            B2BXML actualCatalog = XMLDeserializer<B2BXML>.DeserializeFromXmlFile(filePath);
+
+            bool matchFlag = false;
+
+            foreach (CatalogItem actualCatalogItem in actualCatalog.BuyerCatalog.CatalogDetails.CatalogItem)
+            {
+
+                if (UtilityMethods.CompareValues<string>("ItemOrderCode", actualCatalogItem.ItemOrderCode, itemOrderCode))
+                {
+                    matchFlag = true;
+                    break;
+                }
+            }
+
+            return matchFlag;
+
+        }
     }
 }

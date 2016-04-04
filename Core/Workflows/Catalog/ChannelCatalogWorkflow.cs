@@ -4418,6 +4418,34 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             var wantedText = selectedValue.SelectedOption.Text;
             return wantedText.Equals(expireDays);
         }
+
+        /// <summary>
+        /// Below method verifies whether the BTS Order code exists or not in a Catlog file while Lead time > 3in BHC section
+        /// If BTS Order code not exists then it retuns True
+        /// </summary>
+        public bool VerifyLeadTimeGreaterThanThreeBTSOrderCodesNotExistsInCatalog(B2BEnvironment b2BEnvironment, CatalogItemType catalogItemType, string profileName, string identityName, CatalogOperation catalogOperation, CatalogType catalogType, string itemOrderCode)
+        {
+            bool expectedValue= true;
+            DateTime beforeSchedTime = DateTime.Now;
+
+            ChannelUxWorkflow uxWorkflow = new ChannelUxWorkflow(webDriver);
+            uxWorkflow.PublishCatalogByClickOnce(b2BEnvironment, profileName, identityName, catalogType);
+
+            webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["AutoCatalogListPageUrl"] + ((b2BEnvironment == B2BEnvironment.Production) ? "P" : "U"));
+            uxWorkflow.SearchCatalog(profileName, identityName, beforeSchedTime, catalogOperation);
+            uxWorkflow.ValidateCatalog(catalogItemType, catalogType, catalogOperation, beforeSchedTime);
+            
+            string filePath = uxWorkflow.DownloadCatalog(identityName, beforeSchedTime);
+            if (uxWorkflow.VerifyOrderCodeExistsInCatalogFile(filePath, itemOrderCode))
+            {
+                expectedValue = false;
+                return expectedValue;
+            }
+            else
+            {
+                 return expectedValue;
+            }
+        }
     }
 
     /// <summary>
