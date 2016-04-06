@@ -187,7 +187,7 @@ namespace Modules.Channel.B2B.Core.Pages
         {
             webDriver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromMinutes(1));
             webElement.Click();
-            IWebElement textElement = webElement.FindElement(By.XPath("div/ul/child::li/a/div/strong[contains(text(),'" + optionText + "')]"));
+            IWebElement textElement = webElement.FindElement(By.XPath("div/ul/child::li/a/div/strong[text()='" + optionText + "']"));
             textElement.Click();
 
             //webElement.Click();

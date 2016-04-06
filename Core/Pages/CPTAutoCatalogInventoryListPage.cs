@@ -510,6 +510,13 @@ namespace Modules.Channel.B2B.Core.Pages
             }
         }
 
+        public IWebElement SelectStatusNameSpan
+        {
+            get
+            {
+                return webDriver.FindElement(By.XPath("//span[contains(text(),'Select Catalog Status')]"));
+            }
+        }
         public IWebElement SelectRegionSpan
         {
             get
@@ -656,11 +663,10 @@ namespace Modules.Channel.B2B.Core.Pages
             return CatalogsTable.FindElement(By.CssSelector("tbody>tr:nth-of-type(" + rowIndex + ")>td[title=' download']>input[type='image']"));
         }
 
-        public void WaitForCatalogInSearchResult(DateTime createdTime, CatalogOperation operation)
+        public void WaitForCatalogInSearchResult(DateTime createdTime, CatalogStatus catalogStatus)
         {
             DateTime lastStatusDate;
             double timeOutInSecs = CatalogTimeOuts.CatalogSearchTimeOut.TotalSeconds;
-            CatalogStatus catalogStatus = (operation == CatalogOperation.Create ? CatalogStatus.Created : CatalogStatus.Published);
             CatalogStatus status;
 
             while (timeOutInSecs > 0)

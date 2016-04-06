@@ -39,7 +39,7 @@ namespace Modules.Channel.B2B.Common
         ConfigWithDefaultOptions = 0,
         SNP = 2,
         Systems = 3,
-        ConfigWithUpsellDownsell = 1
+        ConfigWithUpsellDownsell = 1 
     }
 
     public enum CatalogOperation
@@ -47,7 +47,13 @@ namespace Modules.Channel.B2B.Common
         Create,
         CreateAndPublish
     }
-
+    public enum ConfigRules
+    {
+        None=0,
+        LeadTime=1,
+        DuplicateBPN=2, 
+        NullBPN=3,
+    }
     public static class CatalogTimeOuts
     {
         public static TimeSpan EmailTimeOut = TimeSpan.FromMinutes(5);
