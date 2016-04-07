@@ -119,6 +119,8 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             string filter = "ci => ci.CatalogItemType == itemType";
             foreach (CatalogItemType itemType in catalogItemType)
             {
+                Console.WriteLine("Catalog Items validation for : "+itemType.ConvertToString());
+
                 IEnumerable<CatalogItem> actualCatalogItems = actualCatalogDetails.CatalogItem.Where(ci => ci.CatalogItemType == itemType);
                 IEnumerable<CatalogItem> expectedCatalogItems =
                         expectedCatalogDetails.CatalogItem.Where(ci => ci.CatalogItemType == itemType);
@@ -252,8 +254,8 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                 matchFlag &= UtilityMethods.CompareValues<string>("BaseSKUId", actualCatalogItem.BaseSKUId, expectedCatalogItem.BaseSKUId);
                 matchFlag &= UtilityMethods.CompareValues<string>("FGASKUId", actualCatalogItem.FGASKUId, expectedCatalogItem.FGASKUId);
                 matchFlag &= UtilityMethods.CompareValues<string>("ReplacementQuoteId", actualCatalogItem.ReplacementQuoteId, expectedCatalogItem.ReplacementQuoteId);
-                matchFlag &= UtilityMethods.CompareValues<string>("ItemType", actualCatalogItem.ItemType, expectedCatalogItem.ItemType);
-                matchFlag &= UtilityMethods.CompareValues<string>("ItemSKUinfo", actualCatalogItem.ItemSKUinfo, expectedCatalogItem.ItemSKUinfo);
+               // matchFlag &= UtilityMethods.CompareValues<string>("ItemType", actualCatalogItem.ItemType, expectedCatalogItem.ItemType);
+                // matchFlag &= UtilityMethods.CompareValues<string>("ItemSKUinfo", actualCatalogItem.ItemSKUinfo, expectedCatalogItem.ItemSKUinfo);
                 matchFlag &= UtilityMethods.CompareValues<string>("FGAModNumber", actualCatalogItem.FGAModNumber, expectedCatalogItem.FGAModNumber);
                 matchFlag &= UtilityMethods.CompareValues<string>("InventoryQty", actualCatalogItem.InventoryQty, expectedCatalogItem.InventoryQty);
                 matchFlag &= UtilityMethods.CompareValues<string>("ListPrice", actualCatalogItem.ListPrice, expectedCatalogItem.ListPrice);
