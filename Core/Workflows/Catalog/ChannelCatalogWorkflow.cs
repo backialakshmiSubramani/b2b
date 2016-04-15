@@ -89,7 +89,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             b2BProfileSettingsGeneralPage.EnterCustomerSet(customerSet);
             b2BProfileSettingsGeneralPage.SearchLink.Click();
             WaitForPageRefresh(); WaitForPageRefresh(); WaitForPageRefresh();
-           // b2BProfileSettingsGeneralPage.SelectValidAccessGroupMsg.WaitForElementDisplayed(TimeSpan.FromSeconds(60));
+            // b2BProfileSettingsGeneralPage.SelectValidAccessGroupMsg.WaitForElementDisplayed(TimeSpan.FromSeconds(60));
             if (b2BProfileSettingsGeneralPage.SelectAccessGroupMsgDisplayed())
             {
                 b2BProfileSettingsGeneralPage.EnterAccessGroup(accessGroup);
@@ -4391,6 +4391,16 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             //uxWorkflow.ValidateCatalogEMails(identityName, beforeSchedTime, operation);
         }
 
+        public void VerifyCatalogStatus(B2BEnvironment b2BEnvironment, Region region, CatalogItemType[] catalogItemType, string profileName, string identityName, CatalogStatus catalogStatus, CatalogType catalogType)
+        {
+            DateTime beforeSchedTime = DateTime.Now;
+            ChannelUxWorkflow uxWorkflow = new ChannelUxWorkflow(webDriver);
+            uxWorkflow.PublishCatalogByClickOnce(b2BEnvironment, profileName, identityName, catalogType);
+            webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["AutoCatalogListPageUrl"] + ((b2BEnvironment == B2BEnvironment.Production) ? "P" : "U"));
+            uxWorkflow.SearchCatalog(profileName, identityName, beforeSchedTime, catalogStatus);
+            uxWorkflow.ValidateCatalogSearchResult(catalogItemType, catalogType, catalogStatus, beforeSchedTime);
+        }
+
         public bool VerifyCatalogExpiresFieldValues(B2BEnvironment b2BEnvironment, string profileName, string expireDays)
         {
             var expireList = expireDays.Split(',');
@@ -4434,7 +4444,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["AutoCatalogListPageUrl"] + ((b2BEnvironment == B2BEnvironment.Production) ? "P" : "U"));
             uxWorkflow.SearchCatalog(profileName, identityName, beforeSchedTime,catalogStatus);
             uxWorkflow.ValidateCatalogSearchResult(catalogItemType, catalogType, catalogStatus, beforeSchedTime);
-            
+
             string filePath = uxWorkflow.DownloadCatalog(identityName, beforeSchedTime);
             if (uxWorkflow.VerifyOrderCodeExistsInCatalogFile(filePath, itemOrderCode))
             {
@@ -4443,7 +4453,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             }
             else
             {
-                 return expectedValue;
+                return expectedValue;
             }
         }
     }

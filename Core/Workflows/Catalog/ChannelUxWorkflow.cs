@@ -388,7 +388,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                 b2BChannelUx.DeltaRadioButton.Click();
 
             b2BChannelUx.ClickToPublishButton.Click();
-
+            
             IAlert successAlert = webDriver.WaitGetAlert(CatalogTimeOuts.AlertTimeOut);
             successAlert.Accept();
 
