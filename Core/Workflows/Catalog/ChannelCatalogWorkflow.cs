@@ -4456,6 +4456,161 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                 return expectedValue;
             }
         }
+
+        /// <summary>
+        /// It Verify the SPL with SYS Config, SNP Config, SNP Auto CRT & SYS Auto CRT UI settings in B2B Profile->Buyer Catalog page, under under "Automated BHC Catalog-Processing Rules" section
+        /// </summary>
+        /// <param name="environment"></param>
+        /// <param name="profile"></param>
+        /// <param name="splField"></param>
+        /// <param name="snpField"></param>
+        /// <param name="sysField"></param>
+        /// <param name="snpCRTField"></param>
+        /// <param name="sysCRTField"></param>
+        /// <returns></returns>
+        public bool VerifySPLEnabledSettingsValidations(string environment, string profileName, bool splField, bool snpField, bool sysField, bool snpCRTField, bool sysCRTField)
+        {
+            //Following will navigate to the page : Profile->Buyer Catalog->Automated BHC Catalog-Processing Rules
+            GoToBuyerCatalogTab(environment, profileName);
+            b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+            if (!b2BBuyerCatalogPage.EnableCatalogAutoGeneration.Selected)
+            {
+                b2BBuyerCatalogPage.EnableCatalogAutoGeneration.Click();
+                b2BBuyerCatalogPage.BuyerCatalogFirstIdentity.Click();
+            }
+            else
+            {
+                b2BBuyerCatalogPage.EditScheduleButton.Click();
+            }
+
+            //Following will reset the fields by Turning Off for SYS Config, SNP Config, SPL, SYS CRT & SNP CRT fields, so that it makes every iteration execution go smooth
+            if (b2BBuyerCatalogPage.BcpchkSPLFlagCheckbox.Selected)
+            {
+                b2BBuyerCatalogPage.BcpchkSPLFlagCheckbox.Click();
+            }
+            if (b2BBuyerCatalogPage.CatalogConfigSnP.Selected)
+            {
+                b2BBuyerCatalogPage.CatalogConfigSnP.Click();
+            }
+            if (b2BBuyerCatalogPage.BcpchkSysCatalogCheckbox.Selected)
+            {
+                b2BBuyerCatalogPage.BcpchkSysCatalogCheckbox.Click();
+            }
+            if (b2BBuyerCatalogPage.BcpchkCrossRefernceSnpUpdate.Selected)
+            {
+                b2BBuyerCatalogPage.BcpchkCrossRefernceSnpUpdate.Click();
+            }
+            if (b2BBuyerCatalogPage.BcpchkCrossRefernceSysUpdate.Selected)
+            {
+                b2BBuyerCatalogPage.BcpchkCrossRefernceSysUpdate.Click();
+            }
+
+            //If Parameter-"splField" is true, then folliwng will Turned On SPL field
+            if (splField == true)
+            {
+                if (!b2BBuyerCatalogPage.BcpchkSPLFlagCheckbox.Selected)
+                {
+                    b2BBuyerCatalogPage.BcpchkSPLFlagCheckbox.Click();
+                }
+            }
+            
+            //If Parameter-"snpField" is true, then folliwng will Turned On SNP Config field
+            if (snpField == true)
+            {
+                if (!b2BBuyerCatalogPage.CatalogConfigSnP.Selected)
+                {
+                    b2BBuyerCatalogPage.CatalogConfigSnP.Click();
+                }
+            }
+            else
+            {
+                if (b2BBuyerCatalogPage.CatalogConfigSnP.Selected)
+                {
+                    b2BBuyerCatalogPage.CatalogConfigSnP.Click();
+                }
+            }
+
+            //If Parameter-"sysField" is true, then folliwng will Turned On SYS Config field
+            if (sysField == true)
+            {
+                if (!b2BBuyerCatalogPage.BcpchkSysCatalogCheckbox.Selected)
+                {
+                    b2BBuyerCatalogPage.BcpchkSysCatalogCheckbox.Click();
+                }
+            }
+            else
+            {
+                if (b2BBuyerCatalogPage.BcpchkSysCatalogCheckbox.Selected)
+                {
+                    b2BBuyerCatalogPage.BcpchkSysCatalogCheckbox.Click();
+                }
+            }
+
+            //If Parameter-"snpCRTField" is true, then folliwng will Turned On SNP Auto CRT field
+            if (snpCRTField == true)
+            {
+                if (!b2BBuyerCatalogPage.BcpchkCrossRefernceSnpUpdate.Selected)
+                {
+                    b2BBuyerCatalogPage.BcpchkCrossRefernceSnpUpdate.Click();
+                }
+            }
+            else
+            {
+                if (b2BBuyerCatalogPage.BcpchkCrossRefernceSnpUpdate.Selected)
+                {
+                    b2BBuyerCatalogPage.BcpchkCrossRefernceSnpUpdate.Click();
+                }
+            }
+
+            //If Parameter-"sysCRTField" is true, then folliwng will Turned On SYS Auto CRT field
+            if (sysCRTField == true)
+            {
+                if (!b2BBuyerCatalogPage.BcpchkCrossRefernceSysUpdate.Selected)
+                {
+                    b2BBuyerCatalogPage.BcpchkCrossRefernceSysUpdate.Click();
+                }
+            }
+            else
+            {
+                if (b2BBuyerCatalogPage.BcpchkCrossRefernceSysUpdate.Selected)
+                {
+                    b2BBuyerCatalogPage.BcpchkCrossRefernceSysUpdate.Click();
+                }
+            }
+
+            //Following will saves the profile with above settings
+            b2BBuyerCatalogPage.SetTextBoxValue(b2BBuyerCatalogPage.OriginalCatalogStartDate, DateTime.Now.AddDays(1).ToString(MMDDYYYY));
+            if (!b2BBuyerCatalogPage.CatalogConfigStandard.Selected)
+            {
+                b2BBuyerCatalogPage.CatalogConfigStandard.Click();
+            }
+            b2BBuyerCatalogPage.UpdateButton.Click();
+
+            b2BBuyerCatalogPage.AutomatedBhcCatalogProcessingRules.Click();
+            b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+            b2BBuyerCatalogPage.EnableCatalogAutoGeneration.WaitForElementDisplayed(TimeSpan.FromSeconds(30));
+
+            //Following will verifies SPL with SYS Config, SNP Config, SNP Auto CRT & SYS Auto CRT UI settings are saved correctly or not
+            bool matchFlag = true;
+
+            if (splField == true && snpField == false && sysField == false)
+            {
+                matchFlag &= (UtilityMethods.CompareValues<bool>("SPL", b2BBuyerCatalogPage.BcpchkSPLFlagCheckbox.Selected, false));
+                matchFlag &= (UtilityMethods.CompareValues<bool>("SNP", b2BBuyerCatalogPage.CatalogConfigSnP.Selected, false));
+                matchFlag &= (UtilityMethods.CompareValues<bool>("SYS", b2BBuyerCatalogPage.BcpchkSysCatalogCheckbox.Selected, false));
+                matchFlag &= (UtilityMethods.CompareValues<bool>("SNPCRT", b2BBuyerCatalogPage.BcpchkCrossRefernceSnpUpdate.Selected, false));
+                matchFlag &= (UtilityMethods.CompareValues<bool>("SYSCRT", b2BBuyerCatalogPage.BcpchkCrossRefernceSysUpdate.Selected, false));
+            }
+            else
+            {
+                matchFlag &= (UtilityMethods.CompareValues<bool>("SPL", b2BBuyerCatalogPage.BcpchkSPLFlagCheckbox.Selected, splField));
+                matchFlag &= (UtilityMethods.CompareValues<bool>("SNP", b2BBuyerCatalogPage.CatalogConfigSnP.Selected, snpField));
+                matchFlag &= (UtilityMethods.CompareValues<bool>("SYS", b2BBuyerCatalogPage.BcpchkSysCatalogCheckbox.Selected, sysField));
+                matchFlag &= (UtilityMethods.CompareValues<bool>("SNPCRT", b2BBuyerCatalogPage.BcpchkCrossRefernceSnpUpdate.Selected, snpCRTField));
+                matchFlag &= (UtilityMethods.CompareValues<bool>("SYSCRT", b2BBuyerCatalogPage.BcpchkCrossRefernceSysUpdate.Selected, sysCRTField));
+            }
+            return matchFlag;
+        }
     }
 
     /// <summary>

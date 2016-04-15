@@ -218,6 +218,7 @@ namespace Modules.Channel.B2B.Common
             return result;
         }
 
+
         public static string ConvertToString<T>(this T value)
         {
             FieldInfo fi = value.GetType().GetField(value.ToString());
