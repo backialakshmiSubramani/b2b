@@ -89,7 +89,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             b2BProfileSettingsGeneralPage.EnterCustomerSet(customerSet);
             b2BProfileSettingsGeneralPage.SearchLink.Click();
             WaitForPageRefresh(); WaitForPageRefresh(); WaitForPageRefresh();
-            // b2BProfileSettingsGeneralPage.SelectValidAccessGroupMsg.WaitForElementDisplayed(TimeSpan.FromSeconds(60));
+           // b2BProfileSettingsGeneralPage.SelectValidAccessGroupMsg.WaitForElementDisplayed(TimeSpan.FromSeconds(60));
             if (b2BProfileSettingsGeneralPage.SelectAccessGroupMsgDisplayed())
             {
                 b2BProfileSettingsGeneralPage.EnterAccessGroup(accessGroup);
@@ -4374,7 +4374,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             return true;
         }
 
-        public void VerifyOriginalCatalogForConfig(B2BEnvironment b2BEnvironment, Region region, CatalogItemType[] catalogItemType, string profileName, string identityName, CatalogStatus catalogStatus, CatalogType catalogType, ConfigRules configRules= ConfigRules.None)
+        public void VerifyOriginalCatalogForConfig(B2BEnvironment b2BEnvironment, Region region, CatalogItemType[] catalogItemType, string profileName, string identityName, CatalogStatus catalogStatus, CatalogType catalogType, ConfigRules configRules = ConfigRules.None)
         {
             DateTime beforeSchedTime = DateTime.Now;
 
@@ -4383,11 +4383,11 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
 
             //string filePath = uxWorkflow.SearchAndDownloadCatalog(environment, region, profileName, identityName, beforeSchedTime, operation);
             webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["AutoCatalogListPageUrl"] + ((b2BEnvironment == B2BEnvironment.Production) ? "P" : "U"));
-            uxWorkflow.SearchCatalog(profileName, identityName, beforeSchedTime, catalogStatus);
+            uxWorkflow.SearchCatalog(profileName, identityName, beforeSchedTime, catalogStatus, catalogType);
             uxWorkflow.ValidateCatalogSearchResult(catalogItemType, catalogType, catalogStatus, beforeSchedTime);
             string filePath = uxWorkflow.DownloadCatalog(identityName, beforeSchedTime);
 
-            uxWorkflow.ValidateCatalogXML(catalogItemType, catalogType, identityName, filePath, beforeSchedTime,configRules).Should().BeTrue("Error: Data mismatch for Catalog XML content with expected values");
+            uxWorkflow.ValidateCatalogXML(catalogItemType, catalogType, identityName, filePath, beforeSchedTime, configRules).Should().BeTrue("Error: Data mismatch for Catalog XML content with expected values");
             //uxWorkflow.ValidateCatalogEMails(identityName, beforeSchedTime, operation);
         }
 
@@ -4435,16 +4435,16 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         /// </summary>
         public bool VerifyLeadTimeGreaterThanThreeBTSOrderCodesNotExistsInCatalog(B2BEnvironment b2BEnvironment, CatalogItemType[] catalogItemType, string profileName, string identityName, CatalogStatus catalogStatus, CatalogType catalogType, string itemOrderCode)
         {
-            bool expectedValue= true;
+            bool expectedValue = true;
             DateTime beforeSchedTime = DateTime.Now;
 
             ChannelUxWorkflow uxWorkflow = new ChannelUxWorkflow(webDriver);
             uxWorkflow.PublishCatalogByClickOnce(b2BEnvironment, profileName, identityName, catalogType);
 
             webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["AutoCatalogListPageUrl"] + ((b2BEnvironment == B2BEnvironment.Production) ? "P" : "U"));
-            uxWorkflow.SearchCatalog(profileName, identityName, beforeSchedTime,catalogStatus);
+            uxWorkflow.SearchCatalog(profileName, identityName, beforeSchedTime, catalogStatus);
             uxWorkflow.ValidateCatalogSearchResult(catalogItemType, catalogType, catalogStatus, beforeSchedTime);
-
+            
             string filePath = uxWorkflow.DownloadCatalog(identityName, beforeSchedTime);
             if (uxWorkflow.VerifyOrderCodeExistsInCatalogFile(filePath, itemOrderCode))
             {
@@ -4453,7 +4453,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             }
             else
             {
-                return expectedValue;
+                 return expectedValue;
             }
         }
 
@@ -4528,7 +4528,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                 {
                     b2BBuyerCatalogPage.CatalogConfigSnP.Click();
                 }
-            }
+        }
 
             //If Parameter-"sysField" is true, then folliwng will Turned On SYS Config field
             if (sysField == true)

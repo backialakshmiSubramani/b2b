@@ -271,7 +271,7 @@ namespace CatalogTests.Common.CatalogXMLTemplates
         public string FGAModNumber { get; set; }
 
         [XmlElement("InventoryQty")]
-        public string InventoryQty { get; set; }
+        public int InventoryQty { get; set; }
 
         [XmlElement("ListPrice")]
         public string ListPrice { get; set; }

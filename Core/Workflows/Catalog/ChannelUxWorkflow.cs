@@ -90,7 +90,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         /// <param name="anyTimeAfter">Time after which the XML is created</param>
         /// <param name="catalogItemBaseSKU">One of the Catalog Item SKU for which data needs to be validated</param>
         /// <returns></returns>
-        public bool ValidateCatalogXML(CatalogItemType[] catalogItemType, CatalogType catalogType, string identityName, string filePath, DateTime anyTimeAfter,ConfigRules configRules)
+        public bool ValidateCatalogXML(CatalogItemType[] catalogItemType, CatalogType catalogType, string identityName, string filePath, DateTime anyTimeAfter, ConfigRules configRules)
         {
             string schemaPath = Path.Combine(System.Environment.CurrentDirectory, "CatalogSchema.xsd");
 
@@ -116,10 +116,9 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
 
             int itemCount = 0;
             bool matchFlag = true;
-            string filter = "ci => ci.CatalogItemType == itemType";
             foreach (CatalogItemType itemType in catalogItemType)
             {
-                Console.WriteLine("Catalog Items validation for : "+itemType.ConvertToString());
+                Console.WriteLine("Catalog Items validation for : " + itemType.ConvertToString());
 
                 IEnumerable<CatalogItem> actualCatalogItems = actualCatalogDetails.CatalogItem.Where(ci => ci.CatalogItemType == itemType);
                 IEnumerable<CatalogItem> expectedCatalogItems =
@@ -127,22 +126,19 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
 
                 if (itemType.Equals(CatalogItemType.ConfigWithDefaultOptions) ||
                     itemType.Equals(CatalogItemType.ConfigWithUpsellDownsell))
-                 {
-                     switch (configRules)
-            {
-                       case ConfigRules.DuplicateBPN:
-                        expectedCatalogItems =
-                        expectedCatalogDetails.CatalogItem.Where(ci => ci.ShortName.StartsWith("Duplicate BPN"));
-                    break;
+                {
+                    switch (configRules)
+                    {
+                        case ConfigRules.DuplicateBPN:
+                            expectedCatalogItems = expectedCatalogItems.Where(ci => ci.ShortName.StartsWith("Duplicate BPN"));
+                            break;
                         case ConfigRules.NullBPN:
-                        expectedCatalogItems =
-                        expectedCatalogDetails.CatalogItem.Where(ci => ci.ShortName.StartsWith("Null BPN"));
-                    break;
-                default:
-                        expectedCatalogItems =
-                        expectedCatalogDetails.CatalogItem.Where(ci => ci.ShortName.StartsWith("STD Config"));
-                    break;
-            }
+                            expectedCatalogItems = expectedCatalogItems.Where(ci => ci.ShortName.StartsWith("Null BPN"));
+                            break;
+                        default:
+                            expectedCatalogItems = expectedCatalogItems.Where(ci => ci.ShortName.StartsWith("STD Config"));
+                            break;
+                    }
 
                 }
                 matchFlag &= ValidateCatalogItems(actualCatalogItems, expectedCatalogItems);
@@ -239,7 +235,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                 matchFlag &= UtilityMethods.CompareValues<string>("UOM", actualCatalogItem.UOM, expectedCatalogItem.UOM);
                 matchFlag &= UtilityMethods.CompareValues<decimal>("UnitPrice", actualCatalogItem.UnitPrice, expectedCatalogItem.UnitPrice);
                 matchFlag &= UtilityMethods.CompareValues<string>("SuplierPartAuxilaryId", actualCatalogItem.SuplierPartAuxilaryId, expectedCatalogItem.SuplierPartAuxilaryId);
-                //matchFlag &= UtilityMethods.CompareValues<int>("LeadTime", actualCatalogItem.LeadTime, expectedCatalogItem.LeadTime);
+                matchFlag &= UtilityMethods.CompareValues<int>("LeadTime", actualCatalogItem.LeadTime, expectedCatalogItem.LeadTime, Computation.GreaterThanOrEqualTo);
                 matchFlag &= UtilityMethods.CompareValues<string>("SupplierURL", actualCatalogItem.SupplierURL, expectedCatalogItem.SupplierURL);
                 matchFlag &= UtilityMethods.CompareValues<string>("ImageURL", actualCatalogItem.ImageURL, expectedCatalogItem.ImageURL);
                 matchFlag &= UtilityMethods.CompareValues<string>("ManufacturerPartNumber", actualCatalogItem.ManufacturerPartNumber, expectedCatalogItem.ManufacturerPartNumber);
@@ -254,10 +250,10 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                 matchFlag &= UtilityMethods.CompareValues<string>("BaseSKUId", actualCatalogItem.BaseSKUId, expectedCatalogItem.BaseSKUId);
                 matchFlag &= UtilityMethods.CompareValues<string>("FGASKUId", actualCatalogItem.FGASKUId, expectedCatalogItem.FGASKUId);
                 matchFlag &= UtilityMethods.CompareValues<string>("ReplacementQuoteId", actualCatalogItem.ReplacementQuoteId, expectedCatalogItem.ReplacementQuoteId);
-               // matchFlag &= UtilityMethods.CompareValues<string>("ItemType", actualCatalogItem.ItemType, expectedCatalogItem.ItemType);
+                // matchFlag &= UtilityMethods.CompareValues<string>("ItemType", actualCatalogItem.ItemType, expectedCatalogItem.ItemType);
                 // matchFlag &= UtilityMethods.CompareValues<string>("ItemSKUinfo", actualCatalogItem.ItemSKUinfo, expectedCatalogItem.ItemSKUinfo);
                 matchFlag &= UtilityMethods.CompareValues<string>("FGAModNumber", actualCatalogItem.FGAModNumber, expectedCatalogItem.FGAModNumber);
-                matchFlag &= UtilityMethods.CompareValues<string>("InventoryQty", actualCatalogItem.InventoryQty, expectedCatalogItem.InventoryQty);
+                matchFlag &= UtilityMethods.CompareValues<int>("InventoryQty", actualCatalogItem.InventoryQty, expectedCatalogItem.InventoryQty, Computation.GreaterThanOrEqualTo);
                 matchFlag &= UtilityMethods.CompareValues<string>("ListPrice", actualCatalogItem.ListPrice, expectedCatalogItem.ListPrice);
                 matchFlag &= UtilityMethods.CompareValues<string>("UPC", actualCatalogItem.UPC, expectedCatalogItem.UPC);
                 matchFlag &= UtilityMethods.CompareValues<string>("ManufacturerCode", actualCatalogItem.ManufacturerCode, expectedCatalogItem.ManufacturerCode);
@@ -382,11 +378,15 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             b2BChannelUx.SelectOption(b2BChannelUx.SelectCustomerProfileDiv, profileName);
             b2BChannelUx.SelectOption(b2BChannelUx.SelectProfileIdentityDiv, identityName.ToUpper());
 
+            //if (!b2BChannelUx.UseExistingB2BAutoScheduleRadioButton.Selected)
+            //    b2BChannelUx.UseExistingB2BAutoScheduleRadioButton.Click();
+
             if (catalogType == CatalogType.Original)
                 b2BChannelUx.OriginalRadioButton.Click();
             else if (catalogType == CatalogType.Delta)
                 b2BChannelUx.DeltaRadioButton.Click();
 
+            //b2BChannelUx.CreateButton.Click();
             b2BChannelUx.ClickToPublishButton.Click();
             
             IAlert successAlert = webDriver.WaitGetAlert(CatalogTimeOuts.AlertTimeOut);
@@ -409,6 +409,30 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             autoCatalogListPage.SelectOption(autoCatalogListPage.SelectRegionSpan, "US");
             autoCatalogListPage.SelectOption(autoCatalogListPage.SelectCustomerNameSpan, profileName);
             autoCatalogListPage.SelectOption(autoCatalogListPage.SelectIdentityNameSpan, identityName.ToUpper());
+            autoCatalogListPage.SearchRecordsLink.Click();
+            autoCatalogListPage.CatalogsTable.WaitForElementVisible(TimeSpan.FromSeconds(30));
+            autoCatalogListPage.WaitForCatalogInSearchResult(anyTimeAfter.ConvertToUtcTimeZone(), catalogStatus);
+        }
+
+        /// <summary>
+        /// Search for a catalog in Auto Catalog List & Inventory page 
+        /// </summary>
+        /// <param name="profileName">Profile name</param>
+        /// <param name="identityName">Identity name</param>
+        /// <param name="anyTimeAfter">Time after which the catalog is processed</param>
+        /// <param name="operation">Catalog operation i.e. 'Create' or 'Create & Publish'</param>
+        public void SearchCatalog(string profileName, string identityName, DateTime anyTimeAfter, CatalogStatus catalogStatus, CatalogType catalogType)
+        {
+            CPTAutoCatalogInventoryListPage autoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
+            autoCatalogListPage.SelectOption(autoCatalogListPage.SelectRegionSpan, "US");
+            autoCatalogListPage.SelectOption(autoCatalogListPage.SelectCustomerNameSpan, profileName);
+            autoCatalogListPage.SelectOption(autoCatalogListPage.SelectIdentityNameSpan, identityName.ToUpper());
+
+            if (autoCatalogListPage.OriginalCatalogCheckbox.Selected != (catalogType == CatalogType.Original))
+                autoCatalogListPage.OriginalCatalogCheckbox.Click();
+            else if (autoCatalogListPage.DeltaCatalogCheckbox.Selected != (catalogType == CatalogType.Delta))
+                autoCatalogListPage.DeltaCatalogCheckbox.Click();
+
             autoCatalogListPage.SearchRecordsLink.Click();
             autoCatalogListPage.CatalogsTable.WaitForElementVisible(TimeSpan.FromSeconds(30));
             autoCatalogListPage.WaitForCatalogInSearchResult(anyTimeAfter.ConvertToUtcTimeZone(), catalogStatus);
@@ -458,7 +482,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         /// <returns>If itemOrderCode exists it returns true</returns>
         public bool VerifyOrderCodeExistsInCatalogFile(string filePath, string itemOrderCode)
         {
-    
+
             B2BXML actualCatalog = XMLDeserializer<B2BXML>.DeserializeFromXmlFile(filePath);
 
             bool matchFlag = false;

@@ -218,6 +218,36 @@ namespace Modules.Channel.B2B.Common
             return result;
         }
 
+        public static bool CompareValues<T>(string fieldName, T actualValue, T expectedValue, Computation computation = Computation.EqualTo) where T : IComparable
+        {
+            bool result = false;
+
+            switch (computation)
+            {
+                case Computation.EqualTo:
+                    result = actualValue.Equals(expectedValue);
+                    break;
+                case Computation.GreaterThan:
+                    result = actualValue.CompareTo(expectedValue) > 0;
+                    break;
+                case Computation.LessThan:
+                    result = actualValue.CompareTo(expectedValue) < 0;
+                    break;
+                case Computation.GreaterThanOrEqualTo:
+                    result = actualValue.CompareTo(expectedValue) >= 0;
+                    break;
+                case Computation.LessThanOrEqualTo:
+                    result = actualValue.CompareTo(expectedValue) <= 0;
+                    break;
+                default:
+                    break;
+            }
+
+            if (!result)
+                Console.WriteLine(string.Format("[FieldName]: {0} ---- [Actual]: {1}, [Expected]: {2}, [Operation]: {3}", fieldName, actualValue, expectedValue, computation.ConvertToString()));
+
+            return result;
+        }
 
         public static string ConvertToString<T>(this T value)
         {

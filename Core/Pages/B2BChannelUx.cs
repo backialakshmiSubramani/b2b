@@ -168,6 +168,62 @@ namespace Modules.Channel.B2B.Core.Pages
             }
         }
 
+        public IWebElement UseExistingB2BAutoScheduleRadioButton
+        {
+            get
+            {
+                return webDriver.FindElement(By.CssSelector("input[type='radio'][id='rdAutoBHC'][name='AutoBHC']"));
+            }
+        }
+
+        public IWebElement SetNewRadioButton
+        {
+            get
+            {
+                return webDriver.FindElement(By.CssSelector("input[type='radio'][id='rdSetNew'][name='AutoBHC']"));
+            }
+        }
+
+        public IWebElement STDSetNewCheckBox
+        {
+            get
+            {
+                return webDriver.FindElement(By.CssSelector("input[type='checkbox'][id='chkSTD']"));
+            }
+        }
+
+        public IWebElement SNPSetNewCheckBox
+        {
+            get
+            {
+                return webDriver.FindElement(By.CssSelector("input[type='checkbox'][id='chkSNP']"));
+            }
+        }
+
+        public IWebElement SYSSetNewCheckBox
+        {
+            get
+            {
+                return webDriver.FindElement(By.CssSelector("input[type='checkbox'][id='chkSYS']"));
+            }
+        }
+
+        public IWebElement CreateButton
+        {
+            get
+            {
+                return webDriver.FindElement(By.CssSelector("button[id='btnCreateCatalog']"));
+            }
+        }
+
+        public IWebElement CreateAndDownloadButton
+        {
+            get
+            {
+                return webDriver.FindElement(By.CssSelector("button[id='btnCreateAndDownLoadCatalog']"));
+            }
+        }
+
         #endregion
 
         #endregion
