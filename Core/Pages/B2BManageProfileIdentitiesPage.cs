@@ -32,8 +32,8 @@ namespace Modules.Channel.B2B.Core.Pages
     /// </summary>
     public class B2BManageProfileIdentitiesPage : PageBase
     {
-        IWebDriver webDriver;
-
+        private IWebDriver webDriver;
+        private IJavaScriptExecutor javaScriptExecutor;
         /// <summary>
         /// Constructor to hand off webDriver
         /// </summary>
@@ -42,6 +42,7 @@ namespace Modules.Channel.B2B.Core.Pages
             : base(ref webDriver)
         {
             this.webDriver = webDriver;
+            javaScriptExecutor = (IJavaScriptExecutor)this.webDriver;
             //populate the following variables with the appropriate value
             Name = PageTitleHeader.Text;
             //Url = "";

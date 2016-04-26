@@ -309,7 +309,7 @@ namespace Modules.Channel.B2B.Core.Pages
             EnvironmentList.SelectByText(environmentValue);
             Console.WriteLine("B2B environment selected is: ** {0} **", environmentValue);
             javaScriptExecutor.ExecuteScript("arguments[0].click();", GoButton);
-            PageUtility.WaitForPageRefresh(webDriver);
+            //PageUtility.WaitForPageRefresh(webDriver);
         }
 
         public void OpenPackageUploadPage()

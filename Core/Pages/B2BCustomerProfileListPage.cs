@@ -219,7 +219,15 @@ namespace Modules.Channel.B2B.Core.Pages
             //webDriver.WaitForPageLoad(new TimeSpan(0, 0, 60));
             PageUtility.WaitForPageRefresh(webDriver);
         }
-
+        public void ClickSearchedProfilePartialText(string linkText)
+        {
+            webDriver.WaitForElementDisplayed(By.PartialLinkText(linkText), TimeSpan.FromSeconds(30));
+            var elem = webDriver.FindElement(By.PartialLinkText(linkText));
+            javaScriptExecutor.ExecuteScript("arguments[0].click();", elem);
+            //Thread.Sleep(1000);
+            //webDriver.WaitForPageLoad(new TimeSpan(0, 0, 60));
+            //PageUtility.WaitForPageRefresh(webDriver);
+        }
         #endregion
 
         #region ReUsable Methods

@@ -33,7 +33,7 @@ namespace Modules.Channel.B2B.Core.Pages
     public class B2BChannelUx : PageBase
     {
         IWebDriver webDriver;
-
+        private IJavaScriptExecutor javaScriptExecutor;
         /// <summary>
         /// Constructor to hand off webDriver
         /// </summary>
@@ -42,6 +42,7 @@ namespace Modules.Channel.B2B.Core.Pages
             : base(ref webDriver)
         {
             this.webDriver = webDriver;
+            javaScriptExecutor = (IJavaScriptExecutor)this.webDriver;
             //populate the following variables with the appropriate value
             Name = "Channel Catalog Ux Page";
             Url = webDriver.Url;
@@ -164,7 +165,8 @@ namespace Modules.Channel.B2B.Core.Pages
         {
             get
             {
-                return webDriver.FindElement(By.XPath("//button[text()='Create']"));
+                return webDriver.FindElement(By.XPath("//button[text()='Click To Publish Catalog']"));
+                //Click To Publish Catalog
             }
         }
 

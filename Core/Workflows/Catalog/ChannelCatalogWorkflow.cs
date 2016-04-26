@@ -13,6 +13,8 @@ using System.Data;
 using Modules.Channel.B2B.DAL.ChannelCatalog;
 using Modules.Channel.B2B.DAL;
 using System.Configuration;
+using CatalogTests.Common.CatalogXMLTemplates;
+using Modules.Channel.Utilities;
 
 namespace Modules.Channel.B2B.Core.Workflows.Catalog
 {
@@ -57,7 +59,6 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             b2BManageProfileIdentitiesPage = new B2BManageProfileIdentitiesPage(webDriver);
             Console.WriteLine("Opened Profile Page for profile: {0}", profileName);
             b2BManageProfileIdentitiesPage.BuyerCatalogTab.Click();
-            WaitForPageRefresh();
             b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
             b2BBuyerCatalogPage.AutomatedBhcCatalogProcessingRules.Click();
             b2BBuyerCatalogPage.EnableCatalogAutoGeneration.WaitForElementDisplayed(TimeSpan.FromSeconds(30));
@@ -77,6 +78,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             Console.WriteLine("Profile creation start with name: {0}", newProfileName);
             b2BHomePage.SelectEnvironment(environment);
             b2BHomePage.B2BProfileListLink.Click();
+                  
             WaitForPageRefresh();
             b2BCustomerProfileListPage = new B2BCustomerProfileListPage(webDriver);
             b2BCustomerProfileListPage.CreateNewProfileLink.Click();
@@ -87,8 +89,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             b2BProfileSettingsGeneralPage.EnterIdentityName(newProfileName);
             b2BProfileSettingsGeneralPage.EnterCustomerSet(customerSet);
             b2BProfileSettingsGeneralPage.SearchLink.Click();
-            WaitForPageRefresh(); WaitForPageRefresh(); WaitForPageRefresh();
-            // b2BProfileSettingsGeneralPage.SelectValidAccessGroupMsg.WaitForElementDisplayed(TimeSpan.FromSeconds(60));
+            //WaitForPageRefresh();
             if (b2BProfileSettingsGeneralPage.SelectAccessGroupMsgDisplayed())
             {
                 b2BProfileSettingsGeneralPage.EnterAccessGroup(accessGroup);
@@ -998,7 +999,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
 
             b2BBuyerCatalogPage.UpdateButton.Click();
 
-            WaitForPageRefresh();
+            //WaitForPageRefresh();
             b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
 
             if (!b2BBuyerCatalogPage.BuyerCatalogError.Text.StartsWith(pastTimeErrorStart))
@@ -1029,6 +1030,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             if (!b2BBuyerCatalogPage.CustomerEmail.Text.Equals(customerEmailAddresses))
                 return false;
 
+            if(!b2BBuyerCatalogPage.BcpchkSysCatalogCheckbox.Selected)
             b2BBuyerCatalogPage.BcpchkSysCatalogCheckbox.Click();
 
             return VerifyConfigScheduleSectionEnabled();
@@ -1042,10 +1044,8 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         /// <returns></returns>
         public bool VerifyNavigationToAutoCatalogListPage(string environment, string pageHeaderText)
         {
-            b2BHomePage.SelectEnvironment(environment);
-            b2BHomePage.AutoCatalogInventoryListPageLink.Click();
+            webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["AutoCatalogListPageUrl"] + ((environment == B2BEnvironment.Production.ToString()) ? "P" : "U"));
             b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
-            webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
             return b2BAutoCatalogListPage.PageHeader.Text.Contains(pageHeaderText);
         }
 
@@ -1121,17 +1121,13 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         /// <returns></returns>
         public bool VerifyThreadIdLinkInAutoCatalogListPage(string environment, string region, string country, string status)
         {
-            b2BHomePage.SelectEnvironment(environment);
-            b2BHomePage.AutoCatalogInventoryListPageLink.Click();
+            webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["AutoCatalogListPageUrl"] + ((environment == B2BEnvironment.Production.ToString()) ? "P" : "U"));
             b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
-            webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
-            WaitForPageRefresh();
-            //webDriver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromSeconds(60));
             b2BAutoCatalogListPage.SelectTheRegion(region);
             b2BAutoCatalogListPage.SelectTheCountry(country);
             b2BAutoCatalogListPage.SelectTheStatus(status);
             b2BAutoCatalogListPage.SearchRecordsLink.Click();
-            WaitForPageRefresh(); WaitForPageRefresh();
+            b2BAutoCatalogListPage.CatalogsTable.WaitForElementVisible(TimeSpan.FromSeconds(30));
             var firstThreadIdElement = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[8];
             var threadId = firstThreadIdElement.Text;
 
@@ -1190,15 +1186,13 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         public bool VerifyCountryCodepublishedcreatedInAutoCatListPage(string environment, string profilename, string status,
             string CountryCode, string region, string currencyCode, string regionName, string countryName)
         {
-            b2BHomePage.SelectEnvironment(environment);
-            b2BHomePage.AutoCatalogInventoryListPageLink.Click();
+            webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["AutoCatalogListPageUrl"] + ((environment == B2BEnvironment.Production.ToString()) ? "P" : "U"));
             b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
-            webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
             b2BAutoCatalogListPage.SelectTheRegion(regionName);
             b2BAutoCatalogListPage.SelectTheCountry(countryName);
             b2BAutoCatalogListPage.ThreadId.SendKeys(profilename);
             b2BAutoCatalogListPage.SearchRecordsLink.Click();
-            WaitForPageRefresh();
+            b2BAutoCatalogListPage.CatalogsTable.WaitForElementVisible(TimeSpan.FromSeconds(30));
             var firststatusElement = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[3];
             var Status = firststatusElement.Text;
             var firstCountryCodeElement = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[9];
@@ -1221,16 +1215,13 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         /// <returns></returns>
         public bool VerifyCountryCodeScheduledInAutoCatalogListPage(string environment, string status, string regionName, string countryName)
         {
-            b2BHomePage.SelectEnvironment(environment);
-            b2BHomePage.AutoCatalogInventoryListPageLink.Click();
+            webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["AutoCatalogListPageUrl"] + ((environment == B2BEnvironment.Production.ToString()) ? "P" : "U"));
             b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
-            webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
-            webDriver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromSeconds(60));
             b2BAutoCatalogListPage.SelectTheRegion(regionName);
             b2BAutoCatalogListPage.SelectTheCountry(countryName);
             b2BAutoCatalogListPage.ScheduledCheckbox.Click();
             b2BAutoCatalogListPage.SearchRecordsLink.Click();
-            WaitForPageRefresh();
+            b2BAutoCatalogListPage.CatalogsTable.WaitForElementVisible(TimeSpan.FromSeconds(30));
             var firststatusElement = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[3];
             var Status = firststatusElement.Text;
             var firstCountryCodeElement = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[10];
@@ -1390,16 +1381,13 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         public bool VerifyDownloadLinkInAutoCatListPage(string environment, string profilename, string type, string status, string region, string country)
         {
 
-            b2BHomePage.SelectEnvironment(environment);
-            b2BHomePage.AutoCatalogInventoryListPageLink.Click();
+            webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["AutoCatalogListPageUrl"] + ((environment == B2BEnvironment.Production.ToString()) ? "P" : "U"));
             b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
-            webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
-            WaitForPageRefresh();
             b2BAutoCatalogListPage.SelectTheRegion(region);
             b2BAutoCatalogListPage.SelectTheCountry(country);
             b2BAutoCatalogListPage.ThreadId.SendKeys(profilename);
             b2BAutoCatalogListPage.SearchRecordsLink.Click();
-            WaitForPageRefresh();
+            b2BAutoCatalogListPage.CatalogsTable.WaitForElementVisible(TimeSpan.FromSeconds(30));
             var firstTypeElement = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[2];
             var Type = firstTypeElement.Text;
             var firststatusElement = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[3];
@@ -1531,12 +1519,8 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         ///// <returns></returns>
         public bool VerifyDownloadLinkInAutoCatListPageCreatedTestHarness(string environment, string profilename, string type, string status, string regionName, string countryName)
         {
-
-            b2BHomePage.SelectEnvironment(environment);
-            b2BHomePage.AutoCatalogInventoryListPageLink.Click();
+            webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["AutoCatalogListPageUrl"] + ((environment == B2BEnvironment.Production.ToString()) ? "P" : "U"));
             b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
-            webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
-            WaitForPageRefresh();
             b2BAutoCatalogListPage.SelectTheRegion(regionName);
             b2BAutoCatalogListPage.SelectTheCountry(countryName);
             b2BAutoCatalogListPage.TestHarnessCheckbox.Click();
@@ -1599,16 +1583,13 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         ///// <returns></returns>
         public bool VerifyCatalogNameInAutoCatListPage(string environment, string profile, string catalogName, string region, string country)
         {
-            b2BHomePage.SelectEnvironment(environment);
-            b2BHomePage.AutoCatalogInventoryListPageLink.Click();
+            webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["AutoCatalogListPageUrl"] + ((environment == B2BEnvironment.Production.ToString()) ? "P" : "U"));
             b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
-            webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
-            WaitForPageRefresh();
             b2BAutoCatalogListPage.SelectTheRegion(region);
             b2BAutoCatalogListPage.SelectTheCountry(country);
             b2BAutoCatalogListPage.ThreadId.SendKeys(profile);
             b2BAutoCatalogListPage.SearchRecordsLink.Click();
-            WaitForPageRefresh();
+            b2BAutoCatalogListPage.CatalogsTable.WaitForElementVisible(TimeSpan.FromSeconds(30));
             var catalogNameElement = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[0];
             var CatalogNamefromLocator = catalogNameElement.Text;
             if (CatalogNamefromLocator.Contains(".."))
@@ -1629,17 +1610,13 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         ///// <returns></returns>
         public bool VerifyStatusTimeInAutoCatListPage(string environment, string profile, string statusTime, string region, string country)
         {
-            b2BHomePage.SelectEnvironment(environment);
-            b2BHomePage.AutoCatalogInventoryListPageLink.Click();
+            webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["AutoCatalogListPageUrl"] + ((environment == B2BEnvironment.Production.ToString()) ? "P" : "U"));
             b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
-            webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
-            //webDriver.WaitForElement(b2BAutoCatalogListPage.NextButton);
-            WaitForPageRefresh();
             b2BAutoCatalogListPage.SelectTheRegion(region);
             b2BAutoCatalogListPage.SelectTheCountry(country);
             b2BAutoCatalogListPage.ThreadId.SendKeys(profile);
             b2BAutoCatalogListPage.SearchRecordsLink.Click();
-            WaitForPageRefresh();
+            b2BAutoCatalogListPage.CatalogsTable.WaitForElementVisible(TimeSpan.FromSeconds(30));
             webDriver.WaitForTableRowCount(b2BAutoCatalogListPage.CatalogsTable, 1);
             var statusTimeElement = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[4];
             if (statusTimeElement.Text.Equals(statusTime))
@@ -1655,11 +1632,8 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                                                                  string catalogName = "", string creationStartDate = "", string creationEndDate = "",
                                                                  string status = "", string configurationType = "", string catalogType = "")
         {
-            b2BHomePage.SelectEnvironment(environment);
-            b2BHomePage.AutoCatalogInventoryListPageLink.Click();
+            webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["AutoCatalogListPageUrl"] + ((environment == B2BEnvironment.Production.ToString()) ? "P" : "U"));
             b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
-            webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
-            WaitForPageRefresh();
             b2BAutoCatalogListPage.SelectTheRegion(region);
             b2BAutoCatalogListPage.SelectTheCountry(country);
 
@@ -1709,7 +1683,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             WaitForPageRefresh();
             var countryCodeElement = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[9];
             var regionCodeElement = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[10];
-            if (countryCodeElement.Text.Equals(countryCode) && countryCodeElement.Text.Equals(countryCode))
+            if (countryCodeElement.Text.Equals(countryCode) && regionCodeElement.Text.Equals(regionCode))
                 return true;
             return false;
         }
@@ -1720,16 +1694,10 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         ///// <returns></returns>
         public bool VerifyCountryandRegionFieldsInAutoCatListPage(string environment)
         {
-            b2BHomePage.SelectEnvironment(environment);
-            b2BHomePage.AutoCatalogInventoryListPageLink.Click();
+            webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["AutoCatalogListPageUrl"] + ((environment == B2BEnvironment.Production.ToString()) ? "P" : "U"));
             b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
-            webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
-            WaitForPageRefresh();
             if (b2BAutoCatalogListPage.RegionDropDown.Enabled && b2BAutoCatalogListPage.CountryDropDown.Enabled)
                 return true;
-            //  b2BAutoCatalogListPage.SelectTheCountry(country);
-
-
             return false;
         }
 
@@ -1801,12 +1769,8 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         ///// <returns></returns>
         public bool VerifyProfileNameAutoCatPage(string environment, string profile, string profileName, string regionName, string countryName)
         {
-            b2BHomePage.SelectEnvironment(environment);
-            b2BHomePage.AutoCatalogInventoryListPageLink.Click();
+            webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["AutoCatalogListPageUrl"] + ((environment == B2BEnvironment.Production.ToString()) ? "P" : "U"));
             b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
-            webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
-            WaitForPageRefresh();
-            //webDriver.WaitForElement(b2BAutoCatalogListPage.NextButton);
             b2BAutoCatalogListPage.SelectTheRegion(regionName);
             b2BAutoCatalogListPage.SelectTheCountry(countryName);
             b2BAutoCatalogListPage.ThreadId.SendKeys(profile);
@@ -1933,13 +1897,9 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         public bool VerifyIdentityFieldOnAutoCatalogListPage(string environment, string profileName, string identities)
         {
             var identityList = identities.Split(',');
-            b2BHomePage.SelectEnvironment(environment);
-            b2BHomePage.AutoCatalogInventoryListPageLink.Click();
+            webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["AutoCatalogListPageUrl"] + ((environment == B2BEnvironment.Production.ToString()) ? "P" : "U"));
             b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
-            webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
-            WaitForPageRefresh();
             b2BAutoCatalogListPage.SelectOption(b2BAutoCatalogListPage.SelectCustomerNameSpan, profileName);
-            //b2BAutoCatalogListPage.SelectTheCustomer(profileName);
             WaitForPageRefresh();
             if (identityList.Count() ==
                 b2BAutoCatalogListPage.SelectIdentity.Select()
@@ -2016,19 +1976,14 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         /// <returns></returns>
         public bool VerifySearchResultsOnAutoCatalogListPage(string environment, string customerName, string profileName, string identity, string region, string country)
         {
-            b2BHomePage.SelectEnvironment(environment);
-            b2BHomePage.AutoCatalogInventoryListPageLink.Click();
+            webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["AutoCatalogListPageUrl"] + ((environment == B2BEnvironment.Production.ToString()) ? "P" : "U"));
             b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
-            webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
-            WaitForPageRefresh();
             b2BAutoCatalogListPage.SelectTheRegion(region);
             b2BAutoCatalogListPage.SelectTheCountry(country);
             b2BAutoCatalogListPage.SelectTheCustomer(customerName);
-            WaitForPageRefresh();
             b2BAutoCatalogListPage.SelectTheIdentity(identity);
-            webDriver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromSeconds(60));
             b2BAutoCatalogListPage.SearchRecordsLink.Click();
-            WaitForPageRefresh();
+            b2BAutoCatalogListPage.CatalogsTable.WaitForElementVisible(TimeSpan.FromSeconds(30));
 
             if (
                 !b2BAutoCatalogListPage.CatalogListTableRows.All(
@@ -2869,16 +2824,11 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         ///// <returns></returns>
         public bool VerifyRetrieveCatalogConfigAquoteId(string environment, string quoteid, string Headervalue, string HeaderRowvalue, string SubHeadervalue, string SubRowvalue1, string subRowvalue2)
         {
-
-            b2BHomePage.SelectEnvironment(environment);
-            b2BHomePage.AutoCatalogPartViewerLink.Click();
+            webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["AutoPartViewerUrl"] + ((environment == B2BEnvironment.Production.ToString()) ? "P" : "U"));
             b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
-            webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
-            WaitForPageRefresh();
-            webDriver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromMinutes(5));
             b2BAutoCatalogListPage.PartViewerQuoteIdsLink.SendKeys(quoteid);
             b2BAutoCatalogListPage.PartViewerSearchButton.Click();
-            WaitForPageRefresh();
+            b2BAutoCatalogListPage.PartViewerPlusButton.WaitForElementVisible(TimeSpan.FromSeconds(30));
             b2BAutoCatalogListPage.PartViewerPlusButton.Click();
             b2BAutoCatalogListPage.PartViewerSecondPlusButton.Click();
             string[] HeaderStringvalue = Headervalue.Split(',');
@@ -3668,7 +3618,17 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             GoToBuyerCatalogTab(environment, profile);
             b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
             oldValue = b2BBuyerCatalogPage.BcpchkCrossRefernceStdUpdate.Selected.ToString();
+            b2BBuyerCatalogPage.EditScheduleButton.Click();
+            b2BBuyerCatalogPage.SetTextBoxValue(b2BBuyerCatalogPage.OriginalCatalogStartDate,
+                DateTime.Now.AddDays(1).ToString(MMDDYYYY));
+            b2BBuyerCatalogPage.SetTextBoxValue(b2BBuyerCatalogPage.DeltaCatalogStartDate,
+                    DateTime.Now.AddDays(2).ToString(MMDDYYYY));
             b2BBuyerCatalogPage.BcpchkCrossRefernceStdUpdate.Click();
+            if (b2BBuyerCatalogPage.BcpchkCrossRefernceStdUpdate.Selected)
+            {
+                if(!b2BBuyerCatalogPage.CatalogConfigStandard.Selected)
+                    b2BBuyerCatalogPage.CatalogConfigStandard.Click();
+            }
             newValue = b2BBuyerCatalogPage.BcpchkCrossRefernceStdUpdate.Selected.ToString();
             b2BBuyerCatalogPage.UpdateButton.Click();
             return VerifyAuditHistoryRow(oldValue, newValue, crossrefstdAuditHistoryProperty);
@@ -4075,87 +4035,24 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             }
             return true;
         }
-
-
-        public void VerifyRoundOffValuesPackageUploadForAllFieldsProd(B2BEnvironment b2BEnvironment, string fileToUpload, string message)
+        public void VerifyRoundOffValuesPackageUploadForAllFields(B2BEnvironment b2BEnvironment, string fileToUpload, string message)
         {
-            b2BHomePage.SelectEnvironment(b2BEnvironment.ToString());
-            b2BHomePage.OpenPackageUploadPage();
-
+            webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["AutoPackageUploadUrl"] + ((b2BEnvironment == B2BEnvironment.Production) ? "P" : "U"));
             b2BCatalogPackagingDataUploadPage = new B2BCatalogPackagingDataUploadPage(webDriver);
             b2BCatalogPackagingDataUploadPage.UploadExcelFile(fileToUpload);
-            WaitForPageRefresh();
-            b2BCatalogPackagingDataUploadPage.UploadMessage.Text.Trim().Should().Be(message, "Incorrect message for packaging file upload");
-
-            string excelQuery = @"select [Order code],LOB,[Config Name],[Ship Weight],[Package Length],[Package Width],[Package Height],[Pallet Length],[Pallet Width],[Pallet Height],[Pallet Units / Layer],[Pallet Layer / Pallet],[Pallet Units / Pallet] FROM [B2B_Catalog_matching_table$]";
-
-            DataTable excelTable = UtilityMethods.GetDataFromExcel(@"PackagingData.xlsx", excelQuery);
-
-            for (int iteration = 0; iteration < 10; iteration++)
-            {
-                int index = new Random().Next(0, excelTable.Rows.Count - 1);
-                Channel_Catalog_PackagingData dbData = ChannelCatalogProdDataAccess.GetPackagingDetails(excelTable.Rows[index]["Order code"].ToString());
-
-                Console.WriteLine("Data validation for Order Code: " + excelTable.Rows[index]["Order code"].ToString());
-                dbData.ShipWeight.Should().Be(excelTable.Rows[index]["Ship Weight"].RoundValue(), "Ship Weight mismatch");
-                dbData.PackageLength.Should().Be(excelTable.Rows[index]["Package Length"].RoundValue(), "Package Length mismatch");
-                dbData.PackageWidth.Should().Be(excelTable.Rows[index]["Package Width"].RoundValue(), "Package Width mismatch");
-                dbData.PackageHeight.Should().Be(excelTable.Rows[index]["Package Height"].RoundValue(), "Package Height mismatch");
-                dbData.PalletLength.Should().Be(excelTable.Rows[index]["Pallet Length"].RoundValue(), "Pallet Length mismatch");
-                dbData.PalletWidth.Should().Be(excelTable.Rows[index]["Pallet Width"].RoundValue(), "Pallet Width mismatch");
-                dbData.PalletHeight.Should().Be(excelTable.Rows[index]["Pallet Height"].RoundValue(), "Pallet Height mismatch");
-                dbData.PalletUnitsPerLayer.Should().Be(excelTable.Rows[index]["Pallet Units / Layer"].RoundValue(), "Pallet Units / Layer mismatch");
-                dbData.PalletLayerPerPallet.Should().Be(excelTable.Rows[index]["Pallet Layer / Pallet"].RoundValue(), "Pallet Layer / Pallet mismatch");
-                dbData.PalletUnitsPerPallet.Should().Be(excelTable.Rows[index]["Pallet Units / Pallet"].RoundValue(), "Pallet Units / Pallet mismatch");
+            b2BCatalogPackagingDataUploadPage.UploadMessage.Text.Trim().Equals(message).Should().BeTrue();
             }
-        }
 
-        public void VerifyRoundOffValuesPackageUploadForAllFieldsPrev(B2BEnvironment b2BEnvironment, string fileToUpload, string message)
+        public bool VerifyPackageUploadForAllFieldsPrev(B2BEnvironment b2BEnvironment, string fileToUpload, string message)
         {
-            b2BHomePage.SelectEnvironment(b2BEnvironment.ToString());
-            b2BHomePage.OpenPackageUploadPage();
-
+            webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["AutoPackageUploadUrl"] + ((b2BEnvironment == B2BEnvironment.Production) ? "P" : "U"));
             b2BCatalogPackagingDataUploadPage = new B2BCatalogPackagingDataUploadPage(webDriver);
             b2BCatalogPackagingDataUploadPage.UploadExcelFile(fileToUpload);
-            b2BCatalogPackagingDataUploadPage.UploadMessage.Text.Trim().Equals(message);
-
-            string excelQuery = @"select [Order code],LOB,[Config Name],[Ship Weight],[Package Length],[Package Width],[Package Height],[Pallet Length],[Pallet Width],[Pallet Height],[Pallet Units / Layer],[Pallet Layer / Pallet],[Pallet Units / Pallet] FROM [B2B_Catalog_matching_table$]";
-
-            DataTable excelTable = UtilityMethods.GetDataFromExcel(@"PackagingData.xlsx", excelQuery);
-
-            for (int iteration = 0; iteration < 10; iteration++)
-            {
-                int index = new Random().Next(0, excelTable.Rows.Count - 1);
-                Channel_Catalog_PackagingData dbData = ChannelCatalogPrevDataAccess.GetPackagingDetails(excelTable.Rows[index]["Order code"].ToString());
-
-                Console.WriteLine("Data validation for Order Code: " + excelTable.Rows[index]["Order code"].ToString());
-                dbData.ShipWeight.Should().Be(excelTable.Rows[index]["Ship Weight"].RoundValue(), "Ship Weight mismatch");
-                dbData.PackageLength.Should().Be(excelTable.Rows[index]["Package Length"].RoundValue(), "Package Length mismatch");
-                dbData.PackageWidth.Should().Be(excelTable.Rows[index]["Package Width"].RoundValue(), "Package Width mismatch");
-                dbData.PackageHeight.Should().Be(excelTable.Rows[index]["Package Height"].RoundValue(), "Package Height mismatch");
-                dbData.PalletLength.Should().Be(excelTable.Rows[index]["Pallet Length"].RoundValue(), "Pallet Length mismatch");
-                dbData.PalletWidth.Should().Be(excelTable.Rows[index]["Pallet Width"].RoundValue(), "Pallet Width mismatch");
-                dbData.PalletHeight.Should().Be(excelTable.Rows[index]["Pallet Height"].RoundValue(), "Pallet Height mismatch");
-                dbData.PalletUnitsPerLayer.Should().Be(excelTable.Rows[index]["Pallet Units / Layer"].RoundValue(), "Pallet Units / Layer mismatch");
-                dbData.PalletLayerPerPallet.Should().Be(excelTable.Rows[index]["Pallet Layer / Pallet"].RoundValue(), "Pallet Layer / Pallet mismatch");
-                dbData.PalletUnitsPerPallet.Should().Be(excelTable.Rows[index]["Pallet Units / Pallet"].RoundValue(), "Pallet Units / Pallet mismatch");
-            }
-        }
-
-        public void VerifyPackageUploadForAllFieldsPrev(B2BEnvironment b2BEnvironment, string fileToUpload, string message)
-        {
-            b2BHomePage.SelectEnvironment(b2BEnvironment.ToString());
-            b2BHomePage.OpenPackageUploadPage();
-
-            b2BCatalogPackagingDataUploadPage = new B2BCatalogPackagingDataUploadPage(webDriver);
-            b2BCatalogPackagingDataUploadPage.UploadExcelFile(fileToUpload);
-            b2BCatalogPackagingDataUploadPage.UploadMessage.Text.Trim().Equals(message);
+            return b2BCatalogPackagingDataUploadPage.UploadMessage.Text.Trim().Contains(message);
         }
         public void VerifyAuditHistoryRecordsForPackageUpload(B2BEnvironment b2BEnvironment, string fileToUpload, string message)
         {
-            b2BHomePage.SelectEnvironment(b2BEnvironment.ToString());
-            b2BHomePage.OpenPackageUploadPage();
-
+            webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["AutoPackageUploadUrl"] + ((b2BEnvironment == B2BEnvironment.Production) ? "P" : "U"));
             b2BCatalogPackagingDataUploadPage = new B2BCatalogPackagingDataUploadPage(webDriver);
             DateTime timeBeforeUpload = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "Central Standard Time");
             b2BCatalogPackagingDataUploadPage.UploadExcelFile(fileToUpload);
@@ -4170,42 +4067,26 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             IReadOnlyCollection<IWebElement> latestRowValues = b2BCatalogPackagingDataUploadPage.GetAuditHistoryRowValues(historyRows.ElementAt(0));
             latestRowValues.ElementAt(0).Text.Should().Be(fileToUpload);
             latestRowValues.ElementAt(1).Text.ToLowerInvariant().Should().Be(Environment.UserName.ToLowerInvariant());
+            WaitForPageRefresh();
             Convert.ToDateTime(latestRowValues.ElementAt(2).Text).Should().BeAfter(timeBeforeUpload);
         }
 
         public void VerifyPackageUploadForNullAndInvalidValues(B2BEnvironment b2BEnvironment, string fileToUpload, string errorMessage)
         {
-            b2BHomePage = new B2BHomePage(webDriver);
-            b2BHomePage.SelectEnvironment(b2BEnvironment.ToString());
-            b2BHomePage.OpenPackageUploadPage();
-
+            webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["AutoPackageUploadUrl"] + ((b2BEnvironment == B2BEnvironment.Production) ? "P" : "U"));
             b2BCatalogPackagingDataUploadPage = new B2BCatalogPackagingDataUploadPage(webDriver);
             b2BCatalogPackagingDataUploadPage.UploadExcelFile(fileToUpload);
             b2BCatalogPackagingDataUploadPage.UploadMessage.Text.Should().Be(errorMessage);
         }
 
-        public void VerifyNewFieldsPackageUploadProd(B2BEnvironment b2BEnvironment, string fileToUpload, string message)
+        public void VerifyNewFieldsPackageUpload(B2BEnvironment b2BEnvironment, string fileToUpload, string message)
         {
-            b2BHomePage.SelectEnvironment(b2BEnvironment.ToString());
-            b2BHomePage.OpenPackageUploadPage();
-
-            DateTime timeBeforeUpload = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "Central Standard Time");
+            webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["AutoPackageUploadUrl"] + ((b2BEnvironment == B2BEnvironment.Production) ? "P" : "U"));
             b2BCatalogPackagingDataUploadPage = new B2BCatalogPackagingDataUploadPage(webDriver);
+            DateTime timeBeforeUpload = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "Central Standard Time");
             b2BCatalogPackagingDataUploadPage.UploadExcelFile(fileToUpload);
             b2BCatalogPackagingDataUploadPage.UploadMessage.WaitForElementDisplayed(TimeSpan.FromSeconds(10));
-            b2BCatalogPackagingDataUploadPage.UploadMessage.Text.Trim().Equals(message);
-
-            string excelQuery = @"select [Order code],LOB,[Config Name],ROUND([Ship Weight],0) as [Ship Weight],ROUND([Package Length],0) as [Package Length],ROUND([Package Width],0) as [Package Width],ROUND([Package Height],0) as [Package Height],ROUND([Pallet Length],0) as [Pallet Length],ROUND([Pallet Width],0) as [Pallet Width],ROUND([Pallet Height],0) as [Pallet Height],ROUND([Pallet Units / Layer],0) as [Pallet Units / Layer],ROUND([Pallet Layer / Pallet],0) as [Pallet Layer / Pallet],ROUND([Pallet Units / Pallet],0) as [Pallet Units / Pallet] FROM [B2B_Catalog_matching_table$]";
-            DataTable excelTable = UtilityMethods.GetDataFromExcel(@"PackagingData.xlsx", excelQuery);
-
-            Channel_Catalog_PackagingData dbData = ChannelCatalogProdDataAccess.GetPackagingDetails(excelTable.Rows[0]["Order code"].ToString());
-
-            dbData.PalletLength.Should().Be(Convert.ToInt32(excelTable.Rows[0]["Pallet Length"]));
-            dbData.PalletWidth.Should().Be(Convert.ToInt32(excelTable.Rows[0]["Pallet Width"]));
-            dbData.PalletHeight.Should().Be(Convert.ToInt32(excelTable.Rows[0]["Pallet Height"]));
-            dbData.PalletUnitsPerLayer.Should().Be(Convert.ToInt32(excelTable.Rows[0]["Pallet Units / Layer"]));
-            dbData.PalletLayerPerPallet.Should().Be(Convert.ToInt32(excelTable.Rows[0]["Pallet Layer / Pallet"]));
-            dbData.PalletUnitsPerPallet.Should().Be(Convert.ToInt32(excelTable.Rows[0]["Pallet Units / Pallet"]));
+            b2BCatalogPackagingDataUploadPage.UploadMessage.Text.Trim().Equals(message).Should().BeTrue();
         }
 
         ///<summary>
@@ -4213,17 +4094,14 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         /// </summary>
         public bool VerifyOriginalDeltaCatonclickingPublishedcheckboxinAutoCatalogListPage(string environment, string statusDropdown, string regionName, string countryName)
         {
-            b2BHomePage.SelectEnvironment(environment);
-            b2BHomePage.AutoCatalogInventoryListPageLink.Click();
+            webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["AutoCatalogListPageUrl"] + ((environment == B2BEnvironment.Production.ToString()) ? "P" : "U"));
             b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
-            webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
-            WaitForPageRefresh();
             b2BAutoCatalogListPage.SelectTheRegion(regionName);
             b2BAutoCatalogListPage.SelectTheCountry(countryName);
             b2BAutoCatalogListPage.SelectTheStatus(statusDropdown);
             b2BAutoCatalogListPage.DeltaCatalogCheckbox.Click();
             b2BAutoCatalogListPage.SearchRecordsLink.Click();
-            WaitForPageRefresh();
+            b2BAutoCatalogListPage.CatalogsTable.WaitForElementVisible(TimeSpan.FromSeconds(30));
             webDriver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromSeconds(120));
             var firststatusElement = b2BAutoCatalogListPage.CatalogListTableRows.FirstOrDefault().FindElements(By.TagName("td"))[3];
             var Status = firststatusElement.Text;
@@ -4278,30 +4156,6 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             b2BAutoCatalogListPage.StdConfigTypeCheckbox.Click();
             return (b2BAutoCatalogListPage.TestHarnessCheckbox.Selected && b2BAutoCatalogListPage.StdConfigTypeCheckbox.Selected);
         }
-        public void VerifyNewFieldsPackageUploadPrev(B2BEnvironment b2BEnvironment, string fileToUpload, string message)
-        {
-            b2BHomePage.SelectEnvironment(b2BEnvironment.ToString());
-            b2BHomePage.OpenPackageUploadPage();
-
-            b2BCatalogPackagingDataUploadPage = new B2BCatalogPackagingDataUploadPage(webDriver);
-            DateTime timeBeforeUpload = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "Central Standard Time");
-            b2BCatalogPackagingDataUploadPage.UploadExcelFile(fileToUpload);
-            b2BCatalogPackagingDataUploadPage.UploadMessage.WaitForElementDisplayed(TimeSpan.FromSeconds(10));
-            b2BCatalogPackagingDataUploadPage.UploadMessage.Text.Trim().Equals(message);
-
-            string excelQuery = @"select [Order code],LOB,[Config Name],ROUND([Ship Weight],0) as [Ship Weight],ROUND([Package Length],0) as [Package Length],ROUND([Package Width],0) as [Package Width],ROUND([Package Height],0) as [Package Height],ROUND([Pallet Length],0) as [Pallet Length],ROUND([Pallet Width],0) as [Pallet Width],ROUND([Pallet Height],0) as [Pallet Height],ROUND([Pallet Units / Layer],0) as [Pallet Units / Layer],ROUND([Pallet Layer / Pallet],0) as [Pallet Layer / Pallet],ROUND([Pallet Units / Pallet],0) as [Pallet Units / Pallet] FROM [B2B_Catalog_matching_table$]";
-            DataTable excelTable = UtilityMethods.GetDataFromExcel(@"PackagingData.xlsx", excelQuery);
-
-            Channel_Catalog_PackagingData dbData = ChannelCatalogPrevDataAccess.GetPackagingDetails(excelTable.Rows[0]["Order code"].ToString());
-
-            dbData.PalletLength.Should().Be(Convert.ToInt32(excelTable.Rows[0]["Pallet Length"]));
-            dbData.PalletWidth.Should().Be(Convert.ToInt32(excelTable.Rows[0]["Pallet Width"]));
-            dbData.PalletHeight.Should().Be(Convert.ToInt32(excelTable.Rows[0]["Pallet Height"]));
-            dbData.PalletUnitsPerLayer.Should().Be(Convert.ToInt32(excelTable.Rows[0]["Pallet Units / Layer"]));
-            dbData.PalletLayerPerPallet.Should().Be(Convert.ToInt32(excelTable.Rows[0]["Pallet Layer / Pallet"]));
-            dbData.PalletUnitsPerPallet.Should().Be(Convert.ToInt32(excelTable.Rows[0]["Pallet Units / Pallet"]));
-        }
-
         public void VerifyRegionInGeneralAndAutoBHC(B2BEnvironment b2BEnvironment, string profileName)
         {
             B2BHomePage b2BHomePage = new B2BHomePage(webDriver);
@@ -4428,6 +4282,60 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             return wantedText.Equals(expireDays);
         }
 
+        public void ValidatePackagingInformation(B2BEnvironment b2BEnvironment, Region region, CatalogItemType[] catalogItemType, string profileName, string identityName, CatalogStatus catalogStatus, CatalogType catalogType, string mfgNumber, ConfigRules configRules = ConfigRules.None)
+        {
+            DateTime beforeSchedTime = DateTime.Now;
+            ChannelUxWorkflow uxWorkflow = new ChannelUxWorkflow(webDriver);
+            uxWorkflow.PublishCatalogByClickOnce(b2BEnvironment, profileName, identityName, catalogType);
+            webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["AutoCatalogListPageUrl"] + ((b2BEnvironment == B2BEnvironment.Production) ? "P" : "U"));
+            uxWorkflow.SearchCatalog(profileName, identityName, beforeSchedTime, catalogStatus);
+            uxWorkflow.ValidateCatalogSearchResult(catalogItemType, catalogType, catalogStatus, beforeSchedTime);
+            string filePath = uxWorkflow.DownloadCatalog(identityName, beforeSchedTime);
+
+            B2BXML actualCatalog = XMLDeserializer<B2BXML>.DeserializeFromXmlFile(filePath);
+
+            CatalogItem actualCatalogItem = actualCatalog.BuyerCatalog.CatalogDetails.CatalogItem.Where(ci => ci.ManufacturerPartNumber.ToString() == mfgNumber).FirstOrDefault();
+
+            string excelQuery = @"select [Region],[Country],[MPN],LOB,[Config Name],[Ship Weight],[Package Length],[Package Width],[Package Height],[Pallet Length],[Pallet Width],[Pallet Height],[Pallet Units / Layer],[Pallet Layer / Pallet],[Pallet Units / Pallet] FROM [B2B_Catalog_matching_table$] where [MPN] = '" + mfgNumber + "'";
+            DataTable excelTable = UtilityMethods.GetDataFromExcel(@"PackagingData.xlsx", excelQuery);
+
+            actualCatalogItem.PackageLength.Should().Be(excelTable.Rows[0]["Package Length"].RoundValue(), "Package Length mismatch");
+            actualCatalogItem.PackageWidth.Should().Be(excelTable.Rows[0]["Package Width"].RoundValue(), "Package Width mismatch");
+            actualCatalogItem.PackageHeight.Should().Be(excelTable.Rows[0]["Package Height"].RoundValue(), "Package Height mismatch");
+            actualCatalogItem.PalletHeight.Should().Be(excelTable.Rows[0]["Pallet Height"].RoundValue(), "Pallet Height mismatch");
+            actualCatalogItem.PalletLength.Should().Be(excelTable.Rows[0]["Pallet Length"].RoundValue(), "Pallet Length mismatch");
+            actualCatalogItem.PalletWidth.Should().Be(excelTable.Rows[0]["Pallet Width"].RoundValue(), "Pallet Width mismatch");
+            actualCatalogItem.PalletUnitsPerLayer.Should().Be(excelTable.Rows[0]["Pallet Units / Layer"].RoundValue(), "Pallet Units / Layer mismatch");
+            actualCatalogItem.PalletLayerPerPallet.Should().Be(excelTable.Rows[0]["Pallet Layer / Pallet"].RoundValue(), "Pallet Layer / Pallet mismatch");
+            actualCatalogItem.PalletUnitsPerPallet.Should().Be(excelTable.Rows[0]["Pallet Units / Pallet"].RoundValue(), "Pallet Units / Pallet mismatch");
+        }
+
+        public void ValidatePackagingInformationForNewFields(B2BEnvironment b2BEnvironment, Region region, CatalogItemType[] catalogItemType, string profileName, string identityName, CatalogStatus catalogStatus, CatalogType catalogType, string mfgNumber, ConfigRules configRules = ConfigRules.None)
+        {
+            DateTime beforeSchedTime = DateTime.Now;
+            ChannelUxWorkflow uxWorkflow = new ChannelUxWorkflow(webDriver);
+            uxWorkflow.PublishCatalogByClickOnce(b2BEnvironment, profileName, identityName, catalogType);
+            webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["AutoCatalogListPageUrl"] + ((b2BEnvironment == B2BEnvironment.Production) ? "P" : "U"));
+            uxWorkflow.SearchCatalog(profileName, identityName, beforeSchedTime, catalogStatus);
+            uxWorkflow.ValidateCatalogSearchResult(catalogItemType, catalogType, catalogStatus, beforeSchedTime);
+            string filePath = uxWorkflow.DownloadCatalog(identityName, beforeSchedTime);
+
+            B2BXML actualCatalog = XMLDeserializer<B2BXML>.DeserializeFromXmlFile(filePath);
+
+            CatalogItem actualCatalogItem = actualCatalog.BuyerCatalog.CatalogDetails.CatalogItem.Where(ci => ci.ManufacturerPartNumber.ToString() == mfgNumber).FirstOrDefault();
+
+            string excelQuery = @"select [Region],[Country],[MPN],LOB,[Config Name],[Ship Weight],[Package Length],[Package Width],[Package Height],[Pallet Length],[Pallet Width],[Pallet Height],[Pallet Units / Layer],[Pallet Layer / Pallet],[Pallet Units / Pallet] FROM [B2B_Catalog_matching_table$] where [MPN] = '" + mfgNumber + "'";
+            DataTable excelTable = UtilityMethods.GetDataFromExcel(@"PackagingData.xlsx", excelQuery);
+
+            actualCatalogItem.PalletLength.Should().Be(Convert.ToInt32(excelTable.Rows[0]["Pallet Length"]),"Pallet Length not found");
+            actualCatalogItem.PalletWidth.Should().Be(Convert.ToInt32(excelTable.Rows[0]["Pallet Width"]), "Pallet Width not found");
+            actualCatalogItem.PalletHeight.Should().Be(Convert.ToInt32(excelTable.Rows[0]["Pallet Height"]), "Pallet Height not found");
+            actualCatalogItem.PalletUnitsPerLayer.Should().Be(Convert.ToInt32(excelTable.Rows[0]["Pallet Units / Layer"]), "Pallet Units / Layer not found");
+            actualCatalogItem.PalletLayerPerPallet.Should().Be(Convert.ToInt32(excelTable.Rows[0]["Pallet Layer / Pallet"]), "Pallet Layer / Pallet not found");
+            actualCatalogItem.PalletUnitsPerPallet.Should().Be(Convert.ToInt32(excelTable.Rows[0]["Pallet Units / Pallet"]), "Pallet Units / Pallet not found");
+
+        }
+
         /// <summary>
         /// Below method verifies whether the BTS Order code exists or not in a Catlog file while Lead time > 3in BHC section
         /// If BTS Order code not exists then it retuns True
@@ -4440,7 +4348,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["AutoCatalogListPageUrl"] + ((b2BEnvironment == B2BEnvironment.Production) ? "P" : "U"));
             uxWorkflow.SearchCatalog(profileName, identityName, beforeSchedTime, catalogStatus);
             uxWorkflow.ValidateCatalogSearchResult(catalogItemType, catalogType, catalogStatus, beforeSchedTime);
-
+            
             string filePath = uxWorkflow.DownloadCatalog(identityName, beforeSchedTime);
             if (uxWorkflow.VerifyOrderCodeExistsInCatalogFile(filePath, itemOrderCode))
             return false;
@@ -4506,7 +4414,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                     b2BBuyerCatalogPage.BcpchkSPLFlagCheckbox.Click();
                 }
             }
-
+            
             //If Parameter-"snpField" is true, then folliwng will Turned On SNP Config field
             if (snpField == true)
             {
@@ -4521,7 +4429,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                 {
                     b2BBuyerCatalogPage.CatalogConfigSnP.Click();
                 }
-            }
+        }
 
             //If Parameter-"sysField" is true, then folliwng will Turned On SYS Config field
             if (sysField == true)
