@@ -126,27 +126,31 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
 
                 if (itemType.Equals(CatalogItemType.ConfigWithDefaultOptions) ||
                     itemType.Equals(CatalogItemType.ConfigWithUpsellDownsell))
-                {
-                    switch (configRules)
-                    {
-                        case ConfigRules.DuplicateBPN:
+                 {
+                     switch (configRules)
+            {
+                       case ConfigRules.DuplicateBPN:
                             expectedCatalogItems = expectedCatalogItems.Where(ci => ci.ShortName.StartsWith("Duplicate BPN"));
-                            break;
+                    break;
                         case ConfigRules.NullBPN:
                             expectedCatalogItems = expectedCatalogItems.Where(ci => ci.ShortName.StartsWith("Null BPN"));
+                    break;
+                        case ConfigRules.LeadTime:
+                            expectedCatalogItems =
+                              expectedCatalogDetails.CatalogItem.Where(ci => ci.ShortName.StartsWith("Lead Time"));
                             break;
-                        default:
+                default:
                             expectedCatalogItems = expectedCatalogItems.Where(ci => ci.ShortName.StartsWith("STD Config"));
-                            break;
-                    }
+                    break;
+            }
 
                 }
-                matchFlag &= ValidateCatalogItems(actualCatalogItems, expectedCatalogItems);
+              matchFlag &= ValidateCatalogItems(actualCatalogItems, expectedCatalogItems);
+               
                 itemCount += expectedCatalogItems.Count();
             }
 
             matchFlag &= ValidateCatalogHeader(actualCatalogHeader, expectedCatalogHeader, catalogItemType, identityName, catalogName, itemCount);
-
             return matchFlag;
         }
 
@@ -250,7 +254,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                 matchFlag &= UtilityMethods.CompareValues<string>("BaseSKUId", actualCatalogItem.BaseSKUId, expectedCatalogItem.BaseSKUId);
                 matchFlag &= UtilityMethods.CompareValues<string>("FGASKUId", actualCatalogItem.FGASKUId, expectedCatalogItem.FGASKUId);
                 matchFlag &= UtilityMethods.CompareValues<string>("ReplacementQuoteId", actualCatalogItem.ReplacementQuoteId, expectedCatalogItem.ReplacementQuoteId);
-                // matchFlag &= UtilityMethods.CompareValues<string>("ItemType", actualCatalogItem.ItemType, expectedCatalogItem.ItemType);
+               // matchFlag &= UtilityMethods.CompareValues<string>("ItemType", actualCatalogItem.ItemType, expectedCatalogItem.ItemType);
                 // matchFlag &= UtilityMethods.CompareValues<string>("ItemSKUinfo", actualCatalogItem.ItemSKUinfo, expectedCatalogItem.ItemSKUinfo);
                 matchFlag &= UtilityMethods.CompareValues<string>("FGAModNumber", actualCatalogItem.FGAModNumber, expectedCatalogItem.FGAModNumber);
                 matchFlag &= UtilityMethods.CompareValues<int>("InventoryQty", actualCatalogItem.InventoryQty, expectedCatalogItem.InventoryQty, Computation.GreaterThanOrEqualTo);
@@ -386,7 +390,6 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             else if (catalogType == CatalogType.Delta)
                 b2BChannelUx.DeltaRadioButton.Click();
 
-            //b2BChannelUx.CreateButton.Click();
             b2BChannelUx.ClickToPublishButton.Click();
             
             IAlert successAlert = webDriver.WaitGetAlert(CatalogTimeOuts.AlertTimeOut);
@@ -482,7 +485,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         /// <returns>If itemOrderCode exists it returns true</returns>
         public bool VerifyOrderCodeExistsInCatalogFile(string filePath, string itemOrderCode)
         {
-
+    
             B2BXML actualCatalog = XMLDeserializer<B2BXML>.DeserializeFromXmlFile(filePath);
 
             bool matchFlag = false;

@@ -6,7 +6,6 @@ using Dell.Adept.UI.Web.Support.Extensions.WebElement;
 using FluentAssertions;
 using Modules.Channel.B2B.Core.Pages;
 using OpenQA.Selenium;
-using OpenQA.Selenium.Support.PageObjects;
 using Modules.Channel.B2B.Common;
 using OpenQA.Selenium.Support.UI;
 using Dell.Adept.UI.Web.Support.Extensions.WebDriver;
@@ -89,7 +88,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             b2BProfileSettingsGeneralPage.EnterCustomerSet(customerSet);
             b2BProfileSettingsGeneralPage.SearchLink.Click();
             WaitForPageRefresh(); WaitForPageRefresh(); WaitForPageRefresh();
-           // b2BProfileSettingsGeneralPage.SelectValidAccessGroupMsg.WaitForElementDisplayed(TimeSpan.FromSeconds(60));
+            // b2BProfileSettingsGeneralPage.SelectValidAccessGroupMsg.WaitForElementDisplayed(TimeSpan.FromSeconds(60));
             if (b2BProfileSettingsGeneralPage.SelectAccessGroupMsgDisplayed())
             {
                 b2BProfileSettingsGeneralPage.EnterAccessGroup(accessGroup);
@@ -4435,27 +4434,21 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         /// </summary>
         public bool VerifyLeadTimeGreaterThanThreeBTSOrderCodesNotExistsInCatalog(B2BEnvironment b2BEnvironment, CatalogItemType[] catalogItemType, string profileName, string identityName, CatalogStatus catalogStatus, CatalogType catalogType, string itemOrderCode)
         {
-            bool expectedValue = true;
             DateTime beforeSchedTime = DateTime.Now;
-
             ChannelUxWorkflow uxWorkflow = new ChannelUxWorkflow(webDriver);
             uxWorkflow.PublishCatalogByClickOnce(b2BEnvironment, profileName, identityName, catalogType);
-
             webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["AutoCatalogListPageUrl"] + ((b2BEnvironment == B2BEnvironment.Production) ? "P" : "U"));
             uxWorkflow.SearchCatalog(profileName, identityName, beforeSchedTime, catalogStatus);
             uxWorkflow.ValidateCatalogSearchResult(catalogItemType, catalogType, catalogStatus, beforeSchedTime);
-            
+
             string filePath = uxWorkflow.DownloadCatalog(identityName, beforeSchedTime);
             if (uxWorkflow.VerifyOrderCodeExistsInCatalogFile(filePath, itemOrderCode))
-            {
-                expectedValue = false;
-                return expectedValue;
-            }
+            return false;
             else
-            {
-                 return expectedValue;
-            }
+            return true;
+           
         }
+
 
         /// <summary>
         /// It Verify the SPL with SYS Config, SNP Config, SNP Auto CRT & SYS Auto CRT UI settings in B2B Profile->Buyer Catalog page, under under "Automated BHC Catalog-Processing Rules" section
@@ -4513,7 +4506,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                     b2BBuyerCatalogPage.BcpchkSPLFlagCheckbox.Click();
                 }
             }
-            
+
             //If Parameter-"snpField" is true, then folliwng will Turned On SNP Config field
             if (snpField == true)
             {
@@ -4528,7 +4521,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                 {
                     b2BBuyerCatalogPage.CatalogConfigSnP.Click();
                 }
-        }
+            }
 
             //If Parameter-"sysField" is true, then folliwng will Turned On SYS Config field
             if (sysField == true)
