@@ -383,16 +383,16 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             b2BChannelUx.SelectOption(b2BChannelUx.SelectCustomerProfileDiv, profileName);
             b2BChannelUx.SelectOption(b2BChannelUx.SelectProfileIdentityDiv, identityName.ToUpper());
 
-            //if (!b2BChannelUx.UseExistingB2BAutoScheduleRadioButton.Selected)
-            //    b2BChannelUx.UseExistingB2BAutoScheduleRadioButton.Click();
+            if (!b2BChannelUx.UseExistingB2BAutoScheduleRadioButton.Selected)
+                b2BChannelUx.UseExistingB2BAutoScheduleRadioButton.Click();
 
             if (catalogType == CatalogType.Original)
                 b2BChannelUx.OriginalRadioButton.Click();
             else if (catalogType == CatalogType.Delta)
                 b2BChannelUx.DeltaRadioButton.Click();
 
-            b2BChannelUx.ClickToPublishButton.Click();
-            
+            //b2BChannelUx.ClickToPublishButton.Click();
+            b2BChannelUx.CreateButton.Click();
             IAlert successAlert = webDriver.WaitGetAlert(CatalogTimeOuts.AlertTimeOut);
             successAlert.Accept();
 
