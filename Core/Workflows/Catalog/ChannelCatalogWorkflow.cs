@@ -1121,8 +1121,13 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         /// <returns></returns>
         public bool VerifyThreadIdLinkInAutoCatalogListPage(string environment, string region, string country, string status)
         {
-            webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["AutoCatalogListPageUrl"] + ((environment == B2BEnvironment.Production.ToString()) ? "P" : "U"));
+            //webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["AutoCatalogListPageUrl"] + ((environment == B2BEnvironment.Production.ToString()) ? "P" : "U"));
+            //b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
+            b2BHomePage.SelectEnvironment(environment);
+            b2BHomePage.AutoCatalogInventoryListPageLink.Click();
             b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
+            webDriver.SwitchTo().Window(webDriver.WindowHandles.LastOrDefault());
+            WaitForPageRefresh();
             b2BAutoCatalogListPage.SelectTheRegion(region);
             b2BAutoCatalogListPage.SelectTheCountry(country);
             b2BAutoCatalogListPage.SelectTheStatus(status);
