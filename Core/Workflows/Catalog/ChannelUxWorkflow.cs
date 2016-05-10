@@ -61,7 +61,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                 {
                     Link_Locator.Click();
                     webDriver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromMinutes(2));
-                    if (webDriver.PageSource.Contains("Auto Catalog List") ||
+                    if (webDriver.PageSource.Contains("Inventory List") ||
                         webDriver.PageSource.Contains("Packaging Data") ||
                         webDriver.PageSource.Contains("Create Instant Catalog") ||
                         webDriver.PageSource.Contains("Auto Catalog Part Viewer")
@@ -393,11 +393,44 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
 
             //b2BChannelUx.ClickToPublishButton.Click();
             b2BChannelUx.CreateButton.Click();
-            IAlert successAlert = webDriver.WaitGetAlert(CatalogTimeOuts.AlertTimeOut);
-            successAlert.Accept();
+            //P2ValidationSuccess
 
+            WaitForPageRefresh();
+            //IAlert successAlert = webDriver.WaitGetAlert(CatalogTimeOuts.AlertTimeOut);
+            //successAlert.Accept();
+            b2BChannelUx.ValidationMessage.WaitForElementVisible(TimeSpan.FromSeconds(30));
+            b2BChannelUx.ValidationMessage.Text.ShouldBeEquivalentTo("Auto Catalog generation successfully initiated. Please check it on the Auto Catalog & Inventory List page after sometime.");
             Console.WriteLine("Profile Name: " + profileName);
             Console.WriteLine("Identity Name: " + identityName);
+        }
+
+        internal void ValidateP2PMessage(B2BEnvironment environment, string profileName, string identityName, CatalogType catalogType, string errorMessage)
+        {
+            webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["TestHarnessPageUrl"] + ((environment == B2BEnvironment.Production) ? "P" : "U"));
+            B2BChannelUx b2BChannelUx = new B2BChannelUx(webDriver);
+
+            if (environment == B2BEnvironment.Production)
+                b2BChannelUx.ProductionEnvRadioButton.Click();
+            else if (environment == B2BEnvironment.Preview)
+                b2BChannelUx.PreviewEnvRadioButton.Click();
+
+            b2BChannelUx.SelectOption(b2BChannelUx.SelectCustomerProfileDiv, profileName);
+            b2BChannelUx.SelectOption(b2BChannelUx.SelectProfileIdentityDiv, identityName.ToUpper());
+
+            if (!b2BChannelUx.UseExistingB2BAutoScheduleRadioButton.Selected)
+                b2BChannelUx.UseExistingB2BAutoScheduleRadioButton.Click();
+
+            if (catalogType == CatalogType.Original)
+                b2BChannelUx.OriginalRadioButton.Click();
+            else if (catalogType == CatalogType.Delta)
+                b2BChannelUx.DeltaRadioButton.Click();
+            b2BChannelUx.CreateButton.Click();
+            WaitForPageRefresh();
+            //b2BChannelUx.ValidationMessage.WaitForElementVisible(TimeSpan.FromSeconds(30));
+            //webDriver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromSeconds(30));
+            Console.WriteLine("Expected: " + errorMessage);
+            Console.WriteLine("Actual: " + b2BChannelUx.ValidationMessage.Text);         
+            b2BChannelUx.ValidationMessage.Text.Trim().Equals(errorMessage).Should().BeTrue();
         }
 
         /// <summary>
@@ -502,7 +535,26 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             }
 
             return matchFlag;
+        }
 
+        /// <summary>
+        /// Waits for the page to refresh after navigation
+        /// </summary>
+        public void WaitForPageRefresh()
+        {
+            var isloaded = string.Empty;
+            do
+            {
+                Thread.Sleep(4000);
+                try
+                {
+                    isloaded = javaScriptExecutor.ExecuteScript("return window.document.readyState") as string;
+                }
+                catch
+                {
+                    // ignored
+                }
+            } while (isloaded != "complete");
         }
     }
 }

@@ -226,6 +226,47 @@ namespace Modules.Channel.B2B.Core.Pages
             }
         }
 
+        public IWebElement ValidationMessage
+        {
+            get
+            {
+                //return webDriver.FindElement(By.XPath(".//*[@id='homepage-var']/div/div[2]/div/div/div[1]"));
+                ////return webDriver.FindElement(By.CssSelector("div[class='alert ng-binding']"));
+                return webDriver.FindElement(By.CssSelector("div[ng-show='alert.show']"));
+            }
+        }
+
+        public IWebElement AutoCatalogInventoryListLink
+        {
+            get
+            {
+                return webDriver.FindElement(By.PartialLinkText("Auto Catalog & Inventory List"));
+            }
+        }
+        public IWebElement AutoCatalogPartViewerLInk
+        {
+            get
+            {
+                return webDriver.FindElement(By.PartialLinkText("Auto Catalog Part Viewer"));
+            }
+        }
+
+        public IWebElement AutoPackagingUploadLInk
+        {
+            get
+            {
+                return webDriver.FindElement(By.PartialLinkText("Packaging Upload"));
+            }
+        }
+
+        public IWebElement AutoCreateInstantCatalogLInk
+        {
+            get
+            {
+                return webDriver.FindElement(By.PartialLinkText("Create Instant Catalog"));
+            }
+        }
+
         #endregion
 
         #endregion

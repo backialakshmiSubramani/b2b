@@ -73,6 +73,7 @@ namespace Modules.Channel.B2B.Common
         Created,
         Published,
         Failed,
-        Expired
+        Expired,
+        Scheduled
     }
 }

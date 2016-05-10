@@ -296,7 +296,27 @@ namespace Modules.Channel.B2B.Common
         public static string GetCellValue(this IWebElement tableElement, int rowIndex, string columnName)
         {
             int columnIndex = tableElement.GetColumnIndex(columnName);
+            
+            if (columnIndex > 4 && columnIndex < 7)
+                columnIndex += 2;
+            else if(columnIndex >= 7) 
+                columnIndex += 3;
+
             string cellValue = tableElement.FindElement(By.CssSelector("tbody tr:nth-of-type(" + rowIndex + ") td:nth-of-type(" + columnIndex + ")")).Text;
+
+            return cellValue;
+        }
+
+        public static IWebElement GetCellElement(this IWebElement tableElement, int rowIndex, string columnName)
+        {
+            int columnIndex = tableElement.GetColumnIndex(columnName);
+
+            if (columnIndex > 4 && columnIndex < 7)
+                columnIndex += 2;
+            else if (columnIndex >= 7)
+                columnIndex += 3;
+
+            var cellValue = tableElement.FindElement(By.CssSelector("tbody tr:nth-of-type(" + rowIndex + ") td:nth-of-type(" + columnIndex + ")"));
 
             return cellValue;
         }
