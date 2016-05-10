@@ -400,8 +400,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             //successAlert.Accept();
             b2BChannelUx.ValidationMessage.WaitForElementVisible(TimeSpan.FromSeconds(30));
             b2BChannelUx.ValidationMessage.Text.ShouldBeEquivalentTo("Auto Catalog generation successfully initiated. Please check it on the Auto Catalog & Inventory List page after sometime.");
-            Console.WriteLine("Profile Name: " + profileName);
-            Console.WriteLine("Identity Name: " + identityName);
+            
         }
 
         internal void ValidateP2PMessage(B2BEnvironment environment, string profileName, string identityName, CatalogType catalogType, string errorMessage)

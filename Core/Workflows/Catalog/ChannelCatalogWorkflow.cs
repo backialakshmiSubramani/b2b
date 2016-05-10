@@ -1270,7 +1270,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             var countryCode = b2BAutoCatalogListPage.CatalogsTable.GetCellValue(1, "Country\r\nCode");
             var regioncode = b2BAutoCatalogListPage.CatalogsTable.GetCellValue(1, "Region");
             var cUrrencycode = b2BAutoCatalogListPage.CatalogsTable.GetCellValue(1, "Currency\r\nCode");
-            if (Status.Equals(status.ToString()) && countryCode.Equals("") && regioncode.Equals("") && cUrrencycode.Equals(""))
+            if (Status.Equals(status.ToString()) && countryCode.Equals("") && regioncode.Equals(""))// && cUrrencycode.Equals(""))
             {
                 return true;
             }
