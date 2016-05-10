@@ -733,7 +733,7 @@ namespace Modules.Channel.B2B.Core.Pages
         public void SelectOption(IWebElement webElement, string optionText)
         {
             webElement.Click();
-            IWebElement textElement = webElement.FindElement(By.XPath("../following-sibling::div/child::ul/child::li/a[contains(text(),'" + optionText + "')]"));
+            IWebElement textElement = webElement.FindElement(By.XPath("../following-sibling::div/child::ul/child::li/a[(text()='" + optionText + "')]"));
             textElement.Click();
         }
 
