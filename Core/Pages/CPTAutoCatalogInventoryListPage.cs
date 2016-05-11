@@ -694,6 +694,25 @@ namespace Modules.Channel.B2B.Core.Pages
             CatalogsTable.WaitForElementVisible(TimeSpan.FromSeconds(30));
         }
 
+        public void SearchInventoryRecords(Region region, string profileName = "", string identityName = "")
+        {
+            InventoryCheckbox.Click();
+            SelectOption(SelectRegionSpan, region.ConvertToString());
+
+            if (!string.IsNullOrEmpty(profileName))
+            {
+                SelectOption(SelectCustomerNameSpan, profileName);
+            }
+
+            if (!string.IsNullOrEmpty(identityName))
+            {
+                SelectOption(SelectIdentityNameSpan, identityName.ToUpper());
+            }
+
+            SearchRecordsLink.Click();
+            CatalogsTable.WaitForElementVisible(TimeSpan.FromSeconds(30));
+        }
+
         public string GetCatalogValue(int rowIndex, int colIndex)
         {
             return CatalogsTable.FindElement(By.CssSelector("tr:nth-of-type(" + rowIndex + ")>td:nth-of-type(" + colIndex + ")")).Text.Trim();
@@ -720,14 +739,16 @@ namespace Modules.Channel.B2B.Core.Pages
         }
 
         /// <summary>
-        /// Verified if all the records on the current page are Inventory Feeds
+        /// Verifies if a certain column of all the records on the current page have the expected value
         /// </summary>
+        /// <param name="columnNumber">number of the column, 0 based</param>
+        /// <param name="expectedValue">expected value of the particular column of all the records in current page</param>
         /// <returns></returns>
-        public bool AreAllRowsInventory()
+        public bool VerifyColumnValue(int columnNumber, string expectedValue)
         {
             return
                 CatalogListTableRows.All(
-                    r => r.FindElements(By.TagName("td"))[2].Text.ToLowerInvariant().Equals("inventory"));
+                    r => r.FindElements(By.TagName("td"))[columnNumber].Text.Equals(expectedValue));
         }
 
         public void SelectOption(IWebElement webElement, string optionText)
@@ -735,6 +756,29 @@ namespace Modules.Channel.B2B.Core.Pages
             webElement.Click();
             IWebElement textElement = webElement.FindElement(By.XPath("../following-sibling::div/child::ul/child::li/a[(text()='" + optionText + "')]"));
             textElement.Click();
+        }
+
+        /// <summary>
+        /// Use this method to know if the paging is enabled
+        /// </summary>
+        /// <returns></returns>
+        public bool IsPagingEnabled()
+        {
+            try
+            {
+                if (!PagingSpan.IsElementVisible())
+                {
+                    Console.WriteLine("Paging not enabled");
+                    return false;
+                }
+            }
+            catch (NoSuchElementException)
+            {
+                Console.WriteLine("Paging not enabled");
+                return false;
+            }
+
+            return true;
         }
 
         #endregion

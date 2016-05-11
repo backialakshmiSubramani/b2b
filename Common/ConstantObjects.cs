@@ -65,7 +65,8 @@ namespace Modules.Channel.B2B.Common
     public enum Region
     {
         US,
-        EMEA
+        EMEA,
+        APJ
     }
     
     public enum CatalogStatus

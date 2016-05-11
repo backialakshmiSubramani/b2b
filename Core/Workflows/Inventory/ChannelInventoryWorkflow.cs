@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Linq;
@@ -8,6 +9,7 @@ using Modules.Channel.B2B.Core.Pages;
 using Modules.Channel.B2B.Core.Workflows.Common;
 using Modules.Channel.B2B.DAL.Inventory;
 using System.IO;
+using Modules.Channel.B2B.Common;
 
 namespace Modules.Channel.B2B.Core.Workflows.Inventory
 {
@@ -564,8 +566,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Inventory
 
             try
             {
-
-                if (!cPTAutoCatalogInventoryListPage.WebDriver.FindElement(By.Id("nextUpButton")).IsElementVisible())
+                if (!cPTAutoCatalogInventoryListPage.NextButton.IsElementVisible())
                 {
                     Console.WriteLine("Records are not loaded");
                     return true;
@@ -620,45 +621,46 @@ namespace Modules.Channel.B2B.Core.Workflows.Inventory
         /// Use this method to verify if the Clear All link clears the results table
         /// </summary>
         /// <param name="environment"></param>
+        /// <param name="region"></param>
         /// <returns></returns>
-        public bool VerifyClearAllLink(RunEnvironment environment)
+        public bool VerifyClearAllLink(RunEnvironment environment, Region region)
         {
-            SearchInventoryRecords(environment);
+            SearchInventoryRecords(environment, region);
             cPTAutoCatalogInventoryListPage.ClearAllLink.Click();
             return !cPTAutoCatalogInventoryListPage.CatalogListTableHeader.Displayed;
         }
 
-        private void SearchInventoryRecords(RunEnvironment environment)
+        private void SearchInventoryRecords(RunEnvironment environment, Region region, string profileName = "", string identityName = "")
         {
             b2BHomePage.SelectEnvironment(environment.ToString());
             b2BHomePage.OpenAutoCatalogInventoryListPage();
             cPTAutoCatalogInventoryListPage = new CPTAutoCatalogInventoryListPage(webDriver);
-            cPTAutoCatalogInventoryListPage.InventoryCheckbox.Click();
-            cPTAutoCatalogInventoryListPage.SearchRecordsLink.Click();
-            PageUtility.WaitForPageRefresh(webDriver);
+            cPTAutoCatalogInventoryListPage.SearchInventoryRecords(region, profileName, identityName);
         }
+
 
         /// <summary>
         /// Verifies if all the records displayed in multiple pages are Inventory records
         /// </summary>
         /// <param name="environment"></param>
+        /// <param name="region"></param>
         /// <returns></returns>
-        public bool VerifyInventorySearchRecords(RunEnvironment environment)
+        public bool VerifyInventorySearchRecords(RunEnvironment environment, Region region)
         {
-            SearchInventoryRecords(environment);
+            SearchInventoryRecords(environment, region);
 
-            if (!cPTAutoCatalogInventoryListPage.AreAllRowsInventory())
+            if (!cPTAutoCatalogInventoryListPage.VerifyColumnValue(2, "Inventory"))
             {
                 return false;
             }
 
-            if (!cPTAutoCatalogInventoryListPage.PagingSpan.Displayed) return true;
+            if (!cPTAutoCatalogInventoryListPage.IsPagingEnabled()) return true;
 
             do
             {
                 cPTAutoCatalogInventoryListPage.NextButton.Click();
 
-                if (!cPTAutoCatalogInventoryListPage.AreAllRowsInventory())
+                if (!cPTAutoCatalogInventoryListPage.VerifyColumnValue(2, "Inventory"))
                 {
                     return false;
                 }
@@ -685,16 +687,229 @@ namespace Modules.Channel.B2B.Core.Workflows.Inventory
             return b2BBuyerCatalogPage.VerifyPresenceOfNumberOfOccurrenceField(noOfOccurrenceLabelText);
         }
 
-        public int VerifyNumberOfMostRecentRecords(RunEnvironment environment)
+        /// <summary>
+        /// Verify the number of records displayed per page on CPT UI
+        /// </summary>
+        /// <param name="environment"></param>
+        /// <param name="region"></param>
+        /// <returns></returns>
+        public int VerifyNumberOfMostRecentRecords(RunEnvironment environment, Region region)
         {
-            b2BHomePage.SelectEnvironment(environment.ToString());
-            b2BHomePage.OpenAutoCatalogInventoryListPage();
-            cPTAutoCatalogInventoryListPage = new CPTAutoCatalogInventoryListPage(webDriver);
-            cPTAutoCatalogInventoryListPage.SearchRecordsLink.Click();
+            SearchInventoryRecords(environment, region);
             return cPTAutoCatalogInventoryListPage.CatalogListTableRows.Count();
         }
 
+        /// <summary>
+        /// Verify the 'Help - Auto Inventory' Section
+        /// </summary>
+        /// <param name="environment"></param>
+        /// <param name="profileName"></param>
+        /// <param name="autoInventoryHelpText"></param>
+        /// <returns></returns>
+        public bool VerifyAutoInventoryHelpSection(RunEnvironment environment, string profileName,
+            string autoInventoryHelpText)
+        {
+            accessProfile.GoToBuyerCatalogTab(environment.ToString(), profileName);
+            b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
 
+            return b2BBuyerCatalogPage.VerifyAutoInventoryHelpSection(autoInventoryHelpText);
+        }
+
+        /// <summary>
+        /// Verify if the inventory feeds are filtered by region
+        /// </summary>
+        /// <param name="environment"></param>
+        /// <param name="region"></param>
+        /// <returns></returns>
+        public bool VerifyAutoInventoryFilteringByRegion(RunEnvironment environment, Region region)
+        {
+            SearchInventoryRecords(environment, region);
+
+            if (!cPTAutoCatalogInventoryListPage.VerifyColumnValue(14, region.ToString()))
+            {
+                return false;
+            }
+
+            if (!cPTAutoCatalogInventoryListPage.IsPagingEnabled()) return true;
+
+            do
+            {
+                cPTAutoCatalogInventoryListPage.NextButton.Click();
+
+                if (!cPTAutoCatalogInventoryListPage.VerifyColumnValue(14, region.ToString()))
+                {
+                    return false;
+                }
+            } while (Convert.ToInt32(cPTAutoCatalogInventoryListPage.PageNumberTextbox.GetAttribute("value")) <
+                     Convert.ToInt32(cPTAutoCatalogInventoryListPage.PagingSpan.Text.Split(' ').Last()));
+
+            return true;
+        }
+
+        /// <summary>
+        /// Verifies if changes to Auto Inventory are tracked in Audit History
+        /// </summary>
+        /// <param name="environment"></param>
+        /// <param name="profileName"></param>
+        /// <param name="windowsLogin"></param>
+        /// <param name="oldInterval"></param>
+        /// <param name="newInterval"></param>
+        /// <param name="oldOffset"></param>
+        /// <param name="newOffset"></param>
+        /// <returns></returns>
+        public bool VerifyAuditHistoryForAutoInventory(RunEnvironment environment, string profileName,
+            string windowsLogin, string oldInterval, string newInterval, string oldOffset, string newOffset)
+        {
+            var expectedEditedBy = "Edited By " + windowsLogin;
+            accessProfile.GoToBuyerCatalogTab(environment.ToString(), profileName);
+            b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+
+            //Verify changes to 'Enable Automated Inventory Feed' are tracked
+            var oldValue = b2BBuyerCatalogPage.EnableAutoInventoryCheckbox.Selected;
+            var newValue = !oldValue;
+            b2BBuyerCatalogPage.EnableAutoInventoryCheckbox.Click();
+            b2BBuyerCatalogPage.UpdateButton.Click();
+
+            if (
+                !VerifyAuditHistoryRow(oldValue.ToString(), newValue.ToString(),
+                    "Enable Automated Inventory Feed", expectedEditedBy))
+            {
+                return false;
+            }
+
+            //Verify changes to 'Automated Inventory Refresh Interval' are tracked
+            var oldIntervalValue = SetAutoInventoryRefreshInterval(oldInterval);
+            b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+            var newIntervalValue = SetAutoInventoryRefreshInterval(newInterval);
+
+            if (
+                !VerifyAuditHistoryRow(oldIntervalValue, newIntervalValue, "Automated Inventory Refresh Interval",
+                    expectedEditedBy))
+            {
+                return false;
+            }
+
+            //Verify the changes to 'Minimum Delay post AutoCatalog' are tracked
+            SetAutoInventoryOffset(oldOffset);
+            b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+            SetAutoInventoryOffset(newOffset);
+
+
+            if (!VerifyAuditHistoryRow(oldOffset, newOffset, "TimeOffset", expectedEditedBy))
+            {
+                return false;
+            }
+
+            //Verify click of 'Click to Run Once' is tracked'
+            b2BBuyerCatalogPage.ClickToRunOnceButton.Click();
+            b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+            webDriver.Navigate().Refresh();
+
+            return VerifyAuditHistoryRow("False", "True", "Enable Manual Inventory Feed", expectedEditedBy);
+        }
+
+        private string SetAutoInventoryRefreshInterval(string interval)
+        {
+            var splitInterval = interval.Split('/');
+
+            if (!b2BBuyerCatalogPage.EnableAutoInventoryCheckbox.Selected)
+            {
+                b2BBuyerCatalogPage.EnableAutoInventoryCheckbox.Click();
+            }
+
+            if (!splitInterval[0].Equals("0"))
+            {
+                b2BBuyerCatalogPage.AutoInventoryDaysDropdown.Select().SelectByValue(splitInterval[0]);
+            }
+
+            if (!splitInterval[1].Equals("0"))
+            {
+                b2BBuyerCatalogPage.AutoInventoryHoursDropdown.Select().SelectByValue(splitInterval[1]);
+            }
+
+            if (!splitInterval[2].Equals("0"))
+            {
+                b2BBuyerCatalogPage.AutoInventoryMinutesDropdown.Select().SelectByValue(splitInterval[2]);
+            }
+
+            b2BBuyerCatalogPage.UpdateButton.Click();
+
+            return splitInterval[0] + " days " + splitInterval[1] + " hours " + splitInterval[2] + " minutes";
+        }
+
+        private void SetAutoInventoryOffset(string offset)
+        {
+            if (!b2BBuyerCatalogPage.EnableAutoInventoryCheckbox.Selected)
+            {
+                b2BBuyerCatalogPage.EnableAutoInventoryCheckbox.Click();
+            }
+
+            b2BBuyerCatalogPage.AutoInventoryOffset.Select().SelectByValue(offset);
+            b2BBuyerCatalogPage.UpdateButton.Click();
+        }
+
+        private bool VerifyAuditHistoryRow(string expectedOldValue, string expectedNewValue, string auditHistoryProperty,
+            string expectedEditedBy)
+        {
+            b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+            b2BBuyerCatalogPage.AuditHistoryLink.Click();
+
+            var editedBy = b2BBuyerCatalogPage.AuditHistoryRows[0].FindElements(By.TagName("td"))[0].Text;
+
+            //Skip the first timestamp row & take only the field change rows before the next timestamp row
+            IList<IWebElement> immediateRows = new List<IWebElement>();
+
+            foreach (var row in b2BBuyerCatalogPage.AuditHistoryRows.Skip(1))
+            {
+                if (!row.FindElement(By.TagName("td")).GetAttribute("class").Equals("auditHeader"))
+                {
+                    //Take only field change rows
+                    immediateRows.Add(row);
+                }
+                else
+                {
+                    //Skip timestamp rows
+                    break;
+                }
+            }
+
+            var auditHistoryRow =
+                immediateRows.FirstOrDefault(r => r.FindElements(By.TagName("td"))[0].Text.Equals(auditHistoryProperty));
+
+            if (auditHistoryRow == null)
+            {
+                Console.WriteLine("No latest audit history row found for {0}", auditHistoryProperty);
+            }
+
+            var oldValue = auditHistoryRow.FindElements(By.TagName("td"))[1].Text;
+            Console.WriteLine(oldValue);
+            var newValue = auditHistoryRow.FindElements(By.TagName("td"))[2].Text;
+            Console.WriteLine(newValue);
+
+
+            return editedBy.Contains(expectedEditedBy) && oldValue.Equals(expectedOldValue) &&
+                   newValue.Equals(expectedNewValue);
+
+        }
+
+        public bool VerifyAutoInventoryMinimumDelayPostAutoCatalogField(RunEnvironment environment, string profileName, string autoInventoryMinimumDelayPostAutoCatalogText)
+        {
+            accessProfile.GoToBuyerCatalogTab(environment.ToString(), profileName);
+            b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+
+            return
+                b2BBuyerCatalogPage.VerifyAutoInventoryMinimumDelayPostAutoCatalog(
+                    autoInventoryMinimumDelayPostAutoCatalogText);
+
+        }
+
+        public bool VerifyRestrictionOfInventoryIntervalToOneType(RunEnvironment environment, string profileName)
+        {
+            accessProfile.GoToBuyerCatalogTab(environment.ToString(), profileName);
+            b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+
+            return b2BBuyerCatalogPage.VerifyRestrictionOfInventoryIntervalToOneType();
+        }
     }
 
 }

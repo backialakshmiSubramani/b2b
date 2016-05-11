@@ -41,7 +41,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
             b2BHomePage.ClickB2BProfileList();
             Console.WriteLine("Done!");
 
-            Console.WriteLine("Searching for Profile by Customer Name : {0}" + profileName);
+            Console.WriteLine("Searching for Profile by Customer Name : {0}", profileName);
             b2BCustomerProfileListPage = new B2BCustomerProfileListPage(webDriver);
             b2BCustomerProfileListPage.SearchProfile("Customer Name", profileName);
             b2BCustomerProfileListPage.ClickSearchedProfile(profileName);

@@ -966,6 +966,22 @@ namespace Modules.Channel.B2B.Core.Pages
             }
         }
 
+        private IWebElement _autoInventoryOffset;
+
+        /// <summary>
+        /// Minimum Delay post AutoCatalog for Channel Inventory
+        /// </summary>
+        public IWebElement AutoInventoryOffset
+        {
+            get
+            {
+                return _autoInventoryOffset ?? (_autoInventoryOffset =
+                           webDriver.FindElement(By.Id("ContentPageHolder_dd_MinimumDelayPostAutoCatalog"),
+                               new TimeSpan(0, 0, 10)));
+            }
+        }
+
+
         private List<IWebElement> _checkedIdentityList;
         public List<IWebElement> CheckedIdentityList
         {
@@ -992,6 +1008,63 @@ namespace Modules.Channel.B2B.Core.Pages
                 return _catalogExpires;
             }
         }
+
+        /// <summary>
+        /// Expand or the '+' button for 'Help - Auto Inventory' section
+        /// </summary>
+        private IWebElement _autoInventoryHelpPlus;
+        public IWebElement AutoInventoryHelpPlus
+        {
+            get
+            {
+                return _autoInventoryHelpPlus ??
+                       (_autoInventoryHelpPlus =
+                           webDriver.FindElement(By.Id("helpautoinventoryplus")));
+            }
+        }
+
+        /// <summary>
+        /// Collapse or the '-' button for 'Help - Auto Inventory' section
+        /// </summary>
+        private IWebElement _autoInventoryHelpMinus;
+        public IWebElement AutoInventoryHelpMinus
+        {
+            get
+            {
+                return _autoInventoryHelpMinus ??
+                       (_autoInventoryHelpMinus =
+                           webDriver.FindElement(By.Id("helpautoinventoryminus")));
+            }
+        }
+
+        /// <summary>
+        /// 'Help - Auto Inventory' link
+        /// </summary>
+        private IWebElement _autoInventoryHelpLink;
+        public IWebElement AutoInventoryHelpLink
+        {
+            get
+            {
+                return _autoInventoryHelpLink ??
+                       (_autoInventoryHelpLink =
+                           webDriver.FindElement(By.LinkText("Help - Auto Inventory"), new TimeSpan(0, 0, 30)));
+            }
+        }
+
+        /// <summary>
+        /// 'Help - Auto Inventory' content
+        /// </summary>
+        private IWebElement _autoInventoryHelp;
+        public IWebElement AutoInventoryHelp
+        {
+            get
+            {
+                return _autoInventoryHelp ??
+                       (_autoInventoryHelp =
+                           webDriver.FindElement(By.Id("helpautoinventory")));
+            }
+        }
+
         #endregion
 
         #region Helper Methods
@@ -1131,10 +1204,10 @@ namespace Modules.Channel.B2B.Core.Pages
                 return false;
             }
 
-            var hoursOptions = Enumerable.Range(0, 24);
+            var hoursOptions = new[] { "0", "1", "2", "3", "4", "6", "8", "12" };
 
             if (intervalDropdowns[1].Select().Options.Count() != hoursOptions.Count() ||
-                intervalDropdowns[1].Select().Options.Any(o => !hoursOptions.Contains(Convert.ToInt32(o.Text))))
+                intervalDropdowns[1].Select().Options.Any(o => !hoursOptions.Contains(o.Text)))
             {
                 return false;
             }
@@ -1143,6 +1216,47 @@ namespace Modules.Channel.B2B.Core.Pages
 
             if (intervalDropdowns[2].Select().Options.Count() != minutesOptions.Count() ||
                 intervalDropdowns[2].Select().Options.Any(o => !minutesOptions.Contains(o.Text)))
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Verifies the 'Minimum Delay Post AutoCatalog' label & dropdown
+        /// </summary>
+        /// <param name="autoInventoryMinimumDelayPostAutoCatalogText"></param>
+        /// <returns></returns>
+        public bool VerifyAutoInventoryMinimumDelayPostAutoCatalog(string autoInventoryMinimumDelayPostAutoCatalogText)
+        {
+            var fourthRow = InventoryFeedSectionTable.FindElement(By.XPath("tbody/tr[4]"));
+
+            if (
+                !fourthRow.FindElement(By.XPath("td[1]/span[@id='ContentPageHolder_lblMinimumDelayPostAutoCatalog']"))
+                    .Text.Equals(autoInventoryMinimumDelayPostAutoCatalogText))
+            {
+                return false;
+            }
+
+            var offsetHoursDropdown = fourthRow.FindElement(By.XPath("td[2]/select"));
+
+            var offsetOptions = Enumerable.Range(1, 3);
+
+            if (offsetHoursDropdown.Select().Options.Count() != offsetOptions.Count() ||
+                offsetHoursDropdown.Select().Options.Any(o => !offsetOptions.Contains(Convert.ToInt32(o.Text))))
+            {
+                return false;
+            }
+
+            if (!EnableAutoInventoryCheckbox.Selected == AutoInventoryOffset.Enabled)
+            {
+                return false;
+            }
+
+            EnableAutoInventoryCheckbox.Click();
+
+            if (!EnableAutoInventoryCheckbox.Selected == AutoInventoryOffset.Enabled)
             {
                 return false;
             }
@@ -1188,6 +1302,80 @@ namespace Modules.Channel.B2B.Core.Pages
                    InventoryFeedSectionTable.Text.Contains(noOfOccurrenceLabelText);
         }
 
+        /// <summary>
+        /// Verify the 'Help - Auto Inventory' is collapsed while the page loads
+        /// and verify the text while expanded
+        /// </summary>
+        /// <param name="autoInventoryHelpText"></param>
+        /// <returns></returns>
+        public bool VerifyAutoInventoryHelpSection(string autoInventoryHelpText)
+        {
+            if (!AutoInventoryHelpPlus.IsElementVisible() || AutoInventoryHelpMinus.IsElementVisible() ||
+                AutoInventoryHelp.IsElementVisible())
+            {
+                return false;
+            }
+
+            AutoInventoryHelpLink.Click();
+
+            if (AutoInventoryHelpPlus.IsElementVisible() || !AutoInventoryHelpMinus.IsElementVisible() ||
+                !AutoInventoryHelp.IsElementVisible())
+            {
+                return false;
+            }
+
+            return RemoveSpaces(AutoInventoryHelp.Text).Equals(RemoveSpaces(autoInventoryHelpText));
+        }
+
+        public bool VerifyRestrictionOfInventoryIntervalToOneType()
+        {
+            // If 'Enable Automated Inventory Feed Checkbox' is checked, uncheck it to make sure the interval is defaulted
+            if (EnableAutoInventoryCheckbox.Selected)
+            {
+                EnableAutoInventoryCheckbox.Click();
+            }
+
+            EnableAutoInventoryCheckbox.Click();
+
+            //Select a value in Days dropdown
+            AutoInventoryDaysDropdown.Select().SelectByText("3");
+
+            if (!AutoInventoryHoursDropdown.Select().SelectedOption.Text.Equals("0") ||
+                !AutoInventoryMinutesDropdown.Select().SelectedOption.Text.Equals("0"))
+            {
+                return false;
+            }
+
+            //Select a value in Hours dropdown
+            AutoInventoryHoursDropdown.Select().SelectByText("4");
+
+            if (!AutoInventoryDaysDropdown.Select().SelectedOption.Text.Equals("0") ||
+                !AutoInventoryMinutesDropdown.Select().SelectedOption.Text.Equals("0"))
+            {
+                return false;
+            }
+
+            //Select '30 minutes' in Minutes dropdown
+            AutoInventoryMinutesDropdown.Select().SelectByText("30");
+
+            if (!AutoInventoryHoursDropdown.Select().SelectedOption.Text.Equals("0") ||
+                !AutoInventoryDaysDropdown.Select().SelectedOption.Text.Equals("0"))
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        private static string RemoveSpaces(string value)
+        {
+            return value.Replace("\n", string.Empty)
+                .Replace("\r", string.Empty)
+                .Replace("\t", string.Empty)
+                .Replace(" ", string.Empty);
+        }
+
         #endregion
+
     }
 }
