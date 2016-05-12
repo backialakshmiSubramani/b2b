@@ -4266,7 +4266,8 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             return true;
         }
 
-        public void VerifyOriginalCatalogForConfig(B2BEnvironment b2BEnvironment, Region region, CatalogItemType[] catalogItemType, string profileName, string identityName, CatalogStatus catalogStatus, CatalogType catalogType, ConfigRules configRules = ConfigRules.None)
+        public void VerifyOriginalCatalogForConfig(B2BEnvironment b2BEnvironment, Region region, CatalogItemType[] catalogItemType, string profileName, string identityName, CatalogStatus catalogStatus, CatalogType catalogType, ConfigRules configRules = ConfigRules.None,
+           DefaultOptions defaultOptions=DefaultOptions.Off )
         {
             DateTime beforeSchedTime = DateTime.Now;
 
@@ -4279,7 +4280,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             uxWorkflow.ValidateCatalogSearchResult(catalogItemType, catalogType, catalogStatus, beforeSchedTime);
             string filePath = uxWorkflow.DownloadCatalog(identityName, beforeSchedTime);
 
-            uxWorkflow.ValidateCatalogXML(catalogItemType, catalogType, identityName, filePath, beforeSchedTime, configRules).Should().BeTrue("Error: Data mismatch for Catalog XML content with expected values");
+            uxWorkflow.ValidateCatalogXML(catalogItemType, catalogType, identityName, filePath, beforeSchedTime, configRules, defaultOptions).Should().BeTrue("Error: Data mismatch for Catalog XML content with expected values");
             //uxWorkflow.ValidateCatalogEMails(identityName, beforeSchedTime, operation);
         }
 

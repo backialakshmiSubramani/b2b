@@ -50,9 +50,26 @@ namespace Modules.Channel.B2B.Common
     public enum ConfigRules
     {
         None=0,
-        LeadTime=1,
-        DuplicateBPN=2, 
-        NullBPN=3,
+        LeadTimeOff=1,
+        LeadTimeON=2,
+        DuplicateBPN=3, 
+        NullBPN=4,
+    }
+
+    public enum ConfigAdditionalOptions
+    {
+        None=0,
+        IncludeDefaultOptions=1
+    }
+    public enum DefaultOptions
+    {
+        On = 0,
+        Off = 1
+    }
+    public enum SystemsAdditionalOptions
+    {
+        None = 0,
+        IncludeDefaultOptions = 1
     }
     public static class CatalogTimeOuts
     {

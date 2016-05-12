@@ -50,7 +50,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             webDriver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromMinutes(1));
             for (int j = 1; j <= LinkTestStringValue.Length; j++)
             {
-                string TestData = LinkTestStringValue[j - 1].Replace("-","&");
+                string TestData = LinkTestStringValue[j - 1].Replace("-", "&");
                 var Link_Locator = webDriver.FindElement(By.XPath("//table/tbody/tr[" + j + "]/td/a/h4"));
                 string LinkLocatorText = Link_Locator.Text;
                 if (!LinkLocatorText.Contains(TestData))
@@ -90,7 +90,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         /// <param name="anyTimeAfter">Time after which the XML is created</param>
         /// <param name="catalogItemBaseSKU">One of the Catalog Item SKU for which data needs to be validated</param>
         /// <returns></returns>
-        public bool ValidateCatalogXML(CatalogItemType[] catalogItemType, CatalogType catalogType, string identityName, string filePath, DateTime anyTimeAfter, ConfigRules configRules)
+        public bool ValidateCatalogXML(CatalogItemType[] catalogItemType, CatalogType catalogType, string identityName, string filePath, DateTime anyTimeAfter, ConfigRules configRules, DefaultOptions defaultOptions)
         {
             string schemaPath = Path.Combine(System.Environment.CurrentDirectory, "CatalogSchema.xsd");
 
@@ -136,9 +136,14 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                         case ConfigRules.NullBPN:
                             expectedCatalogItems = expectedCatalogItems.Where(ci => ci.ShortName.StartsWith("Null BPN"));
                             break;
-                        case ConfigRules.LeadTime:
+                        case ConfigRules.LeadTimeOff:
                             expectedCatalogItems =
                               expectedCatalogDetails.CatalogItem.Where(ci => ci.ShortName.StartsWith("Lead Time"));
+                            break;
+                        case ConfigRules.LeadTimeON:
+                            expectedCatalogItems =
+                              expectedCatalogDetails.CatalogItem.Where(ci => ci.ShortName.StartsWith("Lead Time") && (ci.ItemType.Equals("") ||
+                               ci.ItemType.Equals("BTO") || (ci.ItemType.Equals("BTS") && ci.LeadTime < 3)));
                             break;
                         default:
                             expectedCatalogItems = expectedCatalogItems.Where(ci => ci.ShortName.StartsWith("STD Config"));
@@ -146,8 +151,11 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                     }
 
                 }
-                matchFlag &= ValidateCatalogItems(actualCatalogItems, expectedCatalogItems);
-               
+
+
+
+                matchFlag &= ValidateCatalogItems(actualCatalogItems, expectedCatalogItems, defaultOptions);
+
                 itemCount += expectedCatalogItems.Count();
             }
 
@@ -209,7 +217,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         /// <param name="actualCatalog"></param>
         /// <param name="expectedCatalog"></param>
         /// <returns></returns>
-        public bool ValidateCatalogItems(IEnumerable<CatalogItem> actualCatalogItems, IEnumerable<CatalogItem> expectedCatalogItems)
+        public bool ValidateCatalogItems(IEnumerable<CatalogItem> actualCatalogItems, IEnumerable<CatalogItem> expectedCatalogItems, DefaultOptions defaultOptions)
         {
             bool matchFlag = true;
 
@@ -284,44 +292,90 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                 //Console.WriteLine("PartId is empty");
 
                 // Modules
-                actualCatalogItem.Modules.Module.Count().Should().Be(expectedCatalogItem.Modules.Module.Count(), "ERROR: Module count mismatch for Order code: " + actualCatalogItem.ItemOrderCode);
-
-                foreach (CatalogItemModule actualmodule in actualCatalogItem.Modules.Module)
+                if (defaultOptions == DefaultOptions.On)
                 {
-                    CatalogItemModule expectedModule = expectedCatalogItem.Modules.Module.Where(em => em.ModuleId == actualmodule.ModuleId).FirstOrDefault();
+                    actualCatalogItem.Modules.Module.Count()
+                        .Should()
+                        .Be(expectedCatalogItem.Modules.Module.Count(),
+                            "ERROR: Module count mismatch for Order code: " + actualCatalogItem.ItemOrderCode);
 
-                    actualmodule.Options.Option.Count().Should().Be(expectedModule.Options.Option.Count(), "ERROR: Option count mismatch for Module ID: " + actualmodule.ModuleId.ToString());
-
-                    foreach (CatalogItemOption actualOption in actualmodule.Options.Option)
+                    foreach (CatalogItemModule actualmodule in actualCatalogItem.Modules.Module)
                     {
-                        CatalogItemOption expectedOption = expectedModule.Options.Option.Where(eo => eo.OptionDesc == actualOption.OptionDesc).FirstOrDefault();
+                        CatalogItemModule expectedModule =
+                            expectedCatalogItem.Modules.Module.Where(em => em.ModuleId == actualmodule.ModuleId)
+                                .FirstOrDefault();
 
-                        actualOption.OptionSkuList.OptionSku.Count().Should().Be(expectedOption.OptionSkuList.OptionSku.Count(), "ERROR: Option SKU count mismtach for Option Desc: " + actualOption.OptionDesc);
+                        actualmodule.Options.Option.Count()
+                            .Should()
+                            .Be(expectedModule.Options.Option.Count(),
+                                "ERROR: Option count mismatch for Module ID: " + actualmodule.ModuleId.ToString());
 
-                        foreach (OptionSku actualOptionSku in actualOption.OptionSkuList.OptionSku)
+                        foreach (CatalogItemOption actualOption in actualmodule.Options.Option)
                         {
-                            OptionSku expectedOptionSku = expectedOption.OptionSkuList.OptionSku.Where(eo => eo.SkuId == actualOptionSku.SkuId).FirstOrDefault();
+                            CatalogItemOption expectedOption =
+                                expectedModule.Options.Option.Where(eo => eo.OptionDesc == actualOption.OptionDesc)
+                                    .FirstOrDefault();
 
-                            matchFlag &= UtilityMethods.CompareValues<string>("Modules.Module.Options.Option.OptionSkuList.OptionSku.SkuId", actualOptionSku.SkuId, expectedOptionSku.SkuId);
-                            matchFlag &= UtilityMethods.CompareValues<string>("Modules.Module.Options.Option.OptionSkuList.OptionSku.SkuDescription", actualOptionSku.SkuDescription, expectedOptionSku.SkuDescription);
-                            matchFlag &= UtilityMethods.CompareValues<string>("Modules.Module.Options.Option.OptionSkuList.OptionSku.OptionId", actualOptionSku.OptionId, expectedOptionSku.OptionId);
-                            matchFlag &= UtilityMethods.CompareValues<decimal>("Modules.Module.Options.Option.OptionSkuList.OptionSku.SkuPrice", actualOptionSku.SkuPrice, expectedOptionSku.SkuPrice);
+                            actualOption.OptionSkuList.OptionSku.Count()
+                                .Should()
+                                .Be(expectedOption.OptionSkuList.OptionSku.Count(),
+                                    "ERROR: Option SKU count mismtach for Option Desc: " + actualOption.OptionDesc);
+
+                            foreach (OptionSku actualOptionSku in actualOption.OptionSkuList.OptionSku)
+                            {
+                                OptionSku expectedOptionSku =
+                                    expectedOption.OptionSkuList.OptionSku.Where(eo => eo.SkuId == actualOptionSku.SkuId)
+                                        .FirstOrDefault();
+
+                                matchFlag &=
+                                    UtilityMethods.CompareValues<string>(
+                                        "Modules.Module.Options.Option.OptionSkuList.OptionSku.SkuId",
+                                        actualOptionSku.SkuId, expectedOptionSku.SkuId);
+                                matchFlag &=
+                                    UtilityMethods.CompareValues<string>(
+                                        "Modules.Module.Options.Option.OptionSkuList.OptionSku.SkuDescription",
+                                        actualOptionSku.SkuDescription, expectedOptionSku.SkuDescription);
+                                matchFlag &=
+                                    UtilityMethods.CompareValues<string>(
+                                        "Modules.Module.Options.Option.OptionSkuList.OptionSku.OptionId",
+                                        actualOptionSku.OptionId, expectedOptionSku.OptionId);
+                                matchFlag &=
+                                    UtilityMethods.CompareValues<decimal>(
+                                        "Modules.Module.Options.Option.OptionSkuList.OptionSku.SkuPrice",
+                                        actualOptionSku.SkuPrice, expectedOptionSku.SkuPrice);
+                            }
+
+
+                            matchFlag &= UtilityMethods.CompareValues<string>("Modules.Module.Options.Option.OptionId",
+                            actualOption.OptionId.Substring(actualOption.OptionId.IndexOf("/", System.StringComparison.Ordinal)),
+                            expectedOption.OptionId.Substring(expectedOption.OptionId.IndexOf("/", System.StringComparison.Ordinal)));
+
+                            matchFlag &= UtilityMethods.CompareValues<string>(
+                                "Modules.Module.Options.Option.OptionDesc", actualOption.OptionDesc,
+                                expectedOption.OptionDesc);
+                            matchFlag &= UtilityMethods.CompareValues<bool>("Modules.Module.Options.Option.Selected",
+                                actualOption.Selected, expectedOption.Selected);
+                            matchFlag &=
+                                UtilityMethods.CompareValues<decimal>("Modules.Module.Options.Option.DeltaPrice",
+                                    actualOption.DeltaPrice, expectedOption.DeltaPrice);
+                            matchFlag &=
+                                UtilityMethods.CompareValues<decimal>("Modules.Module.Options.Option.FinalPrice",
+                                    actualOption.FinalPrice, expectedOption.FinalPrice);
                         }
-
-                        matchFlag &= UtilityMethods.CompareValues<string>("Modules.Module.Options.Option.OptionId", actualOption.OptionId, expectedOption.OptionId);
-                        matchFlag &= UtilityMethods.CompareValues<string>("Modules.Module.Options.Option.OptionDesc", actualOption.OptionDesc, expectedOption.OptionDesc);
-                        matchFlag &= UtilityMethods.CompareValues<bool>("Modules.Module.Options.Option.Selected", actualOption.Selected, expectedOption.Selected);
-                        matchFlag &= UtilityMethods.CompareValues<decimal>("Modules.Module.Options.Option.DeltaPrice", actualOption.DeltaPrice, expectedOption.DeltaPrice);
-                        matchFlag &= UtilityMethods.CompareValues<decimal>("Modules.Module.Options.Option.FinalPrice", actualOption.FinalPrice, expectedOption.FinalPrice);
+                        matchFlag &= UtilityMethods.CompareValues<int>("Modules.Module.ModuleId", actualmodule.ModuleId,
+                            expectedModule.ModuleId);
+                        matchFlag &= UtilityMethods.CompareValues<string>("Modules.Module.ModuleDesc",
+                            actualmodule.ModuleDesc, expectedModule.ModuleDesc);
+                        matchFlag &= UtilityMethods.CompareValues<bool>("Modules.Module.Required", actualmodule.Required,
+                            expectedModule.Required);
+                        matchFlag &= UtilityMethods.CompareValues<bool>("Modules.Module.MultiSelect",
+                            actualmodule.MultiSelect, expectedModule.MultiSelect);
+                        matchFlag &= UtilityMethods.CompareValues<string>("Modules.Module.DefaultOptionId",
+                            actualmodule.DefaultOptionId, expectedModule.DefaultOptionId);
+                        matchFlag &= UtilityMethods.CompareValues<decimal>("Modules.Module.DefaultOptionPrice",
+                            actualmodule.DefaultOptionPrice, expectedModule.DefaultOptionPrice);
                     }
-                    matchFlag &= UtilityMethods.CompareValues<int>("Modules.Module.ModuleId", actualmodule.ModuleId, expectedModule.ModuleId);
-                    matchFlag &= UtilityMethods.CompareValues<string>("Modules.Module.ModuleDesc", actualmodule.ModuleDesc, expectedModule.ModuleDesc);
-                    matchFlag &= UtilityMethods.CompareValues<bool>("Modules.Module.Required", actualmodule.Required, expectedModule.Required);
-                    matchFlag &= UtilityMethods.CompareValues<bool>("Modules.Module.MultiSelect", actualmodule.MultiSelect, expectedModule.MultiSelect);
-                    matchFlag &= UtilityMethods.CompareValues<string>("Modules.Module.DefaultOptionId", actualmodule.DefaultOptionId, expectedModule.DefaultOptionId);
-                    matchFlag &= UtilityMethods.CompareValues<decimal>("Modules.Module.DefaultOptionPrice", actualmodule.DefaultOptionPrice, expectedModule.DefaultOptionPrice);
                 }
-
                 // Lease
                 matchFlag &= UtilityMethods.CompareValues<string>("Lease.LeaseTerms", actualCatalogItem.Lease.LeaseTerms, expectedCatalogItem.Lease.LeaseTerms);
                 matchFlag &= UtilityMethods.CompareValues<string>("Lease.Frequency", actualCatalogItem.Lease.Frequency, expectedCatalogItem.Lease.Frequency);
@@ -400,7 +454,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             //successAlert.Accept();
             b2BChannelUx.ValidationMessage.WaitForElementVisible(TimeSpan.FromSeconds(30));
             b2BChannelUx.ValidationMessage.Text.ShouldBeEquivalentTo("Auto Catalog generation successfully initiated. Please check it on the Auto Catalog & Inventory List page after sometime.");
-            
+
         }
 
         internal void ValidateP2PMessage(B2BEnvironment environment, string profileName, string identityName, CatalogType catalogType, string errorMessage)
@@ -428,7 +482,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             //b2BChannelUx.ValidationMessage.WaitForElementVisible(TimeSpan.FromSeconds(30));
             //webDriver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromSeconds(30));
             Console.WriteLine("Expected: " + errorMessage);
-            Console.WriteLine("Actual: " + b2BChannelUx.ValidationMessage.Text);         
+            Console.WriteLine("Actual: " + b2BChannelUx.ValidationMessage.Text);
             b2BChannelUx.ValidationMessage.Text.Trim().Equals(errorMessage).Should().BeTrue();
         }
 

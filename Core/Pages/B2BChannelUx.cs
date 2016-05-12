@@ -166,7 +166,6 @@ namespace Modules.Channel.B2B.Core.Pages
             get
             {
                 return webDriver.FindElement(By.XPath("//button[text()='Click To Publish Catalog']"));
-                //Click To Publish Catalog
             }
         }
 
