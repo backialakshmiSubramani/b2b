@@ -396,11 +396,12 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         /// <param name="autoCatalogStatus"></param>
         /// <param name="autoCatalogStatusDescription"></param>
         /// <returns></returns>
-        public bool VerifyStatusOnAutoCatalogListPage(string environment, string autoCatalogStatus, string autoCatalogStatusDescription, string regionName, string countryName)
+        public bool VerifyStatusOnAutoCatalogListPage(B2BEnvironment b2BEnvironment, string autoCatalogStatus, string autoCatalogStatusDescription, string regionName, string countryName)
         {
             var autoCatStatus = autoCatalogStatus.Split(',');
             var autoCatStatusDescription = autoCatalogStatusDescription.Split(',');
-            webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["AutoCatalogListPageUrl"] + ((environment == B2BEnvironment.Production.ToString()) ? "P" : "U"));
+            B2BChannelUx b2BChannelUx = new B2BChannelUx(webDriver);
+            b2BChannelUx.OpenAutoCatalogAndInventoryListPage(b2BEnvironment);
             b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
             b2BAutoCatalogListPage.SelectTheRegion(regionName);
             b2BAutoCatalogListPage.SelectTheCountry(countryName);
@@ -1080,9 +1081,10 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         /// <param name="environment"></param>
         /// <param name="pageHeaderText"></param>
         /// <returns></returns>
-        public bool VerifyNavigationToAutoCatalogListPage(string environment, string pageHeaderText)
+        public bool VerifyNavigationToAutoCatalogListPage(B2BEnvironment b2BEnvironment, string pageHeaderText)
         {
-            webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["AutoCatalogListPageUrl"] + ((environment == B2BEnvironment.Production.ToString()) ? "P" : "U"));
+            B2BChannelUx b2BChannelUx = new B2BChannelUx(webDriver);
+            b2BChannelUx.OpenAutoCatalogAndInventoryListPage(b2BEnvironment);
             b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
             return b2BAutoCatalogListPage.PageHeader.Text.Contains(pageHeaderText);
         }
@@ -1094,9 +1096,10 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         /// <param name="profileName"></param>
         /// <param name="identities"></param>
         /// <returns></returns>
-        public bool VerifyClearAllLink(string environment, string profileName, string identities, string regionName, string countryName)
+        public bool VerifyClearAllLink(B2BEnvironment b2BEnvironment, string profileName, string identities, string regionName, string countryName)
         {
-            webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["AutoCatalogListPageUrl"] + ((environment == B2BEnvironment.Production.ToString()) ? "P" : "U"));
+            B2BChannelUx b2BChannelUx = new B2BChannelUx(webDriver);
+            b2BChannelUx.OpenAutoCatalogAndInventoryListPage(b2BEnvironment);
             b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
             b2BAutoCatalogListPage.SelectTheRegion(regionName);
             b2BAutoCatalogListPage.SelectTheCountry(countryName);
@@ -1220,10 +1223,11 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         ///<summary>
         /// Verifies country region and currency fields for original/delta created/published catalogs in Auto Cat List Page
         /// </summary>
-        public bool VerifyCountryCodepublishedcreatedInAutoCatListPage(string environment, CatalogType type, CatalogStatus status,
+        public bool VerifyCountryCodepublishedcreatedInAutoCatListPage(B2BEnvironment b2BEnvironment, CatalogType type, CatalogStatus status,
             string CountryCode, string region, string currencyCode, string regionName, string countryName)
         {
-            webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["AutoCatalogListPageUrl"] + ((environment == B2BEnvironment.Production.ToString()) ? "P" : "U"));
+            B2BChannelUx b2BChannelUx = new B2BChannelUx(webDriver);
+            b2BChannelUx.OpenAutoCatalogAndInventoryListPage(b2BEnvironment);
             b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
             b2BAutoCatalogListPage.SelectTheRegion(regionName);
             b2BAutoCatalogListPage.SelectTheCountry(countryName);
@@ -1250,9 +1254,10 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         /// Verified country region and currency fields for scheduled catalogs
         /// </summary>
         /// <returns></returns>
-        public bool VerifyCountryCodeScheduledInAutoCatalogListPage(string environment,CatalogType type, CatalogStatus status, string regionName, string countryName)
+        public bool VerifyCountryCodeScheduledInAutoCatalogListPage(B2BEnvironment b2BEnvironment,CatalogType type, CatalogStatus status, string regionName, string countryName)
         {
-            webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["AutoCatalogListPageUrl"] + ((environment == B2BEnvironment.Production.ToString()) ? "P" : "U"));
+            B2BChannelUx b2BChannelUx = new B2BChannelUx(webDriver);
+            b2BChannelUx.OpenAutoCatalogAndInventoryListPage(b2BEnvironment);
             b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
             b2BAutoCatalogListPage.SelectTheRegion(regionName);
             b2BAutoCatalogListPage.SelectTheCountry(countryName);
@@ -1281,9 +1286,10 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         /// Verifies the presence and functionality of country region and currency fields in Auto Cataog List Page for failed catalogs
         /// </summary>
         /// <returns></returns>
-        public bool VerifyCountryCodeFailedInAutoCatalogListPage(string environment,string regionName, string countryName, CatalogType type, CatalogStatus status)
+        public bool VerifyCountryCodeFailedInAutoCatalogListPage(B2BEnvironment b2BEnvironment,string regionName, string countryName, CatalogType type, CatalogStatus status)
         {
-            webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["AutoCatalogListPageUrl"] + ((environment == B2BEnvironment.Production.ToString()) ? "P" : "U"));
+            B2BChannelUx b2BChannelUx = new B2BChannelUx(webDriver);
+            b2BChannelUx.OpenAutoCatalogAndInventoryListPage(b2BEnvironment);
             b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
             b2BAutoCatalogListPage.SelectTheRegion(regionName);
             b2BAutoCatalogListPage.SelectTheCountry(countryName);
@@ -1404,9 +1410,10 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         /// Verifies the presence of Download link for original/delta published/Created catalogs in Auto Cat List page
         /// </summary>
         /// <returns></returns>
-        public bool VerifyDownloadLinkInAutoCatListPage(string environment, string region, string country, CatalogType type, CatalogStatus status)
+        public bool VerifyDownloadLinkInAutoCatListPage(B2BEnvironment b2BEnvironment, string region, string country, CatalogType type, CatalogStatus status)
         {
-            webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["AutoCatalogListPageUrl"] + ((environment == B2BEnvironment.Production.ToString()) ? "P" : "U"));
+            B2BChannelUx b2BChannelUx = new B2BChannelUx(webDriver);
+            b2BChannelUx.OpenAutoCatalogAndInventoryListPage(b2BEnvironment);
             b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
             b2BAutoCatalogListPage.SelectTheRegion(region);
             b2BAutoCatalogListPage.SelectTheCountry(country);
@@ -1432,9 +1439,10 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         /// Verifies the presence of Download link for original/delta published/Created catalogs in Auto Cat List page
         /// </summary>
         /// <returns></returns>
-        public bool VerifyDownloadLinkInAutoCatListPage(string environment, CatalogType type, CatalogStatus status, string region, string country)
+        public bool VerifyDownloadLinkInAutoCatListPage(B2BEnvironment b2BEnvironment, CatalogType type, CatalogStatus status, string region, string country)
         {
-            webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["AutoCatalogListPageUrl"] + ((environment == B2BEnvironment.Production.ToString()) ? "P" : "U"));
+            B2BChannelUx b2BChannelUx = new B2BChannelUx(webDriver);
+            b2BChannelUx.OpenAutoCatalogAndInventoryListPage(b2BEnvironment);
             b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
             b2BAutoCatalogListPage.SelectTheRegion(region);
             b2BAutoCatalogListPage.SelectTheCountry(country);
@@ -1460,9 +1468,10 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         /// Verifies the presence of Download link for Failed catalogs in Auto Cat List page
         /// </summary>
         /// <returns></returns>
-        public bool VerifyDownloadLinkFailedOrigInAutoCatListPage(string environment, string region, string country, CatalogType type, CatalogStatus status)
+        public bool VerifyDownloadLinkFailedOrigInAutoCatListPage(B2BEnvironment b2BEnvironment, string region, string country, CatalogType type, CatalogStatus status)
         {
-            webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["AutoCatalogListPageUrl"] + ((environment == B2BEnvironment.Production.ToString()) ? "P" : "U"));
+            B2BChannelUx b2BChannelUx = new B2BChannelUx(webDriver);
+            b2BChannelUx.OpenAutoCatalogAndInventoryListPage(b2BEnvironment);
             b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
             b2BAutoCatalogListPage.SelectTheRegion(region);
             b2BAutoCatalogListPage.SelectTheCountry(country);
@@ -1492,9 +1501,10 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         /// Verifies the presence of Download link for original scheduled catalogs in Auto Cat List page
         /// </summary>
         /// <returns></returns>
-        public bool VerifyDownloadLinkScheduledInAutoCatListPage(string environment, string region, string country, CatalogStatus status, CatalogType type)
+        public bool VerifyDownloadLinkScheduledInAutoCatListPage(B2BEnvironment b2BEnvironment, string region, string country, CatalogStatus status, CatalogType type)
         {
-            webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["AutoCatalogListPageUrl"] + ((environment == B2BEnvironment.Production.ToString()) ? "P" : "U"));
+            B2BChannelUx b2BChannelUx = new B2BChannelUx(webDriver);
+            b2BChannelUx.OpenAutoCatalogAndInventoryListPage(b2BEnvironment);
             b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
             b2BAutoCatalogListPage.SelectTheRegion(region);
             b2BAutoCatalogListPage.SelectTheCountry(country);
@@ -1533,9 +1543,10 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         /// Verifies the presence of Download link for Created through Test harness in Auto Cat List page
         /// </summary>
         /// <returns></returns>
-        public bool VerifyDownloadLinkInAutoCatListPageCreatedTestHarness(string environment, string region, string country, string profilename, CatalogType type, string status, string regionName, string countryName)
+        public bool VerifyDownloadLinkInAutoCatListPageCreatedTestHarness(B2BEnvironment b2BEnvironment, string region, string country, string profilename, CatalogType type, string status, string regionName, string countryName)
         {
-            webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["AutoCatalogListPageUrl"] + ((environment == B2BEnvironment.Production.ToString()) ? "P" : "U"));
+            B2BChannelUx b2BChannelUx = new B2BChannelUx(webDriver);
+            b2BChannelUx.OpenAutoCatalogAndInventoryListPage(b2BEnvironment);
             b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
             b2BAutoCatalogListPage.SelectTheRegion(regionName);
             b2BAutoCatalogListPage.SelectTheCountry(countryName);
@@ -1558,9 +1569,10 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         ///// Verifies the presence of Download link for Failed catalogs thru Test Harness in Auto Cat List page
         ///// </summary>
         ///// <returns></returns>
-        public bool VerifyDownloadLinkFailedThrutestHarnessInAutoCatListPage(string environment, string region, string country, string profile, CatalogType type, string status)
+        public bool VerifyDownloadLinkFailedThrutestHarnessInAutoCatListPage(B2BEnvironment b2BEnvironment, string region, string country, string profile, CatalogType type, string status)
         {
-            webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["AutoCatalogListPageUrl"] + ((environment == B2BEnvironment.Production.ToString()) ? "P" : "U"));
+            B2BChannelUx b2BChannelUx = new B2BChannelUx(webDriver);
+            b2BChannelUx.OpenAutoCatalogAndInventoryListPage(b2BEnvironment);
             b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
             b2BAutoCatalogListPage.TestHarnessCheckbox.Click();
             b2BAutoCatalogListPage.ThreadId.SendKeys(profile);
@@ -1586,11 +1598,12 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         ///// Verifies Catalog Name in Auto Cat List page
         ///// </summary>
         ///// <returns></returns>
-        public bool VerifyCatalogNameInAutoCatListPage(string environment, string profile, string identity, CatalogType type, CatalogStatus status, string region, string country)
+        public bool VerifyCatalogNameInAutoCatListPage(B2BEnvironment b2BEnvironment, string profile, string identity, CatalogType type, CatalogStatus status, string region, string country)
         {
             DateTime beforeSchedTime = DateTime.Now;
             ChannelUxWorkflow uxWorkflow = new ChannelUxWorkflow(webDriver);
-            webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["AutoCatalogListPageUrl"] + ((environment == B2BEnvironment.Production.ToString()) ? "P" : "U"));
+            B2BChannelUx b2BChannelUx = new B2BChannelUx(webDriver);
+            b2BChannelUx.OpenAutoCatalogAndInventoryListPage(b2BEnvironment);
             b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
             b2BAutoCatalogListPage.SelectTheRegion(region);
             b2BAutoCatalogListPage.SelectTheCountry(country);
@@ -1625,9 +1638,10 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         ///// Verifies Status Time in Auto Cat List page
         ///// </summary>
         ///// <returns></returns>
-        public bool VerifyStatusTimeInAutoCatListPage(string environment, CatalogType type, CatalogStatus status, string region, string country)
+        public bool VerifyStatusTimeInAutoCatListPage(B2BEnvironment b2BEnvironment, CatalogType type, CatalogStatus status, string region, string country)
         {
-            webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["AutoCatalogListPageUrl"] + ((environment == B2BEnvironment.Production.ToString()) ? "P" : "U"));
+            B2BChannelUx b2BChannelUx = new B2BChannelUx(webDriver);
+            b2BChannelUx.OpenAutoCatalogAndInventoryListPage(b2BEnvironment);
             b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
             b2BAutoCatalogListPage.SelectTheRegion(region);
             b2BAutoCatalogListPage.SelectTheCountry(country);
@@ -1651,13 +1665,14 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         /// Verifies Region and Country Codes in Auto Cat List page
         /// </summary>
         /// <returns></returns>
-        public bool VerifyCountryandRegionCodesInAutoCatListPage(string environment, string region, string country, string regionCode, string countryCode, string customerName = "", string identity = "",
+        public bool VerifyCountryandRegionCodesInAutoCatListPage(B2BEnvironment b2BEnvironment, string region, string country, string regionCode, string countryCode, string customerName = "", string identity = "",
                                                                  string catalogName = "", string creationStartDate = "", string creationEndDate = "",
                                                                  string status = "", string configurationType = "", string catalogType = "")
         {
             DateTime beforeSchedTime = DateTime.Now;
             ChannelUxWorkflow uxWorkflow = new ChannelUxWorkflow(webDriver);
-            webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["AutoCatalogListPageUrl"] + ((environment == B2BEnvironment.Production.ToString()) ? "P" : "U"));
+            B2BChannelUx b2BChannelUx = new B2BChannelUx(webDriver);
+            b2BChannelUx.OpenAutoCatalogAndInventoryListPage(b2BEnvironment);
             b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
             b2BAutoCatalogListPage.SelectTheRegion(region);
             b2BAutoCatalogListPage.SelectTheCountry(country);
@@ -1722,9 +1737,10 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         ///// Verifies Region and Country Codes in Auto Cat List page
         ///// </summary>
         ///// <returns></returns>
-        public bool VerifyCountryandRegionFieldsInAutoCatListPage(string environment)
+        public bool VerifyCountryandRegionFieldsInAutoCatListPage(B2BEnvironment b2BEnvironment)
         {
-            webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["AutoCatalogListPageUrl"] + ((environment == B2BEnvironment.Production.ToString()) ? "P" : "U"));
+            B2BChannelUx b2BChannelUx = new B2BChannelUx(webDriver);
+            b2BChannelUx.OpenAutoCatalogAndInventoryListPage(b2BEnvironment);
             b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
             if (b2BAutoCatalogListPage.RegionDropDown.Enabled && b2BAutoCatalogListPage.CountryDropDown.Enabled)
                 return true;
@@ -1735,9 +1751,10 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         ///// Verifies Region and Country Codes in Auto Cat List page
         ///// </summary>
         ///// <returns></returns>
-        public bool VerifyCustomerListInAutoCatListPage(string environment, string region1, string customerName1, string region2, string customerName2, string country1 = "", string country2 = "")
+        public bool VerifyCustomerListInAutoCatListPage(B2BEnvironment b2BEnvironment, string region1, string customerName1, string region2, string customerName2, string country1 = "", string country2 = "")
         {
-            webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["AutoCatalogListPageUrl"] + ((environment == B2BEnvironment.Production.ToString()) ? "P" : "U"));
+            B2BChannelUx b2BChannelUx = new B2BChannelUx(webDriver);
+            b2BChannelUx.OpenAutoCatalogAndInventoryListPage(b2BEnvironment);
             b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
             bool tempCustomerName1 = false;
             bool tempCustomerName2 = false;
@@ -1790,9 +1807,10 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         ///// Verifies Profile Name for existing profile
         ///// </summary>
         ///// <returns></returns>
-        public bool VerifyProfileNameAutoCatPage(string environment, CatalogStatus status, string profileName, string regionName, string countryName)
+        public bool VerifyProfileNameAutoCatPage(B2BEnvironment b2BEnvironment, CatalogStatus status, string profileName, string regionName, string countryName)
         {
-            webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["AutoCatalogListPageUrl"] + ((environment == B2BEnvironment.Production.ToString()) ? "P" : "U"));
+            B2BChannelUx b2BChannelUx = new B2BChannelUx(webDriver);
+            b2BChannelUx.OpenAutoCatalogAndInventoryListPage(b2BEnvironment);
             b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
             b2BAutoCatalogListPage.SelectTheRegion(regionName);
             b2BAutoCatalogListPage.SelectTheCountry(countryName);
@@ -1812,9 +1830,10 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         ///// Verifies Profile Name for existing profile
         ///// </summary>
         ///// <returns></returns>
-        public bool VerifyProfileNameAutoCatPage(string environment, CatalogStatus status, CatalogType type, string regionName, string countryName)
+        public bool VerifyProfileNameAutoCatPage(B2BEnvironment b2BEnvironment, CatalogStatus status, CatalogType type, string regionName, string countryName)
         {
-            webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["AutoCatalogListPageUrl"] + ((environment == B2BEnvironment.Production.ToString()) ? "P" : "U"));
+            B2BChannelUx b2BChannelUx = new B2BChannelUx(webDriver);
+            b2BChannelUx.OpenAutoCatalogAndInventoryListPage(b2BEnvironment);
             b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
             b2BAutoCatalogListPage.SelectTheRegion(regionName);
             b2BAutoCatalogListPage.SelectTheCountry(countryName);
@@ -1920,9 +1939,10 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         /// <param name="environment"></param>
         /// <param name="profileName"></param>
         /// <returns></returns>
-        public bool VerifySelectCustomerFieldOnAutoCatalogListPage(string environment, string profileName, string regionName, string countryName)
+        public bool VerifySelectCustomerFieldOnAutoCatalogListPage(B2BEnvironment b2BEnvironment, string profileName, string regionName, string countryName)
         {
-            webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["AutoCatalogListPageUrl"] + ((environment == B2BEnvironment.Production.ToString()) ? "P" : "U"));
+            B2BChannelUx b2BChannelUx = new B2BChannelUx(webDriver);
+            b2BChannelUx.OpenAutoCatalogAndInventoryListPage(b2BEnvironment);
             b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
             b2BAutoCatalogListPage.SelectTheRegion(regionName);
             b2BAutoCatalogListPage.SelectTheCountry(countryName);
@@ -1938,10 +1958,11 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         /// <param name="profileName"></param>
         /// <param name="identities"></param>
         /// <returns></returns>
-        public bool VerifyIdentityFieldOnAutoCatalogListPage(string environment, string profileName, string identities, string regionName, string countryName)
+        public bool VerifyIdentityFieldOnAutoCatalogListPage(B2BEnvironment b2BEnvironment, string profileName, string identities, string regionName, string countryName)
         {
             var identityList = identities.Split(',');
-            webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["AutoCatalogListPageUrl"] + ((environment == B2BEnvironment.Production.ToString()) ? "P" : "U"));
+            B2BChannelUx b2BChannelUx = new B2BChannelUx(webDriver);
+            b2BChannelUx.OpenAutoCatalogAndInventoryListPage(b2BEnvironment);
             b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
             b2BAutoCatalogListPage.SelectTheRegion(regionName);
             b2BAutoCatalogListPage.SelectTheCountry(countryName);
@@ -2020,9 +2041,10 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         /// <param name="profileName"></param>
         /// <param name="identity"></param>
         /// <returns></returns>
-        public bool VerifySearchResultsOnAutoCatalogListPage(string environment, string customerName, string profileName, string identity, string region, string country)
+        public bool VerifySearchResultsOnAutoCatalogListPage(B2BEnvironment b2BEnvironment, string customerName, string profileName, string identity, string region, string country)
         {
-            webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["AutoCatalogListPageUrl"] + ((environment == B2BEnvironment.Production.ToString()) ? "P" : "U"));
+            B2BChannelUx b2BChannelUx = new B2BChannelUx(webDriver);
+            b2BChannelUx.OpenAutoCatalogAndInventoryListPage(b2BEnvironment);
             b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
             b2BAutoCatalogListPage.SelectTheRegion(region);
             b2BAutoCatalogListPage.SelectTheCountry(country);
@@ -2868,9 +2890,9 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         ///// Retrieve Delta Published Auto BHC Config Quote ID thru Part Viewer. Verify all required info in the table
         ///// </summary>
         ///// <returns></returns>
-        public bool VerifyRetrieveCatalogConfigAquoteId(string environment, CatalogItemType[] catalogItemType, string region, string country, string Header, string SubHeader,CatalogType type, CatalogStatus status, string profile, string identity)
+        public bool VerifyRetrieveCatalogConfigAquoteId(B2BEnvironment b2BEnvironment, CatalogItemType[] catalogItemType, string region, string country, string Header, string SubHeader, CatalogType type, CatalogStatus status, string profile, string identity)
         {
-            Dictionary<int, string> dict = GetPartViewerInformation(environment, catalogItemType, region, country, type,status, profile, identity);
+            Dictionary<int, string> dict = GetPartViewerInformation(b2BEnvironment, catalogItemType, region, country, type, status, profile, identity);
 
             if (dict.Count < 2)
             {
@@ -2880,7 +2902,8 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             var Headervalue = dict[1]; //dict.Where(p => p.Key == 1).FirstOrDefault().Value;
             var SubRowvalue1 = dict[2]; //dict.Where(p => p.Key == 2).FirstOrDefault().Value;
 
-            webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["AutoPartViewerUrl"] + ((environment == B2BEnvironment.Production.ToString()) ? "P" : "U"));
+            B2BChannelUx b2BChannelUx = new B2BChannelUx(webDriver);
+            b2BChannelUx.OpenAutoCatalogAndInventoryListPage( b2BEnvironment);
             b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
             
             string[] HeaderRowStringValue = Header.Split(',');
@@ -3362,9 +3385,10 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         /// <summary>
         /// Verifies Sys checkbox is present and non editable in Auto Cat List page. 
         /// </summary>
-        public bool VerifySysCheckboxinAutoCatListPage(string environment, string region, string country)
+        public bool VerifySysCheckboxinAutoCatListPage(B2BEnvironment b2BEnvironment, string region, string country)
         {
-            webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["AutoCatalogListPageUrl"] + ((environment == B2BEnvironment.Production.ToString()) ? "P" : "U"));
+            B2BChannelUx b2BChannelUx = new B2BChannelUx(webDriver);
+            b2BChannelUx.OpenAutoCatalogAndInventoryListPage(b2BEnvironment);
             b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
             b2BAutoCatalogListPage.SelectTheRegion(region);
             b2BAutoCatalogListPage.SelectTheCountry(country);
@@ -4083,7 +4107,9 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         }
         public void VerifyRoundOffValuesPackageUploadForAllFields(B2BEnvironment b2BEnvironment, string fileToUpload, string message)
         {
-            webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["AutoPackageUploadUrl"] + ((b2BEnvironment == B2BEnvironment.Production) ? "P" : "U")); 
+            B2BChannelUx b2BChannelUx = new B2BChannelUx(webDriver);
+            b2BChannelUx.OpenAutoPackageUploadPage(b2BEnvironment);
+
             b2BCatalogPackagingDataUploadPage = new B2BCatalogPackagingDataUploadPage(webDriver);
             b2BCatalogPackagingDataUploadPage.UploadExcelFile(fileToUpload);
             WaitForPageRefresh();
@@ -4092,14 +4118,16 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
 
         public bool VerifyPackageUploadForAllFieldsPrev(B2BEnvironment b2BEnvironment, string fileToUpload, string message)
         {
-            webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["AutoPackageUploadUrl"] + ((b2BEnvironment == B2BEnvironment.Production) ? "P" : "U")); 
+            B2BChannelUx b2BChannelUx = new B2BChannelUx(webDriver);
+            b2BChannelUx.OpenAutoPackageUploadPage(b2BEnvironment);
             b2BCatalogPackagingDataUploadPage = new B2BCatalogPackagingDataUploadPage(webDriver);
             b2BCatalogPackagingDataUploadPage.UploadExcelFile(fileToUpload);
             return b2BCatalogPackagingDataUploadPage.UploadMessage.Text.Trim().Contains(message);
         }
         public void VerifyAuditHistoryRecordsForPackageUpload(B2BEnvironment b2BEnvironment, string fileToUpload, string message)
         {
-            webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["AutoPackageUploadUrl"] + ((b2BEnvironment == B2BEnvironment.Production) ? "P" : "U"));
+            B2BChannelUx b2BChannelUx = new B2BChannelUx(webDriver);
+            b2BChannelUx.OpenAutoPackageUploadPage(b2BEnvironment);
             b2BCatalogPackagingDataUploadPage = new B2BCatalogPackagingDataUploadPage(webDriver);
             DateTime timeBeforeUpload = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "Central Standard Time");
             b2BCatalogPackagingDataUploadPage.UploadExcelFile(fileToUpload);
@@ -4120,7 +4148,8 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
 
         public void VerifyPackageUploadForNullAndInvalidValues(B2BEnvironment b2BEnvironment, string fileToUpload, string errorMessage)
         {
-            webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["AutoPackageUploadUrl"] + ((b2BEnvironment == B2BEnvironment.Production) ? "P" : "U")); 
+            B2BChannelUx b2BChannelUx = new B2BChannelUx(webDriver);
+            b2BChannelUx.OpenAutoPackageUploadPage(b2BEnvironment);
             b2BCatalogPackagingDataUploadPage = new B2BCatalogPackagingDataUploadPage(webDriver);
             b2BCatalogPackagingDataUploadPage.UploadExcelFile(fileToUpload);
             b2BCatalogPackagingDataUploadPage.UploadMessage.Text.Should().Be(errorMessage);
@@ -4128,7 +4157,8 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
 
         public void VerifyNewFieldsPackageUpload(B2BEnvironment b2BEnvironment, string fileToUpload, string message)
         {
-            webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["AutoPackageUploadUrl"] + ((b2BEnvironment == B2BEnvironment.Production) ? "P" : "U")); 
+            B2BChannelUx b2BChannelUx = new B2BChannelUx(webDriver);
+            b2BChannelUx.OpenAutoPackageUploadPage(b2BEnvironment);
             b2BCatalogPackagingDataUploadPage = new B2BCatalogPackagingDataUploadPage(webDriver);
             DateTime timeBeforeUpload = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "Central Standard Time");
             b2BCatalogPackagingDataUploadPage.UploadExcelFile(fileToUpload);
@@ -4139,9 +4169,11 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         ///<summary>
         /// Verifies Original/Delta catalog on clicking Published status in Auto CatalogList page.
         /// </summary>
-        public bool VerifyOriginalDeltaCatonclickingPublishedcheckboxinAutoCatalogListPage(string environment, CatalogStatus status, string regionName, string countryName)
+        public bool VerifyOriginalDeltaCatonclickingPublishedcheckboxinAutoCatalogListPage(B2BEnvironment b2BEnvironment, CatalogStatus status, string regionName, string countryName)
         {
-            webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["AutoCatalogListPageUrl"] + ((environment == B2BEnvironment.Production.ToString()) ? "P" : "U"));
+            B2BChannelUx b2bChannelUx = new B2BChannelUx(webDriver);
+            b2bChannelUx.OpenAutoCatalogAndInventoryListPage(b2BEnvironment);
+
             b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
             b2BAutoCatalogListPage.SelectTheRegion(regionName);
             b2BAutoCatalogListPage.SelectTheCountry(countryName);
@@ -4161,10 +4193,11 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         ///<summary>
         /// Verifies Original/Delta catalog on clicking Published status and std config in Auto Catalog List page.
         /// </summary>
-        public bool VerifyOriginalDeltaCatonclickingPublishedandStdConfigcheckboxinAutoCatalogListPage(string environment,
+        public bool VerifyOriginalDeltaCatonclickingPublishedandStdConfigcheckboxinAutoCatalogListPage(B2BEnvironment b2BEnvironment,
             string statusDropdown)
         {
-            webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["AutoCatalogListPageUrl"] + ((environment == B2BEnvironment.Production.ToString()) ? "P" : "U"));
+            B2BChannelUx b2bChannelUx = new B2BChannelUx(webDriver);
+            b2bChannelUx.OpenAutoCatalogAndInventoryListPage(b2BEnvironment);
             b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
             webDriver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromSeconds(60));
             b2BAutoCatalogListPage.SelectTheStatus(statusDropdown);
@@ -4175,9 +4208,10 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         ///<summary>
         /// Verifies Original/Delta catalog on clicking std config in Auto Catalog List page.
         /// </summary>
-        public bool VerifyOriginalDeltaCatonclickingStdconfigcheckboxinAutoCatalogListPage(string environment)
+        public bool VerifyOriginalDeltaCatonclickingStdconfigcheckboxinAutoCatalogListPage(B2BEnvironment b2BEnvironment)
         {
-            webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["AutoCatalogListPageUrl"] + ((environment == B2BEnvironment.Production.ToString()) ? "P" : "U"));
+            B2BChannelUx b2bChannelUx = new B2BChannelUx(webDriver);
+            b2bChannelUx.OpenAutoCatalogAndInventoryListPage(b2BEnvironment);
             b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
             webDriver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromSeconds(60));
             b2BAutoCatalogListPage.StdConfigTypeCheckbox.Click();
@@ -4186,10 +4220,11 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         ///<summary>
         /// Verifies Original/Delta catalog on clicking Test Harness checkbox and std config in Auto Catalog List page.
         /// </summary>
-        public bool VerifyOriginalDeltaCatonclickingTestHarnessandStdConfigcheckboxinAutoCatalogListPage(string environment,
+        public bool VerifyOriginalDeltaCatonclickingTestHarnessandStdConfigcheckboxinAutoCatalogListPage(B2BEnvironment b2BEnvironment,
             string testHarnesscreated, string testHarnessFailed)
         {
-            webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["AutoCatalogListPageUrl"] + ((environment == B2BEnvironment.Production.ToString()) ? "P" : "U"));
+            B2BChannelUx b2bChannelUx = new B2BChannelUx(webDriver);
+            b2bChannelUx.OpenAutoCatalogAndInventoryListPage(b2BEnvironment);
             b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
             webDriver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromSeconds(60));
             b2BAutoCatalogListPage.TestHarnessCheckbox.Click();
@@ -4221,9 +4256,10 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         /// <param name="profileName"></param>
         /// <param name="identity"></param>
         /// <returns></returns>
-        public bool VerifyCatalogSearchWithScheduledStatus(string environment, CatalogStatus status, string regionName, string countryName)
+        public bool VerifyCatalogSearchWithScheduledStatus(B2BEnvironment b2BEnvironment, CatalogStatus status, string regionName, string countryName)
         {
-            webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["AutoCatalogListPageUrl"] + ((environment == B2BEnvironment.Production.ToString()) ? "P" : "U"));
+            B2BChannelUx b2bChannelUx = new B2BChannelUx(webDriver);
+            b2bChannelUx.OpenAutoCatalogAndInventoryListPage(b2BEnvironment);
             b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
             b2BAutoCatalogListPage.SelectTheRegion(regionName);
             b2BAutoCatalogListPage.SelectTheCountry(countryName);
@@ -4274,8 +4310,9 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             ChannelUxWorkflow uxWorkflow = new ChannelUxWorkflow(webDriver);
             uxWorkflow.PublishCatalogByClickOnce(b2BEnvironment, profileName, identityName, catalogType);
 
-            //string filePath = uxWorkflow.SearchAndDownloadCatalog(environment, region, profileName, identityName, beforeSchedTime, operation);
-            webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["AutoCatalogListPageUrl"] + ((b2BEnvironment == B2BEnvironment.Production) ? "P" : "U"));
+            B2BChannelUx b2BChannelUx = new B2BChannelUx(webDriver);
+            b2BChannelUx.OpenAutoCatalogAndInventoryListPage(b2BEnvironment);
+            
             uxWorkflow.SearchCatalog(profileName, identityName, beforeSchedTime, catalogStatus, catalogType);
             uxWorkflow.ValidateCatalogSearchResult(catalogItemType, catalogType, catalogStatus, beforeSchedTime);
             string filePath = uxWorkflow.DownloadCatalog(identityName, beforeSchedTime);
@@ -4289,7 +4326,8 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             DateTime beforeSchedTime = DateTime.Now;
             ChannelUxWorkflow uxWorkflow = new ChannelUxWorkflow(webDriver);
             uxWorkflow.PublishCatalogByClickOnce(b2BEnvironment, profileName, identityName, catalogType);
-            webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["AutoCatalogListPageUrl"] + ((b2BEnvironment == B2BEnvironment.Production) ? "P" : "U"));
+            B2BChannelUx b2BChannelUx = new B2BChannelUx(webDriver);
+            b2BChannelUx.OpenAutoCatalogAndInventoryListPage(b2BEnvironment); 
             uxWorkflow.SearchCatalog(profileName, identityName, beforeSchedTime, catalogStatus);
             uxWorkflow.ValidateCatalogSearchResult(catalogItemType, catalogType, catalogStatus, beforeSchedTime);
         }
@@ -4327,7 +4365,8 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             DateTime beforeSchedTime = DateTime.Now;
             ChannelUxWorkflow uxWorkflow = new ChannelUxWorkflow(webDriver);
             uxWorkflow.PublishCatalogByClickOnce(b2BEnvironment, profileName, identityName, catalogType);
-            webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["AutoCatalogListPageUrl"] + ((b2BEnvironment == B2BEnvironment.Production) ? "P" : "U"));
+            B2BChannelUx b2bChannelUx = new B2BChannelUx(webDriver);
+            b2bChannelUx.OpenAutoCatalogAndInventoryListPage(b2BEnvironment);
             uxWorkflow.SearchCatalog(profileName, identityName, beforeSchedTime, catalogStatus);
             uxWorkflow.ValidateCatalogSearchResult(catalogItemType, catalogType, catalogStatus, beforeSchedTime);
             string filePath = uxWorkflow.DownloadCatalog(identityName, beforeSchedTime);
@@ -4355,7 +4394,8 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             DateTime beforeSchedTime = DateTime.Now;
             ChannelUxWorkflow uxWorkflow = new ChannelUxWorkflow(webDriver);
             uxWorkflow.PublishCatalogByClickOnce(b2BEnvironment, profileName, identityName, catalogType);
-            webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["AutoCatalogListPageUrl"] + ((b2BEnvironment == B2BEnvironment.Production) ? "P" : "U"));
+            B2BChannelUx b2bChannelUx = new B2BChannelUx(webDriver);
+            b2bChannelUx.OpenAutoCatalogAndInventoryListPage(b2BEnvironment);
             uxWorkflow.SearchCatalog(profileName, identityName, beforeSchedTime, catalogStatus);
             uxWorkflow.ValidateCatalogSearchResult(catalogItemType, catalogType, catalogStatus, beforeSchedTime);
             string filePath = uxWorkflow.DownloadCatalog(identityName, beforeSchedTime);
@@ -4385,7 +4425,8 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             DateTime beforeSchedTime = DateTime.Now;
             ChannelUxWorkflow uxWorkflow = new ChannelUxWorkflow(webDriver);
             uxWorkflow.PublishCatalogByClickOnce(b2BEnvironment, profileName, identityName, catalogType);
-            webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["AutoCatalogListPageUrl"] + ((b2BEnvironment == B2BEnvironment.Production) ? "P" : "U"));
+            B2BChannelUx b2bChannelUx = new B2BChannelUx(webDriver);
+            b2bChannelUx.OpenAutoCatalogAndInventoryListPage(b2BEnvironment);
             uxWorkflow.SearchCatalog(profileName, identityName, beforeSchedTime, catalogStatus);
             uxWorkflow.ValidateCatalogSearchResult(catalogItemType, catalogType, catalogStatus, beforeSchedTime);
             
@@ -4565,11 +4606,12 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             uxWorkflow.ValidateP2PMessage(b2BEnvironment, profileNameBase, profileNameBase, catalogType, message);
         }
 
-        public Dictionary<int,string> GetPartViewerInformation(string environment, CatalogItemType[] catalogItemType, string region, string country, CatalogType type, CatalogStatus status, string profile, string identity)
+        public Dictionary<int,string> GetPartViewerInformation(B2BEnvironment b2BEnvironment, CatalogItemType[] catalogItemType, string region, string country, CatalogType type, CatalogStatus status, string profile, string identity)
         {
             DateTime beforeSchedTime = DateTime.Now;
             ChannelUxWorkflow uxWorkflow = new ChannelUxWorkflow(webDriver);
-            webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["AutoCatalogListPageUrl"] + ((environment == B2BEnvironment.Production.ToString()) ? "P" : "U"));
+            B2BChannelUx b2bChannelUx = new B2BChannelUx(webDriver);
+            b2bChannelUx.OpenAutoCatalogAndInventoryListPage(b2BEnvironment);
             b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
             b2BAutoCatalogListPage.SelectTheRegion(region);
             b2BAutoCatalogListPage.SelectTheCountry(country);
@@ -4610,7 +4652,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         /// Retrieve Delta Published Auto BHC Config Quote ID thru Part Viewer. Verify all required info in the table
         /// </summary>
         /// <returns></returns>
-        //public bool VerifyRetrieveCatalogConfigAquoteId(string environment, string quoteid, string Headervalue, string HeaderRowvalue, string SubHeadervalue, string SubRowvalue1, string subRowvalue2)
+        //public bool VerifyRetrieveCatalogConfigAquoteId(B2BEnvironment b2BEnvironment, string quoteid, string Headervalue, string HeaderRowvalue, string SubHeadervalue, string SubRowvalue1, string subRowvalue2)
         //{
         //    webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["AutoPartViewerUrl"] + ((environment == B2BEnvironment.Production.ToString()) ? "P" : "U"));
         //    b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);

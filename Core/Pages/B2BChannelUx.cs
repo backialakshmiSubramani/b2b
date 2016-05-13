@@ -24,6 +24,8 @@ using Dell.Adept.UI.Web.Support.Extensions.WebElement;
 using Dell.Adept.UI.Web.Support.Locators;
 using OpenQA.Selenium.Support.UI;
 using System.Threading;
+using Modules.Channel.B2B.Common;
+using System.Configuration;
 
 namespace Modules.Channel.B2B.Core.Pages
 {
@@ -296,6 +298,29 @@ namespace Modules.Channel.B2B.Core.Pages
             //optionEle.Click();
         }
 
+        public void OpenCreateInstantCatalogPage(B2BEnvironment b2BEnvironment)
+        {
+            webDriver.Navigate().GoToUrl(ConfigurationReader.GetValue("TestHarnessPageUrl") + ((b2BEnvironment == B2BEnvironment.Production) ? "P" : "U"));
+            webDriver.Navigate().Refresh();
+        }
+
+        public void OpenAutoCatalogAndInventoryListPage(B2BEnvironment b2BEnvironment)
+        {
+            webDriver.Navigate().GoToUrl(ConfigurationReader.GetValue("AutoCatalogListPageUrl") + ((b2BEnvironment == B2BEnvironment.Production) ? "P" : "U"));
+            webDriver.Navigate().Refresh();
+        }
+
+        public void OpenAutoPartViewerPage(B2BEnvironment b2BEnvironment)
+        {
+            webDriver.Navigate().GoToUrl(ConfigurationReader.GetValue("AutoPartViewerUrl") + ((b2BEnvironment == B2BEnvironment.Production) ? "P" : "U"));
+            webDriver.Navigate().Refresh();
+        }
+
+        public void OpenAutoPackageUploadPage(B2BEnvironment b2BEnvironment)
+        {
+            webDriver.Navigate().GoToUrl(ConfigurationReader.GetValue("AutoPackageUploadUrl") + ((b2BEnvironment == B2BEnvironment.Production) ? "P" : "U"));
+            webDriver.Navigate().Refresh();
+        }
         #endregion
     }
 }

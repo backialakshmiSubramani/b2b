@@ -424,14 +424,14 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         /// <param name="profileName">Name of Profile</param>
         /// <param name="identityName">Name of Identity</param>
         /// <param name="catalogType">Original/Delta</param>
-        internal void PublishCatalogByClickOnce(B2BEnvironment environment, string profileName, string identityName, CatalogType catalogType)
+        internal void PublishCatalogByClickOnce(B2BEnvironment b2BEnvironment, string profileName, string identityName, CatalogType catalogType)
         {
-            webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["TestHarnessPageUrl"] + ((environment == B2BEnvironment.Production) ? "P" : "U"));
             B2BChannelUx b2BChannelUx = new B2BChannelUx(webDriver);
+            b2BChannelUx.OpenCreateInstantCatalogPage(b2BEnvironment);
 
-            if (environment == B2BEnvironment.Production)
+            if (b2BEnvironment == B2BEnvironment.Production)
                 b2BChannelUx.ProductionEnvRadioButton.Click();
-            else if (environment == B2BEnvironment.Preview)
+            else if (b2BEnvironment == B2BEnvironment.Preview)
                 b2BChannelUx.PreviewEnvRadioButton.Click();
 
             b2BChannelUx.SelectOption(b2BChannelUx.SelectCustomerProfileDiv, profileName);
@@ -457,14 +457,14 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
 
         }
 
-        internal void ValidateP2PMessage(B2BEnvironment environment, string profileName, string identityName, CatalogType catalogType, string errorMessage)
+        internal void ValidateP2PMessage(B2BEnvironment b2BEnvironment, string profileName, string identityName, CatalogType catalogType, string errorMessage)
         {
-            webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["TestHarnessPageUrl"] + ((environment == B2BEnvironment.Production) ? "P" : "U"));
             B2BChannelUx b2BChannelUx = new B2BChannelUx(webDriver);
+            b2BChannelUx.OpenCreateInstantCatalogPage(b2BEnvironment);
 
-            if (environment == B2BEnvironment.Production)
+            if (b2BEnvironment == B2BEnvironment.Production)
                 b2BChannelUx.ProductionEnvRadioButton.Click();
-            else if (environment == B2BEnvironment.Preview)
+            else if (b2BEnvironment == B2BEnvironment.Preview)
                 b2BChannelUx.PreviewEnvRadioButton.Click();
 
             b2BChannelUx.SelectOption(b2BChannelUx.SelectCustomerProfileDiv, profileName);
