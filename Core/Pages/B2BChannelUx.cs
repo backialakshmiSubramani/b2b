@@ -49,7 +49,7 @@ namespace Modules.Channel.B2B.Core.Pages
             Name = "Channel Catalog Ux Page";
             Url = webDriver.Url;
             ProductUnit = "Channel";
-
+            this.webDriver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromMinutes(1));
         }
 
         /// <summary>
@@ -301,25 +301,21 @@ namespace Modules.Channel.B2B.Core.Pages
         public void OpenCreateInstantCatalogPage(B2BEnvironment b2BEnvironment)
         {
             webDriver.Navigate().GoToUrl(ConfigurationReader.GetValue("TestHarnessPageUrl") + ((b2BEnvironment == B2BEnvironment.Production) ? "P" : "U"));
-            webDriver.Navigate().Refresh();
         }
 
         public void OpenAutoCatalogAndInventoryListPage(B2BEnvironment b2BEnvironment)
         {
             webDriver.Navigate().GoToUrl(ConfigurationReader.GetValue("AutoCatalogListPageUrl") + ((b2BEnvironment == B2BEnvironment.Production) ? "P" : "U"));
-            webDriver.Navigate().Refresh();
         }
 
         public void OpenAutoPartViewerPage(B2BEnvironment b2BEnvironment)
         {
             webDriver.Navigate().GoToUrl(ConfigurationReader.GetValue("AutoPartViewerUrl") + ((b2BEnvironment == B2BEnvironment.Production) ? "P" : "U"));
-            webDriver.Navigate().Refresh();
         }
 
         public void OpenAutoPackageUploadPage(B2BEnvironment b2BEnvironment)
         {
             webDriver.Navigate().GoToUrl(ConfigurationReader.GetValue("AutoPackageUploadUrl") + ((b2BEnvironment == B2BEnvironment.Production) ? "P" : "U"));
-            webDriver.Navigate().Refresh();
         }
         #endregion
     }
