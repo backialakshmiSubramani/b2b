@@ -24,6 +24,7 @@ using Dell.Adept.UI.Web.Support.Extensions.WebElement;
 using Dell.Adept.UI.Web.Support.Locators;
 using Modules.Channel.B2B.Common;
 using System.Threading;
+using OpenQA.Selenium.Support.UI;
 
 namespace Modules.Channel.B2B.Core.Pages
 {
@@ -574,8 +575,11 @@ namespace Modules.Channel.B2B.Core.Pages
             webDriver.FindElement(By.XPath("//div[@ng-model='customer']/a")).Click();
             webDriver.FindElement(By.XPath("//div[@ng-model='customer']/div/div[@class='custom-select-search']/input"))
                 .SendKeys(customerName);
-            webDriver.FindElement(By.XPath("//div[@ng-model='customer']/div/ul/li[1]/a[text()='" + customerName + "']"))
-                .Click();
+            //webDriver.FindElement(By.XPath("//div[@ng-model='customer']/div/ul/li[1]/a[text()='" + customerName + "']"))
+               // .Click();
+
+            webDriver.FindElement(By.XPath("//div[@ng-model='customer']/div/ul//a[text()='" + customerName + "']"))
+              .Click();
         }
 
         /// <summary>

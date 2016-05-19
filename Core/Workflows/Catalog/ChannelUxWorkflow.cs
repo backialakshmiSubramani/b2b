@@ -609,5 +609,37 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                 }
             } while (isloaded != "complete");
         }
+
+        /// <summary>
+        /// It verifies particular field value with respective Order code or SNP BaseSKUId, and if which are matched with expected values, it returns true
+        /// </summary>
+        /// <param name="filePath">XML file path</param>
+        /// <param name="itemOrderCode">ItemOrderCode or SNP BaseSKUId</param>
+        /// <param name="fieldName">Field Name</param>
+        /// <param name="expectedFieldValue">Expected Field Value for a particular field</param>
+        /// <param name="isSNP">If isSNP is true, it verifies the values based on Base SKU Id</param>
+        /// <returns> Expected Field Value for a particular field is matched with expected value, it returns true</returns>
+        public bool VerifyFieldValueforAnOrderCode(string filePath, string itemOrderCode, string fieldName, string expectedFieldValue, bool isSNP)
+        {
+            B2BXML actualCatalog = XMLDeserializer<B2BXML>.DeserializeFromXmlFile(filePath);
+
+            bool matchFlag = true;
+            string actualFieldValue = string.Empty;
+
+            if (isSNP)
+            {
+                CatalogItem actualCatalogItem = actualCatalog.BuyerCatalog.CatalogDetails.CatalogItem.Where(ci => ci.BaseSKUId == itemOrderCode).FirstOrDefault();
+                actualFieldValue = actualCatalogItem.GetType().GetProperty(fieldName).GetValue(actualCatalogItem, null).ToString();
+            }
+            else
+            {
+                CatalogItem actualCatalogItem = actualCatalog.BuyerCatalog.CatalogDetails.CatalogItem.Where(ci => ci.ItemOrderCode == itemOrderCode).FirstOrDefault();
+                actualFieldValue = actualCatalogItem.GetType().GetProperty(fieldName).GetValue(actualCatalogItem, null).ToString();
+            }
+            matchFlag &= UtilityMethods.CompareValues<string>("fieldName", actualFieldValue, expectedFieldValue);
+
+            return matchFlag;
+        }
+
     }
 }

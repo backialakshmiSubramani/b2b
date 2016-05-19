@@ -2903,15 +2903,20 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             var SubRowvalue1 = dict[2]; //dict.Where(p => p.Key == 2).FirstOrDefault().Value;
 
             B2BChannelUx b2BChannelUx = new B2BChannelUx(webDriver);
-            b2BChannelUx.OpenAutoCatalogAndInventoryListPage( b2BEnvironment);
+            //b2BChannelUx.OpenAutoCatalogAndInventoryListPage( b2BEnvironment);
+
+            b2BChannelUx.OpenAutoPartViewerPage(b2BEnvironment);
+
             b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
             
             string[] HeaderRowStringValue = Header.Split(',');
             string[] SubHeaderStringValue = SubHeader.Split(',');
             string[] HeaderStringvalue = Headervalue.ToString().Split(',');
-            string[] SubRow1StringValue = SubRowvalue1.ToString().Split(',');
-
-            string quoteid = SubRow1StringValue[SubRow1StringValue.Length - 3];
+            string[] SubRow1StringValue = SubRowvalue1.ToString().Split(new string[] { " ," }, StringSplitOptions.None);
+            
+            int quoteidlength = SubRow1StringValue[4].Length;
+            string quoteid = SubRow1StringValue[4].Substring(4, quoteidlength-4);
+            
             b2BAutoCatalogListPage.PartViewerQuoteIdsLink.SendKeys(quoteid);
             b2BAutoCatalogListPage.PartViewerSearchButton.Click();
             b2BAutoCatalogListPage.PartViewerPlusButton.WaitForElementVisible(TimeSpan.FromSeconds(30));
@@ -2928,7 +2933,9 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                 var SubRowElemt = webDriver.FindElements(By.XPath(TableXpath_First + Table1SubRow_End))[j];
                 var subRowTable1fromLocator = SubRowElemt.Text;
                 var subHeaderTestdata = SubHeaderStringValue[j];
-                var subRow1Testdata = SubRow1StringValue[j].Replace('_', ',');
+                //var subRow1Testdata = SubRow1StringValue[j].Replace('_', ',');
+                var subRow1Testdata = SubRow1StringValue[j];
+                
                 if (subHeaderTable1fromLocator.Equals(subHeaderTestdata) && subRowTable1fromLocator.Equals(subRow1Testdata) )
                 {
                     subHeaderRows++;
@@ -4368,7 +4375,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             B2BChannelUx b2bChannelUx = new B2BChannelUx(webDriver);
             b2bChannelUx.OpenAutoCatalogAndInventoryListPage(b2BEnvironment);
             uxWorkflow.SearchCatalog(profileName, identityName, beforeSchedTime, catalogStatus);
-            uxWorkflow.ValidateCatalogSearchResult(catalogItemType, catalogType, catalogStatus, beforeSchedTime);
+            //uxWorkflow.ValidateCatalogSearchResult(catalogItemType, catalogType, catalogStatus, beforeSchedTime);
             string filePath = uxWorkflow.DownloadCatalog(identityName, beforeSchedTime);
 
             B2BXML actualCatalog = XMLDeserializer<B2BXML>.DeserializeFromXmlFile(filePath);
@@ -4561,6 +4568,12 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
 
             //Following will saves the profile with above settings
             b2BBuyerCatalogPage.SetTextBoxValue(b2BBuyerCatalogPage.OriginalCatalogStartDate, DateTime.Now.AddDays(1).ToString(MMDDYYYY));
+            if (!b2BBuyerCatalogPage.EnableDeltaCatalog.Selected)
+            {
+                b2BBuyerCatalogPage.EnableDeltaCatalog.Click();
+            }
+            b2BBuyerCatalogPage.SetTextBoxValue(b2BBuyerCatalogPage.DeltaCatalogStartDate, DateTime.Now.AddDays(2).ToString(MMDDYYYY));
+            
             if (!b2BBuyerCatalogPage.CatalogConfigStandard.Selected)
             {
                 b2BBuyerCatalogPage.CatalogConfigStandard.Click();
@@ -4633,7 +4646,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             DateTime expDate = DateTime.Parse(actualCatalogHeader.ExpirationDate);
             string ValueinSubHeaderRowOrigPub = null; int i = 2;
             Dictionary<int, string> dict = new Dictionary<int, string>();
-            var ValueinHeaderRowOrigPub = "" + "," + actualCatalogHeader.CatalogName + "," + actualCatalogHeader.IdentityUserName + "," + status.ToString() + "," + actualCatalogHeader.RequesterEmailId + "," + catDate.ToString("dd-MMM-yyyy") + "," + actualCatalogHeader.RequesterEmailId + "," + actualCatalogHeader.Region + "," + expDate.ToString("dd-MMM-yyyy");
+            var ValueinHeaderRowOrigPub = "" + "," + actualCatalogHeader.CatalogName + "," + actualCatalogHeader.IdentityUserName + "," + status.ToString() + "," + actualCatalogHeader.RequesterEmailId + "," + catDate.ToString("dd-MMM-yyyy") + "," + actualCatalogHeader.RequesterEmailId + "," + actualCatalogHeader.CountryCode + "," + expDate.ToString("dd-MMM-yyyy");
             dict.Add(1, ValueinHeaderRowOrigPub);
             CatalogDetails actualCatalogDetails = actualcatalogXML.BuyerCatalog.CatalogDetails;
             foreach (CatalogItemType itemType in catalogItemType)
@@ -4641,8 +4654,8 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                 IEnumerable<CatalogItem> actualCatalogItems = actualCatalogDetails.CatalogItem.Where(ci => ci.CatalogItemType == itemType);
                 foreach(CatalogItem actualCatalogItem in actualCatalogItems)
                 {
-                    ValueinSubHeaderRowOrigPub = actualCatalogItem.ShortName + "," + actualCatalogItem.ItemDescription + "," + actualCatalogItem.UNSPSC + "," + actualCatalogItem.UnitPrice + "," + actualCatalogItem.PartId + "," + actualCatalogItem.QuoteId + "," + actualCatalogItem.BaseSKUId + "," + actualCatalogItem.ListPrice;
-                    dict.Add(i, ValueinSubHeaderRowOrigPub); i++;
+                   ValueinSubHeaderRowOrigPub = actualCatalogItem.ShortName + " ," + actualCatalogItem.ItemDescription + " ," + actualCatalogItem.UNSPSC + " ," + actualCatalogItem.UnitPrice.ToString().TrimEnd('0').TrimEnd('.') + " ," + actualCatalogItem.PartId + " ," + actualCatalogItem.QuoteId + " ," + actualCatalogItem.BaseSKUId + " ," + actualCatalogItem.ListPrice.ToString().TrimEnd('0').TrimEnd('.');
+                   dict.Add(i, ValueinSubHeaderRowOrigPub); i++;
                 }
             }
             return dict;
@@ -4724,6 +4737,35 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         //    return false;
         //}
         #endregion
+
+
+        /// <summary>
+        /// Below method verifies ManufacturePartNumber and UP values for SPL Order code
+        /// If ManufacturePartNumber and UP values are valid values then it retuns True
+        /// </summary>
+        public bool VerifyMpnAndUpcForSpl(B2BEnvironment b2BEnvironment, string profileName, string identityName, CatalogStatus catalogStatus, CatalogType catalogType,
+                                          bool splUI, bool snpUI, bool sysUI, bool isSNP,
+                                          string splItemOrderCode, string upcField, string upcValue,
+                                          string mpnField, string mpnValue)
+        {
+            webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["B2BBaseURL"]);
+            DateTime beforeSchedTime = DateTime.Now;
+            ChannelUxWorkflow uxWorkflow = new ChannelUxWorkflow(webDriver);
+            VerifySPLEnabledSettingsValidations(b2BEnvironment.ToString(), profileName, splUI, snpUI, sysUI, false, false);
+            uxWorkflow.PublishCatalogByClickOnce(b2BEnvironment, profileName, identityName, catalogType);
+            webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["AutoCatalogListPageUrl"] + ((b2BEnvironment == B2BEnvironment.Production) ? "P" : "U"));
+            uxWorkflow.SearchCatalog(profileName, identityName, beforeSchedTime, catalogStatus);
+
+            string filePath = uxWorkflow.DownloadCatalog(identityName, beforeSchedTime);
+
+            //Below method verifies the ManufacturePartNumber and UPC values for SPL Item and if those values are valid values it returns True
+            if (uxWorkflow.VerifyFieldValueforAnOrderCode(filePath, splItemOrderCode, upcField, upcValue, isSNP) &&
+                uxWorkflow.VerifyFieldValueforAnOrderCode(filePath, splItemOrderCode, mpnField, mpnValue, isSNP))
+                return true;
+            else
+                return false;
+        }
+
     }
 
     /// <summary>
