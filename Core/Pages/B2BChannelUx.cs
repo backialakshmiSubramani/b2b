@@ -223,7 +223,7 @@ namespace Modules.Channel.B2B.Core.Pages
         {
             get
             {
-                return webDriver.FindElement(By.CssSelector("button[id='btnCreateAndDownLoadCatalog']"));
+                return webDriver.FindElement(By.CssSelector("button[id='btnCreateAndDownLoad']"));
             }
         }
 
@@ -231,8 +231,6 @@ namespace Modules.Channel.B2B.Core.Pages
         {
             get
             {
-                //return webDriver.FindElement(By.XPath(".//*[@id='homepage-var']/div/div[2]/div/div/div[1]"));
-                ////return webDriver.FindElement(By.CssSelector("div[class='alert ng-binding']"));
                 return webDriver.FindElement(By.CssSelector("div[ng-show='alert.show']"));
             }
         }

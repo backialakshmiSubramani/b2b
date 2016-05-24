@@ -1242,6 +1242,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             var countryCode = b2BAutoCatalogListPage.CatalogsTable.GetCellValue(1, "Country\r\nCode");
             var regioncode = b2BAutoCatalogListPage.CatalogsTable.GetCellValue(1, "Region");
             var Currencycode = b2BAutoCatalogListPage.CatalogsTable.GetCellValue(1, "Currency\r\nCode");
+            Console.WriteLine(Status + ", " + countryCode + " ," + regioncode + ", " + currencyCode);
             if (Status.Equals(status.ToString()) && countryCode.Equals(CountryCode) && regioncode.Equals(region) && Currencycode.Equals(currencyCode))
             {
                 return true;
@@ -1685,6 +1686,10 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                 catalogName = uxWorkflow.DownloadCatalog(identity, beforeSchedTime);
                 catalogName = catalogName.Substring(catalogName.LastIndexOf("\\") + 1);
                 catalogName = catalogName.Remove(catalogName.IndexOf('.'), 4);
+                if (catalogName.Contains('('))
+                {
+                    catalogName = catalogName.Split(' ')[0];
+            }
             }
             if (customerName != "")
             { b2BAutoCatalogListPage.SelectTheCustomer(customerName); }
@@ -1728,6 +1733,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             b2BAutoCatalogListPage.CatalogsTable.WaitForElementVisible(TimeSpan.FromSeconds(30));
             var cOuntryCode = b2BAutoCatalogListPage.CatalogsTable.GetCellValue(1, "Country\r\nCode");
             var regioncode = b2BAutoCatalogListPage.CatalogsTable.GetCellValue(1, "Region");
+            Console.WriteLine(cOuntryCode + "," + regioncode);
             if (cOuntryCode.Equals(countryCode) && regioncode.Equals(regionCode))
                 return true;
             return false;
@@ -2916,7 +2922,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             
             int quoteidlength = SubRow1StringValue[4].Length;
             string quoteid = SubRow1StringValue[4].Substring(4, quoteidlength-4);
-            
+
             b2BAutoCatalogListPage.PartViewerQuoteIdsLink.SendKeys(quoteid);
             b2BAutoCatalogListPage.PartViewerSearchButton.Click();
             b2BAutoCatalogListPage.PartViewerPlusButton.WaitForElementVisible(TimeSpan.FromSeconds(30));
@@ -2968,6 +2974,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             {
                 return true;
             }
+            Console.WriteLine("Headercount: " + Headercount + "HeaderRowsCount: " + HeaderRowsCount + "subHeaderRows: " + subHeaderRows);
             return false;
         }
 
@@ -3695,17 +3702,24 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             GoToBuyerCatalogTab(environment, profile);
             b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
             oldValue = b2BBuyerCatalogPage.BcpchkCrossRefernceStdUpdate.Selected.ToString();
+            
             b2BBuyerCatalogPage.EditScheduleButton.Click();
+            if (!b2BBuyerCatalogPage.EnableOriginalCatalog.Selected)
+                b2BBuyerCatalogPage.EnableOriginalCatalog.Click();
+            if (!b2BBuyerCatalogPage.EnableDeltaCatalog.Selected)
+                b2BBuyerCatalogPage.EnableDeltaCatalog.Click();
             b2BBuyerCatalogPage.SetTextBoxValue(b2BBuyerCatalogPage.OriginalCatalogStartDate,
                 DateTime.Now.AddDays(1).ToString(MMDDYYYY));
             b2BBuyerCatalogPage.SetTextBoxValue(b2BBuyerCatalogPage.DeltaCatalogStartDate,
                     DateTime.Now.AddDays(2).ToString(MMDDYYYY));
+            
             b2BBuyerCatalogPage.BcpchkCrossRefernceStdUpdate.Click();
             if (b2BBuyerCatalogPage.BcpchkCrossRefernceStdUpdate.Selected)
             {
                 if(!b2BBuyerCatalogPage.CatalogConfigStandard.Selected)
                     b2BBuyerCatalogPage.CatalogConfigStandard.Click();
             }
+
             newValue = b2BBuyerCatalogPage.BcpchkCrossRefernceStdUpdate.Selected.ToString();
             b2BBuyerCatalogPage.UpdateButton.Click();
             return VerifyAuditHistoryRow(oldValue, newValue, crossrefstdAuditHistoryProperty);
@@ -3726,7 +3740,24 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             GoToBuyerCatalogTab(environment, profile);
             b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
             oldValue = b2BBuyerCatalogPage.BcpchkCrossRefernceSnpUpdate.Selected.ToString();
+
+            b2BBuyerCatalogPage.EditScheduleButton.Click();
+            if (!b2BBuyerCatalogPage.EnableOriginalCatalog.Selected)
+                b2BBuyerCatalogPage.EnableOriginalCatalog.Click();
+            if (!b2BBuyerCatalogPage.EnableDeltaCatalog.Selected)
+                b2BBuyerCatalogPage.EnableDeltaCatalog.Click();
+            b2BBuyerCatalogPage.SetTextBoxValue(b2BBuyerCatalogPage.OriginalCatalogStartDate,
+                DateTime.Now.AddDays(1).ToString(MMDDYYYY));
+            b2BBuyerCatalogPage.SetTextBoxValue(b2BBuyerCatalogPage.DeltaCatalogStartDate,
+                    DateTime.Now.AddDays(2).ToString(MMDDYYYY));
+
             b2BBuyerCatalogPage.BcpchkCrossRefernceSnpUpdate.Click();
+            if (b2BBuyerCatalogPage.BcpchkCrossRefernceSnpUpdate.Selected)
+            {
+                if (!b2BBuyerCatalogPage.CatalogConfigSnP.Selected)
+                    b2BBuyerCatalogPage.CatalogConfigSnP.Click();
+            }
+
             newValue = b2BBuyerCatalogPage.BcpchkCrossRefernceSnpUpdate.Selected.ToString();
             b2BBuyerCatalogPage.UpdateButton.Click();
             return VerifyAuditHistoryRow(oldValue, newValue, crossrefsnpAuditHistoryProperty);
@@ -3747,7 +3778,24 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             GoToBuyerCatalogTab(environment, profile);
             b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
             oldValue = b2BBuyerCatalogPage.BcpchkCrossRefernceSysUpdate.Selected.ToString();
+
+            b2BBuyerCatalogPage.EditScheduleButton.Click();
+            if (!b2BBuyerCatalogPage.EnableOriginalCatalog.Selected)
+                b2BBuyerCatalogPage.EnableOriginalCatalog.Click();
+            if (!b2BBuyerCatalogPage.EnableDeltaCatalog.Selected)
+                b2BBuyerCatalogPage.EnableDeltaCatalog.Click();
+            b2BBuyerCatalogPage.SetTextBoxValue(b2BBuyerCatalogPage.OriginalCatalogStartDate,
+                DateTime.Now.AddDays(1).ToString(MMDDYYYY));
+            b2BBuyerCatalogPage.SetTextBoxValue(b2BBuyerCatalogPage.DeltaCatalogStartDate,
+                    DateTime.Now.AddDays(2).ToString(MMDDYYYY));
+
             b2BBuyerCatalogPage.BcpchkCrossRefernceSysUpdate.Click();
+            if (b2BBuyerCatalogPage.BcpchkCrossRefernceSysUpdate.Selected)
+            {
+                if (!b2BBuyerCatalogPage.BcpchkSysCatalogCheckbox.Selected)
+                    b2BBuyerCatalogPage.BcpchkSysCatalogCheckbox.Click();
+            }
+
             newValue = b2BBuyerCatalogPage.BcpchkCrossRefernceSysUpdate.Selected.ToString();
             b2BBuyerCatalogPage.UpdateButton.Click();
             return VerifyAuditHistoryRow(oldValue, newValue, crossrefsysAuditHistoryProperty);
@@ -4605,18 +4653,18 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             }
             return matchFlag;
         }
-        public void VerifyP2PValidationForEnableAutoBHCOFFNewProfile(B2BEnvironment b2BEnvironment, string customerSet, string accessGroup, string profileNameBase, CatalogType catalogType, string message)
+        public void VerifyP2PValidationForEnableAutoBHCOFFNewProfile(B2BEnvironment b2BEnvironment, string customerSet, string accessGroup, string profileNameBase, CatalogType catalogType)
         {
             ChannelCatalogWorkflow channelCatalogWorkflow = new ChannelCatalogWorkflow(webDriver);
             var newProfileName = channelCatalogWorkflow.CreateNewProfile(b2BEnvironment.ToString(), customerSet, accessGroup, profileNameBase);
             ChannelUxWorkflow uxWorkflow = new ChannelUxWorkflow(webDriver);
-            uxWorkflow.ValidateP2PMessage(b2BEnvironment, newProfileName, newProfileName, catalogType, message);
+            uxWorkflow.ValidateP2PMessage(b2BEnvironment, newProfileName, newProfileName, catalogType);
         }
 
-        public void VerifyP2PValidationForEnableAutoBHCOFFExistingProfile(B2BEnvironment b2BEnvironment, string profileNameBase, CatalogType catalogType, string message)
+        public void VerifyP2PValidationForEnableAutoBHCOFFExistingProfile(B2BEnvironment b2BEnvironment, string profileNameBase, CatalogType catalogType)
         {
             ChannelUxWorkflow uxWorkflow = new ChannelUxWorkflow(webDriver);
-            uxWorkflow.ValidateP2PMessage(b2BEnvironment, profileNameBase, profileNameBase, catalogType, message);
+            uxWorkflow.ValidateP2PMessage(b2BEnvironment, profileNameBase, profileNameBase, catalogType);
         }
 
         public Dictionary<int,string> GetPartViewerInformation(B2BEnvironment b2BEnvironment, CatalogItemType[] catalogItemType, string region, string country, CatalogType type, CatalogStatus status, string profile, string identity)
@@ -4655,10 +4703,22 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                 foreach(CatalogItem actualCatalogItem in actualCatalogItems)
                 {
                    ValueinSubHeaderRowOrigPub = actualCatalogItem.ShortName + " ," + actualCatalogItem.ItemDescription + " ," + actualCatalogItem.UNSPSC + " ," + actualCatalogItem.UnitPrice.ToString().TrimEnd('0').TrimEnd('.') + " ," + actualCatalogItem.PartId + " ," + actualCatalogItem.QuoteId + " ," + actualCatalogItem.BaseSKUId + " ," + actualCatalogItem.ListPrice.ToString().TrimEnd('0').TrimEnd('.');
-                   dict.Add(i, ValueinSubHeaderRowOrigPub); i++;
+                    dict.Add(i, ValueinSubHeaderRowOrigPub); i++;
                 }
             }
             return dict;
+        }
+
+        public void VerifyErrorMessageIfNoConfigSelected(B2BEnvironment b2BEnvironment, string profileNameBase, CatalogType catalogType)
+        {
+            ChannelUxWorkflow uxWorkflow = new ChannelUxWorkflow(webDriver);
+            uxWorkflow.ValidateErrorMessageNoConfigSelected(b2BEnvironment, profileNameBase, profileNameBase, catalogType);
+        }
+
+        public void VerifyErrorMessageWhileCreatingDeltaIfOriginalNotExists(B2BEnvironment b2BEnvironment, string profileNameBase, CatalogType catalogType)
+        {
+            ChannelUxWorkflow uxWorkflow = new ChannelUxWorkflow(webDriver);
+            uxWorkflow.ValidateErrorMessageWhileCreatingDeltaCatalog(b2BEnvironment, profileNameBase, profileNameBase, catalogType);
         }
         #region Unused Code
         /// <summary>

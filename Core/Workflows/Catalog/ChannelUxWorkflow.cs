@@ -437,34 +437,33 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             b2BChannelUx.SelectOption(b2BChannelUx.SelectCustomerProfileDiv, profileName);
             b2BChannelUx.SelectOption(b2BChannelUx.SelectProfileIdentityDiv, identityName.ToUpper());
 
-            if (!b2BChannelUx.UseExistingB2BAutoScheduleRadioButton.Selected)
-                b2BChannelUx.UseExistingB2BAutoScheduleRadioButton.Click();
+            //if (!b2BChannelUx.UseExistingB2BAutoScheduleRadioButton.Selected)
+              //  b2BChannelUx.UseExistingB2BAutoScheduleRadioButton.Click();
 
             if (catalogType == CatalogType.Original)
                 b2BChannelUx.OriginalRadioButton.Click();
             else if (catalogType == CatalogType.Delta)
                 b2BChannelUx.DeltaRadioButton.Click();
 
-            //b2BChannelUx.ClickToPublishButton.Click();
-            b2BChannelUx.CreateButton.Click();
-            //P2ValidationSuccess
+            b2BChannelUx.ClickToPublishButton.Click();
+            //b2BChannelUx.CreateButton.Click();
 
-            WaitForPageRefresh();
-            //IAlert successAlert = webDriver.WaitGetAlert(CatalogTimeOuts.AlertTimeOut);
-            //successAlert.Accept();
-            b2BChannelUx.ValidationMessage.WaitForElementVisible(TimeSpan.FromSeconds(30));
-            b2BChannelUx.ValidationMessage.Text.ShouldBeEquivalentTo("Auto Catalog generation successfully initiated. Please check it on the Auto Catalog & Inventory List page after sometime.");
+            //WaitForPageRefresh();
+            IAlert successAlert = webDriver.WaitGetAlert(CatalogTimeOuts.AlertTimeOut);
+            successAlert.Accept();
+            //b2BChannelUx.ValidationMessage.WaitForElementVisible(TimeSpan.FromSeconds(30));
+            //b2BChannelUx.ValidationMessage.Text.ShouldBeEquivalentTo("Auto Catalog generation successfully initiated. Please check it on the Auto Catalog & Inventory List page after sometime.");
 
         }
 
-        internal void ValidateP2PMessage(B2BEnvironment b2BEnvironment, string profileName, string identityName, CatalogType catalogType, string errorMessage)
+        internal void ValidateP2PMessage(B2BEnvironment environment, string profileName, string identityName, CatalogType catalogType)
         {
+            webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["TestHarnessPageUrl"] + ((environment == B2BEnvironment.Production) ? "P" : "U"));
             B2BChannelUx b2BChannelUx = new B2BChannelUx(webDriver);
-            b2BChannelUx.OpenCreateInstantCatalogPage(b2BEnvironment);
 
-            if (b2BEnvironment == B2BEnvironment.Production)
+            if (environment == B2BEnvironment.Production)
                 b2BChannelUx.ProductionEnvRadioButton.Click();
-            else if (b2BEnvironment == B2BEnvironment.Preview)
+            else if (environment == B2BEnvironment.Preview)
                 b2BChannelUx.PreviewEnvRadioButton.Click();
 
             b2BChannelUx.SelectOption(b2BChannelUx.SelectCustomerProfileDiv, profileName);
@@ -479,11 +478,63 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                 b2BChannelUx.DeltaRadioButton.Click();
             b2BChannelUx.CreateButton.Click();
             WaitForPageRefresh();
-            //b2BChannelUx.ValidationMessage.WaitForElementVisible(TimeSpan.FromSeconds(30));
-            //webDriver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromSeconds(30));
-            Console.WriteLine("Expected: " + errorMessage);
             Console.WriteLine("Actual: " + b2BChannelUx.ValidationMessage.Text);
-            b2BChannelUx.ValidationMessage.Text.Trim().Equals(errorMessage).Should().BeTrue();
+            b2BChannelUx.ValidationMessage.Text.Trim().ShouldBeEquivalentTo("Catalog Creation is not allowed for this profile since Enable BHC Catalog Auto Generation is turned OFF.");
+        }
+
+        internal void ValidateErrorMessageNoConfigSelected(B2BEnvironment environment, string profileName, string identityName, CatalogType catalogType)
+        {
+            webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["TestHarnessPageUrl"] + ((environment == B2BEnvironment.Production) ? "P" : "U"));
+            B2BChannelUx b2BChannelUx = new B2BChannelUx(webDriver);
+
+            if (environment == B2BEnvironment.Production)
+                b2BChannelUx.ProductionEnvRadioButton.Click();
+            else if (environment == B2BEnvironment.Preview)
+                b2BChannelUx.PreviewEnvRadioButton.Click();
+
+            b2BChannelUx.SelectOption(b2BChannelUx.SelectCustomerProfileDiv, profileName);
+            b2BChannelUx.SelectOption(b2BChannelUx.SelectProfileIdentityDiv, identityName.ToUpper());
+            b2BChannelUx.SetNewRadioButton.Click();
+            
+            if (b2BChannelUx.STDSetNewCheckBox.Selected)
+                b2BChannelUx.STDSetNewCheckBox.Click();
+
+            if (catalogType == CatalogType.Original)
+                b2BChannelUx.OriginalRadioButton.Click();
+            else if (catalogType == CatalogType.Delta)
+                b2BChannelUx.DeltaRadioButton.Click();
+            b2BChannelUx.CreateAndDownloadButton.Click();
+            
+            WaitForPageRefresh();
+
+            Console.WriteLine("Actual: " + b2BChannelUx.ValidationMessage.Text);
+            b2BChannelUx.ValidationMessage.Text.Trim().ShouldBeEquivalentTo("Minimum one configuration is required for the catalog creation.");
+        }
+
+        internal void ValidateErrorMessageWhileCreatingDeltaCatalog(B2BEnvironment environment, string profileName, string identityName, CatalogType catalogType)
+        {
+            webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["TestHarnessPageUrl"] + ((environment == B2BEnvironment.Production) ? "P" : "U"));
+            B2BChannelUx b2BChannelUx = new B2BChannelUx(webDriver);
+
+            if (environment == B2BEnvironment.Production)
+                b2BChannelUx.ProductionEnvRadioButton.Click();
+            else if (environment == B2BEnvironment.Preview)
+                b2BChannelUx.PreviewEnvRadioButton.Click();
+
+            b2BChannelUx.SelectOption(b2BChannelUx.SelectCustomerProfileDiv, profileName);
+            b2BChannelUx.SelectOption(b2BChannelUx.SelectProfileIdentityDiv, identityName.ToUpper());
+
+            if (catalogType == CatalogType.Original)
+                b2BChannelUx.OriginalRadioButton.Click();
+            else if (catalogType == CatalogType.Delta)
+                b2BChannelUx.DeltaRadioButton.Click();
+
+            b2BChannelUx.CreateButton.Click();
+
+            WaitForPageRefresh();
+
+            Console.WriteLine("Actual: " + b2BChannelUx.ValidationMessage.Text);
+            b2BChannelUx.ValidationMessage.Text.Trim().ShouldBeEquivalentTo("Original Catalog doesn't exist, hence, Delta can not be generated.");
         }
 
         /// <summary>
