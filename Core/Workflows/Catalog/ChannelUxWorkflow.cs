@@ -437,22 +437,22 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             b2BChannelUx.SelectOption(b2BChannelUx.SelectCustomerProfileDiv, profileName);
             b2BChannelUx.SelectOption(b2BChannelUx.SelectProfileIdentityDiv, identityName.ToUpper());
 
-            //if (!b2BChannelUx.UseExistingB2BAutoScheduleRadioButton.Selected)
-              //  b2BChannelUx.UseExistingB2BAutoScheduleRadioButton.Click();
+            if (!b2BChannelUx.UseExistingB2BAutoScheduleRadioButton.Selected)
+                b2BChannelUx.UseExistingB2BAutoScheduleRadioButton.Click();
 
             if (catalogType == CatalogType.Original)
                 b2BChannelUx.OriginalRadioButton.Click();
             else if (catalogType == CatalogType.Delta)
                 b2BChannelUx.DeltaRadioButton.Click();
 
-            b2BChannelUx.ClickToPublishButton.Click();
-            //b2BChannelUx.CreateButton.Click();
+            //b2BChannelUx.ClickToPublishButton.Click();
+            b2BChannelUx.CreateButton.Click();
 
-            //WaitForPageRefresh();
-            IAlert successAlert = webDriver.WaitGetAlert(CatalogTimeOuts.AlertTimeOut);
-            successAlert.Accept();
-            //b2BChannelUx.ValidationMessage.WaitForElementVisible(TimeSpan.FromSeconds(30));
-            //b2BChannelUx.ValidationMessage.Text.ShouldBeEquivalentTo("Auto Catalog generation successfully initiated. Please check it on the Auto Catalog & Inventory List page after sometime.");
+            WaitForPageRefresh();
+            //IAlert successAlert = webDriver.WaitGetAlert(CatalogTimeOuts.AlertTimeOut);
+            //successAlert.Accept();
+            b2BChannelUx.ValidationMessage.WaitForElementVisible(TimeSpan.FromSeconds(30));
+            b2BChannelUx.ValidationMessage.Text.ShouldBeEquivalentTo("Auto Catalog generation successfully initiated. Please check it on the Auto Catalog & Inventory List page after sometime.");
 
         }
 
