@@ -4825,7 +4825,30 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             else
                 return false;
         }
+        /// <summary>
+        /// Below method verifies Inventory and Lead Time values of Order code
+        /// If Inventory and Lead Time values are valid values then it retuns True
+        /// </summary>
+        public bool VerifyInventoryAndLtForStdOrderCodes(B2BEnvironment b2BEnvironment, string profileName, string identityName, CatalogStatus catalogStatus, CatalogType catalogType,
+                                          string stdBtoOrderCode, string inventoryField, string inventoryValue,
+                                          string leadTimeField, string leadTimeValue)
+        {
+            webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["B2BBaseURL"]);
+            DateTime beforeSchedTime = DateTime.Now;
+            ChannelUxWorkflow uxWorkflow = new ChannelUxWorkflow(webDriver);
+            uxWorkflow.PublishCatalogByClickOnce(b2BEnvironment, profileName, identityName, catalogType);
+            webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["AutoCatalogListPageUrl"] + ((b2BEnvironment == B2BEnvironment.Production) ? "P" : "U"));
+            uxWorkflow.SearchCatalog(profileName, identityName, beforeSchedTime, catalogStatus);
 
+            string filePath = uxWorkflow.DownloadCatalog(identityName, beforeSchedTime);
+
+            //Below method verifies the Inventory and Lead Time values of Order Codes and if those values are valid values it returns True
+            if (uxWorkflow.VerifyFieldValueforAnOrderCode(filePath, stdBtoOrderCode, inventoryField, inventoryValue, false) &&
+                uxWorkflow.VerifyFieldValueforAnOrderCode(filePath, stdBtoOrderCode, leadTimeField, leadTimeValue, false))
+                return true;
+            else
+                return false;
+        }
     }
 
     /// <summary>
