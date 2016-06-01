@@ -47,7 +47,7 @@ namespace Modules.Channel.B2B.Core.Pages
             Name = "Channel Catalog List Page";
             Url = webDriver.Url;
             ProductUnit = "Channel";
-            this.webDriver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromSeconds(30));
+            this.webDriver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromMinutes(5));
             this.webDriver.WaitForPageLoad(TimeSpan.FromSeconds(30));
         }
 

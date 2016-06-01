@@ -188,6 +188,39 @@ namespace Modules.Channel.B2B.Core.Pages
                 return _searchCRTList;
             }
         }
+
+        public SelectElement AccountName
+        {
+            get
+            {
+                return new SelectElement(webDriver.FindElement(By.Id("ContentPageHolder_drp_CRT_Profiles")));
+            }
+        }
+
+        public SelectElement CrossReferenceType
+        {
+            get
+            {
+                return new SelectElement(webDriver.FindElement(By.Id("ContentPageHolder_drp_CRTType")));
+            }
+        }
+
+        public IWebElement Search
+        {
+            get
+            {
+                return webDriver.FindElement(By.Id("ContentPageHolder_lnk_btnSearch"));
+            }
+        }
+
+        public IWebElement CRTResultTable
+        {
+            get
+            {
+                return webDriver.FindElement(By.Id("ContentPageHolder_CRTGridAssoList_grdVwCrossReferenceAssociationsList"));
+            }
+        }
+
         #endregion
 
         # region Element Actions
@@ -276,5 +309,11 @@ namespace Modules.Channel.B2B.Core.Pages
             searchCRTList.Click();
         }
         # endregion
+
+        public void OpenCRTXML(string userId)
+        {
+            CRTResultTable.FindElement(By.XPath(string.Format("//td[text()='{0}']/..//a[text()='View Xml']", userId))).Click();
+        }
+
     }
 }

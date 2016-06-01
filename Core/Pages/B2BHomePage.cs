@@ -26,6 +26,8 @@ using Dell.Adept.UI.Web.Support.Extensions.WebDriver;
 using Dell.Adept.UI.Web.Support.Extensions.WebElement;
 using Dell.Adept.UI.Web.Support.Locators;
 using Dell.Adept.UI.Web.Support;
+using Modules.Channel.B2B.Common;
+using System.Configuration;
 
 
 namespace Modules.Channel.B2B.Core.Pages
@@ -53,6 +55,7 @@ namespace Modules.Channel.B2B.Core.Pages
             ProductUnit = "Channel";
             //this.webDriver.WaitForPageLoad(new TimeSpan(0, 0, 10));
             //PageUtility.WaitForPageRefresh(webDriver);
+            this.webDriver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromMinutes(5));
         }
 
         /// <summary>
@@ -219,6 +222,14 @@ namespace Modules.Channel.B2B.Core.Pages
             get { return webDriver.FindElement(By.LinkText("Auto Catalog Part Viewer")); }
         }
 
+        public IWebElement CRAssociationListLink
+        {
+            get
+            {
+                return webDriver.FindElement(By.XPath("//a[text()=' CR Association List']"));
+            }
+        }
+
 
         #endregion
 
@@ -333,5 +344,11 @@ namespace Modules.Channel.B2B.Core.Pages
         }
 
         #endregion
+
+        public void OpenB2BHomePage(B2BEnvironment b2BEnvironment)
+        {
+            webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["B2BBaseURL"]);
+            SelectEnvironment(b2BEnvironment.ConvertToString());
+        }
     }
 }

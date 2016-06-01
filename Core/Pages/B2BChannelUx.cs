@@ -49,7 +49,7 @@ namespace Modules.Channel.B2B.Core.Pages
             Name = "Channel Catalog Ux Page";
             Url = webDriver.Url;
             ProductUnit = "Channel";
-            this.webDriver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromMinutes(1));
+            this.webDriver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromMinutes(5));
         }
 
         /// <summary>
@@ -227,11 +227,11 @@ namespace Modules.Channel.B2B.Core.Pages
             }
         }
 
-        public IWebElement ValidationMessage
+        public IWebElement FeedBackMessage
         {
             get
             {
-                return webDriver.FindElement(By.CssSelector("div[ng-show='alert.show']"));
+                return webDriver.FindElement(By.CssSelector("div[class='alert ng-binding'][ng-class='alert.type']"));
             }
         }
 
@@ -314,6 +314,16 @@ namespace Modules.Channel.B2B.Core.Pages
         public void OpenAutoPackageUploadPage(B2BEnvironment b2BEnvironment)
         {
             webDriver.Navigate().GoToUrl(ConfigurationReader.GetValue("AutoPackageUploadUrl") + ((b2BEnvironment == B2BEnvironment.Production) ? "P" : "U"));
+        }
+
+        public void WaitForFeedBackMessage(TimeSpan timeSpan)
+        {
+            double timeOutInSeconds = timeSpan.TotalSeconds;
+            while (string.IsNullOrEmpty(FeedBackMessage.Text) && timeOutInSeconds > 0)
+            {
+                Thread.Sleep(2000);
+                timeOutInSeconds -= 2;
+            }
         }
         #endregion
     }

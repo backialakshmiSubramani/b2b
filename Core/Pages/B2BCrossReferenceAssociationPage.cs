@@ -26,6 +26,8 @@ using Dell.Adept.UI.Web.Support.Extensions.WebDriver;
 using Dell.Adept.UI.Web.Support.Extensions.WebElement;
 using Dell.Adept.UI.Web.Support.Locators;
 using Dell.Adept.UI.Web.Support;
+using OpenQA.Selenium.Support.UI;
+using Modules.Channel.B2B.Common;
 
 namespace Modules.Channel.B2B.Core.Pages
 {
@@ -49,7 +51,8 @@ namespace Modules.Channel.B2B.Core.Pages
             //populate the following variables with the appropriate value
             Url = webDriver.Url;
             ProductUnit = "Channel";
-            webDriver.WaitForPageLoad(new TimeSpan(0, 0, PageUtility.PageTimeOut));
+            //webDriver.WaitForPageLoad(new TimeSpan(0, 0, PageUtility.PageTimeOut));
+            this.webDriver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromMinutes(5));
         }
 
         /// <summary>
@@ -112,9 +115,9 @@ namespace Modules.Channel.B2B.Core.Pages
         /// </summary>
         private IWebElement CrtTableCheckBox
         {
-            get 
-            { 
-                return webDriver.FindElement(By.Id("ContentPageHolder_CRTGridAssociation_grdVwCrossReferenceList_chkCRTLookup_0")); 
+            get
+            {
+                return webDriver.FindElement(By.Id("ContentPageHolder_CRTGridAssociation_grdVwCrossReferenceList_chkCRTLookup_0"));
             }
         }
 
@@ -123,7 +126,7 @@ namespace Modules.Channel.B2B.Core.Pages
         /// </summary>
         private IWebElement ProfileWithOutAffinityIdErrorMessage
         {
-            get 
+            get
             {
                 webDriver.WaitForElement(By.XPath("//span[contains(text(),'There is no Affinity ID associated to this profile. Please update the Affinity ID and retry the CRT ')]"), TimeSpan.FromSeconds(20));
                 return webDriver.FindElement(By.XPath("//span[contains(text(),'There is no Affinity ID associated to this profile. Please update the Affinity ID and retry the CRT ')]"));
@@ -198,14 +201,46 @@ namespace Modules.Channel.B2B.Core.Pages
         /// <summary>
         /// Page Header Label
         /// </summary>
-        private IWebElement _pageHeaderLabel;  
+        private IWebElement _pageHeaderLabel;
         private IWebElement PageHeaderLabel
         {
             get
             {
-                if (_pageHeaderLabel ==null)
+                if (_pageHeaderLabel == null)
                     _pageHeaderLabel = webDriver.FindElement(By.Id("ContentPageHolder_lblHeader"));
                 return _pageHeaderLabel;
+            }
+        }
+
+        public SelectElement AccountName
+        {
+            get
+            {
+                return new SelectElement(webDriver.FindElement(By.Id("ContentPageHolder_drp_CRT_Profiles")));
+            }
+        }
+
+        public SelectElement CrossReferenceType
+        {
+            get
+            {
+                return new SelectElement(webDriver.FindElement(By.Id("ContentPageHolder_drp_CRTType")));
+            }
+        }
+
+        public IWebElement Search
+        {
+            get
+            {
+                return webDriver.FindElement(By.Id("ContentPageHolder_lnk_btnSearch"));
+            }
+        }
+
+        public IWebElement CRTResultTable
+        {
+            get
+            {
+                return webDriver.FindElement(By.Id("ContentPageHolder_CRTGridAssoList_grdVwCrossReferenceAssociationsList"));
             }
         }
         #endregion
@@ -245,7 +280,7 @@ namespace Modules.Channel.B2B.Core.Pages
         {
             return ProfileWithOutAffinityIdErrorMessage.IsElementVisible();
         }
-        
+
         /// <summary>
         ///Search based on given crt Type, by default  Channel_Cross_Segment_Booking will get filtered 
         /// </summary>
@@ -262,10 +297,20 @@ namespace Modules.Channel.B2B.Core.Pages
         /// </summary>
         /// <param name="crId"></param>
         public void SelectCrIdfromCRList(string crId)
-        {  
+        {
             var rowWithCrId = CrossReferenceListTableRows.FirstOrDefault(e => e.FindElements(By.TagName("td"))[1].Text.Trim().Equals(crId));
             javaScriptExecutor.ExecuteScript("arguments[0].click();", rowWithCrId.FindElement(By.TagName("//td[0]")));
             webDriver.WaitForPageLoad(new TimeSpan(0, 0, 10));
+        }
+
+        public void OpenCRTXML(string userId)
+        {
+            CRTResultTable.FindElement(By.XPath(string.Format("//td[text()='{0}']/..//a[text()='View Xml']", userId))).Click();
+        }
+
+        internal void OpenCrossReferenceListPage(B2BEnvironment b2BEnvironment)
+        {
+            webDriver.Navigate().GoToUrl(ConfigurationReader.GetValue("CrossReferenceAssociationListPage") + (b2BEnvironment == B2BEnvironment.Production ? "P" : "U"));
         }
         #endregion
     }

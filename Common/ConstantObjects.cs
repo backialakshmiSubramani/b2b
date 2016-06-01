@@ -94,4 +94,11 @@ namespace Modules.Channel.B2B.Common
         Expired,
         Scheduled
     }
+
+    public enum CRTStatus
+    {
+        ON,
+        OFF
+    };
+
 }

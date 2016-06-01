@@ -2,22 +2,18 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using System.Web.UI.WebControls;
 using Dell.Adept.UI.Web.Support.Extensions.WebElement;
 using FluentAssertions;
-using FluentAssertions.Common;
-using Microsoft.BusinessData.MetadataModel;
 using Modules.Channel.B2B.Core.Pages;
 using OpenQA.Selenium;
-using OpenQA.Selenium.Support.PageObjects;
 using Modules.Channel.B2B.Common;
 using System.IO;
 using System.Configuration;
 using CatalogTests.Common.CatalogXMLTemplates;
 using Modules.Channel.Utilities;
-using Modules.Channel.B2B.DAL.ChannelCatalog;
-using Modules.Channel.B2B.DAL;
 using Microsoft.Exchange.WebServices.Data;
+using Modules.Channel.B2B.CatalogXMLTemplates;
+using Modules.Channel.B2B.Common;
 
 namespace Modules.Channel.B2B.Core.Workflows.Catalog
 {
@@ -116,7 +112,6 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
 
             int itemCount = 0;
             bool matchFlag = true;
-            string filter = "ci => ci.CatalogItemType == itemType";
             foreach (CatalogItemType itemType in catalogItemType)
             {
                 Console.WriteLine("Catalog Items validation for : " + itemType.ConvertToString());
@@ -446,14 +441,14 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                 b2BChannelUx.DeltaRadioButton.Click();
 
             //b2BChannelUx.ClickToPublishButton.Click();
-            b2BChannelUx.CreateButton.Click();
 
-            WaitForPageRefresh();
             //IAlert successAlert = webDriver.WaitGetAlert(CatalogTimeOuts.AlertTimeOut);
             //successAlert.Accept();
-            b2BChannelUx.ValidationMessage.WaitForElementVisible(TimeSpan.FromSeconds(30));
-            b2BChannelUx.ValidationMessage.Text.ShouldBeEquivalentTo("Auto Catalog generation successfully initiated. Please check it on the Auto Catalog & Inventory List page after sometime.");
 
+            b2BChannelUx.CreateButton.Click();
+
+            b2BChannelUx.FeedBackMessage.WaitForElementVisible(TimeSpan.FromSeconds(30));
+            b2BChannelUx.FeedBackMessage.Text.ShouldBeEquivalentTo("Auto Catalog generation successfully initiated. Please check it on the Auto Catalog & Inventory List page after sometime.");
         }
 
         internal void ValidateP2PMessage(B2BEnvironment environment, string profileName, string identityName, CatalogType catalogType)
@@ -478,8 +473,8 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                 b2BChannelUx.DeltaRadioButton.Click();
             b2BChannelUx.CreateButton.Click();
             WaitForPageRefresh();
-            Console.WriteLine("Actual: " + b2BChannelUx.ValidationMessage.Text);
-            b2BChannelUx.ValidationMessage.Text.Trim().ShouldBeEquivalentTo("Catalog Creation is not allowed for this profile since Enable BHC Catalog Auto Generation is turned OFF.");
+            Console.WriteLine("Actual: " + b2BChannelUx.FeedBackMessage.Text);
+            b2BChannelUx.FeedBackMessage.Text.Trim().ShouldBeEquivalentTo("Catalog Creation is not allowed for this profile since Enable BHC Catalog Auto Generation is turned OFF.");
         }
 
         internal void ValidateErrorMessageNoConfigSelected(B2BEnvironment environment, string profileName, string identityName, CatalogType catalogType)
@@ -507,8 +502,8 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             
             WaitForPageRefresh();
 
-            Console.WriteLine("Actual: " + b2BChannelUx.ValidationMessage.Text);
-            b2BChannelUx.ValidationMessage.Text.Trim().ShouldBeEquivalentTo("Minimum one configuration is required for the catalog creation.");
+            Console.WriteLine("Actual: " + b2BChannelUx.FeedBackMessage.Text);
+            b2BChannelUx.FeedBackMessage.Text.Trim().ShouldBeEquivalentTo("Minimum one configuration is required for the catalog creation.");
         }
 
         internal void ValidateErrorMessageWhileCreatingDeltaCatalog(B2BEnvironment environment, string profileName, string identityName, CatalogType catalogType)
@@ -533,8 +528,8 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
 
             WaitForPageRefresh();
 
-            Console.WriteLine("Actual: " + b2BChannelUx.ValidationMessage.Text);
-            b2BChannelUx.ValidationMessage.Text.Trim().ShouldBeEquivalentTo("Original Catalog doesn't exist, hence, Delta can not be generated.");
+            Console.WriteLine("Actual: " + b2BChannelUx.FeedBackMessage.Text);
+            b2BChannelUx.FeedBackMessage.Text.Trim().ShouldBeEquivalentTo("Original Catalog doesn't exist, hence, Delta can not be generated.");
         }
 
         /// <summary>
@@ -692,5 +687,55 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             return matchFlag;
         }
 
+        internal bool ValidateCRT(B2BEnvironment b2BEnvironment, string profileName, string catalogXMLFilePath)
+        {
+            B2BHomePage b2BHomePage = new B2BHomePage(webDriver);
+            b2BHomePage.OpenB2BHomePage(b2BEnvironment);
+            b2BHomePage.CRAssociationListLink.Click();
+
+            B2BCrossReferenceAssociationPage b2BCrossReferenceAssociationPage = new B2BCrossReferenceAssociationPage(webDriver);
+            b2BCrossReferenceAssociationPage.OpenCrossReferenceListPage(b2BEnvironment);
+            b2BCrossReferenceAssociationPage.AccountName.SelectByValue(profileName);
+            b2BCrossReferenceAssociationPage.Search.Click();
+            b2BCrossReferenceAssociationPage.OpenCRTXML(profileName);
+
+            IReadOnlyCollection<string> windowHandles = webDriver.WindowHandles;
+
+            webDriver.SwitchTo().Window(webDriver.WindowHandles.Last());
+            string crtXMLText = webDriver.FindElement(By.CssSelector("div[class='pretty-print']")).Text;
+
+            B2BXML CatalogXML = XMLDeserializer<B2BXML>.DeserializeFromXmlFile(catalogXMLFilePath);
+            CRTXML CrtXML = XMLDeserializer<CRTXML>.DeserializeFromXmlString(crtXMLText);
+
+            List<CatalogItem> validCRTCatalogItems = CatalogXML.BuyerCatalog.CatalogDetails.CatalogItem.Where(ci => ((ci.CatalogItemType == CatalogItemType.ConfigWithDefaultOptions || ci.CatalogItemType == CatalogItemType.ConfigWithUpsellDownsell || ci.CatalogItemType == CatalogItemType.Systems)
+                && !string.IsNullOrEmpty(ci.ManufacturerPartNumber)) || (ci.CatalogItemType == CatalogItemType.SNP && !string.IsNullOrEmpty(ci.BaseSKUId))).ToList();
+
+            CrtXML.CrossReference.CRTValues.CRTValue.Count().Should().Be(validCRTCatalogItems.Count, "CRT XML Count does not match with catalog item count");
+
+            bool matchflag = true;
+
+            foreach (CatalogItem catalogItem in validCRTCatalogItems)
+            {
+                string id = string.Empty;
+                switch (catalogItem.CatalogItemType)
+                {
+                    case CatalogItemType.ConfigWithDefaultOptions:
+                    case CatalogItemType.ConfigWithUpsellDownsell:
+                    case CatalogItemType.Systems:
+                        id = catalogItem.ManufacturerPartNumber;
+                        break;
+                    case CatalogItemType.SNP:
+                        id = catalogItem.BaseSKUId;
+                        break;
+                }
+
+                matchflag &= UtilityMethods.CompareValues<string>("ID", CrtXML.CrossReference.CRTValues.CRTValue.Where(crt => crt.Id == catalogItem.ManufacturerPartNumber).First().Item.Where(item => item.Id == "ID").First().Data, id);
+                matchflag &= UtilityMethods.CompareValues<string>("Buyer Code", CrtXML.CrossReference.CRTValues.CRTValue.Where(crt => crt.Id == catalogItem.ManufacturerPartNumber).First().Item.Where(item => item.Id == "buyer_code").First().Data, catalogItem.PartId);
+                matchflag &= UtilityMethods.CompareValues<string>("Price", CrtXML.CrossReference.CRTValues.CRTValue.Where(crt => crt.Id == catalogItem.ManufacturerPartNumber).First().Item.Where(item => item.Id == "price").First().Data, catalogItem.ListPrice);
+                matchflag &= UtilityMethods.CompareValues<string>("Buyer Code Type", CrtXML.CrossReference.CRTValues.CRTValue.Where(crt => crt.Id == catalogItem.ManufacturerPartNumber).First().Item.Where(item => item.Id == "buyer_code_type").First().Data, "B2B Quote");
+            }
+
+            return matchflag;
+        }
     }
 }
