@@ -447,7 +447,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
 
             b2BChannelUx.CreateButton.Click();
 
-            b2BChannelUx.FeedBackMessage.WaitForElementVisible(TimeSpan.FromSeconds(30));
+            b2BChannelUx.WaitForFeedBackMessage(TimeSpan.FromMinutes(1));
             b2BChannelUx.FeedBackMessage.Text.ShouldBeEquivalentTo("Auto Catalog generation successfully initiated. Please check it on the Auto Catalog & Inventory List page after sometime.");
         }
 
