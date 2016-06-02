@@ -110,7 +110,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             string fileName = new FileInfo(filePath).Name;
             string catalogName = fileName.Split('.')[0];
 
-            int itemCount = 0;
+            //int itemCount = 0;
             bool matchFlag = true;
             foreach (CatalogItemType itemType in catalogItemType)
             {
@@ -121,7 +121,8 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                         expectedCatalogDetails.CatalogItem.Where(ci => ci.CatalogItemType == itemType);
 
                 if (itemType.Equals(CatalogItemType.ConfigWithDefaultOptions) ||
-                    itemType.Equals(CatalogItemType.ConfigWithUpsellDownsell))
+                    itemType.Equals(CatalogItemType.ConfigWithUpsellDownsell) ||
+                    itemType.Equals(CatalogItemType.Systems))
                 {
                     switch (configRules)
                     {
@@ -141,20 +142,29 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                                ci.ItemType.Equals("BTO") || (ci.ItemType.Equals("BTS") && ci.LeadTime < 3)));
                             break;
                         default:
-                            expectedCatalogItems = expectedCatalogItems.Where(ci => ci.ShortName.StartsWith("STD Config"));
+                            string matchingOrderCode = actualCatalogItems.Select(ci => ci.ItemOrderCode).ToList().Intersect(expectedCatalogItems.Select(ci => ci.ItemOrderCode).ToList()).First();
+                            actualCatalogItems = actualCatalogItems.Where(ci => ci.ItemOrderCode == matchingOrderCode);
+                            expectedCatalogItems = expectedCatalogItems.Where(ci => ci.ItemOrderCode == matchingOrderCode);
+
+                            //expectedCatalogItems = expectedCatalogItems.Where(ci => ci.ShortName.StartsWith("STD Config"));
                             break;
                     }
 
                 }
 
-
+                else if(itemType.Equals(CatalogItemType.SNP))
+                {
+                    string matchingOrderCode = actualCatalogItems.Select(ci => ci.BaseSKUId).ToList().Intersect(expectedCatalogItems.Select(ci => ci.BaseSKUId).ToList()).First();
+                    actualCatalogItems = actualCatalogItems.Where(ci => ci.BaseSKUId == matchingOrderCode);
+                    expectedCatalogItems = expectedCatalogItems.Where(ci => ci.BaseSKUId == matchingOrderCode);
+                }
 
                 matchFlag &= ValidateCatalogItems(actualCatalogItems, expectedCatalogItems, defaultOptions);
 
-                itemCount += expectedCatalogItems.Count();
+                //itemCount += expectedCatalogItems.Count();
             }
 
-            matchFlag &= ValidateCatalogHeader(actualCatalogHeader, expectedCatalogHeader, catalogItemType, identityName, catalogName, itemCount);
+            matchFlag &= ValidateCatalogHeader(actualCatalogHeader, expectedCatalogHeader, catalogItemType, identityName, catalogName);
             return matchFlag;
         }
 
@@ -167,7 +177,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         /// <param name="identityName"></param>
         /// <param name="catalogName"></param>
         /// <returns></returns>
-        public bool ValidateCatalogHeader(CatalogHeader actualCatalogHeader, CatalogHeader expectedCatalogHeader, CatalogItemType[] catalogItemType, string identityName, string catalogName, int itemCount)
+        public bool ValidateCatalogHeader(CatalogHeader actualCatalogHeader, CatalogHeader expectedCatalogHeader, CatalogItemType[] catalogItemType, string identityName, string catalogName)
         {
             bool matchFlag = true;
             Console.WriteLine("Catalog Header Data Validation");
@@ -179,7 +189,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             matchFlag &= UtilityMethods.CompareValues<string>("SubLocationCode", actualCatalogHeader.SubLocationCode, expectedCatalogHeader.SubLocationCode);
             matchFlag &= UtilityMethods.CompareValues<string>("Buyer", actualCatalogHeader.Buyer, identityName.ToUpper());
             //matchFlag &= UtilityMethods.CompareValues<string>("RequesterEmailId", actualCatalogHeader.RequesterEmailId, expectedCatalogHeader.RequesterEmailId); // Excluding this field as this is dependent on the user who modifies the profile
-            matchFlag &= UtilityMethods.CompareValues<int>("ItemCount", actualCatalogHeader.ItemCount, itemCount);
+            //matchFlag &= UtilityMethods.CompareValues<int>("ItemCount", actualCatalogHeader.ItemCount, itemCount);
             matchFlag &= UtilityMethods.CompareValues<string>("SupplierId", actualCatalogHeader.SupplierId, expectedCatalogHeader.SupplierId);
             matchFlag &= UtilityMethods.CompareValues<string>("Comments", actualCatalogHeader.Comments, expectedCatalogHeader.Comments);
             matchFlag &= UtilityMethods.CompareValues<bool>("SNPEnabled", actualCatalogHeader.SNPEnabled, (catalogItemType.Contains(CatalogItemType.SNP) ? true : false));
@@ -258,8 +268,8 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                 matchFlag &= UtilityMethods.CompareValues<string>("BaseSKUId", actualCatalogItem.BaseSKUId, expectedCatalogItem.BaseSKUId);
                 matchFlag &= UtilityMethods.CompareValues<string>("FGASKUId", actualCatalogItem.FGASKUId, expectedCatalogItem.FGASKUId);
                 matchFlag &= UtilityMethods.CompareValues<string>("ReplacementQuoteId", actualCatalogItem.ReplacementQuoteId, expectedCatalogItem.ReplacementQuoteId);
-                matchFlag &= UtilityMethods.CompareValues<string>("ItemType", actualCatalogItem.ItemType, expectedCatalogItem.ItemType);
-                matchFlag &= UtilityMethods.CompareValues<string>("ItemSKUinfo", actualCatalogItem.ItemSKUinfo, expectedCatalogItem.ItemSKUinfo);
+                //matchFlag &= UtilityMethods.CompareValues<string>("ItemType", actualCatalogItem.ItemType, expectedCatalogItem.ItemType);
+                //matchFlag &= UtilityMethods.CompareValues<string>("ItemSKUinfo", actualCatalogItem.ItemSKUinfo, expectedCatalogItem.ItemSKUinfo);
                 matchFlag &= UtilityMethods.CompareValues<string>("FGAModNumber", actualCatalogItem.FGAModNumber, expectedCatalogItem.FGAModNumber);
                 matchFlag &= UtilityMethods.CompareValues<int>("InventoryQty", actualCatalogItem.InventoryQty, expectedCatalogItem.InventoryQty, Computation.GreaterThanOrEqualTo);
                 matchFlag &= UtilityMethods.CompareValues<string>("ListPrice", actualCatalogItem.ListPrice, expectedCatalogItem.ListPrice);
