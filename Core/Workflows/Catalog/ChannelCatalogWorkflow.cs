@@ -4801,11 +4801,12 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         #endregion
 
 
+
         /// <summary>
         /// Below method verifies ManufacturePartNumber and UP values for SPL Order code
         /// If ManufacturePartNumber and UP values are valid values then it retuns True
         /// </summary>
-        public bool VerifyMpnAndUpcForSpl(B2BEnvironment b2BEnvironment, string profileName, string identityName, CatalogStatus catalogStatus, CatalogType catalogType,
+        public bool VerifyMpnAndUpcForSpl(B2BEnvironment b2BEnvironment, CatalogItemType[] catalogItemType, string profileName, string identityName, CatalogStatus catalogStatus, CatalogType catalogType,
                                           bool splUI, bool snpUI, bool sysUI, bool isSNP,
                                           string splItemOrderCode, string upcField, string upcValue,
                                           string mpnField, string mpnValue)
@@ -4817,7 +4818,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             uxWorkflow.PublishCatalogByClickOnce(b2BEnvironment, profileName, identityName, catalogType);
             webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["AutoCatalogListPageUrl"] + ((b2BEnvironment == B2BEnvironment.Production) ? "P" : "U"));
             uxWorkflow.SearchCatalog(profileName, identityName, beforeSchedTime, catalogStatus);
-
+            uxWorkflow.ValidateCatalogSearchResult(catalogItemType, catalogType, catalogStatus, beforeSchedTime);
             string filePath = uxWorkflow.DownloadCatalog(identityName, beforeSchedTime);
 
             //Below method verifies the ManufacturePartNumber and UPC values for SPL Item and if those values are valid values it returns True
@@ -4831,7 +4832,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         /// Below method verifies Inventory and Lead Time values of Order code
         /// If Inventory and Lead Time values are valid values then it retuns True
         /// </summary>
-        public bool VerifyInventoryAndLtForStdOrderCodes(B2BEnvironment b2BEnvironment, string profileName, string identityName, CatalogStatus catalogStatus, CatalogType catalogType,
+        public bool VerifyInventoryAndLtForStdOrderCodes(B2BEnvironment b2BEnvironment, CatalogItemType[] catalogItemType, string profileName, string identityName, CatalogStatus catalogStatus, CatalogType catalogType,
                                           string stdBtoOrderCode, string inventoryField, string inventoryValue,
                                           string leadTimeField, string leadTimeValue)
         {
@@ -4842,6 +4843,8 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["AutoCatalogListPageUrl"] + ((b2BEnvironment == B2BEnvironment.Production) ? "P" : "U"));
             uxWorkflow.SearchCatalog(profileName, identityName, beforeSchedTime, catalogStatus);
 
+            uxWorkflow.ValidateCatalogSearchResult(catalogItemType, catalogType, catalogStatus, beforeSchedTime);
+
             string filePath = uxWorkflow.DownloadCatalog(identityName, beforeSchedTime);
 
             //Below method verifies the Inventory and Lead Time values of Order Codes and if those values are valid values it returns True
@@ -4851,6 +4854,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             else
                 return false;
         }
+
     }
 
     /// <summary>
