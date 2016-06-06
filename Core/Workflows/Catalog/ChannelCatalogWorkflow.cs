@@ -4854,6 +4854,22 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             else
                 return false;
         }
+        public void VerifyUOMFieldValue(B2BEnvironment b2BEnvironment, CatalogItemType[] catalogItemType, string profileName, string identityName, CatalogStatus catalogStatus, CatalogType catalogType, string orderCode)
+        {
+            DateTime beforeSchedTime = DateTime.Now;
+
+            ChannelUxWorkflow uxWorkflow = new ChannelUxWorkflow(webDriver);
+            uxWorkflow.PublishCatalogByClickOnce(b2BEnvironment, profileName, identityName, catalogType);
+
+            B2BChannelUx b2BChannelUx = new B2BChannelUx(webDriver);
+            b2BChannelUx.OpenAutoCatalogAndInventoryListPage(b2BEnvironment);
+
+            uxWorkflow.SearchCatalog(profileName, identityName, beforeSchedTime, catalogStatus, catalogType);
+            uxWorkflow.ValidateCatalogSearchResult(catalogItemType, catalogType, catalogStatus, beforeSchedTime);
+            string filePath = uxWorkflow.DownloadCatalog(identityName, beforeSchedTime);
+
+            uxWorkflow.ValidateUOMValue(filePath, orderCode, catalogType, catalogItemType).Should().BeTrue("Error: UOM Data mismatch for Catalog XML content with expected values");
+        }
 
     }
 

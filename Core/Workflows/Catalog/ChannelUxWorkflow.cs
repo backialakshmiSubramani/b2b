@@ -13,7 +13,6 @@ using CatalogTests.Common.CatalogXMLTemplates;
 using Modules.Channel.Utilities;
 using Microsoft.Exchange.WebServices.Data;
 using Modules.Channel.B2B.CatalogXMLTemplates;
-using Modules.Channel.B2B.Common;
 
 namespace Modules.Channel.B2B.Core.Workflows.Catalog
 {
@@ -746,6 +745,78 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             }
 
             return matchflag;
+        }
+
+        public void VerifyCatalogExpirationDate(B2BEnvironment b2BEnvironment, CatalogType type, CatalogStatus status, string profile, string identity)
+        {
+            DateTime beforeSchedTime = DateTime.Now;
+            ChannelUxWorkflow uxWorkflow = new ChannelUxWorkflow(webDriver);
+            B2BChannelUx b2bChannelUx = new B2BChannelUx(webDriver);
+            b2bChannelUx.OpenAutoCatalogAndInventoryListPage(b2BEnvironment);
+            CPTAutoCatalogInventoryListPage autoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
+            autoCatalogListPage.SelectOption(autoCatalogListPage.SelectRegionSpan, "US");
+            autoCatalogListPage.SelectOption(autoCatalogListPage.SelectCustomerNameSpan, profile);
+            autoCatalogListPage.SelectOption(autoCatalogListPage.SelectIdentityNameSpan, identity.ToUpper());
+
+            if (type == CatalogType.Original)
+                autoCatalogListPage.OriginalCatalogCheckbox.Click();
+            else
+                autoCatalogListPage.DeltaCatalogCheckbox.Click();
+
+            autoCatalogListPage.SelectTheStatus(status.ToString());
+            autoCatalogListPage.SearchRecordsLink.Click();
+            autoCatalogListPage.CatalogsTable.WaitForElementVisible(TimeSpan.FromSeconds(30));
+            string filePath = uxWorkflow.DownloadCatalog(identity, beforeSchedTime);
+
+            B2BXML actualcatalogXML = XMLDeserializer<B2BXML>.DeserializeFromXmlFile(filePath);
+            CatalogHeader actualCatalogHeader = actualcatalogXML.BuyerCatalog.CatalogHeader;
+            DateTime catDateInXML = DateTime.Parse(actualCatalogHeader.CatalogDate);
+            DateTime expDateInXML = DateTime.Parse(actualCatalogHeader.ExpirationDate);
+            DateTime catDateInListPage = DateTime.Parse(autoCatalogListPage.CatalogsTable.GetCellValue(1, "Last Status Date").Trim());
+            DateTime expDateInListPage = DateTime.Parse(autoCatalogListPage.CatalogsTable.GetCellValue(1, "Expiration Date").Trim());
+
+            expDateInXML.ToString("dd/M/yyyy").Should().Be(expDateInListPage.ToString("dd/M/yyyy"), "Catalog Expiration Date in Auto Catalog XML is not same as Auto Catalog & Inventory List Page");
+            catDateInXML.AddDays(180).ToString("dd/M/yyyy").ShouldBeEquivalentTo(expDateInXML.ToString("dd/M/yyyy"), "Catalog XML : Catalog Expiration Date is not equal to 'Effective date' + 30 days, 90 days or 180 days");
+            catDateInListPage.AddDays(180).ToString("dd/M/yyyy").ShouldBeEquivalentTo(expDateInListPage.ToString("dd/M/yyyy"), "Auto Catalog Inventory & List : Catalog Expiration Date is not equal to 'Effective date' + 30 days, 90 days or 180 days");
+        }
+
+        public bool ValidateUOMValue(string filePath, string orderCode, CatalogType catalogType, CatalogItemType[] catalogItemType)
+        {
+            bool matchFlag = true;
+
+            B2BXML actualcatalogXML = XMLDeserializer<B2BXML>.DeserializeFromXmlFile(filePath);
+            CatalogDetails actualCatalogDetails = actualcatalogXML.BuyerCatalog.CatalogDetails;
+
+            string expectedCatalogFilePath = string.Empty;
+            expectedCatalogFilePath = catalogType == CatalogType.Original
+                ? Path.Combine(System.Environment.CurrentDirectory, "Catalog_OC_Expected.xml")
+                : Path.Combine(System.Environment.CurrentDirectory, "Catalog_DC_Expected.xml");
+
+            B2BXML expectedCatalogXML = XMLDeserializer<B2BXML>.DeserializeFromXmlFile(expectedCatalogFilePath);
+            CatalogDetails expectedCatalogDetails = expectedCatalogXML.BuyerCatalog.CatalogDetails;
+            IEnumerable<CatalogItem> actualCatalogItems = null; IEnumerable<CatalogItem> expectedCatalogItems = null;
+            foreach (CatalogItemType item in catalogItemType)
+            {
+                actualCatalogItems = actualCatalogDetails.CatalogItem.Where(ci => ci.CatalogItemType == item);
+                expectedCatalogItems = expectedCatalogDetails.CatalogItem.Where(ci => ci.CatalogItemType == item);
+                try
+                {
+                    CatalogItem actualCatalogItem = actualCatalogItems.Where(ci => ci.BaseSKUId == orderCode).FirstOrDefault();
+                    CatalogItem expectedCatalogItem = null;
+                    expectedCatalogItem = actualCatalogItem.CatalogItemType == CatalogItemType.SNP
+                    ? expectedCatalogItems.Where(ci => ci.BaseSKUId == actualCatalogItem.BaseSKUId).FirstOrDefault()
+                    : expectedCatalogItems.Where(ci => ci.ItemOrderCode == actualCatalogItem.ItemOrderCode).FirstOrDefault();
+
+                    Console.WriteLine(actualCatalogItem.BaseSKUId + " UOM Value: " + actualCatalogItem.UOM);
+                    matchFlag &= UtilityMethods.CompareValues<string>("UOM", actualCatalogItem.UOM, expectedCatalogItem.UOM);
+                }
+                catch
+                {
+                    Console.WriteLine("Expecetd Order Code not found in Catalog XML");
+                    matchFlag = false;
+                }
+            }
+            return matchFlag;
         }
     }
 }
