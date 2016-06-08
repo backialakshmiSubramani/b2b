@@ -576,7 +576,7 @@ namespace Modules.Channel.B2B.Core.Pages
             webDriver.FindElement(By.XPath("//div[@ng-model='customer']/div/div[@class='custom-select-search']/input"))
                 .SendKeys(customerName);
             //webDriver.FindElement(By.XPath("//div[@ng-model='customer']/div/ul/li[1]/a[text()='" + customerName + "']"))
-               // .Click();
+            // .Click();
 
             webDriver.FindElement(By.XPath("//div[@ng-model='customer']/div/ul//a[text()='" + customerName + "']"))
               .Click();
@@ -591,9 +591,14 @@ namespace Modules.Channel.B2B.Core.Pages
             webDriver.FindElement(By.XPath("//div[@ng-model='customer']/a")).Click();
             webDriver.FindElement(By.XPath("//div[@ng-model='customer']/div/div[@class='custom-select-search']/input"))
                 .SendKeys(customerName);
-            if (webDriver.ElementExists(By.XPath("//div[@ng-model='customer']/div/ul/li[1]/a[text()='" + customerName + "']")))
-                return true;
-
+            try
+            {
+                if (webDriver.ElementExists(By.XPath("//div[@ng-model='customer']/div/ul/li[1]/a[text()='" + customerName + "']")))
+                    return true;
+            }
+            catch
+            {
+            }
             return false;
         }
 
@@ -621,7 +626,7 @@ namespace Modules.Channel.B2B.Core.Pages
             webDriver.FindElement(By.XPath("//input[@ng-model='search.Name']")).SendKeys(country);
             //webDriver.FindElement(By.XPath("//*[@id='myForm']/table/tbody/tr/td[1]/table/tbody/tr[1]/td[4]/div/div/div/ul/li[1]/input")).Click();
             webDriver.FindElement(By.XPath("//div[@class='dropdown-menu countries']//ul[@role='menu']/li[@class='ng-binding ng-scope']/input[@ng-model='checked']")).Click();
-
+            webDriver.FindElement(By.XPath("//div[@class='dropdown custom-select open']")).Click();
             //webDriver.FindElement(By.XPath("//div[@ng-model='Identity']//div[@class='dropdown-menu ng-scope']//ul[@role='menu']/li[@class='ng-scope']/a[@role='menuitem']")).Click();
             ////webDriver.FindElement(By.XPath("//div[@class='dropdown-menu countries']/div/[@class='custom-select-search']/input"))
             ////   .SendKeys(country);
@@ -659,7 +664,7 @@ namespace Modules.Channel.B2B.Core.Pages
         public void ClickClearAll()
         {
             webDriver.FindElement(By.Id("lnkClear")).Click();
-           
+
         }
 
         public IWebElement GetDownloadButton(int rowIndex)
