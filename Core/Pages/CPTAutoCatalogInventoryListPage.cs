@@ -596,21 +596,16 @@ namespace Modules.Channel.B2B.Core.Pages
                 if (
                     webDriver.ElementExists(
                         By.XPath("//div[@ng-model='customer']/div/ul/li[1]/a[text()='" + customerName + "']")))
+                {
+                    WebDriver.FindElement(By.XPath("//div[@class='ng-pristine ng-untouched ng-valid dropdown custom-select open']")).Click();
                     return true;
+                }
+                   
             }
             catch
             {
             }
-            finally
-            {
-                try
-                {
-                    WebDriver.FindElement(By.XPath("//div[@class='ng-pristine ng-untouched ng-valid dropdown custom-select open']")).Click();
-                }
-                catch 
-                {
-                }
-            }
+            
             return false;
         }
 
