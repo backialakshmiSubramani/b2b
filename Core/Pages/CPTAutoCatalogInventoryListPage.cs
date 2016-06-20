@@ -540,9 +540,12 @@ namespace Modules.Channel.B2B.Core.Pages
         public IWebElement CountryDropDown
         {
             get
-            { return webDriver.FindElement(By.XPath("//div[@class='dropdown custom-select']/a")); }
+            {
+                return webDriver.FindElement(By.XPath("//div[@class='dropdown custom-select']/a"));
+            }
 
         }
+
         #endregion
 
         #region Helper Methods
@@ -654,7 +657,6 @@ namespace Modules.Channel.B2B.Core.Pages
         public void ClickClearAll()
         {
             webDriver.FindElement(By.Id("lnkClear")).Click();
-
         }
 
         public IWebElement GetDownloadButton(int rowIndex)
@@ -778,6 +780,18 @@ namespace Modules.Channel.B2B.Core.Pages
             }
 
             return true;
+        }
+
+        /// <summary>
+        /// Use this method to get the countries list on searching any country in the search bar of the countries dropdown
+        /// </summary>
+        /// <returns></returns>
+        public List<string> GetCountryText(string country = "")
+        {
+            CountryDropDown.Click();
+            webDriver.FindElement(By.XPath("//input[@ng-model='search.Name']")).SendKeys(country);
+            IList<IWebElement> allCountriesList = webDriver.FindElements(By.XPath("//li[@class='ng-binding ng-scope']"));
+            return allCountriesList.Select(c => c.Text).ToList();
         }
 
         #endregion

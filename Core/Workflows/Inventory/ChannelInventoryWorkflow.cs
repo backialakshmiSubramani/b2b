@@ -910,6 +910,84 @@ namespace Modules.Channel.B2B.Core.Workflows.Inventory
 
             return b2BBuyerCatalogPage.VerifyRestrictionOfInventoryIntervalToOneType();
         }
-    }
 
+        /// <summary>
+        /// Verifies the Display order of the EMEA countries in the dropdown.
+        /// </summary>
+        /// <param name="environment"></param>
+        /// <param name="profileName"></param>
+        /// <param name="expectedCountries"></param>
+        /// <param name="region"></param>
+        /// <returns>The <see cref="bool"/></returns>
+        public bool VerifyDisplayOrderOfCountriesForEMEA(RunEnvironment environment, string profileName,
+            string expectedCountries, Region region)
+        {
+            return VerifySearchResultsInCountryDropdown(environment, profileName, expectedCountries, region);
+        }
+
+        /// <summary>
+        /// Verifies the search result if a search string is given
+        /// </summary>
+        /// <param name="environment"></param>
+        /// <param name="profileName"></param>
+        /// <param name="expectedSearchResults"></param>
+        /// <param name="region"></param>
+        /// <param name="searchString"></param>
+        /// <returns>The <see cref="bool"/></returns>
+        public bool VerifySearchResultsInCountryDropdown(RunEnvironment environment, string profileName,
+            string expectedSearchResults, Region region, string searchString = "")
+        {
+            var expectedSearchResult = expectedSearchResults.Split('/').ToList();
+
+            b2BHomePage.SelectEnvironment(environment.ToString());
+            b2BHomePage.OpenAutoCatalogInventoryListPage();
+            cPTAutoCatalogInventoryListPage = new CPTAutoCatalogInventoryListPage(webDriver);
+            cPTAutoCatalogInventoryListPage.SelectTheRegion(region.ToString());
+            var actualSearchResult = cPTAutoCatalogInventoryListPage.GetCountryText(searchString);
+
+            if (actualSearchResult.Count() != expectedSearchResult.Count())
+            {
+                Console.WriteLine("Expected {0} countries. Found {1} countries.", expectedSearchResult.Count(),
+                    actualSearchResult.Count());
+                return false;
+            }
+
+            return actualSearchResult.SequenceEqual(expectedSearchResult);
+        }
+
+        /// <summary>
+        /// Verifies the Inventory Records deleted over 60 days
+        /// </summary>
+        /// <param name="environment"></param>
+        /// <param name="profileName"></param>
+        /// <param name="maximumNoOfDays"></param>
+        /// <param name="region"></param>
+        /// <returns>The <see cref="bool"/></returns>
+        public bool VerifyInventoryRecordsDeletedOverSixtyDays(RunEnvironment environment, string profileName,
+            int maximumNoOfDays, Region region)
+        {
+            //Get the date that is 60 days old. Get only the date part as the job runs at 12:00 am CST
+            var dateBeforeInterval = DateTime.Now.AddDays(-1 * maximumNoOfDays).Date;
+
+            b2BHomePage.SelectEnvironment(environment.ToString());
+            b2BHomePage.OpenAutoCatalogInventoryListPage();
+            cPTAutoCatalogInventoryListPage = new CPTAutoCatalogInventoryListPage(webDriver);
+            cPTAutoCatalogInventoryListPage.SearchInventoryRecords(Region.US);
+
+            if (cPTAutoCatalogInventoryListPage.IsPagingEnabled())
+            {
+                var totalPages = cPTAutoCatalogInventoryListPage.PagingSpan.Text.Split(' ').Last();
+
+                cPTAutoCatalogInventoryListPage.PageNumberTextbox.Clear();
+                cPTAutoCatalogInventoryListPage.PageNumberTextbox.SendKeys(totalPages);
+            }
+
+            var oldestRecordDate =
+                Convert.ToDateTime(
+                    cPTAutoCatalogInventoryListPage.CatalogListTableRows.Last().FindElements(By.TagName("td"))[6].Text);
+
+            return oldestRecordDate >= dateBeforeInterval;
+
+        }
+    }
 }
