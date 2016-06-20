@@ -370,6 +370,40 @@ namespace Modules.Channel.B2B.Core.Pages
             webDriver.WaitForPageLoad(new TimeSpan(0, 0, 20));
         }
 
+         public void SearchThreadIdNumber(string poNumber)
+        {
+            ThreadIdElement.SendKeys(poNumber);
+            javaScriptExecutor.ExecuteScript("arguments[0].click();", IncludeInsertLogCheckBox);
+            javaScriptExecutor.ExecuteScript("arguments[0].click();", SubmitLink);
+            webDriver.WaitForPageLoad(new TimeSpan(0, 0, 20));
+        }
+
+         public bool FindErrorMessageInLogDetailPage(string messageToLookFor, string errorMessage)
+         {
+             var messageRow =
+                 PoLogReportRows.FirstOrDefault(e => e.FindElements(By.TagName("td"))[5].Text.Contains(messageToLookFor));
+
+             if (messageRow == null)
+             {
+                 Console.WriteLine("Message not found: {0}", messageToLookFor);
+                 return false;
+             }
+
+             ////messageRow.FindElements(By.TagName("td"))[0].Click();
+             this.javaScriptExecutor.ExecuteScript("arguments[0].click();", messageRow.FindElements(By.TagName("td"))[0].FindElement(By.TagName("a")));
+             this.webDriver.WaitForPageLoad(new TimeSpan(0, 0, 10));
+
+             //webDriver.FindElement(By.Id("tBox_ThreadID"));
+             B2BLogDetailPage B2BLogDetailPage = new B2BLogDetailPage(WebDriver);
+             if (B2BLogDetailPage.GetLogDetail().Contains(errorMessage))
+             {
+                 return true;
+             }
+             else
+             {
+                 return false;
+             }
+         }
         #endregion
     }
 }

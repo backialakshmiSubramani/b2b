@@ -598,6 +598,12 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             autoCatalogListPage.CatalogsTable.GetCellValue(1, "Status").Should().Be(catalogStatus.ConvertToString(), "Catalog status is not as expected");
         }
 
+        public string GetThreadID(CatalogItemType[] catalogItemType, CatalogType catalogType, CatalogStatus catalogStatus, DateTime anyTimeAfter)
+        {
+            CPTAutoCatalogInventoryListPage autoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
+            return autoCatalogListPage.CatalogsTable.GetCellValue(1, "Thread Id").ToString();
+        }
+
         /// <summary>
         /// Download catalog from Auto Catalog List & Inventory page
         /// </summary>

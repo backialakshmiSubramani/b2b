@@ -71,7 +71,9 @@ namespace Modules.Channel.B2B.Core.Pages
         {
             get
             {
-                return webDriver.FindElement(By.Id("ContentPageHolder_TxtLogMessage"));
+                //return webDriver.FindElement(By.Id("ContentPageHolder_TxtLogMessage"));
+                return webDriver.FindElement(By.XPath(".//*[@id='ContentPageHolder_TxtLogMessage']"));
+                //return webDriver.FindElements(By.XPath(".//*[@id='myForm']/table/tbody/tr/td[3]/table/tbody")); 
             }
         }
 

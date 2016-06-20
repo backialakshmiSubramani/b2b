@@ -4506,7 +4506,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         /// <param name="snpCRTField"></param>
         /// <param name="sysCRTField"></param>
         /// <returns></returns>
-        public bool VerifySPLEnabledSettingsValidations(string environment, string profileName, bool splField, bool snpField, bool sysField, bool snpCRTField, bool sysCRTField)
+        public bool VerifySPLEnabledSettingsValidations(string environment, string profileName, bool splField, bool snpField, bool sysField, bool snpCRTField, bool sysCRTField, bool stdField = false, bool stdCRTField = false)
         {
             //Following will navigate to the page : Profile->Buyer Catalog->Automated BHC Catalog-Processing Rules
             GoToBuyerCatalogTab(environment, profileName);
@@ -4584,6 +4584,21 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                 }
             }
 
+            if (stdField == true)
+            {
+                if (!b2BBuyerCatalogPage.BcpchkSysCatalogCheckbox.Selected)
+                {
+                    b2BBuyerCatalogPage.BcpchkSysCatalogCheckbox.Click();
+                }
+            }
+            else
+            {
+                if (b2BBuyerCatalogPage.BcpchkSysCatalogCheckbox.Selected)
+                {
+                    b2BBuyerCatalogPage.BcpchkSysCatalogCheckbox.Click();
+                }
+            }
+
             //If Parameter-"snpCRTField" is true, then folliwng will Turned On SNP Auto CRT field
             if (snpCRTField == true)
             {
@@ -4602,6 +4617,22 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
 
             //If Parameter-"sysCRTField" is true, then folliwng will Turned On SYS Auto CRT field
             if (sysCRTField == true)
+            {
+                if (!b2BBuyerCatalogPage.BcpchkCrossRefernceSysUpdate.Selected)
+                {
+                    b2BBuyerCatalogPage.BcpchkCrossRefernceSysUpdate.Click();
+                }
+            }
+            else
+            {
+                if (b2BBuyerCatalogPage.BcpchkCrossRefernceSysUpdate.Selected)
+                {
+                    b2BBuyerCatalogPage.BcpchkCrossRefernceSysUpdate.Click();
+                }
+            }
+
+            //If Parameter-"sysCRTField" is true, then folliwng will Turned On SYS Auto CRT field
+            if (stdCRTField == true)
             {
                 if (!b2BBuyerCatalogPage.BcpchkCrossRefernceSysUpdate.Selected)
                 {
@@ -4870,6 +4901,37 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
 
             uxWorkflow.ValidateUOMValue(filePath, orderCode, catalogType, catalogItemType).Should().BeTrue("Error: UOM Data mismatch for Catalog XML content with expected values");
         }
+
+        /// <summary>
+        /// Below method verifies error "No Records Found with LT < 3" in Log report
+        /// If error message is correct then it retuns True
+        /// </summary>
+        public bool VerifyLeadTimeErrorinLogreport(B2BEnvironment b2BEnvironment, CatalogItemType[] catalogItemType, string profileName, string identityName, CatalogStatus catalogStatus, CatalogType catalogType,
+                                          bool splUI, bool snpUI, bool sysUI, bool stdUI,bool snpCRTUI, bool sysCRTUI, bool stdCRTUI )
+        {
+            webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["B2BBaseURL"]);
+            DateTime beforeSchedTime = DateTime.Now;
+            ChannelUxWorkflow uxWorkflow = new ChannelUxWorkflow(webDriver);
+            VerifySPLEnabledSettingsValidations(b2BEnvironment.ToString(), profileName, splUI, snpUI, sysUI, snpCRTUI, sysCRTUI, stdUI, stdCRTUI);
+            uxWorkflow.PublishCatalogByClickOnce(b2BEnvironment, profileName, identityName, catalogType);
+            webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["AutoCatalogListPageUrl"] + ((b2BEnvironment == B2BEnvironment.Production) ? "P" : "U"));
+            uxWorkflow.SearchCatalog(profileName, identityName, beforeSchedTime, catalogStatus);
+            uxWorkflow.ValidateCatalogSearchResult(catalogItemType, catalogType, catalogStatus, beforeSchedTime);
+            string threadID = uxWorkflow.GetThreadID(catalogItemType, catalogType, catalogStatus, beforeSchedTime);
+            return VerifyErrorMessageInLogReport(b2BEnvironment, threadID, "Unexpected Error: Auto Catalog creation failed", "No Records Found with LT < 3");
+        }
+
+        public bool VerifyErrorMessageInLogReport(B2BEnvironment b2BEnvironment, string threadId, string logError, string lodDetailError)
+        {
+            webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["logReportUrl"] + ((b2BEnvironment == B2BEnvironment.Production) ? "P" : "U"));
+            B2BLogReportPage B2BLogReportPage;
+            B2BLogReportPage = new B2BLogReportPage(webDriver);
+            B2BLogReportPage.SearchThreadIdNumber(threadId);
+            bool error = B2BLogReportPage.FindErrorMessageInLogDetailPage(logError, lodDetailError);
+            
+            return error;
+        }
+
 
     }
 
