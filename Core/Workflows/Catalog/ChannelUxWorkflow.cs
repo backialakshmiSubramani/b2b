@@ -13,6 +13,7 @@ using CatalogTests.Common.CatalogXMLTemplates;
 using Modules.Channel.Utilities;
 using Microsoft.Exchange.WebServices.Data;
 using Modules.Channel.B2B.CatalogXMLTemplates;
+using System.Security.Principal;
 
 namespace Modules.Channel.B2B.Core.Workflows.Catalog
 {
@@ -21,7 +22,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         private IWebDriver webDriver;
         private B2BChannelUx B2BChannelUx;
         private IJavaScriptExecutor javaScriptExecutor;
-
+        private string windowsLogin;
         /// <summary>
         /// Constructor for ChannelUxWorkflow
         /// </summary>
@@ -30,6 +31,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         {
             this.webDriver = webDriver;
             javaScriptExecutor = (IJavaScriptExecutor)this.webDriver;
+            windowsLogin = WindowsIdentity.GetCurrent().Name.Split('\\')[1].ToLowerInvariant();
         }
 
         /// <summary>
@@ -822,6 +824,42 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                     matchFlag = false;
                 }
             }
+            return matchFlag;
+        }
+        /// <summary>
+        /// Validate catalog details in Auto Catalog List & Inventory page
+        /// </summary>
+        /// <param name="catalogItemType">Catalog Item Type</param>
+        /// <param name="catalogType">Catalog Type</param>
+        /// <param name="catalogOperation">Catalog Operation</param>
+        /// <param name="anyTimeAfter">Time after which catalog was generated</param>
+        /// <param name="windowsLogin">Windows NT Login Account name</param>
+        public void ValidateCatalogSearchResult(CatalogType catalogType, CatalogStatus catalogStatus, DateTime anyTimeAfter)
+        {
+            CPTAutoCatalogInventoryListPage autoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
+            autoCatalogListPage.CatalogsTable.GetCellValue(1, "Last Status Date").Trim().ConvertToDateTime().AddMinutes(1).Should().BeAfter(anyTimeAfter.ConvertToUtcTimeZone(), "Catalog is not displayed in Search Result");
+            autoCatalogListPage.CatalogsTable.GetCellValue(1, "Type").Should().Be(catalogType.ConvertToString(), "Expected Catalog type is incorrect");
+            autoCatalogListPage.CatalogsTable.GetCellValue(1, "Status").Should().Be(catalogStatus.ConvertToString(), "Catalog status is not as expected");
+            autoCatalogListPage.CatalogsTable.GetCellValue(1, "Requester").ToLowerInvariant().Should().Be(windowsLogin, "Requestor name is different than windows NT user name");
+        }
+        /// <summary>
+        /// Compare Requestor Information
+        /// </summary>
+        /// <param name="filePath">XML file path</param>
+        /// <param name="requestorName">Windows NT User Name</param>
+        /// <returns>true/false</returns>
+        public bool ValidateRequestorEmailIdInCatalogHeaderXML(string filePath, string requestorName)
+        {
+            string schemaPath = Path.Combine(System.Environment.CurrentDirectory, "CatalogSchema.xsd");
+            string message = XMLSchemaValidator.ValidateSchema(filePath, schemaPath);
+            message.Should().Be(string.Empty, "Error: One or more tags failed scehma validation. Please check the log for complete details");
+
+            B2BXML actualcatalogXML = XMLDeserializer<B2BXML>.DeserializeFromXmlFile(filePath);
+            CatalogHeader actualCatalogHeader = actualcatalogXML.BuyerCatalog.CatalogHeader;
+
+            string fileName = new FileInfo(filePath).Name;
+            bool matchFlag = true;
+            matchFlag = UtilityMethods.CompareValues<string>("RequesterEmailId", actualCatalogHeader.RequesterEmailId.ToLowerInvariant(), requestorName.ToLowerInvariant());
             return matchFlag;
         }
     }
