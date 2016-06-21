@@ -78,6 +78,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             {
                 return uniquePoRefNum;
             }
+            Console.WriteLine("Error while posting PO: " + B2BQaToolsPage.GetSubmissionResult());
             throw new Exception("Error while posting PO" + uniquePoRefNum);
    }
         

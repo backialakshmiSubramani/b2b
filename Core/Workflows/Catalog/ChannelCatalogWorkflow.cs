@@ -4586,16 +4586,16 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
 
             if (stdField == true)
             {
-                if (!b2BBuyerCatalogPage.BcpchkSysCatalogCheckbox.Selected)
+                if (!b2BBuyerCatalogPage.CatalogConfigStandard.Selected)
                 {
-                    b2BBuyerCatalogPage.BcpchkSysCatalogCheckbox.Click();
+                    b2BBuyerCatalogPage.CatalogConfigStandard.Click();
                 }
             }
             else
             {
-                if (b2BBuyerCatalogPage.BcpchkSysCatalogCheckbox.Selected)
+                if (b2BBuyerCatalogPage.CatalogConfigStandard.Selected)
                 {
-                    b2BBuyerCatalogPage.BcpchkSysCatalogCheckbox.Click();
+                    b2BBuyerCatalogPage.CatalogConfigStandard.Click();
                 }
             }
 
@@ -4634,16 +4634,16 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             //If Parameter-"sysCRTField" is true, then folliwng will Turned On SYS Auto CRT field
             if (stdCRTField == true)
             {
-                if (!b2BBuyerCatalogPage.BcpchkCrossRefernceSysUpdate.Selected)
+                if (!b2BBuyerCatalogPage.BcpchkCrossRefernceStdUpdate.Selected)
                 {
-                    b2BBuyerCatalogPage.BcpchkCrossRefernceSysUpdate.Click();
+                    b2BBuyerCatalogPage.BcpchkCrossRefernceStdUpdate.Click();
                 }
             }
             else
             {
-                if (b2BBuyerCatalogPage.BcpchkCrossRefernceSysUpdate.Selected)
+                if (b2BBuyerCatalogPage.BcpchkCrossRefernceStdUpdate.Selected)
                 {
-                    b2BBuyerCatalogPage.BcpchkCrossRefernceSysUpdate.Click();
+                    b2BBuyerCatalogPage.BcpchkCrossRefernceStdUpdate.Click();
                 }
             }
 
