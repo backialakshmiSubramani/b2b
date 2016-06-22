@@ -39,6 +39,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             this.webDriver = webDriver;
             javaScriptExecutor = (IJavaScriptExecutor)this.webDriver;
             b2BHomePage = new B2BHomePage(webDriver);
+            this.webDriver.Manage().Timeouts().SetPageLoadTimeout(TimeSpan.FromSeconds(120));
         }
 
         /// <summary>
