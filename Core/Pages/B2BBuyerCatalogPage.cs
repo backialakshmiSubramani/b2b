@@ -1112,20 +1112,6 @@ namespace Modules.Channel.B2B.Core.Pages
                     VerifyAutoInventoryRefreshIntervalDropdowns(autoInventoryRefreshIntervalLabelText));
         }
 
-
-        /// <summary>
-        /// Verifies if the 'Automated Inventory Feed Failure Notification Email' textbox is present
-        /// </summary>
-        /// <param name="failureNotificationEmailLabelText"></param>
-        /// <returns>The <see cref="bool"/></returns>
-        public bool VerifyPresenceOfEmailField(string failureNotificationEmailLabelText)
-        {
-            return
-                InventoryFeedSectionTable.ElementExists(
-                    By.XPath("tbody/tr[4]/td[2]/input[@id='ContentPageHolder_txt_AutomatedATSNotification']")) ||
-                InventoryFeedSectionTable.Text.Contains(failureNotificationEmailLabelText);
-        }
-
         /// <summary>
         /// Verify if all the dropdowns of Refresh Interval are disabled
         /// </summary>
@@ -1289,17 +1275,6 @@ namespace Modules.Channel.B2B.Core.Pages
             AutomatedBhcCatalogProcessingRules.Click();
             // Now coding for only enabled Identites. Which are picked from Auto BHC catalog panel.
             return CheckedIdentityList.Select(e => e.Text).ToList();
-        }
-
-        /// <summary>
-        /// Verifies if the 'Number of Automated Inventory Feeds' textbox is present
-        /// </summary>
-        /// <param name="noOfOccurrenceLabelText"></param>
-        /// <returns>The <see cref="bool"/></returns>
-        public bool VerifyPresenceOfNumberOfOccurrenceField(string noOfOccurrenceLabelText)
-        {
-            return InventoryFeedSectionTable.ElementExists(By.Id("ContentPageHolder_txt_NumberOfInvFeedPreview")) ||
-                   InventoryFeedSectionTable.Text.Contains(noOfOccurrenceLabelText);
         }
 
         /// <summary>

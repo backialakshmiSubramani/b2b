@@ -59,23 +59,6 @@ namespace Modules.Channel.B2B.Core.Workflows.Inventory
         }
 
         /// <summary>
-        /// Accesses the B2B Profile & verifies if the 
-        /// 'Automated Inventory Feed Failure Notification Email' textbox is present
-        /// </summary>
-        /// <param name="environment"></param>
-        /// <param name="profileName"></param>
-        /// <param name="failureNotificationEmailLabelText"></param>
-        /// <returns>The <see cref="bool"/></returns>
-        public bool VerifyPresenceOfEmailField(string environment, string profileName,
-            string failureNotificationEmailLabelText)
-        {
-            accessProfile.GoToBuyerCatalogTab(environment, profileName);
-            b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
-
-            return b2BBuyerCatalogPage.VerifyPresenceOfEmailField(failureNotificationEmailLabelText);
-        }
-
-        /// <summary>
         /// Accesses the B2B Profile & verifies if the checking/unchecking of the 
         /// 'Enable Automated Inventory Feed' checkbox enables/disables
         /// the control below, which are Days, Hours & Minutes dropdowns
@@ -562,24 +545,16 @@ namespace Modules.Channel.B2B.Core.Workflows.Inventory
             b2BHomePage.OpenAutoCatalogInventoryListPage();
             cPTAutoCatalogInventoryListPage = new CPTAutoCatalogInventoryListPage(webDriver);
 
-            // Verify that default search is not returning any records(Prev and next buttons won't b available)
+            // Check if the result table is visible
 
-            try
+            if (!cPTAutoCatalogInventoryListPage.CatalogsTable.Displayed)
             {
-                if (!cPTAutoCatalogInventoryListPage.NextButton.IsElementVisible())
-                {
-                    Console.WriteLine("Records are not loaded");
-                    return true;
-                }
-            }
-            catch (NoSuchElementException)
-            {
-                Console.WriteLine("Records are loaded");
-                return false;
+                Console.WriteLine("Records are not loaded");
+                return true;
             }
 
+            Console.WriteLine("Records are loaded");
             return false;
-
         }
 
         public bool VerifyAutoCatalogListPageLinkText(RunEnvironment environment)
@@ -668,23 +643,6 @@ namespace Modules.Channel.B2B.Core.Workflows.Inventory
                      Convert.ToInt32(cPTAutoCatalogInventoryListPage.PagingSpan.Text.Split(' ').Last()));
 
             return true;
-        }
-
-        /// <summary>
-        /// Accesses the B2B Profile & verifies if the 
-        /// 'Number of Automated Inventory Feeds' textbox is present
-        /// </summary>
-        /// <param name="environment"></param>
-        /// <param name="profileName"></param>
-        /// <param name="noOfOccurrenceLabelText"></param>
-        /// <returns>The <see cref="bool"/></returns>
-        public bool VerifyPresenceOfNumberOfOccurrenceField(string environment, string profileName,
-            string noOfOccurrenceLabelText)
-        {
-            accessProfile.GoToBuyerCatalogTab(environment, profileName);
-            b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
-
-            return b2BBuyerCatalogPage.VerifyPresenceOfNumberOfOccurrenceField(noOfOccurrenceLabelText);
         }
 
         /// <summary>
