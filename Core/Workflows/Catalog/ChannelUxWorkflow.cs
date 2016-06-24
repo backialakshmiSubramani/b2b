@@ -77,6 +77,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             return true;
         }
 
+
         /// <summary>
         /// Compares the content of Catalog XML
         /// </summary>
@@ -87,7 +88,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         /// <param name="anyTimeAfter">Time after which the XML is created</param>
         /// <param name="catalogItemBaseSKU">One of the Catalog Item SKU for which data needs to be validated</param>
         /// <returns></returns>
-        public bool ValidateCatalogXML(CatalogItemType[] catalogItemType, CatalogType catalogType, string identityName, string filePath, DateTime anyTimeAfter, ConfigRules configRules, DefaultOptions defaultOptions)
+        public bool ValidateCatalogXML(CatalogItemType[] catalogItemType, CatalogType catalogType, string identityName, string filePath, DateTime anyTimeAfter, ConfigRules configRules)
         {
             string schemaPath = Path.Combine(System.Environment.CurrentDirectory, "CatalogSchema.xsd");
 
@@ -120,7 +121,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                 IEnumerable<CatalogItem> actualCatalogItems = actualCatalogDetails.CatalogItem.Where(ci => ci.CatalogItemType == itemType);
                 IEnumerable<CatalogItem> expectedCatalogItems =
                         expectedCatalogDetails.CatalogItem.Where(ci => ci.CatalogItemType == itemType);
-
+                string matchingOrderCode = string.Empty;
                 if (itemType.Equals(CatalogItemType.ConfigWithDefaultOptions) ||
                     itemType.Equals(CatalogItemType.ConfigWithUpsellDownsell) ||
                     itemType.Equals(CatalogItemType.Systems))
@@ -129,45 +130,165 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                     {
                         case ConfigRules.DuplicateBPN:
                             expectedCatalogItems = expectedCatalogItems.Where(ci => ci.ShortName.StartsWith("Duplicate BPN"));
+
+
+                            matchingOrderCode = actualCatalogItems.Select(ci => ci.ItemOrderCode).ToList().Intersect(expectedCatalogItems.Select(ci => ci.ItemOrderCode).ToList()).First();
+                            actualCatalogItems = actualCatalogItems.Where(ci => ci.ItemOrderCode == matchingOrderCode);
+                            expectedCatalogItems = expectedCatalogItems.Where(ci => ci.ItemOrderCode == matchingOrderCode);
                             break;
                         case ConfigRules.NullBPN:
                             expectedCatalogItems = expectedCatalogItems.Where(ci => ci.ShortName.StartsWith("Null BPN"));
+
+
+
+                            matchingOrderCode = actualCatalogItems.Select(ci => ci.ItemOrderCode).ToList().Intersect(expectedCatalogItems.Select(ci => ci.ItemOrderCode).ToList()).First();
+                            actualCatalogItems = actualCatalogItems.Where(ci => ci.ItemOrderCode == matchingOrderCode);
+                            expectedCatalogItems = expectedCatalogItems.Where(ci => ci.ItemOrderCode == matchingOrderCode);
+                            break;
+                        case ConfigRules.WithDefOptions:
+                            expectedCatalogItems = expectedCatalogItems.Where(ci => ci.Modules.Module.Count != 0);
+                            matchingOrderCode = actualCatalogItems.Select(ci => ci.ItemOrderCode).ToList().Intersect(expectedCatalogItems.Select(ci => ci.ItemOrderCode).ToList()).First();
+                            actualCatalogItems = actualCatalogItems.Where(ci => ci.ItemOrderCode == matchingOrderCode);
+                            expectedCatalogItems = expectedCatalogItems.Where(ci => ci.ItemOrderCode == matchingOrderCode);
                             break;
                         case ConfigRules.LeadTimeOff:
                             expectedCatalogItems =
                               expectedCatalogDetails.CatalogItem.Where(ci => ci.ShortName.StartsWith("Lead Time"));
+
+
+                            matchingOrderCode = actualCatalogItems.Select(ci => ci.ItemOrderCode).ToList().Intersect(expectedCatalogItems.Select(ci => ci.ItemOrderCode).ToList()).First();
+                            actualCatalogItems = actualCatalogItems.Where(ci => ci.ItemOrderCode == matchingOrderCode);
+                            expectedCatalogItems = expectedCatalogItems.Where(ci => ci.ItemOrderCode == matchingOrderCode);
                             break;
                         case ConfigRules.LeadTimeON:
                             expectedCatalogItems =
                               expectedCatalogDetails.CatalogItem.Where(ci => ci.ShortName.StartsWith("Lead Time") && (ci.ItemType.Equals("") ||
                                ci.ItemType.Equals("BTO") || (ci.ItemType.Equals("BTS") && ci.LeadTime < 3)));
-                            break;
-                        default:
-                            string matchingOrderCode = actualCatalogItems.Select(ci => ci.ItemOrderCode).ToList().Intersect(expectedCatalogItems.Select(ci => ci.ItemOrderCode).ToList()).First();
+
+
+                            matchingOrderCode = actualCatalogItems.Select(ci => ci.ItemOrderCode).ToList().Intersect(expectedCatalogItems.Select(ci => ci.ItemOrderCode).ToList()).First();
                             actualCatalogItems = actualCatalogItems.Where(ci => ci.ItemOrderCode == matchingOrderCode);
                             expectedCatalogItems = expectedCatalogItems.Where(ci => ci.ItemOrderCode == matchingOrderCode);
-
+                            break;
+                        default:
+                            //expectedCatalogItems = expectedCatalogItems.Where(ci => ci.Modules.Module.Count == 0);
+                            matchingOrderCode = actualCatalogItems.Select(ci => ci.ItemOrderCode).ToList().Intersect(expectedCatalogItems.Select(ci => ci.ItemOrderCode).ToList()).First();
+                            actualCatalogItems = actualCatalogItems.Where(ci => ci.ItemOrderCode == matchingOrderCode);
+                            expectedCatalogItems = expectedCatalogItems.Where(ci => ci.ItemOrderCode == matchingOrderCode);
                             //expectedCatalogItems = expectedCatalogItems.Where(ci => ci.ShortName.StartsWith("STD Config"));
                             break;
                     }
 
                 }
-
-                else if(itemType.Equals(CatalogItemType.SNP))
+                else if (itemType.Equals(CatalogItemType.SNP))
                 {
-                    string matchingOrderCode = actualCatalogItems.Select(ci => ci.BaseSKUId).ToList().Intersect(expectedCatalogItems.Select(ci => ci.BaseSKUId).ToList()).First();
+                    matchingOrderCode = actualCatalogItems.Select(ci => ci.BaseSKUId).ToList().Intersect(expectedCatalogItems.Select(ci => ci.BaseSKUId).ToList()).First();
                     actualCatalogItems = actualCatalogItems.Where(ci => ci.BaseSKUId == matchingOrderCode);
                     expectedCatalogItems = expectedCatalogItems.Where(ci => ci.BaseSKUId == matchingOrderCode);
                 }
 
-                matchFlag &= ValidateCatalogItems(actualCatalogItems, expectedCatalogItems, defaultOptions);
-
+                matchFlag &= ValidateCatalogItems(actualCatalogItems, expectedCatalogItems, configRules);
                 //itemCount += expectedCatalogItems.Count();
             }
 
             matchFlag &= ValidateCatalogHeader(actualCatalogHeader, expectedCatalogHeader, catalogItemType, identityName, catalogName);
+
             return matchFlag;
         }
+
+
+
+        ///// <summary>
+        ///// Compares the content of Catalog XML
+        ///// </summary>
+        ///// <param name="catalogItemType">Catalog Item Type like ConfigWithDefaultOptions or SNP</param>
+        ///// <param name="catalogType">Catalog Type like Original or Delta</param>
+        ///// <param name="identityName">Name of the Identity</param>
+        ///// <param name="filePath">XML file path</param>
+        ///// <param name="anyTimeAfter">Time after which the XML is created</param>
+        ///// <param name="catalogItemBaseSKU">One of the Catalog Item SKU for which data needs to be validated</param>
+        ///// <returns></returns>
+        //public bool ValidateCatalogXML(CatalogItemType[] catalogItemType, CatalogType catalogType, string identityName, string filePath, DateTime anyTimeAfter, ConfigRules configRules, DefaultOptions defaultOptions)
+        //{
+        //    string schemaPath = Path.Combine(System.Environment.CurrentDirectory, "CatalogSchema.xsd");
+
+        //    string message = XMLSchemaValidator.ValidateSchema(filePath, schemaPath);
+        //    message.Should().Be(string.Empty, "Error: One or more tags failed scehma validation. Please check the log for complete details");
+
+        //    B2BXML actualcatalogXML = XMLDeserializer<B2BXML>.DeserializeFromXmlFile(filePath);
+        //    CatalogDetails actualCatalogDetails = actualcatalogXML.BuyerCatalog.CatalogDetails;
+        //    CatalogHeader actualCatalogHeader = actualcatalogXML.BuyerCatalog.CatalogHeader;
+
+        //    string expectedCatalogFilePath = string.Empty;
+
+        //    expectedCatalogFilePath = catalogType == CatalogType.Original
+        //        ? Path.Combine(System.Environment.CurrentDirectory, "Catalog_OC_Expected.xml")
+        //        : Path.Combine(System.Environment.CurrentDirectory, "Catalog_DC_Expected.xml");
+
+        //    B2BXML expectedCatalogXML = XMLDeserializer<B2BXML>.DeserializeFromXmlFile(expectedCatalogFilePath);
+        //    CatalogDetails expectedCatalogDetails = expectedCatalogXML.BuyerCatalog.CatalogDetails;
+        //    CatalogHeader expectedCatalogHeader = expectedCatalogXML.BuyerCatalog.CatalogHeader;
+
+        //    string fileName = new FileInfo(filePath).Name;
+        //    string catalogName = fileName.Split('.')[0];
+
+        //    //int itemCount = 0;
+        //    bool matchFlag = true;
+        //    foreach (CatalogItemType itemType in catalogItemType)
+        //    {
+        //        Console.WriteLine("Catalog Items validation for : " + itemType.ConvertToString());
+
+        //        IEnumerable<CatalogItem> actualCatalogItems = actualCatalogDetails.CatalogItem.Where(ci => ci.CatalogItemType == itemType);
+        //        IEnumerable<CatalogItem> expectedCatalogItems =
+        //                expectedCatalogDetails.CatalogItem.Where(ci => ci.CatalogItemType == itemType);
+
+        //        if (itemType.Equals(CatalogItemType.ConfigWithDefaultOptions) ||
+        //            itemType.Equals(CatalogItemType.ConfigWithUpsellDownsell) ||
+        //            itemType.Equals(CatalogItemType.Systems))
+        //        {
+        //            switch (configRules)
+        //            {
+        //                case ConfigRules.DuplicateBPN:
+        //                    expectedCatalogItems = expectedCatalogItems.Where(ci => ci.ShortName.StartsWith("Duplicate BPN"));
+        //                    break;
+        //                case ConfigRules.NullBPN:
+        //                    expectedCatalogItems = expectedCatalogItems.Where(ci => ci.ShortName.StartsWith("Null BPN"));
+        //                    break;
+        //                case ConfigRules.LeadTimeOff:
+        //                    expectedCatalogItems =
+        //                      expectedCatalogDetails.CatalogItem.Where(ci => ci.ShortName.StartsWith("Lead Time"));
+        //                    break;
+        //                case ConfigRules.LeadTimeON:
+        //                    expectedCatalogItems =
+        //                      expectedCatalogDetails.CatalogItem.Where(ci => ci.ShortName.StartsWith("Lead Time") && (ci.ItemType.Equals("") ||
+        //                       ci.ItemType.Equals("BTO") || (ci.ItemType.Equals("BTS") && ci.LeadTime < 3)));
+        //                    break;
+        //                default:
+        //                    string matchingOrderCode = actualCatalogItems.Select(ci => ci.ItemOrderCode).ToList().Intersect(expectedCatalogItems.Select(ci => ci.ItemOrderCode).ToList()).First();
+        //                    actualCatalogItems = actualCatalogItems.Where(ci => ci.ItemOrderCode == matchingOrderCode);
+        //                    expectedCatalogItems = expectedCatalogItems.Where(ci => ci.ItemOrderCode == matchingOrderCode);
+
+        //                    //expectedCatalogItems = expectedCatalogItems.Where(ci => ci.ShortName.StartsWith("STD Config"));
+        //                    break;
+        //            }
+
+        //        }
+
+        //        else if(itemType.Equals(CatalogItemType.SNP))
+        //        {
+        //            string matchingOrderCode = actualCatalogItems.Select(ci => ci.BaseSKUId).ToList().Intersect(expectedCatalogItems.Select(ci => ci.BaseSKUId).ToList()).First();
+        //            actualCatalogItems = actualCatalogItems.Where(ci => ci.BaseSKUId == matchingOrderCode);
+        //            expectedCatalogItems = expectedCatalogItems.Where(ci => ci.BaseSKUId == matchingOrderCode);
+        //        }
+
+        //        matchFlag &= ValidateCatalogItems(actualCatalogItems, expectedCatalogItems, defaultOptions);
+
+        //        //itemCount += expectedCatalogItems.Count();
+        //    }
+
+        //    matchFlag &= ValidateCatalogHeader(actualCatalogHeader, expectedCatalogHeader, catalogItemType, identityName, catalogName);
+        //    return matchFlag;
+        //}
 
         /// <summary>
         /// Validate all the tags of Catalog Header
@@ -223,7 +344,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         /// <param name="actualCatalog"></param>
         /// <param name="expectedCatalog"></param>
         /// <returns></returns>
-        public bool ValidateCatalogItems(IEnumerable<CatalogItem> actualCatalogItems, IEnumerable<CatalogItem> expectedCatalogItems, DefaultOptions defaultOptions)
+        public bool ValidateCatalogItems(IEnumerable<CatalogItem> actualCatalogItems, IEnumerable<CatalogItem> expectedCatalogItems, ConfigRules configRules)
         {
             bool matchFlag = true;
 
@@ -269,8 +390,8 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                 matchFlag &= UtilityMethods.CompareValues<string>("BaseSKUId", actualCatalogItem.BaseSKUId, expectedCatalogItem.BaseSKUId);
                 matchFlag &= UtilityMethods.CompareValues<string>("FGASKUId", actualCatalogItem.FGASKUId, expectedCatalogItem.FGASKUId);
                 matchFlag &= UtilityMethods.CompareValues<string>("ReplacementQuoteId", actualCatalogItem.ReplacementQuoteId, expectedCatalogItem.ReplacementQuoteId);
-                //matchFlag &= UtilityMethods.CompareValues<string>("ItemType", actualCatalogItem.ItemType, expectedCatalogItem.ItemType);
-                //matchFlag &= UtilityMethods.CompareValues<string>("ItemSKUinfo", actualCatalogItem.ItemSKUinfo, expectedCatalogItem.ItemSKUinfo);
+                // matchFlag &= UtilityMethods.CompareValues<string>("ItemType", actualCatalogItem.ItemType, expectedCatalogItem.ItemType);
+                // matchFlag &= UtilityMethods.CompareValues<string>("ItemSKUinfo", actualCatalogItem.ItemSKUinfo, expectedCatalogItem.ItemSKUinfo);
                 matchFlag &= UtilityMethods.CompareValues<string>("FGAModNumber", actualCatalogItem.FGAModNumber, expectedCatalogItem.FGAModNumber);
                 matchFlag &= UtilityMethods.CompareValues<int>("InventoryQty", actualCatalogItem.InventoryQty, expectedCatalogItem.InventoryQty, Computation.GreaterThanOrEqualTo);
                 matchFlag &= UtilityMethods.CompareValues<string>("ListPrice", actualCatalogItem.ListPrice, expectedCatalogItem.ListPrice);
@@ -298,88 +419,44 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                 //Console.WriteLine("PartId is empty");
 
                 // Modules
-                if (defaultOptions == DefaultOptions.On)
+                if (configRules == ConfigRules.WithDefOptions)
                 {
-                    actualCatalogItem.Modules.Module.Count()
-                        .Should()
-                        .Be(expectedCatalogItem.Modules.Module.Count(),
-                            "ERROR: Module count mismatch for Order code: " + actualCatalogItem.ItemOrderCode);
+                    actualCatalogItem.Modules.Module.Count().Should().Be(expectedCatalogItem.Modules.Module.Count(), "ERROR: Module count mismatch for Order code: " + actualCatalogItem.ItemOrderCode);
 
                     foreach (CatalogItemModule actualmodule in actualCatalogItem.Modules.Module)
                     {
-                        CatalogItemModule expectedModule =
-                            expectedCatalogItem.Modules.Module.Where(em => em.ModuleId == actualmodule.ModuleId)
-                                .FirstOrDefault();
+                        CatalogItemModule expectedModule = expectedCatalogItem.Modules.Module.Where(em => em.ModuleId == actualmodule.ModuleId).FirstOrDefault();
 
-                        actualmodule.Options.Option.Count()
-                            .Should()
-                            .Be(expectedModule.Options.Option.Count(),
-                                "ERROR: Option count mismatch for Module ID: " + actualmodule.ModuleId.ToString());
+                        actualmodule.Options.Option.Count().Should().Be(expectedModule.Options.Option.Count(), "ERROR: Option count mismatch for Module ID: " + actualmodule.ModuleId.ToString());
 
                         foreach (CatalogItemOption actualOption in actualmodule.Options.Option)
                         {
-                            CatalogItemOption expectedOption =
-                                expectedModule.Options.Option.Where(eo => eo.OptionDesc == actualOption.OptionDesc)
-                                    .FirstOrDefault();
+                            CatalogItemOption expectedOption = expectedModule.Options.Option.Where(eo => eo.OptionDesc == actualOption.OptionDesc).FirstOrDefault();
 
-                            actualOption.OptionSkuList.OptionSku.Count()
-                                .Should()
-                                .Be(expectedOption.OptionSkuList.OptionSku.Count(),
-                                    "ERROR: Option SKU count mismtach for Option Desc: " + actualOption.OptionDesc);
+                            actualOption.OptionSkuList.OptionSku.Count().Should().Be(expectedOption.OptionSkuList.OptionSku.Count(), "ERROR: Option SKU count mismtach for Option Desc: " + actualOption.OptionDesc);
 
                             foreach (OptionSku actualOptionSku in actualOption.OptionSkuList.OptionSku)
                             {
-                                OptionSku expectedOptionSku =
-                                    expectedOption.OptionSkuList.OptionSku.Where(eo => eo.SkuId == actualOptionSku.SkuId)
-                                        .FirstOrDefault();
+                                OptionSku expectedOptionSku = expectedOption.OptionSkuList.OptionSku.Where(eo => eo.SkuId == actualOptionSku.SkuId).FirstOrDefault();
 
-                                matchFlag &=
-                                    UtilityMethods.CompareValues<string>(
-                                        "Modules.Module.Options.Option.OptionSkuList.OptionSku.SkuId",
-                                        actualOptionSku.SkuId, expectedOptionSku.SkuId);
-                                matchFlag &=
-                                    UtilityMethods.CompareValues<string>(
-                                        "Modules.Module.Options.Option.OptionSkuList.OptionSku.SkuDescription",
-                                        actualOptionSku.SkuDescription, expectedOptionSku.SkuDescription);
-                                matchFlag &=
-                                    UtilityMethods.CompareValues<string>(
-                                        "Modules.Module.Options.Option.OptionSkuList.OptionSku.OptionId",
-                                        actualOptionSku.OptionId, expectedOptionSku.OptionId);
-                                matchFlag &=
-                                    UtilityMethods.CompareValues<decimal>(
-                                        "Modules.Module.Options.Option.OptionSkuList.OptionSku.SkuPrice",
-                                        actualOptionSku.SkuPrice, expectedOptionSku.SkuPrice);
+                                matchFlag &= UtilityMethods.CompareValues<string>("Modules.Module.Options.Option.OptionSkuList.OptionSku.SkuId", actualOptionSku.SkuId, expectedOptionSku.SkuId);
+                                matchFlag &= UtilityMethods.CompareValues<string>("Modules.Module.Options.Option.OptionSkuList.OptionSku.SkuDescription", actualOptionSku.SkuDescription, expectedOptionSku.SkuDescription);
+                                matchFlag &= UtilityMethods.CompareValues<string>("Modules.Module.Options.Option.OptionSkuList.OptionSku.OptionId", actualOptionSku.OptionId, expectedOptionSku.OptionId);
+                                matchFlag &= UtilityMethods.CompareValues<decimal>("Modules.Module.Options.Option.OptionSkuList.OptionSku.SkuPrice", actualOptionSku.SkuPrice, expectedOptionSku.SkuPrice);
                             }
-
-
-                            matchFlag &= UtilityMethods.CompareValues<string>("Modules.Module.Options.Option.OptionId",
-                            actualOption.OptionId.Substring(actualOption.OptionId.IndexOf("/", System.StringComparison.Ordinal)),
-                            expectedOption.OptionId.Substring(expectedOption.OptionId.IndexOf("/", System.StringComparison.Ordinal)));
-
-                            matchFlag &= UtilityMethods.CompareValues<string>(
-                                "Modules.Module.Options.Option.OptionDesc", actualOption.OptionDesc,
-                                expectedOption.OptionDesc);
-                            matchFlag &= UtilityMethods.CompareValues<bool>("Modules.Module.Options.Option.Selected",
-                                actualOption.Selected, expectedOption.Selected);
-                            matchFlag &=
-                                UtilityMethods.CompareValues<decimal>("Modules.Module.Options.Option.DeltaPrice",
-                                    actualOption.DeltaPrice, expectedOption.DeltaPrice);
-                            matchFlag &=
-                                UtilityMethods.CompareValues<decimal>("Modules.Module.Options.Option.FinalPrice",
-                                    actualOption.FinalPrice, expectedOption.FinalPrice);
+                            //Kishore
+                            // matchFlag &= UtilityMethods.CompareValues<string>("Modules.Module.Options.Option.OptionId", actualOption.OptionId, expectedOption.OptionId);
+                            matchFlag &= UtilityMethods.CompareValues<string>("Modules.Module.Options.Option.OptionDesc", actualOption.OptionDesc, expectedOption.OptionDesc);
+                            matchFlag &= UtilityMethods.CompareValues<bool>("Modules.Module.Options.Option.Selected", actualOption.Selected, expectedOption.Selected);
+                            matchFlag &= UtilityMethods.CompareValues<decimal>("Modules.Module.Options.Option.DeltaPrice", actualOption.DeltaPrice, expectedOption.DeltaPrice);
+                            matchFlag &= UtilityMethods.CompareValues<decimal>("Modules.Module.Options.Option.FinalPrice", actualOption.FinalPrice, expectedOption.FinalPrice);
                         }
-                        matchFlag &= UtilityMethods.CompareValues<int>("Modules.Module.ModuleId", actualmodule.ModuleId,
-                            expectedModule.ModuleId);
-                        matchFlag &= UtilityMethods.CompareValues<string>("Modules.Module.ModuleDesc",
-                            actualmodule.ModuleDesc, expectedModule.ModuleDesc);
-                        matchFlag &= UtilityMethods.CompareValues<bool>("Modules.Module.Required", actualmodule.Required,
-                            expectedModule.Required);
-                        matchFlag &= UtilityMethods.CompareValues<bool>("Modules.Module.MultiSelect",
-                            actualmodule.MultiSelect, expectedModule.MultiSelect);
-                        matchFlag &= UtilityMethods.CompareValues<string>("Modules.Module.DefaultOptionId",
-                            actualmodule.DefaultOptionId, expectedModule.DefaultOptionId);
-                        matchFlag &= UtilityMethods.CompareValues<decimal>("Modules.Module.DefaultOptionPrice",
-                            actualmodule.DefaultOptionPrice, expectedModule.DefaultOptionPrice);
+                        matchFlag &= UtilityMethods.CompareValues<int>("Modules.Module.ModuleId", actualmodule.ModuleId, expectedModule.ModuleId);
+                        matchFlag &= UtilityMethods.CompareValues<string>("Modules.Module.ModuleDesc", actualmodule.ModuleDesc, expectedModule.ModuleDesc);
+                        matchFlag &= UtilityMethods.CompareValues<bool>("Modules.Module.Required", actualmodule.Required, expectedModule.Required);
+                        matchFlag &= UtilityMethods.CompareValues<bool>("Modules.Module.MultiSelect", actualmodule.MultiSelect, expectedModule.MultiSelect);
+                        matchFlag &= UtilityMethods.CompareValues<string>("Modules.Module.DefaultOptionId", actualmodule.DefaultOptionId, expectedModule.DefaultOptionId);
+                        matchFlag &= UtilityMethods.CompareValues<decimal>("Modules.Module.DefaultOptionPrice", actualmodule.DefaultOptionPrice, expectedModule.DefaultOptionPrice);
                     }
                 }
                 // Lease
@@ -398,6 +475,191 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
 
             return matchFlag;
         }
+
+
+
+
+        ///// <summary>
+        ///// Validate all the tags of each Catalog Item
+        ///// </summary>
+        ///// <param name="actualCatalog"></param>
+        ///// <param name="expectedCatalog"></param>
+        ///// <returns></returns>
+        //public bool ValidateCatalogItems(IEnumerable<CatalogItem> actualCatalogItems, IEnumerable<CatalogItem> expectedCatalogItems, DefaultOptions defaultOptions)
+        //{
+        //    bool matchFlag = true;
+
+        //    Console.WriteLine("Catalog Items Data Validation");
+
+        //    actualCatalogItems.Count().Should().Be(expectedCatalogItems.Count(), "ERROR: Actual and Expected Catalog item count did not match");
+
+        //    foreach (CatalogItem actualCatalogItem in actualCatalogItems)
+        //    {
+        //        CatalogItem expectedCatalogItem = null;
+
+        //        if (actualCatalogItem.CatalogItemType == CatalogItemType.SNP)
+        //        {
+        //            expectedCatalogItem = expectedCatalogItems.Where(ci => ci.BaseSKUId == actualCatalogItem.BaseSKUId).FirstOrDefault();
+        //            matchFlag &= (actualCatalogItem.PartId.Contains("BHC:"));
+        //        }
+        //        else
+        //        {
+        //            expectedCatalogItem = expectedCatalogItems.Where(ci => ci.ItemOrderCode == actualCatalogItem.ItemOrderCode).FirstOrDefault();
+        //            matchFlag &= !(actualCatalogItem.PartId != "BHC:" + actualCatalogItem.QuoteId);
+        //        }
+        //        matchFlag &= UtilityMethods.CompareValues<CatalogItemType>("CatalogItemType", actualCatalogItem.CatalogItemType, expectedCatalogItem.CatalogItemType);
+        //        matchFlag &= UtilityMethods.CompareValues<string>("PrimaryCurrency", actualCatalogItem.PrimaryCurrency.CurrencyCode, actualCatalogItem.PrimaryCurrency.CurrencyCode);
+        //        matchFlag &= UtilityMethods.CompareValues<string>("AlternateCurrency", actualCatalogItem.AlternateCurrency.CurrencyCode, actualCatalogItem.AlternateCurrency.CurrencyCode);
+        //        matchFlag &= UtilityMethods.CompareValues<string>("ShortName", actualCatalogItem.ShortName, expectedCatalogItem.ShortName);
+        //        matchFlag &= UtilityMethods.CompareValues<string>("ItemDescription", actualCatalogItem.ItemDescription, expectedCatalogItem.ItemDescription);
+        //        matchFlag &= UtilityMethods.CompareValues<string>("UNSPSC", actualCatalogItem.UNSPSC, expectedCatalogItem.UNSPSC);
+        //        matchFlag &= UtilityMethods.CompareValues<string>("UOM", actualCatalogItem.UOM, expectedCatalogItem.UOM);
+        //        matchFlag &= UtilityMethods.CompareValues<decimal>("UnitPrice", actualCatalogItem.UnitPrice, expectedCatalogItem.UnitPrice);
+        //        matchFlag &= UtilityMethods.CompareValues<string>("SuplierPartAuxilaryId", actualCatalogItem.SuplierPartAuxilaryId, expectedCatalogItem.SuplierPartAuxilaryId);
+        //        matchFlag &= UtilityMethods.CompareValues<int>("LeadTime", actualCatalogItem.LeadTime, expectedCatalogItem.LeadTime, Computation.GreaterThanOrEqualTo);
+        //        matchFlag &= UtilityMethods.CompareValues<string>("SupplierURL", actualCatalogItem.SupplierURL, expectedCatalogItem.SupplierURL);
+        //        matchFlag &= UtilityMethods.CompareValues<string>("ImageURL", actualCatalogItem.ImageURL, expectedCatalogItem.ImageURL);
+        //        matchFlag &= UtilityMethods.CompareValues<string>("ManufacturerPartNumber", actualCatalogItem.ManufacturerPartNumber, expectedCatalogItem.ManufacturerPartNumber);
+        //        matchFlag &= UtilityMethods.CompareValues<string>("ManufacturerName", actualCatalogItem.ManufacturerName, expectedCatalogItem.ManufacturerName);
+        //        matchFlag &= UtilityMethods.CompareValues<string>("LongDescription", actualCatalogItem.LongDescription, expectedCatalogItem.LongDescription);
+        //        matchFlag &= UtilityMethods.CompareValues<string>("GrossWeight", actualCatalogItem.GrossWeight, expectedCatalogItem.GrossWeight);
+        //        matchFlag &= UtilityMethods.CompareValues<string>("Availability", actualCatalogItem.Availability, expectedCatalogItem.Availability);
+        //        matchFlag &= UtilityMethods.CompareValues<string>("CategoryLevel1", actualCatalogItem.CategoryLevel1, expectedCatalogItem.CategoryLevel1);
+        //        matchFlag &= UtilityMethods.CompareValues<string>("CategoryLevel2", actualCatalogItem.CategoryLevel2, expectedCatalogItem.CategoryLevel2);
+        //        matchFlag &= UtilityMethods.CompareValues<string>("DomsQuote", actualCatalogItem.DomsQuote, expectedCatalogItem.DomsQuote);
+        //        matchFlag &= UtilityMethods.CompareValues<string>("ItemOrderCode", actualCatalogItem.ItemOrderCode, expectedCatalogItem.ItemOrderCode);
+        //        matchFlag &= UtilityMethods.CompareValues<string>("BaseSKUId", actualCatalogItem.BaseSKUId, expectedCatalogItem.BaseSKUId);
+        //        matchFlag &= UtilityMethods.CompareValues<string>("FGASKUId", actualCatalogItem.FGASKUId, expectedCatalogItem.FGASKUId);
+        //        matchFlag &= UtilityMethods.CompareValues<string>("ReplacementQuoteId", actualCatalogItem.ReplacementQuoteId, expectedCatalogItem.ReplacementQuoteId);
+        //        //matchFlag &= UtilityMethods.CompareValues<string>("ItemType", actualCatalogItem.ItemType, expectedCatalogItem.ItemType);
+        //        //matchFlag &= UtilityMethods.CompareValues<string>("ItemSKUinfo", actualCatalogItem.ItemSKUinfo, expectedCatalogItem.ItemSKUinfo);
+        //        matchFlag &= UtilityMethods.CompareValues<string>("FGAModNumber", actualCatalogItem.FGAModNumber, expectedCatalogItem.FGAModNumber);
+        //        matchFlag &= UtilityMethods.CompareValues<int>("InventoryQty", actualCatalogItem.InventoryQty, expectedCatalogItem.InventoryQty, Computation.GreaterThanOrEqualTo);
+        //        matchFlag &= UtilityMethods.CompareValues<string>("ListPrice", actualCatalogItem.ListPrice, expectedCatalogItem.ListPrice);
+        //        matchFlag &= UtilityMethods.CompareValues<string>("UPC", actualCatalogItem.UPC, expectedCatalogItem.UPC);
+        //        matchFlag &= UtilityMethods.CompareValues<string>("ManufacturerCode", actualCatalogItem.ManufacturerCode, expectedCatalogItem.ManufacturerCode);
+        //        matchFlag &= UtilityMethods.CompareValues<string>("VPNReplacement", actualCatalogItem.VPNReplacement, expectedCatalogItem.VPNReplacement);
+        //        matchFlag &= UtilityMethods.CompareValues<string>("VPNEOLDate", actualCatalogItem.VPNEOLDate, expectedCatalogItem.VPNEOLDate);
+        //        matchFlag &= UtilityMethods.CompareValues<int>("PackageLength", actualCatalogItem.PackageLength, expectedCatalogItem.PackageLength);
+        //        matchFlag &= UtilityMethods.CompareValues<int>("PackageWidth", actualCatalogItem.PackageWidth, expectedCatalogItem.PackageWidth);
+        //        matchFlag &= UtilityMethods.CompareValues<int>("PackageHeight", actualCatalogItem.PackageHeight, expectedCatalogItem.PackageHeight);
+        //        matchFlag &= UtilityMethods.CompareValues<int>("PalletLength", actualCatalogItem.PalletLength, expectedCatalogItem.PalletLength);
+        //        matchFlag &= UtilityMethods.CompareValues<int>("PalletWidth", actualCatalogItem.PalletWidth, expectedCatalogItem.PalletWidth);
+        //        matchFlag &= UtilityMethods.CompareValues<int>("PalletHeight", actualCatalogItem.PalletHeight, expectedCatalogItem.PalletHeight);
+        //        matchFlag &= UtilityMethods.CompareValues<int>("PalletUnitsPerLayer", actualCatalogItem.PalletUnitsPerLayer, expectedCatalogItem.PalletUnitsPerLayer);
+        //        matchFlag &= UtilityMethods.CompareValues<int>("PalletLayerPerPallet", actualCatalogItem.PalletLayerPerPallet, expectedCatalogItem.PalletLayerPerPallet);
+        //        matchFlag &= UtilityMethods.CompareValues<int>("PalletUnitsPerPallet", actualCatalogItem.PalletUnitsPerPallet, expectedCatalogItem.PalletUnitsPerPallet);
+
+        //        Console.WriteLine("PartId: " + actualCatalogItem.PartId);
+        //        Console.WriteLine("QuoteId: " + actualCatalogItem.QuoteId);
+
+        //        // Part and Quote Id
+        //        matchFlag &= !(String.IsNullOrEmpty(actualCatalogItem.PartId));
+        //        //Console.WriteLine("PartId is empty");
+        //        matchFlag &= !(String.IsNullOrEmpty(actualCatalogItem.QuoteId));
+        //        //Console.WriteLine("PartId is empty");
+
+        //        // Modules
+        //        if (defaultOptions == DefaultOptions.On)
+        //        {
+        //            actualCatalogItem.Modules.Module.Count()
+        //                .Should()
+        //                .Be(expectedCatalogItem.Modules.Module.Count(),
+        //                    "ERROR: Module count mismatch for Order code: " + actualCatalogItem.ItemOrderCode);
+
+        //            foreach (CatalogItemModule actualmodule in actualCatalogItem.Modules.Module)
+        //            {
+        //                CatalogItemModule expectedModule =
+        //                    expectedCatalogItem.Modules.Module.Where(em => em.ModuleId == actualmodule.ModuleId)
+        //                        .FirstOrDefault();
+
+        //                actualmodule.Options.Option.Count()
+        //                    .Should()
+        //                    .Be(expectedModule.Options.Option.Count(),
+        //                        "ERROR: Option count mismatch for Module ID: " + actualmodule.ModuleId.ToString());
+
+        //                foreach (CatalogItemOption actualOption in actualmodule.Options.Option)
+        //                {
+        //                    CatalogItemOption expectedOption =
+        //                        expectedModule.Options.Option.Where(eo => eo.OptionDesc == actualOption.OptionDesc)
+        //                            .FirstOrDefault();
+
+        //                    actualOption.OptionSkuList.OptionSku.Count()
+        //                        .Should()
+        //                        .Be(expectedOption.OptionSkuList.OptionSku.Count(),
+        //                            "ERROR: Option SKU count mismtach for Option Desc: " + actualOption.OptionDesc);
+
+        //                    foreach (OptionSku actualOptionSku in actualOption.OptionSkuList.OptionSku)
+        //                    {
+        //                        OptionSku expectedOptionSku =
+        //                            expectedOption.OptionSkuList.OptionSku.Where(eo => eo.SkuId == actualOptionSku.SkuId)
+        //                                .FirstOrDefault();
+
+        //                        matchFlag &=
+        //                            UtilityMethods.CompareValues<string>(
+        //                                "Modules.Module.Options.Option.OptionSkuList.OptionSku.SkuId",
+        //                                actualOptionSku.SkuId, expectedOptionSku.SkuId);
+        //                        matchFlag &=
+        //                            UtilityMethods.CompareValues<string>(
+        //                                "Modules.Module.Options.Option.OptionSkuList.OptionSku.SkuDescription",
+        //                                actualOptionSku.SkuDescription, expectedOptionSku.SkuDescription);
+        //                        matchFlag &=
+        //                            UtilityMethods.CompareValues<string>(
+        //                                "Modules.Module.Options.Option.OptionSkuList.OptionSku.OptionId",
+        //                                actualOptionSku.OptionId, expectedOptionSku.OptionId);
+        //                        matchFlag &=
+        //                            UtilityMethods.CompareValues<decimal>(
+        //                                "Modules.Module.Options.Option.OptionSkuList.OptionSku.SkuPrice",
+        //                                actualOptionSku.SkuPrice, expectedOptionSku.SkuPrice);
+        //                    }
+
+
+        //                    matchFlag &= UtilityMethods.CompareValues<string>("Modules.Module.Options.Option.OptionId",
+        //                    actualOption.OptionId.Substring(actualOption.OptionId.IndexOf("/", System.StringComparison.Ordinal)),
+        //                    expectedOption.OptionId.Substring(expectedOption.OptionId.IndexOf("/", System.StringComparison.Ordinal)));
+
+        //                    matchFlag &= UtilityMethods.CompareValues<string>(
+        //                        "Modules.Module.Options.Option.OptionDesc", actualOption.OptionDesc,
+        //                        expectedOption.OptionDesc);
+        //                    matchFlag &= UtilityMethods.CompareValues<bool>("Modules.Module.Options.Option.Selected",
+        //                        actualOption.Selected, expectedOption.Selected);
+        //                    matchFlag &=
+        //                        UtilityMethods.CompareValues<decimal>("Modules.Module.Options.Option.DeltaPrice",
+        //                            actualOption.DeltaPrice, expectedOption.DeltaPrice);
+        //                    matchFlag &=
+        //                        UtilityMethods.CompareValues<decimal>("Modules.Module.Options.Option.FinalPrice",
+        //                            actualOption.FinalPrice, expectedOption.FinalPrice);
+        //                }
+        //                matchFlag &= UtilityMethods.CompareValues<int>("Modules.Module.ModuleId", actualmodule.ModuleId,
+        //                    expectedModule.ModuleId);
+        //                matchFlag &= UtilityMethods.CompareValues<string>("Modules.Module.ModuleDesc",
+        //                    actualmodule.ModuleDesc, expectedModule.ModuleDesc);
+        //                matchFlag &= UtilityMethods.CompareValues<bool>("Modules.Module.Required", actualmodule.Required,
+        //                    expectedModule.Required);
+        //                matchFlag &= UtilityMethods.CompareValues<bool>("Modules.Module.MultiSelect",
+        //                    actualmodule.MultiSelect, expectedModule.MultiSelect);
+        //                matchFlag &= UtilityMethods.CompareValues<string>("Modules.Module.DefaultOptionId",
+        //                    actualmodule.DefaultOptionId, expectedModule.DefaultOptionId);
+        //                matchFlag &= UtilityMethods.CompareValues<decimal>("Modules.Module.DefaultOptionPrice",
+        //                    actualmodule.DefaultOptionPrice, expectedModule.DefaultOptionPrice);
+        //            }
+        //        }
+        //        // Lease
+        //        matchFlag &= UtilityMethods.CompareValues<string>("Lease.LeaseTerms", actualCatalogItem.Lease.LeaseTerms, expectedCatalogItem.Lease.LeaseTerms);
+        //        matchFlag &= UtilityMethods.CompareValues<string>("Lease.Frequency", actualCatalogItem.Lease.Frequency, expectedCatalogItem.Lease.Frequency);
+        //        matchFlag &= UtilityMethods.CompareValues<decimal>("Lease.LeaseTerms", actualCatalogItem.Lease.LRF, expectedCatalogItem.Lease.LRF);
+        //        matchFlag &= UtilityMethods.CompareValues<string>("Lease.LeaseTerms", actualCatalogItem.Lease.Disposition, expectedCatalogItem.Lease.Disposition);
+        //        matchFlag &= UtilityMethods.CompareValues<decimal>("Lease.LeaseTerms", actualCatalogItem.Lease.ExpensedTotal, expectedCatalogItem.Lease.ExpensedTotal);
+
+        //        // Delta Comments
+        //        matchFlag &= UtilityMethods.CompareValues<string>("DeltaComments.Operation", actualCatalogItem.DeltaComments.Operation, expectedCatalogItem.DeltaComments.Operation);
+
+        //        // Delta Change
+        //        matchFlag &= UtilityMethods.CompareValues<DeltaStatus>("DeltaChange", actualCatalogItem.DeltaChange, expectedCatalogItem.DeltaChange);
+        //    }
+
+        //    return matchFlag;
+        //}
 
         /// <summary>
         /// Validate emails for generated catalog
@@ -458,7 +720,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
 
             b2BChannelUx.CreateButton.Click();
 
-            b2BChannelUx.WaitForFeedBackMessage(TimeSpan.FromMinutes(1));
+            b2BChannelUx.WaitForFeedBackMessage(TimeSpan.FromMinutes(2));
             b2BChannelUx.FeedBackMessage.Text.ShouldBeEquivalentTo("Auto Catalog generation successfully initiated. Please check it on the Auto Catalog & Inventory List page after sometime.");
         }
 

@@ -125,8 +125,9 @@ namespace Modules.Channel.B2B.Core.Pages
         {
             get
             {
-                return new SelectElement(webDriver.FindElement(By.XPath("//select[contains(@id,'SelectAccessGroup')]")));
+                //return new SelectElement(webDriver.FindElement(By.XPath("//select[contains(@id,'SelectAccessGroup')]")));
                 //return new SelectElement(webDriver.FindElement(By.XPath("//option[contains(@id,'SelectAccessGroup')]")));
+                return new SelectElement(webDriver.FindElement(By.Id("ContentPageHolder_CustomerAccessGroup_drp_CAG_SelectAccessGroup")));
             }
         }
 
@@ -200,8 +201,17 @@ namespace Modules.Channel.B2B.Core.Pages
 
         public void EnterAccessGroup(string AccessGroupValue)
         {
-            AccessGroupList.SelectByText(AccessGroupValue);
+            AccessGroupValue = AccessGroupValue.Split('[')[1];
+            int index = 1;
+            for (; index < AccessGroupList.Options.Count; index++)
+            {
+                if (AccessGroupList.Options[index].Text.Split('[')[1] == AccessGroupValue)
+                    break;
+            }
+            AccessGroupList.SelectByIndex(index);
+            //AccessGroupList.SelectByText(AccessGroupValue);
         }
+
 
         public void ClickCreateNewProfile()
         {

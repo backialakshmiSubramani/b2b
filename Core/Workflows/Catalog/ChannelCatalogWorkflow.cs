@@ -92,6 +92,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             //WaitForPageRefresh();
             if (b2BProfileSettingsGeneralPage.SelectAccessGroupMsgDisplayed())
             {
+                webDriver.WaitForPageLoad(new TimeSpan(0, 0, 10));
                 b2BProfileSettingsGeneralPage.EnterAccessGroup(accessGroup);
                 b2BProfileSettingsGeneralPage.CreateNewProfileButton.Click();
                 WaitForPageRefresh();
@@ -4372,7 +4373,8 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             uxWorkflow.ValidateCatalogSearchResult(catalogItemType, catalogType, catalogStatus, beforeSchedTime);
             string filePath = uxWorkflow.DownloadCatalog(identityName, beforeSchedTime);
 
-            uxWorkflow.ValidateCatalogXML(catalogItemType, catalogType, identityName, filePath, beforeSchedTime, configRules, defaultOptions).Should().BeTrue("Error: Data mismatch for Catalog XML content with expected values");
+            uxWorkflow.ValidateCatalogXML(catalogItemType, catalogType, identityName, filePath, beforeSchedTime, configRules).Should().BeTrue("Error: Data mismatch for Catalog XML content with expected values");
+            //uxWorkflow.ValidateCatalogXML(catalogItemType, catalogType, identityName, filePath, beforeSchedTime, configRules, defaultOptions).Should().BeTrue("Error: Data mismatch for Catalog XML content with expected values");
             //uxWorkflow.ValidateCatalogEMails(identityName, beforeSchedTime, operation);
 
             if (crtStatus == CRTStatus.ON)
