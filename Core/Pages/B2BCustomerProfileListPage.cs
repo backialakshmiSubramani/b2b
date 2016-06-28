@@ -108,6 +108,14 @@ namespace Modules.Channel.B2B.Core.Pages
             }
         }
 
+        private IWebElement CustomerNameTextField
+        {
+            get
+            {
+                return webDriver.FindElement(By.Id("ContentPageHolder_txtBoxCustomerName"));
+            }
+        }
+
         private SelectElement SearchCriteriaList
         {
             get
@@ -167,6 +175,37 @@ namespace Modules.Channel.B2B.Core.Pages
             }
         }
 
+        private IWebElement IsBHCAutoEnabled
+        {
+            get
+            {
+                return webDriver.FindElement(By.Id("ContentPageHolder_chkIsAutoBHCEnabled"));
+            }
+        }
+
+        private IWebElement IsMigrated
+        {
+            get
+            {
+                return webDriver.FindElement(By.Id("ContentPageHolder_chkIsIdentityMigrated"));
+            }
+        }
+
+        private IWebElement CustomerID
+        {
+            get
+            {
+                return webDriver.FindElement(By.Id("ContentPageHolder_txtBoxCustomerID"));
+            }
+        }
+
+         private SelectElement RegionList
+        {
+            get
+            {
+                return new SelectElement(webDriver.FindElement(By.Id("ContentPageHolder_ddlRegion")));
+            }
+        }
         #endregion
 
         #region Element Actions
@@ -305,6 +344,36 @@ namespace Modules.Channel.B2B.Core.Pages
             return status;
         }
 
+        public void AdvanceSearchProfileWithFilterOptions(string customerName, string customerID, string region, bool isMigrated, bool isBHCAutoEnabled)
+        {
+            ClickAnElementWithJSE(AdvancedSearchLink);
+            PageUtility.WaitForPageRefresh(webDriver);
+            CustomerNameTextField.Set(customerName);
+            if (region != "")  EnterRegion(region);
+            if (customerID != "") CustomerID.Set(customerID);
+            if (isMigrated == true) ClickAnElementWithJSE(IsMigrated);
+            if (isBHCAutoEnabled == true) ClickAnElementWithJSE(IsBHCAutoEnabled);
+
+            ClickAnElementWithJSE(AdvanceSearchBtn);
+            PageUtility.WaitForPageRefresh(webDriver);
+        }
+
+        public void EnterRegion(string RegionValue)
+        {
+            foreach (IWebElement element in RegionList.Options)
+            {
+                if (element.Text == RegionValue)
+                {
+                    element.Click();
+                    break;
+                }
+            }
+        }
+
+        public void ClickAnElementWithJSE(IWebElement iwebElement)
+        {
+            javaScriptExecutor.ExecuteScript("arguments[0].click();", iwebElement);
+        }
         #endregion
 
 

@@ -4951,6 +4951,23 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
 
             //uxWorkflow.ValidateRequestorEmailIdInCatalogHeaderXML(filePath, windowsLogin).Should().BeTrue("Error: Data mismatch for Catalog XML content with expected values");
         }
+
+
+
+        /// <summary>
+        /// Searches for the profile provided in B2B Profile List page with filter options
+        /// </summary>
+        /// <param name="environment"></param>
+        /// <param name="profileName"></param>
+        public bool VerifyAdvanceSearchForProfile(B2BEnvironment b2BEnvironment, string customerName, string customerID = "", string region = "", bool isMigrated = false, bool isBHCAutoEnabled = false)
+        {
+            webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["B2BBaseURL"]);
+            b2BHomePage.SelectEnvironment(b2BEnvironment.ToString());
+            b2BHomePage.ClickB2BProfileList();
+            b2BCustomerProfileListPage = new B2BCustomerProfileListPage(webDriver);
+            b2BCustomerProfileListPage.AdvanceSearchProfileWithFilterOptions(customerName, customerID, region, isMigrated, isBHCAutoEnabled);
+           return b2BCustomerProfileListPage.VerifyProfileSearchResult(customerName, "No");
+        }
     }
 
     /// <summary>
