@@ -13,6 +13,7 @@ using System.Data;
 using System.Configuration;
 using CatalogTests.Common.CatalogXMLTemplates;
 using Modules.Channel.Utilities;
+using System.Security.Principal;
 
 namespace Modules.Channel.B2B.Core.Workflows.Catalog
 {
@@ -29,7 +30,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         private IJavaScriptExecutor javaScriptExecutor;
         private const string MMDDYYYY = "MM/dd/yyyy";
         private int HeaderRowsCount = 0, Headercount = 0, subHeaderRows = 0;
-
+        private string windowsLogin;
         /// <summary>
         /// Constructor for ChannelCatalogWorkflow
         /// </summary>
@@ -40,6 +41,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             javaScriptExecutor = (IJavaScriptExecutor)this.webDriver;
             b2BHomePage = new B2BHomePage(webDriver);
             this.webDriver.Manage().Timeouts().SetPageLoadTimeout(TimeSpan.FromSeconds(120));
+            windowsLogin = WindowsIdentity.GetCurrent().Name.Split('\\')[1].ToLowerInvariant();
         }
 
         /// <summary>
@@ -686,7 +688,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             b2BBuyerCatalogPage.EditScheduleButton.Click();
             if (!b2BBuyerCatalogPage.CatalogConfigStandard.Selected)
                 b2BBuyerCatalogPage.CatalogConfigStandard.Click();
-            b2BBuyerCatalogPage.CatalogConfigSnP.Click();
+            //b2BBuyerCatalogPage.CatalogConfigSnP.Click();
             if (
                 !VerifyOriginalCatalogSchedulingOptions(DateTime.Now.ToString(MMDDYYYY), "0", "4",
                     DateTime.Now.AddDays(60).ToString(MMDDYYYY), defaultOriginalTimeOfSend))
@@ -4480,7 +4482,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         /// Below method verifies whether the BTS Order code exists or not in a Catlog file while Lead time > 3in BHC section
         /// If BTS Order code not exists then it retuns True
         /// </summary>
-        public bool VerifyLeadTimeGreaterThanThreeBTSOrderCodesNotExistsInCatalog(B2BEnvironment b2BEnvironment, CatalogItemType[] catalogItemType, string profileName, string identityName, CatalogStatus catalogStatus, CatalogType catalogType, string itemOrderCode)
+        public void VerifyLeadTimeGreaterThanThreeBTSOrderCodesNotExistsInCatalog(B2BEnvironment b2BEnvironment, CatalogItemType[] catalogItemType, string profileName, string identityName, CatalogStatus catalogStatus, CatalogType catalogType, string itemOrderCode,ConfigRules configRules)
         {
             DateTime beforeSchedTime = DateTime.Now;
             ChannelUxWorkflow uxWorkflow = new ChannelUxWorkflow(webDriver);
@@ -4491,11 +4493,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             uxWorkflow.ValidateCatalogSearchResult(catalogItemType, catalogType, catalogStatus, beforeSchedTime);
 
             string filePath = uxWorkflow.DownloadCatalog(identityName, beforeSchedTime);
-            if (uxWorkflow.VerifyOrderCodeExistsInCatalogFile(filePath, itemOrderCode))
-                return false;
-            else
-                return true;
-
+            uxWorkflow.VerifyOrderCodeExistsInCatalogFile(filePath, catalogItemType, configRules).Should().BeTrue("Error: Data mismatch for Catalog XML content with expected values");
         }
 
         /// <summary>
@@ -4947,9 +4945,11 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             uxWorkflow.SearchCatalog(profileName, identityName, beforeSchedTime, catalogStatus, catalogType);
             uxWorkflow.ValidateCatalogSearchResult(catalogType, catalogStatus, beforeSchedTime);
 
-            //string filePath = uxWorkflow.DownloadCatalog(identityName, beforeSchedTime);
-
-            //uxWorkflow.ValidateRequestorEmailIdInCatalogHeaderXML(filePath, windowsLogin).Should().BeTrue("Error: Data mismatch for Catalog XML content with expected values");
+            if (!(catalogStatus == CatalogStatus.Failed))
+            {
+                string filePath = uxWorkflow.DownloadCatalog(identityName, beforeSchedTime);
+                uxWorkflow.ValidateRequestorEmailIdInCatalogHeaderXML(filePath, windowsLogin).Should().BeTrue("Error: Data mismatch for Catalog XML content with expected values");
+            }
         }
 
 

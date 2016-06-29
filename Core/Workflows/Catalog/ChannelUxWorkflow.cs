@@ -916,6 +916,45 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         }
 
         /// <summary>
+        /// It verifies whether Order code exests or not
+        /// </summary>
+        /// <param name="filePath">XML file path</param>
+        /// <param name="itemOrderCode">itemOrderCode that need to check</param>
+        /// <returns>If itemOrderCode exists it returns true</returns>
+        public bool VerifyOrderCodeExistsInCatalogFile(string filePath, CatalogItemType[] catalogItemType, ConfigRules configRules)
+        {
+            B2BXML actualCatalog = XMLDeserializer<B2BXML>.DeserializeFromXmlFile(filePath);
+            bool matchFlag = true;
+            IEnumerable<CatalogItem> actualCatalogItem = null;
+            foreach (CatalogItemType itemType in catalogItemType)
+            {
+                switch (itemType)
+                {
+                    case CatalogItemType.ConfigWithDefaultOptions:
+                        actualCatalogItem = actualCatalog.BuyerCatalog.CatalogDetails.CatalogItem.Where(ci => ci.ItemType.ToString() == "BTS");
+                        break;
+                    case CatalogItemType.Systems:
+                        actualCatalogItem = actualCatalog.BuyerCatalog.CatalogDetails.CatalogItem.Where(ci => ci.ItemType.ToString() == "BTS");
+                        break;
+                    case CatalogItemType.ConfigWithUpsellDownsell:
+                        actualCatalogItem = actualCatalog.BuyerCatalog.CatalogDetails.CatalogItem.Where(ci => ci.ItemType.ToString() == "BTS");
+                        break;
+                    default:
+                        actualCatalogItem = actualCatalog.BuyerCatalog.CatalogDetails.CatalogItem.Where(ci => ci.ItemType.ToString() == "");
+                        break;
+                }
+                foreach (CatalogItem catalogItem in actualCatalogItem)
+                {
+                    if (configRules == ConfigRules.LeadTimeON)
+                        matchFlag &= UtilityMethods.CompareValues<int>("LeadTime", catalogItem.LeadTime, 3, Computation.LessThanOrEqualTo);
+                    else if (configRules == ConfigRules.LeadTimeOff)
+                        matchFlag &= UtilityMethods.CompareValues<int>("LeadTime", catalogItem.LeadTime, 0, Computation.GreaterThanOrEqualTo);
+                }
+            }
+            return matchFlag;
+        }
+
+        /// <summary>
         /// Waits for the page to refresh after navigation
         /// </summary>
         public void WaitForPageRefresh()
