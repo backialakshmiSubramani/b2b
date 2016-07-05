@@ -712,16 +712,22 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                 b2BChannelUx.OriginalRadioButton.Click();
             else if (catalogType == CatalogType.Delta)
                 b2BChannelUx.DeltaRadioButton.Click();
-
-            //b2BChannelUx.ClickToPublishButton.Click();
-
-            //IAlert successAlert = webDriver.WaitGetAlert(CatalogTimeOuts.AlertTimeOut);
-            //successAlert.Accept();
-
+            
             b2BChannelUx.CreateButton.Click();
 
-            b2BChannelUx.WaitForFeedBackMessage(TimeSpan.FromMinutes(2));
-            b2BChannelUx.FeedBackMessage.Text.ShouldBeEquivalentTo("Auto Catalog generation successfully initiated. Please check it on the Auto Catalog & Inventory List page after sometime.");
+            string envKey = ConfigurationReader.GetValue("EnvKey");
+            if (envKey == "PROD")
+            {
+                IAlert successAlert = webDriver.WaitGetAlert(CatalogTimeOuts.AlertTimeOut);
+                successAlert.Accept();
+            }
+            else if (envKey == "SIT3")
+            {
+                b2BChannelUx.WaitForFeedBackMessage(TimeSpan.FromMinutes(2));
+                b2BChannelUx.FeedBackMessage.Text.ShouldBeEquivalentTo("Auto Catalog generation successfully initiated. Please check it on the Auto Catalog & Inventory List page after sometime.");
+            }
+
+            //b2BChannelUx.ClickToPublishButton.Click(); 
         }
 
         internal void ValidateP2PMessage(B2BEnvironment environment, string profileName, string identityName, CatalogType catalogType)
@@ -763,7 +769,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             b2BChannelUx.SelectOption(b2BChannelUx.SelectCustomerProfileDiv, profileName);
             b2BChannelUx.SelectOption(b2BChannelUx.SelectProfileIdentityDiv, identityName.ToUpper());
             b2BChannelUx.SetNewRadioButton.Click();
-            
+
             if (b2BChannelUx.STDSetNewCheckBox.Selected)
                 b2BChannelUx.STDSetNewCheckBox.Click();
 
@@ -772,7 +778,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             else if (catalogType == CatalogType.Delta)
                 b2BChannelUx.DeltaRadioButton.Click();
             b2BChannelUx.CreateAndDownloadButton.Click();
-            
+
             WaitForPageRefresh();
 
             Console.WriteLine("Actual: " + b2BChannelUx.FeedBackMessage.Text);
