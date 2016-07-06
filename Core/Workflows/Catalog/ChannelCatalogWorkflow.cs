@@ -2967,9 +2967,16 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                 var HeaderRowElement = webDriver.FindElements(By.XPath(TableXpath_First + Table1FirstRow_End))[z];
                 var HeaderRowTextfromLocator = HeaderRowElement.Text;
                 var HeaderRowTestData = HeaderStringvalue[z];
-                if (HeaderRowTextfromLocator.ToUpper().Contains(HeaderRowTestData.ToUpper()))
+                if (HeaderRowTextfromLocator.ToUpper().Contains("DELL.COM"))
                 {
                     HeaderRowsCount++;
+                }
+                else
+                {
+                    if (HeaderRowTextfromLocator.ToUpper().Contains(HeaderRowTestData.ToUpper()))
+                    {
+                        HeaderRowsCount++;
+                    }
                 }
             }
             // Sub Header and Sub Rows Table1
@@ -4955,7 +4962,19 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             }
         }
 
-
+        /// <summary>
+        /// Verifies RemoveItemsLt Checkbox defaultValue for new profile
+        /// </summary>
+        /// <returns></returns>
+        public bool VerifyRemoveItemsLtCheckboxStatus(bool chkBoxStatus)
+        {
+            b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+            if (!b2BBuyerCatalogPage.EnableCatalogAutoGeneration.Selected)
+            {
+                b2BBuyerCatalogPage.EnableCatalogAutoGeneration.Click();
+            }
+            return chkBoxStatus == b2BBuyerCatalogPage.BcpchkRemoveItemsWithLTAbove3Days.Enabled;
+        }
 
         /// <summary>
         /// Searches for the profile provided in B2B Profile List page with filter options
