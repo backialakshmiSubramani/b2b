@@ -2973,11 +2973,11 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                 }
                 else
                 {
-                    if (HeaderRowTextfromLocator.ToUpper().Contains(HeaderRowTestData.ToUpper()))
-                    {
-                        HeaderRowsCount++;
-                    }
+                if (HeaderRowTextfromLocator.ToUpper().Contains(HeaderRowTestData.ToUpper()))
+                {
+                    HeaderRowsCount++;
                 }
+            }
             }
             // Sub Header and Sub Rows Table1
             if (Headercount.Equals(8) && HeaderRowsCount.Equals(8) && subHeaderRows.Equals(8))
@@ -3905,6 +3905,16 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         {
             GoToBuyerCatalogTab(environment, profileName);
             b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+            if (b2BBuyerCatalogPage.EditScheduleButton.Enabled)
+            {
+                b2BBuyerCatalogPage.EditScheduleButton.Click();
+            }
+            if (!b2BBuyerCatalogPage.CatalogConfigSnP.Selected)
+            {
+                b2BBuyerCatalogPage.CatalogConfigSnP.Click();
+            }
+           
+            
             if (!b2BBuyerCatalogPage.BcpchkCrossRefernceSnpUpdate.Selected)
             {
                 b2BBuyerCatalogPage.BcpchkCrossRefernceSnpUpdate.Click();
@@ -3937,6 +3947,15 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         {
             GoToBuyerCatalogTab(environment, profileName);
             b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+
+            if (b2BBuyerCatalogPage.EditScheduleButton.Enabled)
+            {
+                b2BBuyerCatalogPage.EditScheduleButton.Click();
+            }
+            if (!b2BBuyerCatalogPage.BcpchkSysCatalogCheckbox.Selected)
+            {
+                b2BBuyerCatalogPage.BcpchkSysCatalogCheckbox.Click();
+            }
             if (!b2BBuyerCatalogPage.BcpchkCrossRefernceSysUpdate.Selected)
             {
                 b2BBuyerCatalogPage.BcpchkCrossRefernceSysUpdate.Click();
