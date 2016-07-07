@@ -4685,11 +4685,20 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             }
             b2BBuyerCatalogPage.SetTextBoxValue(b2BBuyerCatalogPage.DeltaCatalogStartDate, DateTime.Now.AddDays(2).ToString(MMDDYYYY));
             
-            if (!b2BBuyerCatalogPage.CatalogConfigStandard.Selected)
+            //if (!b2BBuyerCatalogPage.CatalogConfigStandard.Selected)
+            //{
+            //    b2BBuyerCatalogPage.CatalogConfigStandard.Click();
+            //}
+            if (splField == true && snpField == false && sysField == false && stdField == false)
             {
-                b2BBuyerCatalogPage.CatalogConfigStandard.Click();
+                if (!b2BBuyerCatalogPage.CatalogConfigStandard.Selected)
+                {
+                    b2BBuyerCatalogPage.CatalogConfigStandard.Click();
+                }
             }
             b2BBuyerCatalogPage.UpdateButton.Click();
+
+
 
             b2BBuyerCatalogPage.AutomatedBhcCatalogProcessingRules.Click();
             b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
