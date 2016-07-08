@@ -117,7 +117,8 @@ namespace Modules.Channel.B2B.Common
         [Description("internet explorer")]
         InternetExplorer,
         [Description("edge")]
-        Edge,
+        MicrosoftEdge,
+        [Description("firefox")]
         Firefox
     }
 }

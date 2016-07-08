@@ -104,7 +104,7 @@ namespace Modules.Channel.B2B.Core.Pages
         {
             get
             {
-                return webDriver.FindElement(By.LinkText("Search"));
+                return WebDriver.FindElement(By.XPath("//a[text()='Search ']"));
             }
         }
 

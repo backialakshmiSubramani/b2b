@@ -92,8 +92,8 @@ namespace Modules.Channel.B2B.Core.Pages
         {
             get
             {
-                webDriver.WaitForElement(By.Id("ucLeftMenu_ddlEnv"), new TimeSpan(0, 0, 30));
-                return new SelectElement(webDriver.FindElement(By.Id("ucLeftMenu_ddlEnv")));
+                webDriver.WaitForElement(By.XPath("//*[@id='ucLeftMenu_ddlEnv']"), new TimeSpan(0, 0, 30));
+                return new SelectElement(webDriver.FindElement(By.XPath("//*[@id='ucLeftMenu_ddlEnv']")));
             }
         }
 
@@ -210,7 +210,7 @@ namespace Modules.Channel.B2B.Core.Pages
         {
             get
             {
-                return webDriver.FindElement(By.LinkText("Auto Catalog & Inventory List"));
+                return webDriver.FindElement(By.XPath("//a[text()=' Auto Catalog & Inventory List']"));
             }
         }
 
@@ -317,10 +317,15 @@ namespace Modules.Channel.B2B.Core.Pages
         #region ReUsable Methods
         public void SelectEnvironment(string environmentValue)
         {
-            EnvironmentList.SelectByText(environmentValue);
+            int index = 0;
+            for (; index < EnvironmentList.Options.Count; index++)
+            {
+                if (EnvironmentList.Options[index].Text.Trim() == environmentValue)
+                    break;
+            }
+            EnvironmentList.SelectByIndex(index);
             Console.WriteLine("B2B environment selected is: ** {0} **", environmentValue);
-            javaScriptExecutor.ExecuteScript("arguments[0].click();", GoButton);
-            //PageUtility.WaitForPageRefresh(webDriver);
+            UtilityMethods.ClickElement(webDriver, GoButton);
         }
 
         public void OpenPackageUploadPage()

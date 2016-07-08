@@ -284,16 +284,9 @@ namespace Modules.Channel.B2B.Core.Pages
         public void SelectOption(IWebElement webElement, string optionText)
         {
             webDriver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromMinutes(1));
-            webElement.Click();
+            UtilityMethods.ClickElement(webDriver, webElement);
             IWebElement textElement = webElement.FindElement(By.XPath("div/ul/child::li/a/div/strong[text()='" + optionText + "']"));
-            textElement.Click();
-
-            //webElement.Click();
-            //IWebElement text = webElement.FindElement(By.CssSelector("input[type='text']"));
-            //text.SendKeys(optionText);
-            ////IWebElement optionEle = webElement.FindElement(By.CssSelector("ul[role='menu'] li:nth-of-type(1)"));
-            //IWebElement optionEle = webElement.FindElement(By.XPath("//ul[@role='menu']/li[1]/a[div/strong[contains(text(),'" + optionText + "')]]"));
-            //optionEle.Click();
+            UtilityMethods.ClickElement(webDriver, textElement);
         }
 
         public void OpenCreateInstantCatalogPage(B2BEnvironment b2BEnvironment)

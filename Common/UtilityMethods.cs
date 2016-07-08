@@ -17,6 +17,7 @@ using OpenQA.Selenium.Remote;
 using OpenQA.Selenium.Chrome;
 using System.Configuration;
 using OpenQA.Selenium.IE;
+using OpenQA.Selenium.Edge;
 
 namespace Modules.Channel.B2B.Common
 {
@@ -311,11 +312,18 @@ namespace Modules.Channel.B2B.Common
             List<string> columnNames = tableElement.GetColumnNames();
             int columnIndex = 0;
             for (int i = 0; i < columnNames.Count; i++)
-                if (columnNames[i] == columnName)
+            {
+                if (columnNames[i].Contains(columnName))
                 {
                     columnIndex = i + 1;
                     break;
                 }
+            }
+            //if (columnNames[i] == columnName)
+            //    {
+            //        columnIndex = i + 1;
+            //        break;
+            //    }
 
             if (columnIndex == 0)
                 throw new Exception("Error: Table does not contain the given column name: " + columnName);
@@ -369,6 +377,9 @@ namespace Modules.Channel.B2B.Common
                 case BrowserName.Chrome:
                     webElement.Click();
                     break;
+                case BrowserName.MicrosoftEdge:
+                    ((IJavaScriptExecutor)webDriver).ExecuteScript("arguments[0].click();",webElement);
+                    break;
             }
         }
 
@@ -382,13 +393,13 @@ namespace Modules.Channel.B2B.Common
                     options.AddUserProfilePreference("safebrowsing.enabled", "true");
                     options.AddUserProfilePreference("download.default_directory", ConfigurationManager.AppSettings["CatalogDownloadPath"]);
                     options.AddArguments("--start-maximized");
-
                     webDriver = new ChromeDriver(options);
                     break;
                 case BrowserName.InternetExplorer:
                     webDriver = new InternetExplorerDriver();
                     break;
-                case BrowserName.Edge:
+                case BrowserName.MicrosoftEdge:
+                    webDriver = new EdgeDriver();
                     break;
             }
 

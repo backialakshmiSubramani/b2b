@@ -137,7 +137,10 @@ namespace Modules.Channel.B2B.Core.Pages
             get
             {
                 if (_automatedBhcCatalogProcessingRules == null)
-                    _automatedBhcCatalogProcessingRules = webDriver.FindElement(By.LinkText("Automated BHC Catalog - Processing Rules"), new TimeSpan(0, 0, 30));
+                {
+                    //_automatedBhcCatalogProcessingRules = webDriver.FindElement(By.LinkText("Automated BHC Catalog - Processing Rules"), new TimeSpan(0, 0, 30));
+                    _automatedBhcCatalogProcessingRules = webDriver.FindElement(By.XPath("//*[@id='autobhccatalogprocessingrulesplus']/a/img"));
+                }
                 return _automatedBhcCatalogProcessingRules;
             }
         }
@@ -831,7 +834,8 @@ namespace Modules.Channel.B2B.Core.Pages
             {
                 if (_AuditHistoryLink == null)
                 {
-                    _AuditHistoryLink = webDriver.FindElement(By.LinkText("Audit History"), new TimeSpan(0, 0, 30));
+                    _AuditHistoryLink = webDriver.FindElement(By.XPath("//*[@id='audithistoryplus']/a/img"), new TimeSpan(0, 0, 30));
+                    //_AuditHistoryLink = webDriver.FindElement(By.LinkText("Audit History"), new TimeSpan(0, 0, 30));
                 }
                 return _AuditHistoryLink;
             }

@@ -6,6 +6,7 @@ using Dell.Adept.UI.Web.Support.Extensions.WebElement;
 using FluentAssertions;
 using Modules.Channel.B2B.Core.Pages;
 using OpenQA.Selenium;
+using OpenQA.Selenium.Remote;
 using Modules.Channel.B2B.Common;
 using System.IO;
 using System.Configuration;
@@ -698,10 +699,13 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             b2BChannelUx.OpenCreateInstantCatalogPage(b2BEnvironment);
 
             if (b2BEnvironment == B2BEnvironment.Production)
-                b2BChannelUx.ProductionEnvRadioButton.Click();
+            {
+                UtilityMethods.ClickElement(webDriver, b2BChannelUx.ProductionEnvRadioButton);
+            }   
             else if (b2BEnvironment == B2BEnvironment.Preview)
-                b2BChannelUx.PreviewEnvRadioButton.Click();
-
+            {
+                UtilityMethods.ClickElement(webDriver, b2BChannelUx.PreviewEnvRadioButton);
+            }
             b2BChannelUx.SelectOption(b2BChannelUx.SelectCustomerProfileDiv, profileName);
             b2BChannelUx.SelectOption(b2BChannelUx.SelectProfileIdentityDiv, identityName.ToUpper());
 
@@ -881,10 +885,9 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         public string DownloadCatalog(string identityName, DateTime anyTimeAfter)
         {
             CPTAutoCatalogInventoryListPage autoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
-
-            autoCatalogListPage.GetDownloadButton(1).Click();
+            UtilityMethods.ClickElement(webDriver, autoCatalogListPage.GetDownloadButton(1));
             string downloadPath = ConfigurationManager.AppSettings["CatalogDownloadPath"];
-
+            
             webDriver.WaitForDownLoadToComplete(downloadPath, identityName, anyTimeAfter, TimeSpan.FromMinutes(1));
             string fileName = new DirectoryInfo(downloadPath).GetFiles().AsEnumerable()
                 .Where(file => file.Name.Contains(identityName.ToUpper()) && file.CreationTime > anyTimeAfter)
@@ -1024,39 +1027,61 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             IReadOnlyCollection<string> windowHandles = webDriver.WindowHandles;
 
             webDriver.SwitchTo().Window(webDriver.WindowHandles.Last());
-            string crtXMLText = webDriver.FindElement(By.CssSelector("div[class='pretty-print']")).Text;
-
-            B2BXML CatalogXML = XMLDeserializer<B2BXML>.DeserializeFromXmlFile(catalogXMLFilePath);
-            CRTXML CrtXML = XMLDeserializer<CRTXML>.DeserializeFromXmlString(crtXMLText);
-
-            List<CatalogItem> validCRTCatalogItems = CatalogXML.BuyerCatalog.CatalogDetails.CatalogItem.Where(ci => ((ci.CatalogItemType == CatalogItemType.ConfigWithDefaultOptions || ci.CatalogItemType == CatalogItemType.ConfigWithUpsellDownsell || ci.CatalogItemType == CatalogItemType.Systems)
-                && !string.IsNullOrEmpty(ci.ManufacturerPartNumber)) || (ci.CatalogItemType == CatalogItemType.SNP && !string.IsNullOrEmpty(ci.BaseSKUId))).ToList();
-
-            CrtXML.CrossReference.CRTValues.CRTValue.Count().Should().Be(validCRTCatalogItems.Count, "CRT XML Count does not match with catalog item count");
-
+            String name = ((RemoteWebDriver)webDriver).Capabilities.BrowserName;
             bool matchflag = true;
-
-            foreach (CatalogItem catalogItem in validCRTCatalogItems)
+            B2BXML CatalogXML = XMLDeserializer<B2BXML>.DeserializeFromXmlFile(catalogXMLFilePath);
+            List<CatalogItem> validCRTCatalogItems = CatalogXML.BuyerCatalog.CatalogDetails.CatalogItem.Where(ci => ((ci.CatalogItemType == CatalogItemType.ConfigWithDefaultOptions || ci.CatalogItemType == CatalogItemType.ConfigWithUpsellDownsell || ci.CatalogItemType == CatalogItemType.Systems)
+                    && !string.IsNullOrEmpty(ci.ManufacturerPartNumber)) || (ci.CatalogItemType == CatalogItemType.SNP && !string.IsNullOrEmpty(ci.BaseSKUId))).ToList();
+            if (name == "MicrosoftEdge")
             {
-                string id = string.Empty;
-                switch (catalogItem.CatalogItemType)
+                WaitForPageRefresh();
+                string pageSource = webDriver.PageSource;
+                foreach (CatalogItem catalogItem in validCRTCatalogItems)
                 {
-                    case CatalogItemType.ConfigWithDefaultOptions:
-                    case CatalogItemType.ConfigWithUpsellDownsell:
-                    case CatalogItemType.Systems:
-                        id = catalogItem.ManufacturerPartNumber;
-                        break;
-                    case CatalogItemType.SNP:
-                        id = catalogItem.BaseSKUId;
-                        break;
+                    string id = string.Empty;
+                    switch (catalogItem.CatalogItemType)
+                    {
+                        case CatalogItemType.ConfigWithDefaultOptions:
+                        case CatalogItemType.ConfigWithUpsellDownsell:
+                        case CatalogItemType.Systems:
+                            id = catalogItem.ManufacturerPartNumber;
+                            break;
+                        case CatalogItemType.SNP:
+                            id = catalogItem.BaseSKUId;
+                            break;
+                    }
+                    matchflag = pageSource.Contains(catalogItem.PartId);
+                    matchflag = pageSource.Contains(catalogItem.ListPrice);
+                    matchflag = pageSource.Contains(id);
                 }
-
-                matchflag &= UtilityMethods.CompareValues<string>("ID", CrtXML.CrossReference.CRTValues.CRTValue.Where(crt => crt.Id == catalogItem.ManufacturerPartNumber).First().Item.Where(item => item.Id == "ID").First().Data, id);
-                matchflag &= UtilityMethods.CompareValues<string>("Buyer Code", CrtXML.CrossReference.CRTValues.CRTValue.Where(crt => crt.Id == catalogItem.ManufacturerPartNumber).First().Item.Where(item => item.Id == "buyer_code").First().Data, catalogItem.PartId);
-                matchflag &= UtilityMethods.CompareValues<string>("Price", CrtXML.CrossReference.CRTValues.CRTValue.Where(crt => crt.Id == catalogItem.ManufacturerPartNumber).First().Item.Where(item => item.Id == "price").First().Data, catalogItem.ListPrice);
-                matchflag &= UtilityMethods.CompareValues<string>("Buyer Code Type", CrtXML.CrossReference.CRTValues.CRTValue.Where(crt => crt.Id == catalogItem.ManufacturerPartNumber).First().Item.Where(item => item.Id == "buyer_code_type").First().Data, "B2B Quote");
             }
+            else
+            {
+                string crtXMLText = webDriver.FindElement(By.CssSelector("div[class='pretty-print']")).Text;
+                CRTXML CrtXML = XMLDeserializer<CRTXML>.DeserializeFromXmlString(crtXMLText);
+                CrtXML.CrossReference.CRTValues.CRTValue.Count().Should().Be(validCRTCatalogItems.Count, "CRT XML Count does not match with catalog item count");
 
+                foreach (CatalogItem catalogItem in validCRTCatalogItems)
+                {
+                    string id = string.Empty;
+                    switch (catalogItem.CatalogItemType)
+                    {
+                        case CatalogItemType.ConfigWithDefaultOptions:
+                        case CatalogItemType.ConfigWithUpsellDownsell:
+                        case CatalogItemType.Systems:
+                            id = catalogItem.ManufacturerPartNumber;
+                            break;
+                        case CatalogItemType.SNP:
+                            id = catalogItem.BaseSKUId;
+                            break;
+                    }
+
+                    matchflag &= UtilityMethods.CompareValues<string>("ID", CrtXML.CrossReference.CRTValues.CRTValue.Where(crt => crt.Id == catalogItem.ManufacturerPartNumber).First().Item.Where(item => item.Id == "ID").First().Data, id);
+                    matchflag &= UtilityMethods.CompareValues<string>("Buyer Code", CrtXML.CrossReference.CRTValues.CRTValue.Where(crt => crt.Id == catalogItem.ManufacturerPartNumber).First().Item.Where(item => item.Id == "buyer_code").First().Data, catalogItem.PartId);
+                    matchflag &= UtilityMethods.CompareValues<string>("Price", CrtXML.CrossReference.CRTValues.CRTValue.Where(crt => crt.Id == catalogItem.ManufacturerPartNumber).First().Item.Where(item => item.Id == "price").First().Data, catalogItem.ListPrice);
+                    matchflag &= UtilityMethods.CompareValues<string>("Buyer Code Type", CrtXML.CrossReference.CRTValues.CRTValue.Where(crt => crt.Id == catalogItem.ManufacturerPartNumber).First().Item.Where(item => item.Id == "buyer_code_type").First().Data, "B2B Quote");
+                }
+            }
             return matchflag;
         }
 

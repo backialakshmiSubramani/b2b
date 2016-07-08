@@ -61,7 +61,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             Console.WriteLine("Opened Profile Page for profile: {0}", profileName);
             b2BManageProfileIdentitiesPage.BuyerCatalogTab.Click();
             b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
-            b2BBuyerCatalogPage.AutomatedBhcCatalogProcessingRules.Click();
+            UtilityMethods.ClickElement(webDriver, b2BBuyerCatalogPage.AutomatedBhcCatalogProcessingRules);
             b2BBuyerCatalogPage.EnableCatalogAutoGeneration.WaitForElementDisplayed(TimeSpan.FromSeconds(30));
         }
 
@@ -76,40 +76,32 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         public void CreateNewProfileAndGoToBuyerCatalogTab(string environment, string customerSet, string accessGroup, string profileNameBase)
         {
             var newProfileName = profileNameBase + DateTime.Today.ToString("yyMMdd") + DateTime.Now.ToString("HHmmss");
-
             Console.WriteLine("Profile creation start with name: {0}", newProfileName);
             b2BHomePage.SelectEnvironment(environment);
-            b2BHomePage.B2BProfileListLink.Click();
-
-            WaitForPageRefresh();
+            UtilityMethods.ClickElement(webDriver, b2BHomePage.B2BProfileListLink);
             b2BCustomerProfileListPage = new B2BCustomerProfileListPage(webDriver);
-            b2BCustomerProfileListPage.CreateNewProfileLink.Click();
-            WaitForPageRefresh();
+            UtilityMethods.ClickElement(webDriver, b2BCustomerProfileListPage.CreateNewProfileLink);
             b2BProfileSettingsGeneralPage = new B2BProfileSettingsGeneralPage(webDriver);
             b2BProfileSettingsGeneralPage.EnterUserId(newProfileName);
             b2BProfileSettingsGeneralPage.EnterCustomerName(newProfileName);
             b2BProfileSettingsGeneralPage.EnterIdentityName(newProfileName);
             b2BProfileSettingsGeneralPage.EnterCustomerSet(customerSet);
-            b2BProfileSettingsGeneralPage.SearchLink.Click();
-            //WaitForPageRefresh();
+            UtilityMethods.ClickElement(webDriver, b2BProfileSettingsGeneralPage.SearchLink);
             if (b2BProfileSettingsGeneralPage.SelectAccessGroupMsgDisplayed())
             {
                 webDriver.WaitForPageLoad(new TimeSpan(0, 0, 10));
                 b2BProfileSettingsGeneralPage.EnterAccessGroup(accessGroup);
-                b2BProfileSettingsGeneralPage.CreateNewProfileButton.Click();
-                WaitForPageRefresh();
+                UtilityMethods.ClickElement(webDriver, b2BProfileSettingsGeneralPage.CreateNewProfileButton);
             }
             else
             {
                 throw new ElementNotVisibleException();
             }
-
             b2BManageProfileIdentitiesPage = new B2BManageProfileIdentitiesPage(webDriver);
             Console.WriteLine("New profile created with Name: {0}", newProfileName);
             b2BManageProfileIdentitiesPage.BuyerCatalogTab.Click();
-            WaitForPageRefresh();
             b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
-            b2BBuyerCatalogPage.AutomatedBhcCatalogProcessingRules.Click();
+            UtilityMethods.ClickElement(webDriver, b2BBuyerCatalogPage.AutomatedBhcCatalogProcessingRules);
             b2BBuyerCatalogPage.EnableCatalogAutoGeneration.WaitForElementDisplayed(TimeSpan.FromSeconds(30));
         }
 
@@ -1242,9 +1234,12 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             b2BAutoCatalogListPage.SearchRecordsLink.Click();
             b2BAutoCatalogListPage.CatalogsTable.WaitForElementVisible(TimeSpan.FromSeconds(30));
             var Status = b2BAutoCatalogListPage.CatalogsTable.GetCellValue(1, "Status");
-            var countryCode = b2BAutoCatalogListPage.CatalogsTable.GetCellValue(1, "Country\r\nCode");
-            var regioncode = b2BAutoCatalogListPage.CatalogsTable.GetCellValue(1, "Region");
-            var Currencycode = b2BAutoCatalogListPage.CatalogsTable.GetCellValue(1, "Currency\r\nCode");
+            //var countryCode = b2BAutoCatalogListPage.CatalogsTable.GetCellValue(1, "Country\r\nCode");
+            //var regioncode = b2BAutoCatalogListPage.CatalogsTable.GetCellValue(1, "Region");
+            //var Currencycode = b2BAutoCatalogListPage.CatalogsTable.GetCellValue(1, "Currency\r\nCode");
+            var countryCode = b2BAutoCatalogListPage.CatalogsTable.GetCellValue(1, "Country").Trim();
+            var regioncode = b2BAutoCatalogListPage.CatalogsTable.GetCellValue(1, "Region").Trim();
+            var Currencycode = b2BAutoCatalogListPage.CatalogsTable.GetCellValue(1, "Currency").Trim();
             Console.WriteLine(Status + ", " + countryCode + " ," + regioncode + ", " + currencyCode);
             if (Status.Equals(status.ToString()) && countryCode.Equals(CountryCode) && regioncode.Equals(region) && Currencycode.Equals(currencyCode))
             {
@@ -1911,7 +1906,6 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         ///// <returns></returns>
         public bool VerifyRemoveItemsLtCheckboxdefaultValueExistingProfile(string environment, string profileName)
         {
-
             GoToBuyerCatalogTab(environment, profileName);
             b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
             if (!b2BBuyerCatalogPage.BcpCatalogEnabled.Selected)
@@ -1925,16 +1919,14 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             b2BBuyerCatalogPage.EnableCatalogAutoGeneration.WaitForElementDisplayed(TimeSpan.FromSeconds(30));
             if (b2BBuyerCatalogPage.BcpchkRemoveItemsWithLTAbove3Days.Selected)
             {
-                b2BBuyerCatalogPage.BcpchkRemoveItemsWithLTAbove3Days.Click();
-
-                b2BBuyerCatalogPage.UpdateButton.Click();
+                UtilityMethods.ClickElement(webDriver, b2BBuyerCatalogPage.BcpchkRemoveItemsWithLTAbove3Days);
+                UtilityMethods.ClickElement(webDriver, b2BBuyerCatalogPage.UpdateButton);
                 return true;
             }
             else if (!b2BBuyerCatalogPage.BcpchkRemoveItemsWithLTAbove3Days.Selected)
             {
-                b2BBuyerCatalogPage.BcpchkRemoveItemsWithLTAbove3Days.Click();
-
-                b2BBuyerCatalogPage.UpdateButton.Click();
+                UtilityMethods.ClickElement(webDriver, b2BBuyerCatalogPage.BcpchkRemoveItemsWithLTAbove3Days);
+                UtilityMethods.ClickElement(webDriver, b2BBuyerCatalogPage.UpdateButton);
                 return true;
             }
             else
@@ -2822,10 +2814,8 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             b2BBuyerCatalogPage.CatalogConfigStandard.Click();
             b2BBuyerCatalogPage.SetTextBoxValue(b2BBuyerCatalogPage.OriginalCatalogStartDate,
                 DateTime.Now.AddDays(1).ToString(MMDDYYYY));
-            //b2BBuyerCatalogPage.SetTextBoxValue(b2BBuyerCatalogPage.DeltaCatalogStartDate,
-            //    DateTime.Now.AddDays(3).ToString(MMDDYYYY));
             b2BBuyerCatalogPage.OriginalTimeOfSend.Select().SelectByValue("8");
-            b2BBuyerCatalogPage.UpdateButton.Click();
+            UtilityMethods.ClickElement(webDriver, b2BBuyerCatalogPage.UpdateButton);
             return VerifyAuditHistoryRow(oldValue, newValue, autoBhcAuditHistoryProperty);
         }
 
@@ -3390,7 +3380,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         private bool VerifyAuditHistoryRow(string oldValue, string newValue, string auditHistoryProperty)
         {
             b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
-            b2BBuyerCatalogPage.AuditHistoryLink.Click();
+            UtilityMethods.ClickElement(webDriver, b2BBuyerCatalogPage.AuditHistoryLink);
             WaitForPageRefresh();
             var auditHistoryRow =
                 b2BBuyerCatalogPage.AuditHistoryRows.FirstOrDefault(
@@ -3691,9 +3681,9 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             GoToBuyerCatalogTab(environment, profile);
             b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
             oldValue = b2BBuyerCatalogPage.BcpchkRemoveItemsWithLTAbove3Days.Selected.ToString();
-            b2BBuyerCatalogPage.BcpchkRemoveItemsWithLTAbove3Days.Click();
+            UtilityMethods.ClickElement(webDriver, b2BBuyerCatalogPage.BcpchkRemoveItemsWithLTAbove3Days);
             newValue = b2BBuyerCatalogPage.BcpchkRemoveItemsWithLTAbove3Days.Selected.ToString();
-            b2BBuyerCatalogPage.UpdateButton.Click();
+            UtilityMethods.ClickElement(webDriver, b2BBuyerCatalogPage.UpdateButton);
             return VerifyAuditHistoryRow(oldValue, newValue, removeItemswithLtAuditHistoryProperty);
 
         }
@@ -4543,12 +4533,12 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
             if (!b2BBuyerCatalogPage.EnableCatalogAutoGeneration.Selected)
             {
-                b2BBuyerCatalogPage.EnableCatalogAutoGeneration.Click();
-                b2BBuyerCatalogPage.BuyerCatalogFirstIdentity.Click();
+                UtilityMethods.ClickElement(webDriver, b2BBuyerCatalogPage.EnableCatalogAutoGeneration);
+                UtilityMethods.ClickElement(webDriver, b2BBuyerCatalogPage.BuyerCatalogFirstIdentity);
             }
             else
             {
-                b2BBuyerCatalogPage.EditScheduleButton.Click();
+                UtilityMethods.ClickElement(webDriver, b2BBuyerCatalogPage.EditScheduleButton);
             }
 
             //Following will reset the fields by Turning Off for SYS Config, SNP Config, SPL, SYS CRT & SNP CRT fields, so that it makes every iteration execution go smooth
@@ -4685,10 +4675,6 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             }
             b2BBuyerCatalogPage.SetTextBoxValue(b2BBuyerCatalogPage.DeltaCatalogStartDate, DateTime.Now.AddDays(2).ToString(MMDDYYYY));
             
-            //if (!b2BBuyerCatalogPage.CatalogConfigStandard.Selected)
-            //{
-            //    b2BBuyerCatalogPage.CatalogConfigStandard.Click();
-            //}
             if (splField == true && snpField == false && sysField == false && stdField == false)
             {
                 if (!b2BBuyerCatalogPage.CatalogConfigStandard.Selected)
@@ -4696,12 +4682,8 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                     b2BBuyerCatalogPage.CatalogConfigStandard.Click();
                 }
             }
-            b2BBuyerCatalogPage.UpdateButton.Click();
-
-
-
-            b2BBuyerCatalogPage.AutomatedBhcCatalogProcessingRules.Click();
-            b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+            UtilityMethods.ClickElement(webDriver, b2BBuyerCatalogPage.UpdateButton);
+            UtilityMethods.ClickElement(webDriver, b2BBuyerCatalogPage.AutomatedBhcCatalogProcessingRules);
             b2BBuyerCatalogPage.EnableCatalogAutoGeneration.WaitForElementDisplayed(TimeSpan.FromSeconds(30));
 
             //Following will verifies SPL with SYS Config, SNP Config, SNP Auto CRT & SYS Auto CRT UI settings are saved correctly or not

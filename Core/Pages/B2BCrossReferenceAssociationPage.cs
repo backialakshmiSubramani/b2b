@@ -305,7 +305,20 @@ namespace Modules.Channel.B2B.Core.Pages
 
         public void OpenCRTXML(string userId)
         {
-            CRTResultTable.FindElement(By.XPath(string.Format("//td[text()='{0}']/..//a[text()='View Xml']", userId))).Click();
+            int count = 0;
+            while (count < 4)
+            {
+                try
+                {
+                    UtilityMethods.ClickElement(webDriver, CRTResultTable.FindElement(By.XPath(string.Format("//td[text()='{0}']/..//a[text()='View Xml']", userId))));
+                    break;
+                }
+                catch (StaleElementReferenceException e)
+                {
+                    Console.WriteLine("Trying to recover from a stale element :" + e.Message);
+                    count = count + 1;
+                }
+            }
         }
 
         internal void OpenCrossReferenceListPage(B2BEnvironment b2BEnvironment)
