@@ -13,6 +13,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Serialization;
+using OpenQA.Selenium.Remote;
+using OpenQA.Selenium.Chrome;
+using System.Configuration;
+using OpenQA.Selenium.IE;
 
 namespace Modules.Channel.B2B.Common
 {
@@ -107,9 +111,16 @@ namespace Modules.Channel.B2B.Common
             WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(timeoutInSeconds));
             wait.Until<bool>(d =>
             {
-                if (element.Displayed)
-                    return true;
-                return false;
+                try
+                {
+                    if (element.Displayed)
+                        return true;
+                    return false;
+                }
+                catch (Exception)
+                {
+                    return false;
+                }
             });
         }
 
@@ -265,6 +276,25 @@ namespace Modules.Channel.B2B.Common
                 return value.ToString();
         }
 
+        public static T ConvertToEnum<T>(this string value)
+        {
+            var type = typeof(T);
+            if (!type.IsEnum) throw new InvalidOperationException();
+            foreach (var field in type.GetFields())
+            {
+                if (field.CustomAttributes.Count() > 0 && field.CustomAttributes.First().ConstructorArguments.Count() > 0)
+                {
+                    string attribute = field.CustomAttributes.First().ConstructorArguments.First().Value.ToString();
+                    if (attribute != null)
+                    {
+                        if (attribute == value || field.Name == value)
+                            return (T)field.GetValue(null);
+                    }
+                }
+            }
+            throw new ArgumentException(string.Format("Cannot convert string {0} to type {1}", value, typeof(T)));
+        }
+
         public static List<string> GetColumnNames(this IWebElement tableElement)
         {
             List<IWebElement> columnHeaders = tableElement.FindElements(By.CssSelector("thead tr th")).ToList();
@@ -296,10 +326,10 @@ namespace Modules.Channel.B2B.Common
         public static string GetCellValue(this IWebElement tableElement, int rowIndex, string columnName)
         {
             int columnIndex = tableElement.GetColumnIndex(columnName);
-            
+
             if (columnIndex > 4 && columnIndex < 7)
                 columnIndex += 2;
-            else if(columnIndex >= 7) 
+            else if (columnIndex >= 7)
                 columnIndex += 3;
 
             string cellValue = tableElement.FindElement(By.CssSelector("tbody tr:nth-of-type(" + rowIndex + ") td:nth-of-type(" + columnIndex + ")")).Text;
@@ -319,6 +349,50 @@ namespace Modules.Channel.B2B.Common
             var cellValue = tableElement.FindElement(By.CssSelector("tbody tr:nth-of-type(" + rowIndex + ") td:nth-of-type(" + columnIndex + ")"));
 
             return cellValue;
+        }
+
+        public static BrowserName GetBrowserName(this IWebDriver webDriver)
+        {
+            ICapabilities capabilities = ((RemoteWebDriver)webDriver).Capabilities;
+            return ConvertToEnum<BrowserName>(capabilities.BrowserName);
+        }
+
+        public static void ClickElement(this IWebDriver webDriver, IWebElement webElement)
+        {
+            BrowserName browserName = webDriver.GetBrowserName();
+
+            switch (browserName)
+            {
+                case BrowserName.InternetExplorer:
+                    webElement.SendKeys(Keys.Enter);
+                    break;
+                case BrowserName.Chrome:
+                    webElement.Click();
+                    break;
+            }
+        }
+
+        public static IWebDriver SwitchBrowser(this IWebDriver webDriver, BrowserName browserName)
+        {
+            webDriver.Close();
+            switch (browserName)
+            {
+                case BrowserName.Chrome:
+                    ChromeOptions options = new ChromeOptions();
+                    options.AddUserProfilePreference("safebrowsing.enabled", "true");
+                    options.AddUserProfilePreference("download.default_directory", ConfigurationManager.AppSettings["CatalogDownloadPath"]);
+                    options.AddArguments("--start-maximized");
+
+                    webDriver = new ChromeDriver(options);
+                    break;
+                case BrowserName.InternetExplorer:
+                    webDriver = new InternetExplorerDriver();
+                    break;
+                case BrowserName.Edge:
+                    break;
+            }
+
+            return webDriver;
         }
     }
 }

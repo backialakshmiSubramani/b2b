@@ -100,6 +100,24 @@ namespace Modules.Channel.B2B.Common
     {
         ON,
         OFF
-    };
+    }
 
+    public enum DeltaChange
+    {
+        Add,
+        Remove,
+        Modify,
+        NoChange
+    }
+
+    public enum BrowserName
+    {
+        [Description("chrome")]
+        Chrome,
+        [Description("internet explorer")]
+        InternetExplorer,
+        [Description("edge")]
+        Edge,
+        Firefox
+    }
 }
