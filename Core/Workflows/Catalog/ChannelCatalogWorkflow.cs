@@ -2914,7 +2914,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             string[] SubRow1StringValue = SubRowvalue1.ToString().Split(new string[] { " ," }, StringSplitOptions.None);
             
             int quoteidlength = SubRow1StringValue[4].Length;
-            string quoteid = SubRow1StringValue[4].Substring(4, quoteidlength-4);
+            string quoteid = SubRow1StringValue[4].Substring(4, quoteidlength - 4);
 
             b2BAutoCatalogListPage.PartViewerQuoteIdsLink.SendKeys(quoteid);
             b2BAutoCatalogListPage.PartViewerSearchButton.Click();
@@ -2935,7 +2935,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                 //var subRow1Testdata = SubRow1StringValue[j].Replace('_', ',');
                 var subRow1Testdata = SubRow1StringValue[j];
                 
-                if (subHeaderTable1fromLocator.Equals(subHeaderTestdata) && subRowTable1fromLocator.Equals(subRow1Testdata) )
+                if (subHeaderTable1fromLocator.Equals(subHeaderTestdata) && subRowTable1fromLocator.Equals(subRow1Testdata))
                 {
                     subHeaderRows++;
                 }
@@ -4399,6 +4399,39 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                 uxWorkflow.ValidateCRT(b2BEnvironment, profileName, filePath).Should().BeTrue("Error: Data mismatch for CRT XML content with Catalog XML");
         }
 
+        public void VerifyCatalogDetails(B2BEnvironment b2BEnvironment, Region region, CatalogItemType[] catalogItemType, string profileName, string identityName, CatalogStatus catalogStatus, CatalogType catalogType, DeltaChange[] deltaChanges)
+        {
+            DateTime beforeSchedTime = DateTime.Now;
+
+            ChannelUxWorkflow uxWorkflow = new ChannelUxWorkflow(webDriver);
+            uxWorkflow.PublishCatalogByClickOnce(b2BEnvironment, profileName, identityName, catalogType);
+
+            B2BChannelUx b2BChannelUx = new B2BChannelUx(webDriver);
+            b2BChannelUx.OpenAutoCatalogAndInventoryListPage(b2BEnvironment);
+
+            uxWorkflow.SearchCatalog(profileName, identityName, beforeSchedTime, catalogStatus, catalogType);
+            uxWorkflow.ValidateCatalogSearchResult(catalogItemType, catalogType, catalogStatus, beforeSchedTime);
+            string filePath = uxWorkflow.DownloadCatalog(identityName, beforeSchedTime);
+
+            uxWorkflow.ValidateDeltaCatalog(catalogItemType, catalogType, identityName, filePath, beforeSchedTime, deltaChanges).Should().BeTrue("Error: Data mismatch for Delta Catalog XML content with expected values");
+            //uxWorkflow.ValidateCatalogEMails(identityName, beforeSchedTime, operation);
+        }
+
+        public void GenerateAndValidateCatalog(B2BEnvironment b2BEnvironment, Region region, string profileName, string identityName, CatalogStatus catalogStatus, CatalogType catalogType)
+        {
+            DateTime beforeSchedTime = DateTime.Now;
+
+            ChannelUxWorkflow uxWorkflow = new ChannelUxWorkflow(webDriver);
+            uxWorkflow.PublishCatalogByClickOnce(b2BEnvironment, profileName, identityName, catalogType);
+
+            B2BChannelUx b2BChannelUx = new B2BChannelUx(webDriver);
+            b2BChannelUx.OpenAutoCatalogAndInventoryListPage(b2BEnvironment);
+
+            uxWorkflow.SearchCatalog(profileName, identityName, beforeSchedTime, catalogStatus, catalogType);
+            uxWorkflow.ValidateCatalogSearchResult(catalogType, catalogStatus, beforeSchedTime);
+        }
+
+
         public void VerifyCatalogStatus(B2BEnvironment b2BEnvironment, Region region, CatalogItemType[] catalogItemType, string profileName, string identityName, CatalogStatus catalogStatus, CatalogType catalogType)
         {
             DateTime beforeSchedTime = DateTime.Now;
@@ -4408,6 +4441,22 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             b2BChannelUx.OpenAutoCatalogAndInventoryListPage(b2BEnvironment);
             uxWorkflow.SearchCatalog(profileName, identityName, beforeSchedTime, catalogStatus);
             uxWorkflow.ValidateCatalogSearchResult(catalogItemType, catalogType, catalogStatus, beforeSchedTime);
+        }
+
+        public void VerifyCatalogFailureForNullMPN(B2BEnvironment b2BEnvironment, Region region, CatalogItemType[] catalogItemType, string profileName, string identityName, CatalogType catalogType)
+        {
+            B2BHomePage b2BHomePage = new B2BHomePage(webDriver);
+            b2BHomePage.OpenB2BHomePage(b2BEnvironment);
+            DateTime beforeSchedTime = DateTime.Now;
+            ChannelUxWorkflow uxWorkflow = new ChannelUxWorkflow(webDriver);
+            uxWorkflow.PublishCatalogByClickOnce(b2BEnvironment, profileName, identityName, catalogType);
+            B2BChannelUx b2BChannelUx = new B2BChannelUx(webDriver);
+            b2BChannelUx.OpenAutoCatalogAndInventoryListPage(b2BEnvironment);
+            uxWorkflow.SearchCatalog(profileName, identityName, beforeSchedTime, CatalogStatus.Failed);
+            uxWorkflow.ValidateCatalogSearchResult(catalogItemType, catalogType, CatalogStatus.Failed, beforeSchedTime);
+            string threadID = uxWorkflow.GetThreadID(catalogItemType, catalogType, CatalogStatus.Failed, beforeSchedTime);
+            ChannelCatalogWorkflow channelCatalogWorkflow = new ChannelCatalogWorkflow(webDriver);
+            channelCatalogWorkflow.VerifyErrorMessageInLogReport(b2BEnvironment, threadID, "Unexpected Error: Auto Catalog creation failed", "failed due to ManufacturerPartNumber being null or empty").Should().BeTrue("Incorrect error message displayed in log report");
         }
 
         public bool VerifyCatalogExpiresFieldValues(B2BEnvironment b2BEnvironment, string profileName, string expireDays)
@@ -4677,10 +4726,10 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             
             if (splField == true && snpField == false && sysField == false && stdField == false)
             {
-                if (!b2BBuyerCatalogPage.CatalogConfigStandard.Selected)
-                {
-                    b2BBuyerCatalogPage.CatalogConfigStandard.Click();
-                }
+            if (!b2BBuyerCatalogPage.CatalogConfigStandard.Selected)
+            {
+                b2BBuyerCatalogPage.CatalogConfigStandard.Click();
+            }
             }
             UtilityMethods.ClickElement(webDriver, b2BBuyerCatalogPage.UpdateButton);
             UtilityMethods.ClickElement(webDriver, b2BBuyerCatalogPage.AutomatedBhcCatalogProcessingRules);
@@ -4928,7 +4977,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         /// If error message is correct then it retuns True
         /// </summary>
         public bool VerifyLeadTimeErrorinLogreport(B2BEnvironment b2BEnvironment, CatalogItemType[] catalogItemType, string profileName, string identityName, CatalogStatus catalogStatus, CatalogType catalogType,
-                                          bool splUI, bool snpUI, bool sysUI, bool stdUI,bool snpCRTUI, bool sysCRTUI, bool stdCRTUI )
+                                          bool splUI, bool snpUI, bool sysUI, bool stdUI, bool snpCRTUI, bool sysCRTUI, bool stdCRTUI)
         {
             webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["B2BBaseURL"]);
             DateTime beforeSchedTime = DateTime.Now;

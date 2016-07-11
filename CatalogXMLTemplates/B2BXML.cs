@@ -177,6 +177,9 @@ namespace CatalogTests.Common.CatalogXMLTemplates
     [Serializable]
     public partial class CatalogItem
     {
+        [XmlAttribute("AutoCategory")]
+        public string AutoCategory;
+
         [XmlElement("CatalogItemType")]
         public CatalogItemType CatalogItemType;
 

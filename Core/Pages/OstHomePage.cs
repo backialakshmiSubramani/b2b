@@ -24,7 +24,7 @@ using Dell.Adept.UI.Web.Support.Extensions.WebDriver;
 using Dell.Adept.UI.Web.Support.Extensions.WebElement;
 using Dell.Adept.UI.Web.Support.Locators;
 using Dell.Adept.UI.Web.Support;
-
+using Modules.Channel.B2B.Common;
 
 namespace Modules.Channel.B2B.Core.Pages
 {
@@ -49,8 +49,10 @@ namespace Modules.Channel.B2B.Core.Pages
             //Name = "";
             //Url = "";
             //ProductUnit = "";
-
+            this.webDriver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromMinutes(2));
         }
+
+        #region Elements
 
         /// <summary>
         /// Gets the account id.
@@ -93,6 +95,26 @@ namespace Modules.Channel.B2B.Core.Pages
             throw new NotImplementedException();
         }
 
+        public IWebElement ManageAccessGroupsLink
+        {
+            get
+            {
+                return webDriver.FindElement(By.LinkText("Manage Access Groups"));
+            }
+        }
+
+        public IWebElement StandardConfigurationsLink
+        {
+            get
+            {
+                return webDriver.FindElement(By.LinkText("Standard Configurations"));
+            }
+        }
+
+        #endregion
+
+        #region Methods
+
         /// <summary>
         /// Clicks on Go button and navigates to Catalog and Pricing Page
         /// </summary>
@@ -105,5 +127,12 @@ namespace Modules.Channel.B2B.Core.Pages
             javaScriptExecutor.ExecuteScript("arguments[0].click();", GoButton);
             webDriver.WaitForElementDisplayed(By.Id("ctl00_brdcrbControl_lbl_PageMigrationinfo"), TimeSpan.FromSeconds(30));
         }
+
+        public void OpenOSTHomePage()
+        {
+            webDriver.Navigate().GoToUrl(ConfigurationReader.GetValue("OSTHomePageUrl"));
+        }
+
+        #endregion
     }
 }
