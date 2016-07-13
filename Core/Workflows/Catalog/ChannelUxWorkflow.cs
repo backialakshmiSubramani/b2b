@@ -1203,13 +1203,12 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
 
             IReadOnlyCollection<string> windowHandles = webDriver.WindowHandles;
 
-            webDriver.SwitchTo().Window(webDriver.WindowHandles.Last());
-            String name = ((RemoteWebDriver)webDriver).Capabilities.BrowserName;
+            BrowserName browser = webDriver.GetBrowserName();
             bool matchflag = true;
             B2BXML CatalogXML = XMLDeserializer<B2BXML>.DeserializeFromXmlFile(catalogXMLFilePath);
             List<CatalogItem> validCRTCatalogItems = CatalogXML.BuyerCatalog.CatalogDetails.CatalogItem.Where(ci => ((ci.CatalogItemType == CatalogItemType.ConfigWithDefaultOptions || ci.CatalogItemType == CatalogItemType.ConfigWithUpsellDownsell || ci.CatalogItemType == CatalogItemType.Systems)
                 && !string.IsNullOrEmpty(ci.ManufacturerPartNumber)) || (ci.CatalogItemType == CatalogItemType.SNP && !string.IsNullOrEmpty(ci.BaseSKUId))).ToList();
-            if (name == "MicrosoftEdge")
+            if (browser == BrowserName.MicrosoftEdge)
             {
                 WaitForPageRefresh();
                 string pageSource = webDriver.PageSource;
