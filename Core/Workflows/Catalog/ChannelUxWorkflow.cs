@@ -1202,6 +1202,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             b2BCrossReferenceAssociationPage.OpenCRTXML(profileName);
 
             IReadOnlyCollection<string> windowHandles = webDriver.WindowHandles;
+            webDriver.SwitchTo().Window(webDriver.WindowHandles.Last());
 
             BrowserName browser = webDriver.GetBrowserName();
             bool matchflag = true;
@@ -1254,7 +1255,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
 
                     matchflag &= UtilityMethods.CompareValues<string>("ID", CrtXML.CrossReference.CRTValues.CRTValue.Where(crt => crt.Id == catalogItem.ManufacturerPartNumber).First().Item.Where(item => item.Id == "ID").First().Data, id);
                     matchflag &= UtilityMethods.CompareValues<string>("Buyer Code", CrtXML.CrossReference.CRTValues.CRTValue.Where(crt => crt.Id == catalogItem.ManufacturerPartNumber).First().Item.Where(item => item.Id == "buyer_code").First().Data, catalogItem.PartId);
-                    matchflag &= UtilityMethods.CompareValues<string>("Price", CrtXML.CrossReference.CRTValues.CRTValue.Where(crt => crt.Id == catalogItem.ManufacturerPartNumber).First().Item.Where(item => item.Id == "price").First().Data, catalogItem.ListPrice);
+                    matchflag &= UtilityMethods.CompareValues<string>("Price", CrtXML.CrossReference.CRTValues.CRTValue.Where(crt => crt.Id == catalogItem.ManufacturerPartNumber).First().Item.Where(item => item.Id == "price").First().Data, catalogItem.UnitPrice.ToString());
                     matchflag &= UtilityMethods.CompareValues<string>("Buyer Code Type", CrtXML.CrossReference.CRTValues.CRTValue.Where(crt => crt.Id == catalogItem.ManufacturerPartNumber).First().Item.Where(item => item.Id == "buyer_code_type").First().Data, "B2B Quote");
                 }
             }
