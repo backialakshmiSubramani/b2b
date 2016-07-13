@@ -1193,7 +1193,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         {
             B2BHomePage b2BHomePage = new B2BHomePage(webDriver);
             b2BHomePage.OpenB2BHomePage(b2BEnvironment);
-            b2BHomePage.CRAssociationListLink.Click();
+            //b2BHomePage.CRAssociationListLink.Click();
 
             B2BCrossReferenceAssociationPage b2BCrossReferenceAssociationPage = new B2BCrossReferenceAssociationPage(webDriver);
             b2BCrossReferenceAssociationPage.OpenCrossReferenceListPage(b2BEnvironment);
