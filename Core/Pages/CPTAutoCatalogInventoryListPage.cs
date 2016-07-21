@@ -546,6 +546,31 @@ namespace Modules.Channel.B2B.Core.Pages
 
         }
 
+        /// <summary>
+        /// FailedReasonToolTip
+        /// </summary>
+        public IWebElement FailureReasonTooltip
+        {
+            get { return webDriver.FindElement((By.XPath("//tr[@ng-repeat='Catalog in Channel']/td[5]/input"))); }
+        }
+
+        /// <summary>
+        /// FailureReason
+        /// </summary>
+        public String FailureReason
+        {
+            get { return webDriver.FindElement(By.Id("dialog")).Text; }
+        }
+
+        /// <summary>
+        /// SubmitInPopUp
+        /// </summary>
+        public IWebElement SubmitInPopUp
+        {
+            get { return webDriver.FindElement(By.XPath("//span[@class='ui-button-text' and text()='Ok']")); }
+        }
+
+
         #endregion
 
         #region Helper Methods

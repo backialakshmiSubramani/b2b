@@ -947,5 +947,48 @@ namespace Modules.Channel.B2B.Core.Workflows.Inventory
             return oldestRecordDate >= dateBeforeInterval;
 
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="environment"></param>
+        /// <param name="profileName"></param>
+        /// <param name="retryAndscheduleRunMessage"></param>
+        /// <param name="region"></param>
+        /// <param name="failed"></param>
+        /// <returns>The <see cref="bool"/></returns>
+        public bool VerifyRetryInformationInPopUp(RunEnvironment environment, string profileName,
+            String retryAndscheduleRunMessage, Region region, CatalogStatus failed)
+        {
+            var retryMessageList = retryAndscheduleRunMessage.Split('/').ToList();
+            b2BHomePage.SelectEnvironment(environment.ToString());
+            b2BHomePage.OpenAutoCatalogInventoryListPage();
+            cPTAutoCatalogInventoryListPage = new CPTAutoCatalogInventoryListPage(webDriver);
+            cPTAutoCatalogInventoryListPage.SelectTheStatus(failed.ToString());
+            cPTAutoCatalogInventoryListPage.SearchInventoryRecords(Region.US);
+            IList<IWebElement> rowsPerPage = cPTAutoCatalogInventoryListPage.CatalogListTableRows;
+
+            if (rowsPerPage.Count() > 1)
+            {
+                for (var i = 0; i <= rowsPerPage.Count(); i++)
+                {
+                    cPTAutoCatalogInventoryListPage.FailureReasonTooltip.Click();
+                    var actualPopUpText =
+                        cPTAutoCatalogInventoryListPage.FailureReason.Remove(19);
+
+                    if (!retryMessageList.Contains(actualPopUpText))
+                    {
+                        return false;
+                    }
+                    cPTAutoCatalogInventoryListPage.SubmitInPopUp.Click();
+                }
+                return true;
+            }
+            else
+            {
+                Console.WriteLine("No Inventory records");
+                return false;
+            }
+        }
     }
 }
