@@ -4603,6 +4603,10 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             {
                 b2BBuyerCatalogPage.BcpchkSysCatalogCheckbox.Click();
             }
+            if (b2BBuyerCatalogPage.CatalogConfigStandard.Selected)
+            {
+                b2BBuyerCatalogPage.CatalogConfigStandard.Click();
+            }
             if (b2BBuyerCatalogPage.BcpchkCrossRefernceSnpUpdate.Selected)
             {
                 b2BBuyerCatalogPage.BcpchkCrossRefernceSnpUpdate.Click();
@@ -4611,11 +4615,26 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             {
                 b2BBuyerCatalogPage.BcpchkCrossRefernceSysUpdate.Click();
             }
+            if (b2BBuyerCatalogPage.BcpchkCrossRefernceStdUpdate.Selected)
+            {
+                b2BBuyerCatalogPage.BcpchkCrossRefernceStdUpdate.Click();
+            }
+            //if (b2BBuyerCatalogPage.EnableExcludeNonChangedItems.Selected)
+            //{
+            //    b2BBuyerCatalogPage.EnableExcludeNonChangedItems.Click();
+            //}
 
             //If Parameter-"splField" is true, then folliwng will Turned On SPL field
             if (splField == true)
             {
                 if (!b2BBuyerCatalogPage.BcpchkSPLFlagCheckbox.Selected)
+                {
+                    b2BBuyerCatalogPage.BcpchkSPLFlagCheckbox.Click();
+                }
+            }
+            else
+            {
+                if (b2BBuyerCatalogPage.BcpchkSPLFlagCheckbox.Selected)
                 {
                     b2BBuyerCatalogPage.BcpchkSPLFlagCheckbox.Click();
                 }
@@ -4724,15 +4743,32 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             }
             b2BBuyerCatalogPage.SetTextBoxValue(b2BBuyerCatalogPage.DeltaCatalogStartDate, DateTime.Now.AddDays(2).ToString(MMDDYYYY));
             
+            // bool excludeNonChangedItems = false
+            //if(excludeNonChangedItems == true)
+            //{
+            //    if (!b2BBuyerCatalogPage.EnableExcludeNonChangedItems.Selected)
+            //    {
+            //        b2BBuyerCatalogPage.EnableExcludeNonChangedItems.Click();
+            //    }
+            //}
+            //else
+            //{
+            //    if (b2BBuyerCatalogPage.EnableExcludeNonChangedItems.Selected)
+            //    {
+            //        b2BBuyerCatalogPage.EnableExcludeNonChangedItems.Click();
+            //    }
+            //}
+
             if (splField == true && snpField == false && sysField == false && stdField == false)
             {
-            if (!b2BBuyerCatalogPage.CatalogConfigStandard.Selected)
-            {
-                b2BBuyerCatalogPage.CatalogConfigStandard.Click();
-            }
+                if (!b2BBuyerCatalogPage.CatalogConfigStandard.Selected)
+                {
+                    b2BBuyerCatalogPage.CatalogConfigStandard.Click();
+                }
             }
             UtilityMethods.ClickElement(webDriver, b2BBuyerCatalogPage.UpdateButton);
             UtilityMethods.ClickElement(webDriver, b2BBuyerCatalogPage.AutomatedBhcCatalogProcessingRules);
+            b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
             b2BBuyerCatalogPage.EnableCatalogAutoGeneration.WaitForElementDisplayed(TimeSpan.FromSeconds(30));
 
             //Following will verifies SPL with SYS Config, SNP Config, SNP Auto CRT & SYS Auto CRT UI settings are saved correctly or not
@@ -4745,6 +4781,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                 matchFlag &= (UtilityMethods.CompareValues<bool>("SYS", b2BBuyerCatalogPage.BcpchkSysCatalogCheckbox.Selected, false));
                 matchFlag &= (UtilityMethods.CompareValues<bool>("SNPCRT", b2BBuyerCatalogPage.BcpchkCrossRefernceSnpUpdate.Selected, false));
                 matchFlag &= (UtilityMethods.CompareValues<bool>("SYSCRT", b2BBuyerCatalogPage.BcpchkCrossRefernceSysUpdate.Selected, false));
+               // matchFlag &= (UtilityMethods.CompareValues<bool>("excludeNonChangedItems", b2BBuyerCatalogPage.EnableExcludeNonChangedItems.Selected, excludeNonChangedItems));
             }
             else
             {
@@ -4753,7 +4790,8 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                 matchFlag &= (UtilityMethods.CompareValues<bool>("SYS", b2BBuyerCatalogPage.BcpchkSysCatalogCheckbox.Selected, sysField));
                 matchFlag &= (UtilityMethods.CompareValues<bool>("SNPCRT", b2BBuyerCatalogPage.BcpchkCrossRefernceSnpUpdate.Selected, snpCRTField));
                 matchFlag &= (UtilityMethods.CompareValues<bool>("SYSCRT", b2BBuyerCatalogPage.BcpchkCrossRefernceSysUpdate.Selected, sysCRTField));
-            }
+             //   matchFlag &= (UtilityMethods.CompareValues<bool>("excludeNonChangedItems", b2BBuyerCatalogPage.EnableExcludeNonChangedItems.Selected, excludeNonChangedItems));
+            }          
             return matchFlag;
         }
         public void VerifyP2PValidationForEnableAutoBHCOFFNewProfile(B2BEnvironment b2BEnvironment, string customerSet, string accessGroup, string profileNameBase, CatalogType catalogType)
@@ -5049,6 +5087,19 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             b2BCustomerProfileListPage.AdvanceSearchProfileWithFilterOptions(customerName, customerID, region, isMigrated, isBHCAutoEnabled);
            return b2BCustomerProfileListPage.VerifyProfileSearchResult(customerName, "No");
         }
+
+       // /// <summary>
+       // /// Below method update and verifies Profile Auto BHC setting
+       // /// If Auto BHC settings are saved correctly then it retuns True
+       // /// </summary>
+       // public bool B2BProfileAutoBHCSettingsUpdate(B2BEnvironment b2BEnvironment, string profileName,
+       //                                   bool splUI, bool snpUI, bool sysUI, bool snpCRTField,
+       //                                   bool sysCRTField, bool stdField, bool stdCRTField, bool excludeNonChangedItems = false)
+       // {
+       //     webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["B2BBaseURL"]);
+       //     ChannelUxWorkflow uxWorkflow = new ChannelUxWorkflow(webDriver);
+       //     return VerifySPLEnabledSettingsValidations(b2BEnvironment.ToString(), profileName, splUI, snpUI, sysUI, snpCRTField, sysCRTField, stdField, stdCRTField, excludeNonChangedItems);
+       //}
     }
 
     /// <summary>
