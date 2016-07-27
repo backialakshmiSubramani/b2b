@@ -121,4 +121,17 @@ namespace Modules.Channel.B2B.Common
         [Description("firefox")]
         Firefox
     }
+
+    public enum ExpireDays
+    {
+        Thirty,
+        Ninty,
+        OneEighty
+    }
+
+    public enum RequestorValidation
+    { 
+        On = 0,
+        Off = 1
+    }
 }

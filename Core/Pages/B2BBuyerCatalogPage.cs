@@ -298,6 +298,17 @@ namespace Modules.Channel.B2B.Core.Pages
             }
         }
         /// <summary>
+        /// Buyer catalog profile name in header section
+        /// </summary>
+        private IWebElement _buyerCatalogProfileName;
+        public IWebElement BuyerCatalogProfileName
+        {
+            get
+            {
+                return _buyerCatalogProfileName ?? (_buyerCatalogProfileName = webDriver.FindElement(By.Id("ContentPageHolder_ProfileHeader_lbl_PH_ProfileName"), new TimeSpan(0, 0, 30)));
+            }
+        }
+        /// <summary>
         /// First Identity from the Automated BHC Catalog - Processing Rules section
         /// </summary>
         private IWebElement _buyerCatalogFirstIdentity;
@@ -1068,7 +1079,18 @@ namespace Modules.Channel.B2B.Core.Pages
                            webDriver.FindElement(By.Id("helpautoinventory")));
             }
         }
-
+        //chkExcludeNonChangedItems
+        /// <summary>
+        /// Buyer catalog profile name in header section
+        /// </summary>
+        private IWebElement _chkExcludeNonChangedItems;
+        public IWebElement CheckExcludeNonChangedItems
+        {
+            get
+            {
+                return _chkExcludeNonChangedItems ?? (_chkExcludeNonChangedItems = webDriver.FindElement(By.Id("chkExcludeNonChangedItems"), new TimeSpan(0, 0, 30)));
+            }
+        }
         #endregion
 
         #region Helper Methods

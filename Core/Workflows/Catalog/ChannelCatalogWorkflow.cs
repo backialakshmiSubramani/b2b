@@ -14,6 +14,7 @@ using System.Configuration;
 using CatalogTests.Common.CatalogXMLTemplates;
 using Modules.Channel.Utilities;
 using System.Security.Principal;
+using System.IO;
 
 namespace Modules.Channel.B2B.Core.Workflows.Catalog
 {
@@ -1432,6 +1433,20 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                 return true;
             }
             return false;
+        }
+
+        public void VerifyCatalogDownload(B2BEnvironment environment, string profileName, string identityName, CatalogStatus catalogStatus, CatalogType catalogType, RequestorValidation requestor)
+        {
+            DateTime beforeSchedTime = DateTime.Now.AddDays(-90);
+            B2BChannelUx b2BChannelUx = new B2BChannelUx(webDriver);
+            b2BChannelUx.OpenAutoCatalogAndInventoryListPage(environment);
+            ChannelUxWorkflow uxWorkflow = new ChannelUxWorkflow(webDriver);
+            uxWorkflow.SearchCatalog(profileName, identityName, beforeSchedTime, catalogStatus, catalogType);
+            uxWorkflow.ValidateCatalogSearchResult(catalogType, catalogStatus, beforeSchedTime, requestor);
+            string filePath = uxWorkflow.DownloadCatalog(identityName, beforeSchedTime);
+            string schemaPath = Path.Combine(System.Environment.CurrentDirectory, "CatalogSchema.xsd");
+            string message = XMLSchemaValidator.ValidateSchema(filePath, schemaPath);
+            message.Should().Be(string.Empty, "Error: One or more tags failed scehma validation. Please check the log for complete details");
         }
 
         /// <summary>
@@ -3397,6 +3412,37 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         }
 
         /// <summary>
+        /// Validates an Audit History entry base on provided property, old value & new value
+        /// </summary>
+        /// <param name="oldValue"></param>
+        /// <param name="newValue"></param>
+        /// <param name="auditHistoryProperty"></param>
+        /// <returns></returns>
+        private bool VerifyAuditHistoryRow(Dictionary<string, string> oldValues, Dictionary<string, string> newValues)
+        {
+            b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+            UtilityMethods.ClickElement(webDriver, b2BBuyerCatalogPage.AuditHistoryLink);
+            WaitForPageRefresh();
+            List<string> fieldNames = b2BBuyerCatalogPage.AuditHistoryRows.Select(r => r.FindElements(By.TagName("td"))[0].Text).ToList();
+            bool matchFlag = true;
+            for (int i = 1; i < fieldNames.Count; i++)
+            {
+                if (fieldNames[i].Contains("Edited"))
+                    break;
+                var auditHistoryRow = b2BBuyerCatalogPage.AuditHistoryRows.FirstOrDefault(r => r.FindElements(By.TagName("td"))[0].Text.Contains(fieldNames[i].ToString()));
+                var oldv = auditHistoryRow.FindElements(By.TagName("td"))[1].Text;
+                
+                var newv = auditHistoryRow.FindElements(By.TagName("td"))[2].Text;
+                
+                var oldValue = oldValues[fieldNames[i].ToString()];
+                var newValue = newValues[fieldNames[i].ToString()];
+                matchFlag &= (UtilityMethods.CompareValues<string>(fieldNames[i].ToString(), oldValue.ToUpperInvariant(), oldv.ToUpperInvariant()));
+                matchFlag &= (UtilityMethods.CompareValues<string>(fieldNames[i].ToString(), newValue.ToUpperInvariant(), newv.ToUpperInvariant()));
+            }
+            return matchFlag;
+        }
+
+        /// <summary>
         /// Verifies Sys checkbox is present and non editable in Auto Cat List page. 
         /// </summary>
         public bool VerifySysCheckboxinAutoCatListPage(B2BEnvironment b2BEnvironment, string region, string country)
@@ -4761,10 +4807,10 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
 
             if (splField == true && snpField == false && sysField == false && stdField == false)
             {
-                if (!b2BBuyerCatalogPage.CatalogConfigStandard.Selected)
-                {
-                    b2BBuyerCatalogPage.CatalogConfigStandard.Click();
-                }
+            if (!b2BBuyerCatalogPage.CatalogConfigStandard.Selected)
+            {
+                b2BBuyerCatalogPage.CatalogConfigStandard.Click();
+            }
             }
             UtilityMethods.ClickElement(webDriver, b2BBuyerCatalogPage.UpdateButton);
             UtilityMethods.ClickElement(webDriver, b2BBuyerCatalogPage.AutomatedBhcCatalogProcessingRules);
@@ -4791,7 +4837,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                 matchFlag &= (UtilityMethods.CompareValues<bool>("SNPCRT", b2BBuyerCatalogPage.BcpchkCrossRefernceSnpUpdate.Selected, snpCRTField));
                 matchFlag &= (UtilityMethods.CompareValues<bool>("SYSCRT", b2BBuyerCatalogPage.BcpchkCrossRefernceSysUpdate.Selected, sysCRTField));
              //   matchFlag &= (UtilityMethods.CompareValues<bool>("excludeNonChangedItems", b2BBuyerCatalogPage.EnableExcludeNonChangedItems.Selected, excludeNonChangedItems));
-            }          
+            }
             return matchFlag;
         }
         public void VerifyP2PValidationForEnableAutoBHCOFFNewProfile(B2BEnvironment b2BEnvironment, string customerSet, string accessGroup, string profileNameBase, CatalogType catalogType)
@@ -5088,18 +5134,268 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
            return b2BCustomerProfileListPage.VerifyProfileSearchResult(customerName, "No");
         }
 
-       // /// <summary>
-       // /// Below method update and verifies Profile Auto BHC setting
-       // /// If Auto BHC settings are saved correctly then it retuns True
-       // /// </summary>
-       // public bool B2BProfileAutoBHCSettingsUpdate(B2BEnvironment b2BEnvironment, string profileName,
-       //                                   bool splUI, bool snpUI, bool sysUI, bool snpCRTField,
-       //                                   bool sysCRTField, bool stdField, bool stdCRTField, bool excludeNonChangedItems = false)
-       // {
-       //     webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["B2BBaseURL"]);
-       //     ChannelUxWorkflow uxWorkflow = new ChannelUxWorkflow(webDriver);
-       //     return VerifySPLEnabledSettingsValidations(b2BEnvironment.ToString(), profileName, splUI, snpUI, sysUI, snpCRTField, sysCRTField, stdField, stdCRTField, excludeNonChangedItems);
-       //}
+        public string UpdateScheduleInformationForNewProfile(ExpireDays expireDays)
+        {
+            if (!b2BBuyerCatalogPage.BcpCatalogEnabled.Selected)
+                b2BBuyerCatalogPage.BcpCatalogEnabled.Click();
+            b2BBuyerCatalogPage.EnableCatalogAutoGeneration.Click();
+            b2BBuyerCatalogPage.BuyerCatalogFirstIdentity.Click();
+            if (!b2BBuyerCatalogPage.BcpchkSysCatalogCheckbox.Selected)
+                b2BBuyerCatalogPage.BcpchkSysCatalogCheckbox.Click();
+
+            if (b2BBuyerCatalogPage.BcpchkCrossRefernceSysUpdate.Selected)
+                b2BBuyerCatalogPage.BcpchkCrossRefernceSysUpdate.Click();
+            b2BBuyerCatalogPage.SetTextBoxValue(b2BBuyerCatalogPage.OriginalCatalogStartDate,
+                DateTime.Now.AddDays(1).ToString(MMDDYYYY));
+            SelectElement selectedValue = new SelectElement(b2BBuyerCatalogPage.CatalogExpire);
+            switch (expireDays)
+            {
+                case (ExpireDays.Thirty):
+                    selectedValue.SelectByIndex(0);
+                    break;
+                case (ExpireDays.Ninty):
+                    selectedValue.SelectByIndex(1);
+                    break;
+                default:
+                    selectedValue.SelectByIndex(2);
+                    break;
+            }
+            b2BBuyerCatalogPage.UpdateButton.Click();
+            WaitForPageRefresh();
+            return b2BBuyerCatalogPage.BuyerCatalogProfileName.Text.Trim();
+        }
+
+        public CatalogItem GetCatalogItem(B2BEnvironment b2BEnvironment, CatalogItemType catalogItemType, CatalogType type, CatalogStatus status, Region region, string profile, string identity)
+        {
+            string filePath = DownloadAndReturnCatalogFilePath(b2BEnvironment, type, status, region, profile, identity);
+            B2BXML actualcatalogXML = XMLDeserializer<B2BXML>.DeserializeFromXmlFile(filePath);
+            CatalogDetails actualCatalogDetails = actualcatalogXML.BuyerCatalog.CatalogDetails;
+            return actualCatalogDetails.CatalogItem.Where(ci => ci.CatalogItemType == catalogItemType).FirstOrDefault();
+        }
+        private string DownloadAndReturnCatalogFilePath(B2BEnvironment b2BEnvironment, CatalogType type, CatalogStatus status, Region region, string profile, string identity)
+        {
+            DateTime beforeSchedTime = DateTime.Now;
+            string filename = string.Empty;
+
+            B2BChannelUx b2bChannelUx = new B2BChannelUx(webDriver);
+            b2bChannelUx.OpenAutoCatalogAndInventoryListPage(b2BEnvironment);
+            CPTAutoCatalogInventoryListPage autoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
+            autoCatalogListPage.SelectOption(autoCatalogListPage.SelectRegionSpan, region.ToString());
+            autoCatalogListPage.SelectOption(autoCatalogListPage.SelectCustomerNameSpan, profile);
+            autoCatalogListPage.SelectOption(autoCatalogListPage.SelectIdentityNameSpan, identity.ToUpper());
+            if (type == CatalogType.Original)
+                autoCatalogListPage.OriginalCatalogCheckbox.Click();
+            else
+                autoCatalogListPage.DeltaCatalogCheckbox.Click();
+            autoCatalogListPage.SelectTheStatus(status.ToString());
+            autoCatalogListPage.SearchRecordsLink.Click();
+            autoCatalogListPage.CatalogsTable.WaitForElementVisible(TimeSpan.FromSeconds(30));
+            var threadId = autoCatalogListPage.CatalogsTable.GetCellValue(1, "Thread");
+            try
+            {
+                string downloadPath = ConfigurationManager.AppSettings["CatalogDownloadPath"];
+                return new DirectoryInfo(downloadPath).GetFiles().AsEnumerable()
+                    .Where(file => file.Name.Contains(identity.ToUpper()) && file.Name.Contains(threadId.ToUpper()))
+                    .FirstOrDefault().FullName;
+            }
+            catch
+            {
+                ChannelUxWorkflow uxWorkflow = new ChannelUxWorkflow(webDriver);
+                return uxWorkflow.DownloadCatalog(identity, beforeSchedTime);
+            }
+        }
+        public bool AuditHistoryForChangesWhileAutoBHCEnabled(string environment, string profile)
+        {
+            GoToBuyerCatalogTab(environment, profile);
+            b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+            if (b2BBuyerCatalogPage.EnableCatalogAutoGeneration.Selected)
+            {
+                b2BBuyerCatalogPage.EnableCatalogAutoGeneration.Click();
+                b2BBuyerCatalogPage.UpdateButton.Click();
+                WaitForPageRefresh();
+                UtilityMethods.ClickElement(webDriver, b2BBuyerCatalogPage.AutomatedBhcCatalogProcessingRules);
+            }
+            Dictionary<string, string> oldValues = GetElementValues();
+            b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+            if (!b2BBuyerCatalogPage.EnableCatalogAutoGeneration.Selected)
+            {
+                b2BBuyerCatalogPage.EnableCatalogAutoGeneration.Click();
+            }
+            b2BBuyerCatalogPage.EditScheduleButton.Click();
+            if (b2BBuyerCatalogPage.CatalogOperationCreate.Selected)
+                b2BBuyerCatalogPage.CatalogOperationCreatePublish.Click();
+            else
+                b2BBuyerCatalogPage.CatalogOperationCreate.Click();
+            b2BBuyerCatalogPage.BcpchkRemoveItemsWithLTAbove3Days.Click();
+            UpdateConfigurations();
+            b2BBuyerCatalogPage.BcpchkSPLFlagCheckbox.Click();
+            if (!b2BBuyerCatalogPage.EnableDeltaCatalog.Selected)
+                b2BBuyerCatalogPage.EnableDeltaCatalog.Click();
+
+            UpdateShedule(oldValues);
+
+            SelectElement selectedValue = new SelectElement(b2BBuyerCatalogPage.CatalogExpire);
+            switch (oldValues["AUTO BHC: Items in Catalog Expires in"])
+            {
+                case "30":
+                    selectedValue.SelectByIndex(2);
+                    break;
+                case "90":
+                    selectedValue.SelectByIndex(0);
+                    break;
+                default:
+                    selectedValue.SelectByIndex(1);
+                    break;
+            }
+            b2BBuyerCatalogPage.CheckExcludeNonChangedItems.Click();
+            if (b2BBuyerCatalogPage.InternalEMail.Text == "abc@dell.com")
+            {
+                b2BBuyerCatalogPage.InternalEMail.Clear();
+                b2BBuyerCatalogPage.InternalEMail.SendKeys("xyz@dell.com");
+            }
+            else
+            {
+                b2BBuyerCatalogPage.InternalEMail.Clear();
+                b2BBuyerCatalogPage.InternalEMail.SendKeys("abc@dell.com");
+            }
+            if (b2BBuyerCatalogPage.InternalEMail.Text == "abc@dell.com")
+            {
+                b2BBuyerCatalogPage.CustomerEmail.Clear();
+                b2BBuyerCatalogPage.CustomerEmail.SendKeys("xyz@dell.com");
+            }
+            else
+            {
+                b2BBuyerCatalogPage.CustomerEmail.Clear();
+                b2BBuyerCatalogPage.CustomerEmail.SendKeys("xyz@dell.com");
+            }
+            b2BBuyerCatalogPage.UpdateButton.Click();
+            WaitForPageRefresh();
+            b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+            UtilityMethods.ClickElement(webDriver, b2BBuyerCatalogPage.AutomatedBhcCatalogProcessingRules);
+            b2BBuyerCatalogPage.EnableCatalogAutoGeneration.WaitForElementDisplayed(TimeSpan.FromSeconds(30));
+            Dictionary<string, string> newValues = GetElementValues();
+            webDriver.Navigate().Back(); webDriver.Navigate().Forward();
+            WaitForPageRefresh();
+            return VerifyAuditHistoryRow(oldValues, newValues);
+        }
+        private void UpdateConfigurations()
+        {
+            b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+            b2BBuyerCatalogPage.BcpchkCrossRefernceStdUpdate.Click();
+            b2BBuyerCatalogPage.BcpchkCrossRefernceSnpUpdate.Click();
+            b2BBuyerCatalogPage.BcpchkCrossRefernceSysUpdate.Click();
+            if (!b2BBuyerCatalogPage.CatalogConfigStandard.Selected)
+                b2BBuyerCatalogPage.CatalogConfigStandard.Click();
+            if (!b2BBuyerCatalogPage.CatalogConfigSnP.Selected)
+                b2BBuyerCatalogPage.CatalogConfigSnP.Click();
+            if (!b2BBuyerCatalogPage.BcpchkSysCatalogCheckbox.Selected)
+                b2BBuyerCatalogPage.BcpchkSysCatalogCheckbox.Click();
+
+            b2BBuyerCatalogPage.CatalogConfigUpsellDownSell.Click();
+            if (b2BBuyerCatalogPage.CatalogConfigUpsellDownSell.Selected)
+            {
+                b2BBuyerCatalogPage.CatalogConfigIncludeOptionType.Click();
+                b2BBuyerCatalogPage.CatalogConfigIncludeAbsolutePrice.Click();
+            }
+            b2BBuyerCatalogPage.CatalogConfigIncludeFinalPrice.Click();
+            b2BBuyerCatalogPage.CatalogConfigIncludeSkuDetails.Click();
+            b2BBuyerCatalogPage.CatalogConfigIncludeDefaultOptions.Click();
+
+            if (b2BBuyerCatalogPage.BcpchkSysCatalogCheckbox.Selected)
+            {
+                b2BBuyerCatalogPage.CatalogConfigSysDefaultOptionsCheckbox.Click();
+                b2BBuyerCatalogPage.CatalogConfigSysFinalPriceCheckbox.Click();
+                b2BBuyerCatalogPage.CatalogConfigSysSkuDetailsCheckbox.Click();
+            }
+        }
+        private void UpdateShedule(Dictionary<string, string> oldValues)
+        {
+            if (oldValues["AUTO BHC: Original Start Date"] == DateTime.Now.AddDays(10).ToString(MMDDYYYY))
+            {
+                var originalStartDate = DateTime.Now.AddDays(11).ToString(MMDDYYYY);
+                var originalFrequencyDays = "3";
+                var originalEndDate = DateTime.Now.AddDays(30).ToString(MMDDYYYY);
+                var originalTimeOfSend = "9";
+                SetOriginalSchedule(originalStartDate, originalFrequencyDays, FrequencyType.Days, originalEndDate, originalTimeOfSend);
+            }
+            else
+            {
+                var originalStartDate = DateTime.Now.AddDays(10).ToString(MMDDYYYY);
+                var originalFrequencyDays = "2";
+                var originalEndDate = DateTime.Now.AddDays(29).ToString(MMDDYYYY);
+                var originalTimeOfSend = "8";
+                SetOriginalSchedule(originalStartDate, originalFrequencyDays, FrequencyType.Days, originalEndDate, originalTimeOfSend);
+            }
+
+            if (oldValues["AUTO BHC: Delta Start Date"] == DateTime.Now.AddDays(12).ToString(MMDDYYYY))
+            {
+                var deltaStartDate = DateTime.Now.AddDays(13).ToString(MMDDYYYY);
+                var deltaFrequencyDays = "2";
+                var deltaEndDate = DateTime.Now.AddDays(29).ToString(MMDDYYYY);
+                var deltaTimeOfSend = "8";
+                SetDeltaSchedule(deltaStartDate, deltaFrequencyDays, FrequencyType.Days, deltaEndDate, deltaTimeOfSend);
+            }
+            else
+            {
+                var deltaStartDate = DateTime.Now.AddDays(12).ToString(MMDDYYYY);
+                var deltaFrequencyDays = "1";
+                var deltaEndDate = DateTime.Now.AddDays(28).ToString(MMDDYYYY);
+                var deltaTimeOfSend = "6";
+                SetDeltaSchedule(deltaStartDate, deltaFrequencyDays, FrequencyType.Days, deltaEndDate, deltaTimeOfSend);
+            }
+        }
+        private Dictionary<string, string> GetElementValues()
+        {
+            Dictionary<string, string> fields = new Dictionary<string, string>();
+            b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+            fields.Add("AUTO BHC: Enabled", b2BBuyerCatalogPage.EnableCatalogAutoGeneration.Selected.ToString());
+            if (b2BBuyerCatalogPage.CatalogOperationCreatePublish.Selected)
+                fields.Add("AUTO BHC: Catalog Operation", "Create & Publish");
+            else if (b2BBuyerCatalogPage.CatalogOperationCreate.Selected)
+                fields.Add("AUTO BHC: Catalog Operation", "Create");
+            fields.Add("AUTO BHC: Remove Items With LT > 3 Days", b2BBuyerCatalogPage.BcpchkRemoveItemsWithLTAbove3Days.Selected.ToString());
+            fields.Add("AUTO BHC: Cross Reference Update STD Enabled", b2BBuyerCatalogPage.BcpchkCrossRefernceStdUpdate.Selected.ToString());
+            fields.Add("AUTO BHC: Cross Reference Update SNP Enabled", b2BBuyerCatalogPage.BcpchkCrossRefernceSnpUpdate.Selected.ToString());
+            fields.Add("AUTO BHC: Cross Reference Update SYS Enabled", b2BBuyerCatalogPage.BcpchkCrossRefernceSysUpdate.Selected.ToString());
+            fields.Add("AUTO BHC: Standard Configurations", b2BBuyerCatalogPage.CatalogConfigStandard.Selected.ToString());
+            fields.Add("AUTO BHC: Upsell and Downsell", b2BBuyerCatalogPage.CatalogConfigUpsellDownSell.Selected.ToString());
+            fields.Add("AUTO BHC: SNP", b2BBuyerCatalogPage.CatalogConfigSnP.Selected.ToString());
+            fields.Add("AUTO BHC: Include Default Options", b2BBuyerCatalogPage.CatalogConfigIncludeDefaultOptions.Selected.ToString());
+            fields.Add("AUTO BHC: Include Absolute Price", b2BBuyerCatalogPage.CatalogConfigIncludeAbsolutePrice.Selected.ToString());
+            fields.Add("AUTO BHC: Include Option Type", b2BBuyerCatalogPage.CatalogConfigIncludeOptionType.Selected.ToString());
+            fields.Add("AUTO BHC: Include Final Price", b2BBuyerCatalogPage.CatalogConfigIncludeFinalPrice.Selected.ToString());
+            fields.Add("AUTO BHC: Include Sku Details", b2BBuyerCatalogPage.CatalogConfigIncludeSkuDetails.Selected.ToString());
+            fields.Add("AUTO BHC: Sytem Catalog", b2BBuyerCatalogPage.BcpchkSysCatalogCheckbox.Selected.ToString());
+            if (b2BBuyerCatalogPage.BcpchkSysCatalogCheckbox.Selected)
+            {
+                fields.Add("AUTO BHC: Default Option - SYS", b2BBuyerCatalogPage.CatalogConfigSysDefaultOptionsCheckbox.Selected.ToString());
+                fields.Add("AUTO BHC: Final Price - SYS", b2BBuyerCatalogPage.CatalogConfigSysFinalPriceCheckbox.Selected.ToString());
+                fields.Add("AUTO BHC: Sku Details -SYS", b2BBuyerCatalogPage.CatalogConfigSysSkuDetailsCheckbox.Selected.ToString());
+            }
+            else{
+                fields.Add("AUTO BHC: Default Option - SYS", "False");
+                fields.Add("AUTO BHC: Final Price - SYS", "False");
+                fields.Add("AUTO BHC: Sku Details -SYS", "False");
+            }
+            fields.Add("EnableOriginalCatalog", b2BBuyerCatalogPage.EnableOriginalCatalog.Selected.ToString());
+            fields.Add("AUTO BHC: Original Start Date", b2BBuyerCatalogPage.OriginalCatalogStartDate.GetAttribute("value"));
+            fields.Add("AUTO BHC: Original Frequency", b2BBuyerCatalogPage.OriginalFrequencyDays.Select().SelectedOption.GetAttribute("value") + " Day(s)");
+            //fields.Add("OriginalFrequencyWeeks", b2BBuyerCatalogPage.OriginalFrequencyWeeks.Select().SelectedOption.GetAttribute("value"));
+            fields.Add("AUTO BHC: Original End Date", b2BBuyerCatalogPage.OriginalCatalogEndDate.GetAttribute("value"));
+            fields.Add("AUTO BHC: Original Time Of Send", "0" + b2BBuyerCatalogPage.OriginalTimeOfSend.Select().SelectedOption.GetAttribute("value") + ":00:00");
+            fields.Add("AUTO BHC: Delta Scheduled", b2BBuyerCatalogPage.EnableDeltaCatalog.Selected.ToString());
+            fields.Add("AUTO BHC: Delta Start Date", b2BBuyerCatalogPage.DeltaCatalogStartDate.GetAttribute("value"));
+            fields.Add("AUTO BHC: Delta Frequency", b2BBuyerCatalogPage.DeltaFrequencyDays.Select().SelectedOption.GetAttribute("value") + " Day(s)");
+            //fields.Add("DeltaFrequencyWeeks", b2BBuyerCatalogPage.DeltaFrequencyWeeks.Select().SelectedOption.GetAttribute("value"));
+            fields.Add("AUTO BHC: Delta End Date", b2BBuyerCatalogPage.DeltaCatalogEndDate.GetAttribute("value"));
+            fields.Add("AUTO BHC: Delta Time Of Send", "0" + b2BBuyerCatalogPage.DeltaTimeOfSend.Select().SelectedOption.GetAttribute("value") + ":00:00");
+            fields.Add("AUTO BHC: Items in Catalog Expires in", b2BBuyerCatalogPage.CatalogExpire.Select().SelectedOption.GetAttribute("value"));
+            fields.Add("AUTO BHC: Exclude Unchanged Items", b2BBuyerCatalogPage.CheckExcludeNonChangedItems.Selected.ToString());
+            fields.Add("AUTO BHC: Internal Email", b2BBuyerCatalogPage.InternalEMail.GetAttribute("value"));
+            fields.Add("AUTO BHC: External Email", b2BBuyerCatalogPage.CustomerEmail.GetAttribute("value"));
+            fields.Add("AUTO BHC: SPL", b2BBuyerCatalogPage.BcpchkSPLFlagCheckbox.Selected.ToString());
+            return fields;
+        }
     }
 
     /// <summary>

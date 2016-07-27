@@ -1262,39 +1262,81 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             return matchflag;
         }
 
-        public void VerifyCatalogExpirationDate(B2BEnvironment b2BEnvironment, CatalogType type, CatalogStatus status, string profile, string identity)
+        public void VerifyCatalogExpirationDate(B2BEnvironment b2BEnvironment, CatalogType type, CatalogStatus status, ExpireDays days, string profile, string identity)
         {
             DateTime beforeSchedTime = DateTime.Now;
-            ChannelUxWorkflow uxWorkflow = new ChannelUxWorkflow(webDriver);
-            B2BChannelUx b2bChannelUx = new B2BChannelUx(webDriver);
-            b2bChannelUx.OpenAutoCatalogAndInventoryListPage(b2BEnvironment);
-            CPTAutoCatalogInventoryListPage autoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
-            autoCatalogListPage.SelectOption(autoCatalogListPage.SelectRegionSpan, "US");
-            autoCatalogListPage.SelectOption(autoCatalogListPage.SelectCustomerNameSpan, profile);
-            autoCatalogListPage.SelectOption(autoCatalogListPage.SelectIdentityNameSpan, identity.ToUpper());
-
-            if (type == CatalogType.Original)
-                autoCatalogListPage.OriginalCatalogCheckbox.Click();
+            CPTAutoCatalogInventoryListPage autoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver); ;
+            B2BChannelUx b2bChannelUx = new B2BChannelUx(webDriver); 
+            DateTime catDateInListPage = DateTime.Now,
+                        expDateInListPage = DateTime.Now,
+                        catDateInXML = DateTime.Now, 
+                        expDateInXML = DateTime.Now;
+            if (profile.Contains("ChannelCatalog"))
+            {
+                PublishCatalogByClickOnce(b2BEnvironment, profile, identity, type);
+                b2bChannelUx.OpenAutoCatalogAndInventoryListPage(b2BEnvironment);
+                SearchCatalog(profile, identity, beforeSchedTime, status, type);
+                ValidateCatalogSearchResult(type, status, beforeSchedTime);
+            }
             else
-                autoCatalogListPage.DeltaCatalogCheckbox.Click();
+            {
+                b2bChannelUx.OpenAutoCatalogAndInventoryListPage(b2BEnvironment);
+                autoCatalogListPage.SelectOption(autoCatalogListPage.SelectRegionSpan, "US");
+                autoCatalogListPage.SelectOption(autoCatalogListPage.SelectCustomerNameSpan, profile);
+                autoCatalogListPage.SelectOption(autoCatalogListPage.SelectIdentityNameSpan, identity.ToUpper());
 
-            autoCatalogListPage.SelectTheStatus(status.ToString());
-            autoCatalogListPage.SearchRecordsLink.Click();
-            autoCatalogListPage.CatalogsTable.WaitForElementVisible(TimeSpan.FromSeconds(30));
-            string filePath = uxWorkflow.DownloadCatalog(identity, beforeSchedTime);
+                if (type == CatalogType.Original)
+                    autoCatalogListPage.OriginalCatalogCheckbox.Click();
+                else
+                    autoCatalogListPage.DeltaCatalogCheckbox.Click();
 
-            B2BXML actualcatalogXML = XMLDeserializer<B2BXML>.DeserializeFromXmlFile(filePath);
-            CatalogHeader actualCatalogHeader = actualcatalogXML.BuyerCatalog.CatalogHeader;
-            DateTime catDateInXML = DateTime.Parse(actualCatalogHeader.CatalogDate);
-            DateTime expDateInXML = DateTime.Parse(actualCatalogHeader.ExpirationDate);
-            DateTime catDateInListPage = DateTime.Parse(autoCatalogListPage.CatalogsTable.GetCellValue(1, "Last Status Date").Trim());
-            DateTime expDateInListPage = DateTime.Parse(autoCatalogListPage.CatalogsTable.GetCellValue(1, "Expiration Date").Trim());
-
-            expDateInXML.ToString("dd/M/yyyy").Should().Be(expDateInListPage.ToString("dd/M/yyyy"), "Catalog Expiration Date in Auto Catalog XML is not same as Auto Catalog & Inventory List Page");
-            catDateInXML.AddDays(180).ToString("dd/M/yyyy").ShouldBeEquivalentTo(expDateInXML.ToString("dd/M/yyyy"), "Catalog XML : Catalog Expiration Date is not equal to 'Effective date' + 30 days, 90 days or 180 days");
-            catDateInListPage.AddDays(180).ToString("dd/M/yyyy").ShouldBeEquivalentTo(expDateInListPage.ToString("dd/M/yyyy"), "Auto Catalog Inventory & List : Catalog Expiration Date is not equal to 'Effective date' + 30 days, 90 days or 180 days");
+                autoCatalogListPage.SelectTheStatus(status.ToString());
+                autoCatalogListPage.SearchRecordsLink.Click();
+                autoCatalogListPage.CatalogsTable.WaitForElementVisible(TimeSpan.FromSeconds(30));
+            }
+            
+            if (status == CatalogStatus.Failed)
+            {
+                catDateInListPage = DateTime.Parse(autoCatalogListPage.CatalogsTable.GetCellValue(1, "Last Status Date").Trim());
+                expDateInListPage = DateTime.Parse(autoCatalogListPage.CatalogsTable.GetCellValue(1, "Expiration Date").Trim());
+            }
+            else
+            {
+                string filePath = DownloadCatalog(identity, beforeSchedTime);
+                B2BXML actualcatalogXML = XMLDeserializer<B2BXML>.DeserializeFromXmlFile(filePath);
+                CatalogHeader actualCatalogHeader = actualcatalogXML.BuyerCatalog.CatalogHeader;
+                catDateInXML = DateTime.Parse(actualCatalogHeader.CatalogDate);
+                expDateInXML = DateTime.Parse(actualCatalogHeader.ExpirationDate);
+                catDateInListPage = DateTime.Parse(autoCatalogListPage.CatalogsTable.GetCellValue(1, "Last Status Date").Trim());
+                expDateInListPage = DateTime.Parse(autoCatalogListPage.CatalogsTable.GetCellValue(1, "Expiration Date").Trim());
+            }
+            
+            switch (days)
+            {
+                case ExpireDays.Thirty:
+                    ValidateExpirationDate(catDateInXML, expDateInXML, catDateInListPage, expDateInListPage, status, 30);
+                    break;
+                case ExpireDays.Ninty:
+                    ValidateExpirationDate(catDateInXML, expDateInXML, catDateInListPage, expDateInListPage, status, 90);
+                    break;
+                default:
+                    ValidateExpirationDate(catDateInXML, expDateInXML, catDateInListPage, expDateInListPage, status, 180);
+                    break;
+            }
         }
-
+        internal void ValidateExpirationDate(DateTime catDateInXML, DateTime expDateInXML, DateTime catDateInListPage, DateTime expDateInListPage, CatalogStatus status, double days)
+        {
+            if (status == CatalogStatus.Published || status == CatalogStatus.Created)
+            {
+                catDateInListPage.AddDays(days).ToString("dd/M/yyyy").ShouldBeEquivalentTo(expDateInListPage.ToString("dd/M/yyyy"), "Auto Catalog &Inventory List Page: Catalog Expiration Date is not equal to 'Effective date' + 30 days, 90 days or 180 days");
+                catDateInXML.AddDays(days).ToString("dd/M/yyyy").ShouldBeEquivalentTo(expDateInXML.ToString("dd/M/yyyy"), "Catalog XML : Catalog Expiration Date is not equal to 'Effective date' + 30 days, 90 days or 180 days");
+                expDateInXML.ToString("dd/M/yyyy").Should().Be(expDateInListPage.ToString("dd/M/yyyy"), "Catalog Expiration Date in Auto Catalog XML is not same as Auto Catalog & Inventory List Page");
+            }
+            else
+            {
+                catDateInListPage.AddDays(days).ToString("dd/M/yyyy").ShouldBeEquivalentTo(expDateInListPage.ToString("dd/M/yyyy"), "Auto Catalog &Inventory List Page: Catalog Expiration Date is not equal to 'Effective date' + 30 days, 90 days or 180 days");
+            }
+        }
         public bool ValidateUOMValue(string filePath, string orderCode, CatalogType catalogType, CatalogItemType[] catalogItemType)
         {
             bool matchFlag = true;
@@ -1341,13 +1383,14 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         /// <param name="catalogOperation">Catalog Operation</param>
         /// <param name="anyTimeAfter">Time after which catalog was generated</param>
         /// <param name="windowsLogin">Windows NT Login Account name</param>
-        public void ValidateCatalogSearchResult(CatalogType catalogType, CatalogStatus catalogStatus, DateTime anyTimeAfter)
+        public void ValidateCatalogSearchResult(CatalogType catalogType, CatalogStatus catalogStatus, DateTime anyTimeAfter, RequestorValidation requestor = RequestorValidation.On)
         {
             CPTAutoCatalogInventoryListPage autoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
             autoCatalogListPage.CatalogsTable.GetCellValue(1, "Last Status Date").Trim().ConvertToDateTime().AddMinutes(1).Should().BeAfter(anyTimeAfter.ConvertToUtcTimeZone(), "Catalog is not displayed in Search Result");
             autoCatalogListPage.CatalogsTable.GetCellValue(1, "Type").Should().Be(catalogType.ConvertToString(), "Expected Catalog type is incorrect");
             autoCatalogListPage.CatalogsTable.GetCellValue(1, "Status").Should().Be(catalogStatus.ConvertToString(), "Catalog status is not as expected");
-            autoCatalogListPage.CatalogsTable.GetCellValue(1, "Requester").ToLowerInvariant().Should().Be(windowsLogin, "Requestor name is different than windows NT user name");
+            if (requestor == RequestorValidation.On)
+                autoCatalogListPage.CatalogsTable.GetCellValue(1, "Requester").ToLowerInvariant().Should().Be(windowsLogin, "Requestor name is different than windows NT user name");
         }
         /// <summary>
         /// Compare Requestor Information

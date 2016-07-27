@@ -310,30 +310,24 @@ namespace Modules.Channel.B2B.Common
         public static int GetColumnIndex(this IWebElement tableElement, string columnName)
         {
             List<string> columnNames = tableElement.GetColumnNames();
-            int columnIndex = 0;
             for (int i = 0; i < columnNames.Count; i++)
             {
                 if (columnNames[i].Contains(columnName))
                 {
-                    columnIndex = i + 1;
-                    break;
+                    return i + 1;
                 }
             }
-            //if (columnNames[i] == columnName)
-            //    {
-            //        columnIndex = i + 1;
-            //        break;
-            //    }
+            //if (columnIndex == 0)
+            //    throw new Exception("Error: Table does not contain the given column name: " + columnName);
 
-            if (columnIndex == 0)
-                throw new Exception("Error: Table does not contain the given column name: " + columnName);
-
-            return columnIndex;
+            return 0;
         }
 
         public static string GetCellValue(this IWebElement tableElement, int rowIndex, string columnName)
         {
             int columnIndex = tableElement.GetColumnIndex(columnName);
+            if (columnIndex == 0)
+                return null;
 
             if (columnIndex > 4 && columnIndex < 7)
                 columnIndex += 2;
@@ -397,6 +391,7 @@ namespace Modules.Channel.B2B.Common
                     break;
                 case BrowserName.InternetExplorer:
                     webDriver = new InternetExplorerDriver();
+                    webDriver.Manage().Window.Maximize();
                     break;
                 case BrowserName.MicrosoftEdge:
                     webDriver = new EdgeDriver();
