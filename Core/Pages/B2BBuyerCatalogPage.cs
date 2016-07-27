@@ -1091,6 +1091,23 @@ namespace Modules.Channel.B2B.Core.Pages
                 return _chkExcludeNonChangedItems ?? (_chkExcludeNonChangedItems = webDriver.FindElement(By.Id("chkExcludeNonChangedItems"), new TimeSpan(0, 0, 30)));
             }
         }
+
+        /// <summary>
+        /// Enable ExcludeNonChangedItems Catalog Checkbox
+        /// </summary>
+        private IWebElement _enableExcludeNonChangedItems;
+        public IWebElement EnableExcludeNonChangedItems
+        {
+            get
+            {
+                if (_enableExcludeNonChangedItems == null)
+                {
+                    _enableExcludeNonChangedItems = webDriver.FindElement(By.Id("chkExcludeNonChangedItems"), new TimeSpan(0, 0, 30));
+                }
+                return _enableExcludeNonChangedItems;
+            }
+        }
+
         #endregion
 
         #region Helper Methods

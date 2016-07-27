@@ -15,6 +15,7 @@ using Modules.Channel.Utilities;
 using Microsoft.Exchange.WebServices.Data;
 using Modules.Channel.B2B.CatalogXMLTemplates;
 using System.Security.Principal;
+using System.Xml;
 
 namespace Modules.Channel.B2B.Core.Workflows.Catalog
 {
@@ -91,11 +92,20 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         /// <returns></returns>
         public bool ValidateCatalogXML(CatalogItemType[] catalogItemType, CatalogType catalogType, string identityName, string filePath, DateTime anyTimeAfter, ConfigRules configRules)
         {
-            string schemaPath = Path.Combine(System.Environment.CurrentDirectory, "CatalogSchema.xsd");
-
-            string message = XMLSchemaValidator.ValidateSchema(filePath, schemaPath);
-            message.Should().Be(string.Empty, "Error: One or more tags failed scehma validation. Please check the log for complete details");
-
+            string schemaPath = string.Empty;
+            if (configRules == ConfigRules.SPL)
+            {
+                schemaPath = Path.Combine(System.Environment.CurrentDirectory, "SPLCatalogSchema.xsd");
+                string message = XMLSchemaValidator.ValidateSchema(filePath, schemaPath);
+                message.Should().Be(string.Empty, "Error: One or more tags failed scehma validation. Please check the log for complete details");
+            }
+            else
+            {
+                schemaPath = Path.Combine(System.Environment.CurrentDirectory, "CatalogSchema.xsd");
+                string message = XMLSchemaValidator.ValidateSchema(filePath, schemaPath);
+                message.Should().Be(string.Empty, "Error: One or more tags failed scehma validation. Please check the log for complete details");
+            }
+            
             B2BXML actualcatalogXML = XMLDeserializer<B2BXML>.DeserializeFromXmlFile(filePath);
             CatalogDetails actualCatalogDetails = actualcatalogXML.BuyerCatalog.CatalogDetails;
             CatalogHeader actualCatalogHeader = actualcatalogXML.BuyerCatalog.CatalogHeader;
@@ -162,6 +172,13 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                             actualCatalogItems = actualCatalogItems.Where(ci => ci.ItemOrderCode == matchingOrderCode);
                             expectedCatalogItems = expectedCatalogItems.Where(ci => ci.ItemOrderCode == matchingOrderCode);
                             break;
+                        
+                        case ConfigRules.SPL:
+                            expectedCatalogItems = expectedCatalogItems.Where(ci => ci.AutoCategory == "SPL" && ci.CatalogItemType.Equals(itemType));
+                            matchingOrderCode = actualCatalogItems.Select(ci => ci.ItemOrderCode).ToList().Intersect(expectedCatalogItems.Select(ci => ci.ItemOrderCode).ToList()).FirstOrDefault();
+                            actualCatalogItems = actualCatalogItems.Where(ci => ci.ItemOrderCode == matchingOrderCode);
+                            expectedCatalogItems = expectedCatalogItems.Where(ci => ci.ItemOrderCode == matchingOrderCode);
+                            break;
 
                         default:
                             matchingOrderCode = actualCatalogItems.Select(ci => ci.ItemOrderCode).ToList().Intersect(expectedCatalogItems.Select(ci => ci.ItemOrderCode).ToList()).First();
@@ -172,9 +189,19 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                 }
                 else if (itemType.Equals(CatalogItemType.SNP))
                 {
-                    matchingOrderCode = actualCatalogItems.Select(ci => ci.BaseSKUId).ToList().Intersect(expectedCatalogItems.Select(ci => ci.BaseSKUId).ToList()).First();
-                    actualCatalogItems = actualCatalogItems.Where(ci => ci.BaseSKUId == matchingOrderCode);
-                    expectedCatalogItems = expectedCatalogItems.Where(ci => ci.BaseSKUId == matchingOrderCode);
+                    if (configRules == ConfigRules.SPL)
+                    {
+                        expectedCatalogItems = expectedCatalogItems.Where(ci => ci.AutoCategory == "SPL" && ci.CatalogItemType.Equals(itemType));
+                        matchingOrderCode = actualCatalogItems.Select(ci => ci.BaseSKUId).ToList().Intersect(expectedCatalogItems.Select(ci => ci.BaseSKUId).ToList()).FirstOrDefault();
+                        actualCatalogItems = actualCatalogItems.Where(ci => ci.BaseSKUId == matchingOrderCode);
+                        expectedCatalogItems = expectedCatalogItems.Where(ci => ci.BaseSKUId == matchingOrderCode);                  
+                    }
+                    else
+                    {
+                        matchingOrderCode = actualCatalogItems.Select(ci => ci.BaseSKUId).ToList().Intersect(expectedCatalogItems.Select(ci => ci.BaseSKUId).ToList()).First();
+                        actualCatalogItems = actualCatalogItems.Where(ci => ci.BaseSKUId == matchingOrderCode);
+                        expectedCatalogItems = expectedCatalogItems.Where(ci => ci.BaseSKUId == matchingOrderCode);
+                    }
                 }
 
                 matchFlag &= ValidateCatalogItems(actualCatalogItems, expectedCatalogItems, configRules);
@@ -549,6 +576,80 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
 
                 // Delta Change
                 matchFlag &= UtilityMethods.CompareValues<DeltaStatus>("DeltaChange", actualCatalogItem.DeltaChange, expectedCatalogItem.DeltaChange);
+
+                //For SPL Additional Nodes
+                if (configRules == ConfigRules.SPL)
+                {
+                    matchFlag &= UtilityMethods.CompareValues<string>("BoxDimensions", actualCatalogItem.BoxDimensions == null ? "" : actualCatalogItem.BoxDimensions.ToString(), expectedCatalogItem.BoxDimensions == null ? "" : expectedCatalogItem.BoxDimensions.ToString());
+
+                    matchFlag &= UtilityMethods.CompareValues<string>("MinimumOrderQty", actualCatalogItem.MinimumOrderQty == null ? "" : actualCatalogItem.MinimumOrderQty.ToString(), expectedCatalogItem.MinimumOrderQty == null ? "" : expectedCatalogItem.MinimumOrderQty.ToString());
+
+                    matchFlag &= UtilityMethods.CompareValues<string>("PackSeparate", actualCatalogItem.PackSeparate == null ? "" : actualCatalogItem.PackSeparate.ToString(), expectedCatalogItem.PackSeparate == null ? "" : expectedCatalogItem.PackSeparate.ToString());
+
+                    matchFlag &= UtilityMethods.CompareValues<string>("CasePackQuantity", actualCatalogItem.CasePackQuantity == null ? "" : actualCatalogItem.CasePackQuantity.ToString(), expectedCatalogItem.CasePackQuantity == null ? "" : expectedCatalogItem.CasePackQuantity.ToString());
+
+                    matchFlag &= UtilityMethods.CompareValues<string>("MCQ", actualCatalogItem.MCQ == null ? "" : actualCatalogItem.MCQ.ToString(), expectedCatalogItem.MCQ == null ? "" : expectedCatalogItem.MCQ.ToString());
+
+                    matchFlag &= UtilityMethods.CompareValues<string>("CustomsCode", actualCatalogItem.CustomsCode == null ? "" : actualCatalogItem.CustomsCode.ToString(), expectedCatalogItem.CustomsCode == null ? "" : expectedCatalogItem.CustomsCode.ToString());
+
+                    matchFlag &= UtilityMethods.CompareValues<string>("ShippingInstructions", actualCatalogItem.ShippingInstructions == null ? "" : actualCatalogItem.ShippingInstructions.ToString(), expectedCatalogItem.ShippingInstructions == null ? "" : expectedCatalogItem.ShippingInstructions.ToString());
+
+                    matchFlag &= UtilityMethods.CompareValues<string>("DropShip", actualCatalogItem.DropShip == null ? "" : actualCatalogItem.DropShip.ToString(), expectedCatalogItem.DropShip == null ? "" : expectedCatalogItem.DropShip.ToString());
+
+                    matchFlag &= UtilityMethods.CompareValues<string>("CountryofOrigin", actualCatalogItem.CountryofOrigin == null ? "" : actualCatalogItem.CountryofOrigin.ToString(), expectedCatalogItem.CountryofOrigin == null ? "" : expectedCatalogItem.CountryofOrigin.ToString());
+
+                    matchFlag &= UtilityMethods.CompareValues<string>("EPEAT", actualCatalogItem.EPEAT == null ? "" : actualCatalogItem.EPEAT.ToString(), expectedCatalogItem.EPEAT == null ? "" : expectedCatalogItem.EPEAT.ToString());
+
+                    matchFlag &= UtilityMethods.CompareValues<string>("ECCN", actualCatalogItem.ECCN == null ? "" : actualCatalogItem.ECCN.ToString(), expectedCatalogItem.ECCN == null ? "" : expectedCatalogItem.ECCN.ToString());
+
+                    matchFlag &= UtilityMethods.CompareValues<string>("UHG", actualCatalogItem.UHG == null ? "" : actualCatalogItem.UHG.ToString(), expectedCatalogItem.UHG == null ? "" : expectedCatalogItem.UHG.ToString());
+
+                    matchFlag &= UtilityMethods.CompareValues<string>("Levy", actualCatalogItem.Levy == null ? "" : actualCatalogItem.Levy.ToString(), expectedCatalogItem.Levy == null ? "" : expectedCatalogItem.Levy.ToString());
+
+                    matchFlag &= UtilityMethods.CompareValues<string>("SerialScan", actualCatalogItem.SerialScan == null ? "" : actualCatalogItem.SerialScan.ToString(), expectedCatalogItem.SerialScan == null ? "" : expectedCatalogItem.SerialScan.ToString());
+
+                    matchFlag &= UtilityMethods.CompareValues<string>("Comments", actualCatalogItem.Comments == null ? "" : actualCatalogItem.Comments.ToString(), expectedCatalogItem.Comments == null ? "" : expectedCatalogItem.Comments.ToString());
+
+                    matchFlag &= UtilityMethods.CompareValues<string>("Promo", actualCatalogItem.Promo == null ? "" : actualCatalogItem.Promo.ToString(), expectedCatalogItem.Promo == null ? "" : expectedCatalogItem.Promo.ToString());
+
+                    matchFlag &= UtilityMethods.CompareValues<string>("CountryCode", actualCatalogItem.CountryCode == null ? "" : actualCatalogItem.CountryCode.ToString(), expectedCatalogItem.CountryCode == null ? "" : expectedCatalogItem.CountryCode.ToString());
+
+                    matchFlag &= UtilityMethods.CompareValues<string>("Model", actualCatalogItem.Model == null ? "" : actualCatalogItem.Model.ToString(), expectedCatalogItem.Model == null ? "" : expectedCatalogItem.Model.ToString());
+
+                    matchFlag &= UtilityMethods.CompareValues<string>("EAN", actualCatalogItem.EAN == null ? "" : actualCatalogItem.EAN.ToString(), expectedCatalogItem.EAN == null ? "" : expectedCatalogItem.EAN.ToString());
+
+                    matchFlag &= UtilityMethods.CompareValues<string>("JAN", actualCatalogItem.JAN == null ? "" : actualCatalogItem.JAN.ToString(), expectedCatalogItem.JAN == null ? "" : expectedCatalogItem.JAN.ToString());
+
+                    matchFlag &= UtilityMethods.CompareValues<string>("LineofBusiness", actualCatalogItem.LineofBusiness == null ? "" : actualCatalogItem.LineofBusiness.ToString(), expectedCatalogItem.LineofBusiness == null ? "" : expectedCatalogItem.LineofBusiness.ToString());
+
+                    matchFlag &= UtilityMethods.CompareValues<string>("Type", actualCatalogItem.Type == null ? "" : actualCatalogItem.Type.ToString(), expectedCatalogItem.Type == null ? "" : expectedCatalogItem.Type.ToString());
+
+                    matchFlag &= UtilityMethods.CompareValues<string>("ProductCategory", actualCatalogItem.ProductCategory == null ? "" : actualCatalogItem.ProductCategory.ToString(), expectedCatalogItem.ProductCategory == null ? "" : expectedCatalogItem.ProductCategory.ToString());
+
+                    matchFlag &= UtilityMethods.CompareValues<string>("ProductSubCategory", actualCatalogItem.ProductSubCategory == null ? "" : actualCatalogItem.ProductSubCategory.ToString(), expectedCatalogItem.ProductSubCategory == null ? "" : expectedCatalogItem.ProductSubCategory.ToString());
+
+                    matchFlag &= UtilityMethods.CompareValues<string>("ShortDescription", actualCatalogItem.ShortDescription == null ? "" : actualCatalogItem.ShortDescription.ToString(), expectedCatalogItem.ShortDescription == null ? "" : expectedCatalogItem.ShortDescription.ToString());
+
+                  //  matchFlag &= UtilityMethods.CompareValues<string>("Images", actualCatalogItem.Images == null ? "" : actualCatalogItem.Images.ToString(), expectedCatalogItem.Images == null ? "" : expectedCatalogItem.Images.ToString());
+
+                    matchFlag &= UtilityMethods.CompareValues<string>("Aio", actualCatalogItem.Aio == null ? "" : actualCatalogItem.Aio.ToString(), expectedCatalogItem.Aio == null ? "" : expectedCatalogItem.Aio.ToString());
+
+                    matchFlag &= UtilityMethods.CompareValues<string>("EStar", actualCatalogItem.EStar == null ? "" : actualCatalogItem.EStar.ToString(), expectedCatalogItem.EStar == null ? "" : expectedCatalogItem.EStar.ToString());
+
+                    matchFlag &= UtilityMethods.CompareValues<string>("MfgPartNumber", actualCatalogItem.MfgPartNumber == null ? "" : actualCatalogItem.MfgPartNumber.ToString(), expectedCatalogItem.MfgPartNumber == null ? "" : expectedCatalogItem.MfgPartNumber.ToString());
+
+                    matchFlag &= UtilityMethods.CompareValues<string>("ResellerPrice", actualCatalogItem.ResellerPrice == null ? "" : actualCatalogItem.ResellerPrice.ToString(), expectedCatalogItem.ResellerPrice == null ? "" : expectedCatalogItem.ResellerPrice.ToString());
+
+                    matchFlag &= UtilityMethods.CompareValues<string>("ResellerDeltaPrice", actualCatalogItem.ResellerDeltaPrice == null ? "" : actualCatalogItem.ResellerDeltaPrice.ToString(), expectedCatalogItem.ResellerDeltaPrice == null ? "" : expectedCatalogItem.ResellerDeltaPrice.ToString());
+
+                   // matchFlag &= UtilityMethods.CompareValues<string>("TechSpec", actualCatalogItem.TechSpec == null ? "" : actualCatalogItem.TechSpec.ToString(), expectedCatalogItem.TechSpec == null ? "" : expectedCatalogItem.TechSpec.ToString());
+
+                    matchFlag &= UtilityMethods.CompareValues<string>("AssociatedSNPSkus", actualCatalogItem.AssociatedSNPSkus == null ? "" : actualCatalogItem.AssociatedSNPSkus.ToString(), expectedCatalogItem.AssociatedSNPSkus == null ? "" : expectedCatalogItem.AssociatedSNPSkus.ToString());
+
+                    matchFlag &= UtilityMethods.CompareValues<string>("AssociatedServiceSkus", actualCatalogItem.AssociatedServiceSkus == null ? "" : actualCatalogItem.AssociatedServiceSkus.ToString(), expectedCatalogItem.AssociatedServiceSkus == null ? "" : expectedCatalogItem.AssociatedServiceSkus.ToString());
+        
+                //SPL End
+                }
             }
 
             return matchFlag;

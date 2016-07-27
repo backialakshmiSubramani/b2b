@@ -323,6 +323,134 @@ namespace CatalogTests.Common.CatalogXMLTemplates
 
         [XmlElement("PalletUnitsPerPallet")]
         public int PalletUnitsPerPallet { get; set; }
+
+        //For SPL additional Nodes
+        [XmlElement("BoxDimensions")]
+        public string BoxDimensions { get; set; }
+
+        [XmlElement("MinimumOrderQty")]
+        public string MinimumOrderQty { get; set; }
+
+        [XmlElement("PackSeparate")]
+        public string PackSeparate { get; set; }
+
+        [XmlElement("CasePackQuantity")]
+        public string CasePackQuantity { get; set; }
+
+        [XmlElement("MCQ")]
+        public string MCQ { get; set; }
+
+        [XmlElement("CustomsCode")]
+        public string CustomsCode { get; set; }
+
+        [XmlElement("ShippingInstructions")]
+        public string ShippingInstructions { get; set; }
+
+        [XmlElement("DropShip")]
+        public string DropShip { get; set; }
+
+        [XmlElement("CountryofOrigin")]
+        public string CountryofOrigin { get; set; }
+
+        [XmlElement("EPEAT")]
+        public string EPEAT { get; set; }
+
+        [XmlElement("ECCN")]
+        public string ECCN { get; set; }
+
+        [XmlElement("UHG")]
+        public string UHG { get; set; }
+
+        [XmlElement("Levy")]
+        public string Levy { get; set; }
+
+        [XmlElement("SerialScan")]
+        public string SerialScan { get; set; }
+
+        [XmlElement("Comments")]
+        public string Comments { get; set; }
+
+        [XmlElement("Promo")]
+        public string Promo { get; set; }
+
+        [XmlElement("CountryCode")]
+        public string CountryCode { get; set; }
+
+        [XmlElement("Model")]
+        public string Model { get; set; }
+
+        [XmlElement("EAN")]
+        public string EAN { get; set; }
+
+        [XmlElement("JAN")]
+        public string JAN { get; set; }
+
+        [XmlElement("LineofBusiness")]
+        public string LineofBusiness { get; set; }
+
+        [XmlElement("Type")]
+        public string Type { get; set; }
+
+        [XmlElement("ProductCategory")]
+        public string ProductCategory { get; set; }
+
+        [XmlElement("ProductSubCategory")]
+        public string ProductSubCategory { get; set; }
+
+        [XmlElement("ShortDescription")]
+        public string ShortDescription { get; set; }
+
+        [XmlIgnore]
+        public string ImageList;
+
+        [XmlElement("Images")]
+        public string Images { get; set; }
+        //public string Images
+        //{
+        //    get { return new XmlDocument().CreateCDataSection(ImageList).Value; }
+        //    set { ImageList = (value != null) ? value.ToString() : null; }
+        //}
+
+        [XmlElement("Aio")]
+        public string Aio { get; set; }
+
+        [XmlElement("EStar")]
+        public string EStar { get; set; }
+
+        [XmlElement("MfgPartNumber")]
+        public string MfgPartNumber { get; set; }
+
+        [XmlElement("ResellerPrice")]
+        public string ResellerPrice { get; set; }
+
+        [XmlElement("ResellerDeltaPrice")]
+        public string ResellerDeltaPrice { get; set; }
+
+        [XmlIgnore]
+        public string TechSpecList;
+
+        [XmlElement("TechSpec")]
+        public string TechSpec { get; set; }
+
+        //public string TechSpec
+        //{
+        //    //get { return new XmlDocument().CreateCDataSection(TechSpecList); }
+        //    //set { TechSpecList = (value != null) ? value.Data : null; }
+
+
+        //    get { return new XmlDocument().CreateCDataSection(TechSpecList).Value; }
+        //    set { TechSpecList = (value != null) ? value.ToString() : null; }
+        //}
+
+        [XmlElement("AssociatedSNPSkus")]
+        public string AssociatedSNPSkus { get; set; }
+
+        [XmlElement("AssociatedServiceSkus")]
+        public string AssociatedServiceSkus { get; set; }
+
+        //SPL End
+
+
     }
 
     //[Serializable]

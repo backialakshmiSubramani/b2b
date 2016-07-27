@@ -54,7 +54,8 @@ namespace Modules.Channel.B2B.Common
         LeadTimeON=2,
         DuplicateBPN=3, 
         NullBPN=4,
-        WithDefOptions=5
+        WithDefOptions=5,
+        SPL=6
     }
 
     public enum ConfigAdditionalOptions
