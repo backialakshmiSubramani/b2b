@@ -279,7 +279,7 @@ namespace Modules.Channel.B2B.Core.Pages
                 return false;
             }
 
-            if (!EnableChannelCancelAsnlbl.Text.Equals(Helper.EnableChannelASN))
+            if (!EnableChannelCancelAsnlbl.Text.Equals(EnglishResourcesHelper.EnableChannelASN))
             {
                 return false;
             }
@@ -296,7 +296,7 @@ namespace Modules.Channel.B2B.Core.Pages
                 return false;
             }
 
-            if (!EnableChannelAsnlbl.Text.Equals(Helper.EnableShipASN))
+            if (!EnableChannelAsnlbl.Text.Equals(EnglishResourcesHelper.EnableShipASN))
             {
                 return false;
             }
