@@ -4610,6 +4610,31 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             uxWorkflow.VerifyOrderCodeExistsInCatalogFile(filePath, catalogItemType, configRules).Should().BeTrue("Error: Data mismatch for Catalog XML content with expected values");
         }
 
+
+             /// <summary>
+        /// It Verify the SPL with SYS Config, SNP Config, SNP Auto CRT & SYS Auto CRT UI settings in B2B Profile->Buyer Catalog page, under under "Automated BHC Catalog-Processing Rules" section
+        /// </summary>
+
+        /// <returns></returns>
+        public bool ExcludeUnChangedItemsElementExists(B2BEnvironment environment, string profileName)
+        {
+            //Following will navigate to the page : Profile->Buyer Catalog->Automated BHC Catalog-Processing Rules
+            GoToBuyerCatalogTab(environment.ToString(), profileName);
+            b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+            if (!b2BBuyerCatalogPage.EnableCatalogAutoGeneration.Selected)
+            {
+                UtilityMethods.ClickElement(webDriver, b2BBuyerCatalogPage.EnableCatalogAutoGeneration);
+                UtilityMethods.ClickElement(webDriver, b2BBuyerCatalogPage.BuyerCatalogFirstIdentity);
+            }
+            else
+            {
+                UtilityMethods.ClickElement(webDriver, b2BBuyerCatalogPage.EditScheduleButton);
+            }
+
+             return (b2BBuyerCatalogPage.EnableExcludeNonChangedItems.Displayed);
+        }
+
+
         /// <summary>
         /// It Verify the SPL with SYS Config, SNP Config, SNP Auto CRT & SYS Auto CRT UI settings in B2B Profile->Buyer Catalog page, under under "Automated BHC Catalog-Processing Rules" section
         /// </summary>
@@ -4621,7 +4646,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         /// <param name="snpCRTField"></param>
         /// <param name="sysCRTField"></param>
         /// <returns></returns>
-        public bool VerifySPLEnabledSettingsValidations(string environment, string profileName, bool splField, bool snpField, bool sysField, bool snpCRTField, bool sysCRTField, bool stdField = false, bool stdCRTField = false, bool excludeNonChangedItems = false)
+        public bool VerifyAutoScheduledUISettingsValidations(string environment, string profileName, bool splField, bool snpField, bool sysField, bool snpCRTField, bool sysCRTField, bool stdField = false, bool stdCRTField = false, bool excludeUnChangedItems = false, bool enableDeltaCatalog = false)
         {
             //Following will navigate to the page : Profile->Buyer Catalog->Automated BHC Catalog-Processing Rules
             GoToBuyerCatalogTab(environment, profileName);
@@ -4788,21 +4813,22 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                 b2BBuyerCatalogPage.EnableDeltaCatalog.Click();
             }
             b2BBuyerCatalogPage.SetTextBoxValue(b2BBuyerCatalogPage.DeltaCatalogStartDate, DateTime.Now.AddDays(2).ToString(MMDDYYYY));
-            
-            if(excludeNonChangedItems == true)
+
+            if (excludeUnChangedItems == true)
             {
                 if (!b2BBuyerCatalogPage.EnableExcludeNonChangedItems.Selected)
                 {
                     b2BBuyerCatalogPage.EnableExcludeNonChangedItems.Click();
                 }
             }
-            else
+            else if (excludeUnChangedItems == false && enableDeltaCatalog == false)
             {
-                if (b2BBuyerCatalogPage.EnableExcludeNonChangedItems.Selected)
+                if (b2BBuyerCatalogPage.EnableDeltaCatalog.Selected)
                 {
-                    b2BBuyerCatalogPage.EnableExcludeNonChangedItems.Click();
+                    b2BBuyerCatalogPage.EnableDeltaCatalog.Click();
                 }
             }
+
 
             if (splField == true && snpField == false && sysField == false && stdField == false)
             {
@@ -4826,7 +4852,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                 matchFlag &= (UtilityMethods.CompareValues<bool>("SYS", b2BBuyerCatalogPage.BcpchkSysCatalogCheckbox.Selected, false));
                 matchFlag &= (UtilityMethods.CompareValues<bool>("SNPCRT", b2BBuyerCatalogPage.BcpchkCrossRefernceSnpUpdate.Selected, false));
                 matchFlag &= (UtilityMethods.CompareValues<bool>("SYSCRT", b2BBuyerCatalogPage.BcpchkCrossRefernceSysUpdate.Selected, false));
-               // matchFlag &= (UtilityMethods.CompareValues<bool>("excludeNonChangedItems", b2BBuyerCatalogPage.EnableExcludeNonChangedItems.Selected, excludeNonChangedItems));
+                matchFlag &= (UtilityMethods.CompareValues<bool>("excludeNonChangedItems", b2BBuyerCatalogPage.EnableExcludeNonChangedItems.Selected, excludeUnChangedItems));
             }
             else
             {
@@ -4835,7 +4861,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                 matchFlag &= (UtilityMethods.CompareValues<bool>("SYS", b2BBuyerCatalogPage.BcpchkSysCatalogCheckbox.Selected, sysField));
                 matchFlag &= (UtilityMethods.CompareValues<bool>("SNPCRT", b2BBuyerCatalogPage.BcpchkCrossRefernceSnpUpdate.Selected, snpCRTField));
                 matchFlag &= (UtilityMethods.CompareValues<bool>("SYSCRT", b2BBuyerCatalogPage.BcpchkCrossRefernceSysUpdate.Selected, sysCRTField));
-             //   matchFlag &= (UtilityMethods.CompareValues<bool>("excludeNonChangedItems", b2BBuyerCatalogPage.EnableExcludeNonChangedItems.Selected, excludeNonChangedItems));
+                matchFlag &= (UtilityMethods.CompareValues<bool>("excludeNonChangedItems", b2BBuyerCatalogPage.EnableExcludeNonChangedItems.Selected, excludeUnChangedItems));
             }
             return matchFlag;
         }
@@ -4998,7 +5024,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["B2BBaseURL"]);
             DateTime beforeSchedTime = DateTime.Now;
             ChannelUxWorkflow uxWorkflow = new ChannelUxWorkflow(webDriver);
-            VerifySPLEnabledSettingsValidations(b2BEnvironment.ToString(), profileName, splUI, snpUI, sysUI, false, false);
+            VerifyAutoScheduledUISettingsValidations(b2BEnvironment.ToString(), profileName, splUI, snpUI, sysUI, false, false);
             uxWorkflow.PublishCatalogByClickOnce(b2BEnvironment, profileName, identityName, catalogType);
             webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["AutoCatalogListPageUrl"] + ((b2BEnvironment == B2BEnvironment.Production) ? "P" : "U"));
             uxWorkflow.SearchCatalog(profileName, identityName, beforeSchedTime, catalogStatus);
@@ -5065,7 +5091,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["B2BBaseURL"]);
             DateTime beforeSchedTime = DateTime.Now;
             ChannelUxWorkflow uxWorkflow = new ChannelUxWorkflow(webDriver);
-            VerifySPLEnabledSettingsValidations(b2BEnvironment.ToString(), profileName, splUI, snpUI, sysUI, snpCRTUI, sysCRTUI, stdUI, stdCRTUI);
+            VerifyAutoScheduledUISettingsValidations(b2BEnvironment.ToString(), profileName, splUI, snpUI, sysUI, snpCRTUI, sysCRTUI, stdUI, stdCRTUI);
             uxWorkflow.PublishCatalogByClickOnce(b2BEnvironment, profileName, identityName, catalogType);
             webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["AutoCatalogListPageUrl"] + ((b2BEnvironment == B2BEnvironment.Production) ? "P" : "U"));
             uxWorkflow.SearchCatalog(profileName, identityName, beforeSchedTime, catalogStatus);
@@ -5399,13 +5425,13 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         /// <summary>
         /// Below method verifies Auto BHC Settings Update
         /// </summary>
-        public void B2BProfileAutoBHCSettingsUpdate(B2BEnvironment b2BEnvironment, string profileName,
+        public bool B2BProfileAutoBHCSettingsUpdate(B2BEnvironment b2BEnvironment, string profileName,
                                           bool splUI, bool snpUI, bool sysUI, bool snpCRTField,
-                                          bool sysCRTField, bool stdField, bool stdCRTField)
+                                          bool sysCRTField, bool stdField, bool stdCRTField, bool excludeUnChangedItems, bool enableDeltaCatallog)
         {
             webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["B2BBaseURL"]);
             ChannelUxWorkflow uxWorkflow = new ChannelUxWorkflow(webDriver);
-            VerifySPLEnabledSettingsValidations(b2BEnvironment.ToString(), profileName, splUI, snpUI, sysUI, snpCRTField, sysCRTField, stdField, stdCRTField);
+            return VerifyAutoScheduledUISettingsValidations(b2BEnvironment.ToString(), profileName, splUI, snpUI, sysUI, snpCRTField, sysCRTField, stdField, stdCRTField, excludeUnChangedItems, enableDeltaCatallog);
         }
 
     }
