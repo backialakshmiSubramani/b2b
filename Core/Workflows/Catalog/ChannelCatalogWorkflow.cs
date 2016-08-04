@@ -4865,6 +4865,50 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             }
             return matchFlag;
         }
+
+        public bool VerifyStdSysFinalPriceUISettingsValidations(B2BEnvironment environment, string profileName, bool isStdFinalPriceField, bool isSysFinalPriceField)
+        {
+            //Following will navigate to the page : Profile->Buyer Catalog->Automated BHC Catalog-Processing Rules
+            GoToBuyerCatalogTab(environment.ToString(), profileName);
+            b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+            if (!b2BBuyerCatalogPage.EnableCatalogAutoGeneration.Selected)
+            {
+                UtilityMethods.ClickElement(webDriver, b2BBuyerCatalogPage.EnableCatalogAutoGeneration);
+                UtilityMethods.ClickElement(webDriver, b2BBuyerCatalogPage.BuyerCatalogFirstIdentity);
+            }
+            else
+            {
+                UtilityMethods.ClickElement(webDriver, b2BBuyerCatalogPage.EditScheduleButton);
+            }
+
+            if (b2BBuyerCatalogPage.BcpchkSysCatalogCheckbox.Selected)
+            {
+                b2BBuyerCatalogPage.BcpchkSysCatalogCheckbox.Click();
+            }
+            
+            if (b2BBuyerCatalogPage.CatalogConfigStandard.Selected)
+            {
+                b2BBuyerCatalogPage.CatalogConfigStandard.Click();
+            }
+
+            bool matchFlag = true;
+
+            if (isStdFinalPriceField)
+            {
+                matchFlag = !b2BBuyerCatalogPage.CatalogConfigIncludeFinalPrice.Enabled;
+                b2BBuyerCatalogPage.CatalogConfigIncludeDefaultOptions.Click();
+                matchFlag = b2BBuyerCatalogPage.CatalogConfigIncludeFinalPrice.Enabled;
+            }
+            else if (isSysFinalPriceField)
+            {
+                matchFlag = !b2BBuyerCatalogPage.CatalogConfigSysFinalPriceCheckbox.Enabled;
+                b2BBuyerCatalogPage.CatalogConfigSysDefaultOptionsCheckbox.Click();
+                matchFlag = b2BBuyerCatalogPage.CatalogConfigSysFinalPriceCheckbox.Enabled;
+            }
+            return matchFlag;
+        }
+
+
         public void VerifyP2PValidationForEnableAutoBHCOFFNewProfile(B2BEnvironment b2BEnvironment, string customerSet, string accessGroup, string profileNameBase, CatalogType catalogType)
         {
             ChannelCatalogWorkflow channelCatalogWorkflow = new ChannelCatalogWorkflow(webDriver);
@@ -5433,7 +5477,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             ChannelUxWorkflow uxWorkflow = new ChannelUxWorkflow(webDriver);
             return VerifyAutoScheduledUISettingsValidations(b2BEnvironment.ToString(), profileName, splUI, snpUI, sysUI, snpCRTField, sysCRTField, stdField, stdCRTField, excludeUnChangedItems, enableDeltaCatallog);
         }
-
+  
     }
 
     /// <summary>
