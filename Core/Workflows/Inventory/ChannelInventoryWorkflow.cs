@@ -7,7 +7,6 @@ using Dell.Adept.UI.Web.Support.Extensions.WebElement;
 using OpenQA.Selenium;
 using Modules.Channel.B2B.Core.Pages;
 using Modules.Channel.B2B.Core.Workflows.Common;
-using Modules.Channel.B2B.DAL.Inventory;
 using System.IO;
 using Modules.Channel.B2B.Common;
 
@@ -21,7 +20,6 @@ namespace Modules.Channel.B2B.Core.Workflows.Inventory
         private IWebDriver webDriver;
         private AccessProfile accessProfile;
         private B2BBuyerCatalogPage b2BBuyerCatalogPage;
-        private B2BEntities b2BEntities;
         private B2BHomePage b2BHomePage;
         private CPTAutoCatalogInventoryListPage cPTAutoCatalogInventoryListPage;
 
@@ -651,13 +649,12 @@ namespace Modules.Channel.B2B.Core.Workflows.Inventory
         /// 
         /// </summary>
         /// <param name="environment"></param>
-        /// <param name="profileName"></param>
         /// <param name="retryAndscheduleRunMessage"></param>
         /// <param name="region"></param>
         /// <param name="failed"></param>
         /// <returns>The <see cref="bool"/></returns>
-        public bool VerifyRetryInformationInPopUp(RunEnvironment environment, string profileName,
-            String retryAndscheduleRunMessage, Region region, CatalogStatus failed)
+        public bool VerifyRetryInformationInPopUp(RunEnvironment environment, string retryAndscheduleRunMessage,
+            Region region, CatalogStatus failed)
         {
             var retryMessageList = retryAndscheduleRunMessage.Split('/').ToList();
             b2BHomePage.SelectEnvironment(environment.ToString());
@@ -683,11 +680,9 @@ namespace Modules.Channel.B2B.Core.Workflows.Inventory
                 }
                 return true;
             }
-            else
-            {
-                Console.WriteLine("No Inventory records");
-                return false;
-            }
+
+            Console.WriteLine("No Inventory records");
+            return false;
         }
     }
 }
