@@ -16,6 +16,7 @@ using Microsoft.Exchange.WebServices.Data;
 using Modules.Channel.B2B.CatalogXMLTemplates;
 using System.Security.Principal;
 using System.Xml;
+using OpenQA.Selenium.Support.UI;
 
 namespace Modules.Channel.B2B.Core.Workflows.Catalog
 {
@@ -96,8 +97,8 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             if (configRules == ConfigRules.SPL)
             {
                 schemaPath = Path.Combine(System.Environment.CurrentDirectory, "SPLCatalogSchema.xsd");
-                string message = XMLSchemaValidator.ValidateSchema(filePath, schemaPath);
-                message.Should().Be(string.Empty, "Error: One or more tags failed scehma validation. Please check the log for complete details");
+            string message = XMLSchemaValidator.ValidateSchema(filePath, schemaPath);
+            message.Should().Be(string.Empty, "Error: One or more tags failed scehma validation. Please check the log for complete details");
             }
             else
             {
@@ -105,7 +106,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                 string message = XMLSchemaValidator.ValidateSchema(filePath, schemaPath);
                 message.Should().Be(string.Empty, "Error: One or more tags failed scehma validation. Please check the log for complete details");
             }
-            
+
             B2BXML actualcatalogXML = XMLDeserializer<B2BXML>.DeserializeFromXmlFile(filePath);
             CatalogDetails actualCatalogDetails = actualcatalogXML.BuyerCatalog.CatalogDetails;
             CatalogHeader actualCatalogHeader = actualcatalogXML.BuyerCatalog.CatalogHeader;
@@ -172,7 +173,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                             actualCatalogItems = actualCatalogItems.Where(ci => ci.ItemOrderCode == matchingOrderCode);
                             expectedCatalogItems = expectedCatalogItems.Where(ci => ci.ItemOrderCode == matchingOrderCode);
                             break;
-                        
+
                         case ConfigRules.SPL:
                             expectedCatalogItems = expectedCatalogItems.Where(ci => ci.AutoCategory == "SPL" && ci.CatalogItemType.Equals(itemType));
                             matchingOrderCode = actualCatalogItems.Select(ci => ci.ItemOrderCode).ToList().Intersect(expectedCatalogItems.Select(ci => ci.ItemOrderCode).ToList()).FirstOrDefault();
@@ -198,10 +199,10 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                     }
                     else
                     {
-                        matchingOrderCode = actualCatalogItems.Select(ci => ci.BaseSKUId).ToList().Intersect(expectedCatalogItems.Select(ci => ci.BaseSKUId).ToList()).First();
-                        actualCatalogItems = actualCatalogItems.Where(ci => ci.BaseSKUId == matchingOrderCode);
-                        expectedCatalogItems = expectedCatalogItems.Where(ci => ci.BaseSKUId == matchingOrderCode);
-                    }
+                    matchingOrderCode = actualCatalogItems.Select(ci => ci.BaseSKUId).ToList().Intersect(expectedCatalogItems.Select(ci => ci.BaseSKUId).ToList()).First();
+                    actualCatalogItems = actualCatalogItems.Where(ci => ci.BaseSKUId == matchingOrderCode);
+                    expectedCatalogItems = expectedCatalogItems.Where(ci => ci.BaseSKUId == matchingOrderCode);
+                }
                 }
 
                 matchFlag &= ValidateCatalogItems(actualCatalogItems, expectedCatalogItems, configRules);
@@ -1010,6 +1011,49 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             //b2BChannelUx.ClickToPublishButton.Click();
         }
 
+        public string CreateInstantCatalogSetNew(B2BEnvironment b2BEnvironment, string profileName, string identityName, CatalogType catalogType, CatalogItemType[] catalogItemTypeList)
+        {
+            B2BChannelUx b2BChannelUx = new B2BChannelUx(webDriver);
+            b2BChannelUx.OpenCreateInstantCatalogPage(b2BEnvironment);
+
+            if (b2BEnvironment == B2BEnvironment.Production)
+                UtilityMethods.ClickElement(webDriver, b2BChannelUx.ProductionEnvRadioButton);
+            else if (b2BEnvironment == B2BEnvironment.Preview)
+                UtilityMethods.ClickElement(webDriver, b2BChannelUx.PreviewEnvRadioButton);
+
+            b2BChannelUx.SelectOption(b2BChannelUx.SelectCustomerProfileDiv, profileName);
+            b2BChannelUx.SelectOption(b2BChannelUx.SelectProfileIdentityDiv, identityName.ToUpper());
+
+            if (!b2BChannelUx.SetNewRadioButton.Selected)
+                b2BChannelUx.SetNewRadioButton.Click();
+
+            foreach (CatalogItemType catalogItemType in catalogItemTypeList)
+            {
+                if (catalogItemType == CatalogItemType.ConfigWithDefaultOptions && !b2BChannelUx.STDSetNewCheckBox.Selected)
+                    b2BChannelUx.STDSetNewCheckBox.Click();
+                if (catalogItemType == CatalogItemType.SNP && !b2BChannelUx.SNPSetNewCheckBox.Selected)
+                    b2BChannelUx.STDSetNewCheckBox.Click();
+                if (catalogItemType == CatalogItemType.Systems && !b2BChannelUx.SYSSetNewCheckBox.Selected)
+                    b2BChannelUx.STDSetNewCheckBox.Click();
+            }
+
+            if (catalogType == CatalogType.Original)
+                b2BChannelUx.OriginalRadioButton.Click();
+            else if (catalogType == CatalogType.Delta)
+                b2BChannelUx.DeltaRadioButton.Click();
+
+            b2BChannelUx.CreateAndDownloadButton.Click();
+            WebDriverWait wait = new WebDriverWait(webDriver, TimeSpan.FromMinutes(1));
+            wait.Until(drv => drv.FindElement(By.Id("imgLoading")).Displayed);
+            wait.Until(drv => !drv.FindElement(By.Id("imgLoading")).Displayed);
+
+            string validationMessage = string.Empty;
+            if (b2BChannelUx.FeedBackMessage.IsElementVisible())
+                validationMessage = b2BChannelUx.FeedBackMessage.Text;
+
+            return validationMessage;
+        }
+
         internal void ValidateP2PMessage(B2BEnvironment environment, string profileName, string identityName, CatalogType catalogType)
         {
             webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["TestHarnessPageUrl"] + ((environment == B2BEnvironment.Production) ? "P" : "U"));
@@ -1367,7 +1411,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         {
             DateTime beforeSchedTime = DateTime.Now;
             CPTAutoCatalogInventoryListPage autoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver); ;
-            B2BChannelUx b2bChannelUx = new B2BChannelUx(webDriver); 
+            B2BChannelUx b2bChannelUx = new B2BChannelUx(webDriver);
             DateTime catDateInListPage = DateTime.Now,
                         expDateInListPage = DateTime.Now,
                         catDateInXML = DateTime.Now, 
@@ -1381,21 +1425,21 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             }
             else
             {
-                b2bChannelUx.OpenAutoCatalogAndInventoryListPage(b2BEnvironment);
-                autoCatalogListPage.SelectOption(autoCatalogListPage.SelectRegionSpan, "US");
-                autoCatalogListPage.SelectOption(autoCatalogListPage.SelectCustomerNameSpan, profile);
-                autoCatalogListPage.SelectOption(autoCatalogListPage.SelectIdentityNameSpan, identity.ToUpper());
+            b2bChannelUx.OpenAutoCatalogAndInventoryListPage(b2BEnvironment);
+            autoCatalogListPage.SelectOption(autoCatalogListPage.SelectRegionSpan, "US");
+            autoCatalogListPage.SelectOption(autoCatalogListPage.SelectCustomerNameSpan, profile);
+            autoCatalogListPage.SelectOption(autoCatalogListPage.SelectIdentityNameSpan, identity.ToUpper());
 
-                if (type == CatalogType.Original)
-                    autoCatalogListPage.OriginalCatalogCheckbox.Click();
-                else
-                    autoCatalogListPage.DeltaCatalogCheckbox.Click();
+            if (type == CatalogType.Original)
+                autoCatalogListPage.OriginalCatalogCheckbox.Click();
+            else
+                autoCatalogListPage.DeltaCatalogCheckbox.Click();
 
-                autoCatalogListPage.SelectTheStatus(status.ToString());
-                autoCatalogListPage.SearchRecordsLink.Click();
-                autoCatalogListPage.CatalogsTable.WaitForElementVisible(TimeSpan.FromSeconds(30));
+            autoCatalogListPage.SelectTheStatus(status.ToString());
+            autoCatalogListPage.SearchRecordsLink.Click();
+            autoCatalogListPage.CatalogsTable.WaitForElementVisible(TimeSpan.FromSeconds(30));
             }
-            
+
             if (status == CatalogStatus.Failed)
             {
                 catDateInListPage = DateTime.Parse(autoCatalogListPage.CatalogsTable.GetCellValue(1, "Last Status Date").Trim());
@@ -1404,14 +1448,14 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             else
             {
                 string filePath = DownloadCatalog(identity, beforeSchedTime);
-                B2BXML actualcatalogXML = XMLDeserializer<B2BXML>.DeserializeFromXmlFile(filePath);
-                CatalogHeader actualCatalogHeader = actualcatalogXML.BuyerCatalog.CatalogHeader;
+            B2BXML actualcatalogXML = XMLDeserializer<B2BXML>.DeserializeFromXmlFile(filePath);
+            CatalogHeader actualCatalogHeader = actualcatalogXML.BuyerCatalog.CatalogHeader;
                 catDateInXML = DateTime.Parse(actualCatalogHeader.CatalogDate);
                 expDateInXML = DateTime.Parse(actualCatalogHeader.ExpirationDate);
                 catDateInListPage = DateTime.Parse(autoCatalogListPage.CatalogsTable.GetCellValue(1, "Last Status Date").Trim());
                 expDateInListPage = DateTime.Parse(autoCatalogListPage.CatalogsTable.GetCellValue(1, "Expiration Date").Trim());
             }
-            
+
             switch (days)
             {
                 case ExpireDays.Thirty:
@@ -1431,7 +1475,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             {
                 catDateInListPage.AddDays(days).ToString("dd/M/yyyy").ShouldBeEquivalentTo(expDateInListPage.ToString("dd/M/yyyy"), "Auto Catalog &Inventory List Page: Catalog Expiration Date is not equal to 'Effective date' + 30 days, 90 days or 180 days");
                 catDateInXML.AddDays(days).ToString("dd/M/yyyy").ShouldBeEquivalentTo(expDateInXML.ToString("dd/M/yyyy"), "Catalog XML : Catalog Expiration Date is not equal to 'Effective date' + 30 days, 90 days or 180 days");
-                expDateInXML.ToString("dd/M/yyyy").Should().Be(expDateInListPage.ToString("dd/M/yyyy"), "Catalog Expiration Date in Auto Catalog XML is not same as Auto Catalog & Inventory List Page");
+            expDateInXML.ToString("dd/M/yyyy").Should().Be(expDateInListPage.ToString("dd/M/yyyy"), "Catalog Expiration Date in Auto Catalog XML is not same as Auto Catalog & Inventory List Page");
             }
             else
             {
@@ -1491,7 +1535,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             autoCatalogListPage.CatalogsTable.GetCellValue(1, "Type").Should().Be(catalogType.ConvertToString(), "Expected Catalog type is incorrect");
             autoCatalogListPage.CatalogsTable.GetCellValue(1, "Status").Should().Be(catalogStatus.ConvertToString(), "Catalog status is not as expected");
             if (requestor == RequestorValidation.On)
-                autoCatalogListPage.CatalogsTable.GetCellValue(1, "Requester").ToLowerInvariant().Should().Be(windowsLogin, "Requestor name is different than windows NT user name");
+            autoCatalogListPage.CatalogsTable.GetCellValue(1, "Requester").ToLowerInvariant().Should().Be(windowsLogin, "Requestor name is different than windows NT user name");
         }
         /// <summary>
         /// Compare Requestor Information
