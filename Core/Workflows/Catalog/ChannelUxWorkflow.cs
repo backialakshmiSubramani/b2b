@@ -498,7 +498,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                 matchFlag &= UtilityMethods.CompareValues<string>("ReplacementQuoteId", actualCatalogItem.ReplacementQuoteId, expectedCatalogItem.ReplacementQuoteId);
                 // matchFlag &= UtilityMethods.CompareValues<string>("ItemType", actualCatalogItem.ItemType, expectedCatalogItem.ItemType);
                 // matchFlag &= UtilityMethods.CompareValues<string>("ItemSKUinfo", actualCatalogItem.ItemSKUinfo, expectedCatalogItem.ItemSKUinfo);
-                matchFlag &= UtilityMethods.CompareValues<string>("FGAModNumber", actualCatalogItem.FGAModNumber, expectedCatalogItem.FGAModNumber);
+               // matchFlag &= UtilityMethods.CompareValues<string>("FGAModNumber", actualCatalogItem.FGAModNumber, expectedCatalogItem.FGAModNumber);
                 matchFlag &= UtilityMethods.CompareValues<int>("InventoryQty", actualCatalogItem.InventoryQty, -9999, Computation.GreaterThanOrEqualTo);
                 matchFlag &= UtilityMethods.CompareValues<string>("ListPrice", actualCatalogItem.ListPrice, expectedCatalogItem.ListPrice);
                 matchFlag &= UtilityMethods.CompareValues<string>("UPC", actualCatalogItem.UPC, expectedCatalogItem.UPC);
@@ -1027,14 +1027,17 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             if (!b2BChannelUx.SetNewRadioButton.Selected)
                 b2BChannelUx.SetNewRadioButton.Click();
 
+            if (b2BChannelUx.STDSetNewCheckBox.Selected)
+                b2BChannelUx.STDSetNewCheckBox.Click();
+
             foreach (CatalogItemType catalogItemType in catalogItemTypeList)
             {
                 if (catalogItemType == CatalogItemType.ConfigWithDefaultOptions && !b2BChannelUx.STDSetNewCheckBox.Selected)
                     b2BChannelUx.STDSetNewCheckBox.Click();
                 if (catalogItemType == CatalogItemType.SNP && !b2BChannelUx.SNPSetNewCheckBox.Selected)
-                    b2BChannelUx.STDSetNewCheckBox.Click();
+                    b2BChannelUx.SNPSetNewCheckBox.Click();
                 if (catalogItemType == CatalogItemType.Systems && !b2BChannelUx.SYSSetNewCheckBox.Selected)
-                    b2BChannelUx.STDSetNewCheckBox.Click();
+                    b2BChannelUx.SYSSetNewCheckBox.Click();
             }
 
             if (catalogType == CatalogType.Original)
