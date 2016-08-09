@@ -72,14 +72,17 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             B2BQaToolsPage.PasteInputXml(file);
             webDriver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromMinutes(2));
             B2BQaToolsPage.ClickSubmitMessage();
-            if (
-                 B2BQaToolsPage.GetSubmissionResult()
-                    .Equals("XML Response received from server Code: 200. Message: PO = " + uniquePoRefNum))
+            if (B2BQaToolsPage.GetSubmissionResult().Equals("XML Response received from server Code: 200. Message: PO = " + uniquePoRefNum))
             {
+                Console.WriteLine("Success: PO Number: " + uniquePoRefNum);
                 return uniquePoRefNum;
             }
-            Console.WriteLine("Error while posting PO: " + B2BQaToolsPage.GetSubmissionResult());
-            throw new Exception("Error while posting PO" + uniquePoRefNum);
+            else
+            {
+                Console.WriteLine("Error while posting PO: " + B2BQaToolsPage.GetSubmissionResult());
+                Console.WriteLine("Fail: PO Number: " + uniquePoRefNum);
+                throw new Exception("Error while posting PO: " + uniquePoRefNum);
+            }
    }
         
         /// <summary>
@@ -145,13 +148,17 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             B2BQaToolsPage.PasteInputXml(file);
             webDriver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromMinutes(2));
             B2BQaToolsPage.ClickSubmitMessage();
-            if (
-                 B2BQaToolsPage.GetSubmissionResult()
-                    .Equals("XML Response received from server Code: 200. Message: PO = " + uniquePoRefNum))
+            if (B2BQaToolsPage.GetSubmissionResult().Equals("XML Response received from server Code: 200. Message: PO = " + uniquePoRefNum))
             {
+                Console.WriteLine("Success: PO Number: " + uniquePoRefNum);
                 return uniquePoRefNum;
             }
-            throw new Exception("Error while posting PO" + uniquePoRefNum);
+            else
+            {
+                Console.WriteLine("Error while posting PO: " + B2BQaToolsPage.GetSubmissionResult());
+                Console.WriteLine("Fail: PO Number: " + uniquePoRefNum);
+                throw new Exception("Error while posting PO: " + uniquePoRefNum);
+            }
         }
 
         /// <summary>
@@ -176,13 +183,17 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             B2BQaToolsPage.PasteInputXml(file);
             webDriver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromMinutes(2));
             B2BQaToolsPage.ClickSubmitMessage();
-            if (
-                 B2BQaToolsPage.GetSubmissionResult()
-                    .Equals("XML Response received from server Code: 200. Message: PO = " + uniquePoRefNum))
+            if (B2BQaToolsPage.GetSubmissionResult().Equals("XML Response received from server Code: 200. Message: PO = " + uniquePoRefNum))
             {
+                Console.WriteLine("Success: PO Number: " + uniquePoRefNum);
                 return uniquePoRefNum;
             }
-            throw new Exception("Error while posting PO" + uniquePoRefNum);
+            else
+            {
+                Console.WriteLine("Error while posting PO: " + B2BQaToolsPage.GetSubmissionResult());
+                Console.WriteLine("Fail: PO Number: " + uniquePoRefNum);
+                throw new Exception("Error while posting PO: " + uniquePoRefNum);
+            }
         }
     }
 }
