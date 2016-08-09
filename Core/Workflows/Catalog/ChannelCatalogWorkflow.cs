@@ -4982,11 +4982,11 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             }
             return dict;
         }
-
-        public void VerifyErrorMessageIfNoConfigSelected(B2BEnvironment b2BEnvironment, string profileNameBase, CatalogType catalogType)
+        public void VerifyErrorMessageIfNoConfigSelected(B2BEnvironment b2BEnvironment, string profileNameBase, string identityName,
+            CatalogType catalogType, SetNewValidation setnew, CatalogItemType catalogItemType = CatalogItemType.ConfigWithDefaultOptions)
         {
             ChannelUxWorkflow uxWorkflow = new ChannelUxWorkflow(webDriver);
-            uxWorkflow.ValidateErrorMessageNoConfigSelected(b2BEnvironment, profileNameBase, profileNameBase, catalogType);
+            uxWorkflow.ValidateErrorMessageNoConfigSelected(b2BEnvironment, profileNameBase, identityName, catalogType, setnew, catalogItemType);
         }
 
         public void VerifyErrorMessageWhileCreatingDeltaIfOriginalNotExists(B2BEnvironment b2BEnvironment, string profileNameBase, CatalogType catalogType)
@@ -5495,7 +5495,16 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             ChannelUxWorkflow uxWorkflow = new ChannelUxWorkflow(webDriver);
             return VerifyAutoScheduledUISettingsValidations(b2BEnvironment.ToString(), profileName, splUI, snpUI, sysUI, snpCRTField, sysCRTField, stdField, stdCRTField, excludeUnChangedItems, enableDeltaCatallog);
         }
+  
 
+        public void VerifyInstantCatalogSearch(B2BEnvironment environment, Region region, string profileName, string identityName, CatalogType catalogType, CatalogStatus catalogStatus, CatalogItemType[] catalogItemType)
+        {
+            ChannelUxWorkflow uxWorkflow = new ChannelUxWorkflow(webDriver);
+            DateTime anyTimeAfter = DateTime.Now.AddDays(-180);
+            uxWorkflow.SearchInstantCatalog(environment, region, profileName, identityName, catalogType, catalogStatus, catalogItemType, anyTimeAfter);
+            uxWorkflow.ValidateCatalogSearchResult(catalogType, catalogStatus, anyTimeAfter);
+            uxWorkflow.DownloadCatalog(identityName, anyTimeAfter).Should().NotBeNull("Unable to download the file");
+        }
     }
 
     /// <summary>

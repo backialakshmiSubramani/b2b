@@ -1083,7 +1083,8 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             b2BChannelUx.FeedBackMessage.Text.Trim().ShouldBeEquivalentTo("Catalog Creation is not allowed for this profile since Enable BHC Catalog Auto Generation is turned OFF.");
         }
 
-        internal void ValidateErrorMessageNoConfigSelected(B2BEnvironment environment, string profileName, string identityName, CatalogType catalogType)
+        internal void ValidateErrorMessageNoConfigSelected(B2BEnvironment environment, string profileName, string identityName, CatalogType catalogType,
+            SetNewValidation setnew, CatalogItemType catalogItemType)
         {
             webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["TestHarnessPageUrl"] + ((environment == B2BEnvironment.Production) ? "P" : "U"));
             B2BChannelUx b2BChannelUx = new B2BChannelUx(webDriver);
@@ -1097,19 +1098,52 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             b2BChannelUx.SelectOption(b2BChannelUx.SelectProfileIdentityDiv, identityName.ToUpper());
             b2BChannelUx.SetNewRadioButton.Click();
 
-            if (b2BChannelUx.STDSetNewCheckBox.Selected)
+            if (setnew == SetNewValidation.NoConfig && b2BChannelUx.STDSetNewCheckBox.Selected)
                 b2BChannelUx.STDSetNewCheckBox.Click();
+            else
+            {
+                b2BChannelUx.STDSetNewCheckBox.Click();
+                switch (catalogItemType)
+                {
+                    case CatalogItemType.ConfigWithDefaultOptions:
+                        b2BChannelUx.STDSetNewCheckBox.Click();
+                        break;
+                    case CatalogItemType.SNP:
+                        b2BChannelUx.SNPSetNewCheckBox.Click();
+                        break;
+                    case CatalogItemType.Systems:
+                        b2BChannelUx.SYSSetNewCheckBox.Click();
+                        break;
+                    default:
+                        b2BChannelUx.STDSetNewCheckBox.Click();
+                        b2BChannelUx.SNPSetNewCheckBox.Click();
+                        b2BChannelUx.SYSSetNewCheckBox.Click();
+                        break;
+                }
+            }
 
             if (catalogType == CatalogType.Original)
                 b2BChannelUx.OriginalRadioButton.Click();
             else if (catalogType == CatalogType.Delta)
                 b2BChannelUx.DeltaRadioButton.Click();
+
             b2BChannelUx.CreateAndDownloadButton.Click();
 
-            WaitForPageRefresh();
-
-            Console.WriteLine("Actual: " + b2BChannelUx.FeedBackMessage.Text);
-            b2BChannelUx.FeedBackMessage.Text.Trim().ShouldBeEquivalentTo("Minimum one configuration is required for the catalog creation.");
+            b2BChannelUx.WaitForFeedBackMessage(TimeSpan.FromMinutes(2));
+            switch (setnew)
+            {
+                case SetNewValidation.NoConfig:
+                    b2BChannelUx.ValidationMessage.Text.Trim().ShouldBeEquivalentTo("Minimum one configuration is required for the catalog creation.");
+                    break;
+                case SetNewValidation.DeltaWithoutOriginal:
+                    b2BChannelUx.ValidationMessage.Text.Trim().ShouldBeEquivalentTo("Instant Original Catalog doesn't exist. Please create an original catalog then initiate delta.");
+                    break;
+                case SetNewValidation.DeltaWithOriginal:
+                    b2BChannelUx.ValidationMessage.Text.Trim().ShouldBeEquivalentTo("Instant Auto Catalog with original exists for STD. Please create an original with the new configuration type and then initiate delta.");
+                    break;
+                default:
+                    break;
+            }
         }
 
         internal void ValidateErrorMessageWhileCreatingDeltaCatalog(B2BEnvironment environment, string profileName, string identityName, CatalogType catalogType)
@@ -1559,6 +1593,42 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             bool matchFlag = true;
             matchFlag = UtilityMethods.CompareValues<string>("RequesterEmailId", actualCatalogHeader.RequesterEmailId.ToLowerInvariant(), requestorName.ToLowerInvariant());
             return matchFlag;
+        }
+
+        public void SearchInstantCatalog(B2BEnvironment environment, Region region, string profileName, string identityName,
+            CatalogType catalogType, CatalogStatus catalogStatus, CatalogItemType[] catalogItemType, DateTime anyTimeAfter)
+        {
+            webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["AutoCatalogListPageUrl"] + ((environment == B2BEnvironment.Production) ? "P" : "U"));
+            CPTAutoCatalogInventoryListPage autoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
+            autoCatalogListPage.SelectOption(autoCatalogListPage.SelectRegionSpan, region.ToString());
+            autoCatalogListPage.SelectOption(autoCatalogListPage.SelectCustomerNameSpan, profileName);
+            autoCatalogListPage.SelectOption(autoCatalogListPage.SelectIdentityNameSpan, identityName.ToUpper());
+
+            if (autoCatalogListPage.OriginalCatalogCheckbox.Selected != (catalogType == CatalogType.Original))
+                autoCatalogListPage.OriginalCatalogCheckbox.Click();
+            else if (autoCatalogListPage.DeltaCatalogCheckbox.Selected != (catalogType == CatalogType.Delta))
+                autoCatalogListPage.DeltaCatalogCheckbox.Click();
+
+            autoCatalogListPage.InstantCheckbox.Click();
+            autoCatalogListPage.SelectTheStatus(UtilityMethods.ConvertToString(catalogStatus));
+            foreach (CatalogItemType itemType in catalogItemType)
+            {
+                switch (itemType)
+                {
+                    case CatalogItemType.ConfigWithDefaultOptions:
+                        autoCatalogListPage.STDCheckbox.Click();
+                        break;
+                    case CatalogItemType.SNP:
+                        autoCatalogListPage.SnPCheckbox.Click();
+                        break;
+                    default:
+                        autoCatalogListPage.SysCheckbox.Click();
+                        break;
+                }
+            }
+            autoCatalogListPage.SearchRecordsLink.Click();
+            autoCatalogListPage.CatalogsTable.WaitForElementVisible(TimeSpan.FromSeconds(30));
+            autoCatalogListPage.WaitForCatalogInSearchResult(anyTimeAfter.ConvertToUtcTimeZone(), catalogStatus);
         }
     }
 }

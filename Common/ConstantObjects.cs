@@ -144,4 +144,11 @@ namespace Modules.Channel.B2B.Common
         On = 0,
         Off = 1
     }
+
+    public enum SetNewValidation
+    {
+        NoConfig,
+        DeltaWithOriginal,
+        DeltaWithoutOriginal
+    }
 }

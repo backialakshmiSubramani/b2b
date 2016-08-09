@@ -234,7 +234,13 @@ namespace Modules.Channel.B2B.Core.Pages
                 return webDriver.FindElement(By.CssSelector("div[class='alert ng-binding'][ng-class='alert.type']"));
             }
         }
-
+        public IWebElement ValidationMessage
+        {
+            get
+            {
+                return webDriver.FindElement(By.CssSelector("div[ng-show='alert.show']"));
+            }
+        }
         public IWebElement AutoCatalogInventoryListLink
         {
             get

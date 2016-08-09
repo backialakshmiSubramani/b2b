@@ -286,6 +286,26 @@ namespace Modules.Channel.B2B.Core.Pages
             get { return webDriver.FindElement(AdeptBy.Attribute(ElementTag.input, "ng-model", "parScheduled")); }
         }
 
+        public IWebElement InstantCheckbox
+        {
+            get { return webDriver.FindElement(By.CssSelector("input[type='checkbox'][ng-model='parInstant']")); }
+        }
+
+        public IWebElement STDCheckbox
+        {
+            get { return webDriver.FindElement(By.CssSelector("input[type='checkbox'][ng-model='parIsStandardConfig']")); }
+        }
+
+        public IWebElement SnPCheckbox
+        {
+            get { return webDriver.FindElement(By.CssSelector("input[type='checkbox'][ng-model='parIsSNPEnabled']")); }
+        }
+
+        public IWebElement SysCheckbox
+        {
+            get { return webDriver.FindElement(By.CssSelector("input[type='checkbox'][ng-model='parIsSystem']")); }
+        }
+
         /// <summary>
         /// Search Records hyperlink
         /// </summary>
