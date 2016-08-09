@@ -90,11 +90,20 @@ namespace Modules.Channel.B2B.Common
     
     public enum CatalogStatus
     {
+        [Description("Created")]
         Created,
+        [Description("Published")]
         Published,
+        [Description("Failed")]
         Failed,
+        [Description("Expired")]
         Expired,
-        Scheduled
+        [Description("Scheduled")]
+        Scheduled,
+        [Description("Created-Instant")]
+        CreatedInstant,
+        [Description("Failed-Instant")]
+        FailedInstant     
     }
 
     public enum CRTStatus
