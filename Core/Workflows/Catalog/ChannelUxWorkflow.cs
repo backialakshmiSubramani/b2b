@@ -215,7 +215,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         }
 
 
-        public bool ValidateDeltaCatalog(CatalogItemType[] catalogItemType, CatalogType catalogType, string identityName, string filePath, DateTime anyTimeAfter, DeltaChange[] deltaChanges)
+        public bool ValidateDeltaCatalog(CatalogItemType[] catalogItemType, CatalogType catalogType, string identityName, string filePath, DateTime anyTimeAfter, DeltaChange[] deltaChanges, bool excludeNonChangedItems = false)
         {
             string schemaPath = Path.Combine(System.Environment.CurrentDirectory, "CatalogSchema.xsd");
 
@@ -229,6 +229,9 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             B2BXML expectedCatalogXML = XMLDeserializer<B2BXML>.DeserializeFromXmlFile(Path.Combine(System.Environment.CurrentDirectory, "Catalog_DC_Expected.xml"));
             CatalogDetails expectedCatalogDetails = expectedCatalogXML.BuyerCatalog.CatalogDetails;
             CatalogHeader expectedCatalogHeader = expectedCatalogXML.BuyerCatalog.CatalogHeader;
+
+            if(excludeNonChangedItems)
+                actualCatalogDetails.CatalogItem.Where(ci => ci.DeltaComments.Operation == "No Change").Count().Should().Be(0, "Error: Delta catalog contains Non-Changed items when Exclude Unchanged items flag is ON");
 
             string fileName = new FileInfo(filePath).Name;
             string catalogName = fileName.Split('.')[0];
@@ -1227,6 +1230,15 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             autoCatalogListPage.CatalogsTable.GetCellValue(1, "Last Status Date").Trim().ConvertToDateTime().AddMinutes(1).Should().BeAfter(anyTimeAfter.ConvertToUtcTimeZone(), "Catalog is not displayed in Search Result");
             autoCatalogListPage.CatalogsTable.GetCellValue(1, "Type").Should().Be(catalogType.ConvertToString(), "Expected Catalog type is incorrect");
             autoCatalogListPage.CatalogsTable.GetCellValue(1, "Status").Should().Be(catalogStatus.ConvertToString(), "Catalog status is not as expected");
+        }
+
+        public void ValidateCatalogSearchResult(CatalogType catalogType, CatalogStatus catalogStatus, DateTime anyTimeAfter)
+        {
+            CPTAutoCatalogInventoryListPage autoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
+            autoCatalogListPage.CatalogsTable.GetCellValue(1, "Last Status Date").Trim().ConvertToDateTime().AddMinutes(1).Should().BeAfter(anyTimeAfter.ConvertToUtcTimeZone(), "Catalog is not displayed in Search Result");
+            autoCatalogListPage.CatalogsTable.GetCellValue(1, "Type").Should().Be(catalogType.ConvertToString(), "Expected Catalog type is incorrect");
+            autoCatalogListPage.CatalogsTable.GetCellValue(1, "Status").Should().Be(catalogStatus.ConvertToString(), "Catalog status is not as expected");
+            autoCatalogListPage.CatalogsTable.GetCellValue(1, "Requester").ToLowerInvariant().Should().Be(windowsLogin, "Requestor name is different than windows NT user name");
         }
 
         public string GetThreadID(CatalogItemType[] catalogItemType, CatalogType catalogType, CatalogStatus catalogStatus, DateTime anyTimeAfter)
