@@ -379,7 +379,7 @@ namespace Modules.Channel.B2B.Common
 
         public static IWebDriver SwitchBrowser(this IWebDriver webDriver, BrowserName browserName)
         {
-            webDriver.Close();
+            webDriver.Quit();
             switch (browserName)
             {
                 case BrowserName.Chrome:
