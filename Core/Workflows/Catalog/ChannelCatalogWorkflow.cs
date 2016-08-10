@@ -67,6 +67,23 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         }
 
         /// <summary>
+        /// Searches for the profile provided in B2B Profile List page and 
+        /// navigates to the General Catalog Tab
+        /// </summary>
+        /// <param name="environment"></param>
+        /// <param name="profileName"></param>
+        public void GoToGeneralTab(string environment, string profileName)
+        {
+            b2BHomePage.SelectEnvironment(environment);
+            b2BHomePage.ClickB2BProfileList();
+            b2BCustomerProfileListPage = new B2BCustomerProfileListPage(webDriver);
+            b2BCustomerProfileListPage.SearchProfile("Customer Name", profileName);
+            b2BCustomerProfileListPage.ClickSearchedProfile(profileName);
+            b2BManageProfileIdentitiesPage = new B2BManageProfileIdentitiesPage(webDriver);
+            Console.WriteLine("Opened Profile Page for profile: {0}", profileName);
+        }
+
+        /// <summary>
         /// Creates a new profile with the CustomerSet & AccessGroup provided 
         /// and navigates to the Buyer Catalog Tab
         /// </summary>
@@ -5504,6 +5521,126 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             uxWorkflow.SearchInstantCatalog(environment, region, profileName, identityName, catalogType, catalogStatus, catalogItemType, anyTimeAfter);
             uxWorkflow.ValidateCatalogSearchResult(catalogType, catalogStatus, anyTimeAfter);
             uxWorkflow.DownloadCatalog(identityName, anyTimeAfter).Should().NotBeNull("Unable to download the file");
+        }
+
+        public bool VerifyCatlogEndDateGrayOutValidations(B2BEnvironment environment, string profileName, bool isTestProfile, bool isSTD, bool isSNP, bool isSYS, bool isSPL)
+        {
+            GoToGeneralTab(environment.ToString(), profileName);
+
+            b2BProfileSettingsGeneralPage = new B2BProfileSettingsGeneralPage(webDriver);
+            if (isTestProfile)
+            {
+                if (!b2BProfileSettingsGeneralPage.TestProfileCheckbox.Selected)
+                    b2BProfileSettingsGeneralPage.TestProfileCheckbox.Click();
+            }
+            else
+            {
+                if (b2BProfileSettingsGeneralPage.TestProfileCheckbox.Selected)
+                    b2BProfileSettingsGeneralPage.TestProfileCheckbox.Click();
+            }
+
+            b2BManageProfileIdentitiesPage.BuyerCatalogTab.Click();
+            b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+            UtilityMethods.ClickElement(webDriver, b2BBuyerCatalogPage.AutomatedBhcCatalogProcessingRules);
+            b2BBuyerCatalogPage.EnableCatalogAutoGeneration.WaitForElementDisplayed(TimeSpan.FromSeconds(30));
+
+            if (!b2BBuyerCatalogPage.EnableCatalogAutoGeneration.Selected)
+            {
+                UtilityMethods.ClickElement(webDriver, b2BBuyerCatalogPage.EnableCatalogAutoGeneration);
+                UtilityMethods.ClickElement(webDriver, b2BBuyerCatalogPage.BuyerCatalogFirstIdentity);
+            }
+            else
+            {
+                UtilityMethods.ClickElement(webDriver, b2BBuyerCatalogPage.EditScheduleButton);
+            }
+
+            if (isSTD)
+            {
+                if (!b2BBuyerCatalogPage.CatalogConfigStandard.Selected)
+                {
+                    b2BBuyerCatalogPage.CatalogConfigStandard.Click();
+                }
+            }
+            else
+            {
+                if (b2BBuyerCatalogPage.CatalogConfigStandard.Selected)
+                {
+                    b2BBuyerCatalogPage.CatalogConfigStandard.Click();
+                }
+            }
+
+            if (isSNP)
+            {
+                if (!b2BBuyerCatalogPage.CatalogConfigSnP.Selected)
+                {
+                    b2BBuyerCatalogPage.CatalogConfigSnP.Click();
+                }
+            }
+            else
+            {
+                if (b2BBuyerCatalogPage.CatalogConfigSnP.Selected)
+                {
+                    b2BBuyerCatalogPage.CatalogConfigSnP.Click();
+                }
+            }
+
+            if (isSYS)
+            {
+                if (!b2BBuyerCatalogPage.BcpchkSysCatalogCheckbox.Selected)
+                {
+                    b2BBuyerCatalogPage.BcpchkSysCatalogCheckbox.Click();
+                }
+            }
+            else
+            {
+                if (b2BBuyerCatalogPage.BcpchkSysCatalogCheckbox.Selected)
+                {
+                    b2BBuyerCatalogPage.BcpchkSysCatalogCheckbox.Click();
+                }
+            }
+
+            if (isSPL)
+            {
+                if (!b2BBuyerCatalogPage.BcpchkSPLFlagCheckbox.Selected)
+                {
+                    b2BBuyerCatalogPage.BcpchkSPLFlagCheckbox.Click();
+                }
+            }
+            else
+            {
+                if (b2BBuyerCatalogPage.BcpchkSPLFlagCheckbox.Selected)
+                {
+                    b2BBuyerCatalogPage.BcpchkSPLFlagCheckbox.Click();
+                }
+            }
+
+            if (!b2BBuyerCatalogPage.EnableOriginalCatalog.Selected)
+            {
+                b2BBuyerCatalogPage.EnableOriginalCatalog.Click();
+            }
+
+            if (!b2BBuyerCatalogPage.EnableDeltaCatalog.Selected)
+            {
+                b2BBuyerCatalogPage.EnableDeltaCatalog.Click();
+            }
+
+            bool matchFlag = true;
+            try
+            {
+                if (isTestProfile)
+                {
+                    matchFlag = b2BBuyerCatalogPage.OriginalCatalogEndDate.Enabled && b2BBuyerCatalogPage.DeltaCatalogEndDate.Enabled;
+                }
+                else
+                {
+                    matchFlag = !b2BBuyerCatalogPage.OriginalCatalogEndDate.Enabled && !b2BBuyerCatalogPage.DeltaCatalogEndDate.Enabled;
+                }
+            }
+            catch (Exception)
+            {
+                matchFlag = false;
+            }
+            return matchFlag;
         }
     }
 

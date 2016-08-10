@@ -163,6 +163,18 @@ namespace Modules.Channel.B2B.Core.Pages
             }
         }
 
+        private IWebElement _testProfileCheckbox;
+        public IWebElement TestProfileCheckbox
+        {
+            get
+            {
+                if (_testProfileCheckbox == null)
+                {
+                    _testProfileCheckbox = webDriver.FindElement(By.Id("ContentPageHolder_chkIsTestProfile"));
+                }
+                return _testProfileCheckbox;
+            }
+        }
         #endregion
 
         #region Element Action
