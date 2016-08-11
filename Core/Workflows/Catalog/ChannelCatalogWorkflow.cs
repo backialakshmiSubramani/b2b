@@ -4930,12 +4930,14 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
 
             if (isStdFinalPriceField)
             {
+                b2BBuyerCatalogPage.CatalogConfigStandard.Click();
                 matchFlag = !b2BBuyerCatalogPage.CatalogConfigIncludeFinalPrice.Enabled;
                 b2BBuyerCatalogPage.CatalogConfigIncludeDefaultOptions.Click();
                 matchFlag = b2BBuyerCatalogPage.CatalogConfigIncludeFinalPrice.Enabled;
             }
             else if (isSysFinalPriceField)
             {
+                b2BBuyerCatalogPage.BcpchkSysCatalogCheckbox.Click();
                 matchFlag = !b2BBuyerCatalogPage.CatalogConfigSysFinalPriceCheckbox.Enabled;
                 b2BBuyerCatalogPage.CatalogConfigSysDefaultOptionsCheckbox.Click();
                 matchFlag = b2BBuyerCatalogPage.CatalogConfigSysFinalPriceCheckbox.Enabled;
