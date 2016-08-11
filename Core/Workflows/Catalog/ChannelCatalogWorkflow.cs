@@ -5472,14 +5472,14 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             fields.Add("AUTO BHC: Sytem Catalog", b2BBuyerCatalogPage.BcpchkSysCatalogCheckbox.Selected.ToString());
             if (b2BBuyerCatalogPage.BcpchkSysCatalogCheckbox.Selected)
             {
-                fields.Add("AUTO BHC: Default Option - SYS", b2BBuyerCatalogPage.CatalogConfigSysDefaultOptionsCheckbox.Selected.ToString());
-                fields.Add("AUTO BHC: Final Price - SYS", b2BBuyerCatalogPage.CatalogConfigSysFinalPriceCheckbox.Selected.ToString());
-                fields.Add("AUTO BHC: Sku Details -SYS", b2BBuyerCatalogPage.CatalogConfigSysSkuDetailsCheckbox.Selected.ToString());
+                fields.Add("AUTO BHC: SYS: Default Options", b2BBuyerCatalogPage.CatalogConfigSysDefaultOptionsCheckbox.Selected.ToString());
+                fields.Add("AUTO BHC: SYS: Final Price", b2BBuyerCatalogPage.CatalogConfigSysFinalPriceCheckbox.Selected.ToString());
+                fields.Add("AUTO BHC: SYS: Sku Details", b2BBuyerCatalogPage.CatalogConfigSysSkuDetailsCheckbox.Selected.ToString());
             }
             else{
-                fields.Add("AUTO BHC: Default Option - SYS", "False");
-                fields.Add("AUTO BHC: Final Price - SYS", "False");
-                fields.Add("AUTO BHC: Sku Details -SYS", "False");
+                fields.Add("AUTO BHC: SYS: Default Options", "False");
+                fields.Add("AUTO BHC: SYS: Final Price", "False");
+                fields.Add("AUTO BHC: SYS: Sku Details", "False");
             }
             fields.Add("EnableOriginalCatalog", b2BBuyerCatalogPage.EnableOriginalCatalog.Selected.ToString());
             fields.Add("AUTO BHC: Original Start Date", b2BBuyerCatalogPage.OriginalCatalogStartDate.GetAttribute("value"));

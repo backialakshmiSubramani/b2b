@@ -23,6 +23,8 @@ using Modules.Channel.B2B.Common;
 using Modules.Channel.B2B.Core.Pages;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Support.PageObjects;
+using CatalogTests.Common.CatalogXMLTemplates;
+using System.Configuration;
 
 
 
@@ -185,6 +187,138 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             B2BQaToolsPage.ClickSubmitMessage();
             if (B2BQaToolsPage.GetSubmissionResult().Equals("XML Response received from server Code: 200. Message: PO = " + uniquePoRefNum))
             {
+                Console.WriteLine("Success: PO Number: " + uniquePoRefNum);
+                return uniquePoRefNum;
+            }
+            else
+            {
+                Console.WriteLine("Error while posting PO: " + B2BQaToolsPage.GetSubmissionResult());
+                Console.WriteLine("Fail: PO Number: " + uniquePoRefNum);
+                throw new Exception("Error while posting PO: " + uniquePoRefNum);
+            }
+        }
+
+        /// <summary>
+        /// Verifies Po Posting with CBL1.
+        /// </summary>
+        /// <param name="qatoolsTargetUrl"></param>
+        /// <param name="fileName"></param>
+        /// <param name="poRefNum"></param>
+        /// <param name="identityName"></param>
+        /// <param name="supplierPartIdExt"></param>
+        /// <param name="unitPrice"></param>
+        /// <param name="quantity"></param>
+        public string VerifyDownloadAndPoPostingwithCbl1(B2BEnvironment environment, CatalogItemType itemType, CatalogType type, CatalogStatus status, Region region, CRTStatus crtStatus,
+            string fileName, string poRefNum, string profileName, string identityName, string quantity)
+        {
+            uniquePoRefNum = poRefNum + DateTime.Today.ToString("yyMMdd") + DateTime.Now.ToString("HHmmss");
+            ChannelCatalogWorkflow uxWorkFlow = new ChannelCatalogWorkflow(webDriver);
+            CatalogItem item = uxWorkFlow.GetCatalogItem(environment, itemType, type, status, region, profileName, identityName);
+            webDriver = webDriver.SwitchBrowser(BrowserName.InternetExplorer);
+            webDriver.Navigate().GoToUrl(Convert.ToString(ConfigurationManager.AppSettings["BasePOURL"]));
+            B2BQaToolsPage = new B2BQaToolsPage(webDriver);
+
+            B2BQaToolsPage.PasteTargetUrl((environment == B2BEnvironment.Production) ? Convert.ToString(ConfigurationManager.AppSettings["QAToolsTargetUrlProd"])
+                : Convert.ToString(ConfigurationManager.AppSettings["QAToolsTargetUrlPrev"]));
+
+            string supplierPartIdExt = string.Empty;
+            supplierPartIdExt = (crtStatus == CRTStatus.OFF) ? item.PartId : item.ManufacturerPartNumber;
+            var unitPrice = Convert.ToString(item.UnitPrice);
+            var file = PoXmlGenerator.GeneratePoCblwithoutCrt(fileName, uniquePoRefNum, identityName, supplierPartIdExt, unitPrice, quantity);
+            B2BQaToolsPage.PasteInputXml(file);
+            webDriver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromMinutes(2));
+            B2BQaToolsPage.ClickSubmitMessage();
+            if (B2BQaToolsPage.GetSubmissionResult().Equals("XML Response received from server Code: 200. Message: PO = " + uniquePoRefNum))
+            {
+                webDriver.Quit();
+                Console.WriteLine("Success: PO Number: " + uniquePoRefNum);
+                return uniquePoRefNum;
+            }
+            else
+            {
+                Console.WriteLine("Error while posting PO: " + B2BQaToolsPage.GetSubmissionResult());
+                Console.WriteLine("Fail: PO Number: " + uniquePoRefNum);
+                throw new Exception("Error while posting PO: " + uniquePoRefNum);
+            }
+        }
+
+        /// <summary>
+        /// Verifies Po Posting with CBL3.
+        /// </summary>
+        /// <param name="qatoolsTargetUrl"></param>
+        /// <param name="fileName"></param>
+        /// <param name="poRefNum"></param>
+        /// <param name="identityName"></param>
+        /// <param name="supplierPartIdExt"></param>
+        /// <param name="unitPrice"></param>
+        /// <param name="quantity"></param>
+        public string VerifyDownloadAndPoPostingwithCbl3(B2BEnvironment environment, CatalogItemType itemType, CatalogType type, CatalogStatus status, Region region, CRTStatus crtStatus,
+            string fileName, string poRefNum, string profileName, string identityName, string quantity)
+        {
+            uniquePoRefNum = poRefNum + DateTime.Today.ToString("yyMMdd") + DateTime.Now.ToString("HHmmss");
+            ChannelCatalogWorkflow uxWorkFlow = new ChannelCatalogWorkflow(webDriver);
+            CatalogItem item = uxWorkFlow.GetCatalogItem(environment, itemType, type, status, region, profileName, identityName);
+            webDriver = webDriver.SwitchBrowser(BrowserName.InternetExplorer);
+            webDriver.Navigate().GoToUrl(Convert.ToString(ConfigurationManager.AppSettings["BasePOURL"]));
+            B2BQaToolsPage = new B2BQaToolsPage(webDriver);
+
+            B2BQaToolsPage.PasteTargetUrl((environment == B2BEnvironment.Production) ? Convert.ToString(ConfigurationManager.AppSettings["QAToolsTargetUrlProd"])
+                : Convert.ToString(ConfigurationManager.AppSettings["QAToolsTargetUrlPrev"]));
+
+            string supplierPartIdExt = string.Empty;
+            supplierPartIdExt = (crtStatus == CRTStatus.OFF) ? item.PartId : item.ManufacturerPartNumber;
+            var unitPrice = Convert.ToString(item.UnitPrice);
+            var file = PoXmlGenerator.GeneratePoCbl3(fileName, uniquePoRefNum, identityName, supplierPartIdExt, unitPrice, quantity);
+            B2BQaToolsPage.PasteInputXml(file);
+            webDriver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromMinutes(2));
+            B2BQaToolsPage.ClickSubmitMessage();
+            if (B2BQaToolsPage.GetSubmissionResult().Equals("XML Response received from server Code: 200. Message: PO = " + uniquePoRefNum))
+            {
+                webDriver.Quit();
+                Console.WriteLine("Success: PO Number: " + uniquePoRefNum);
+                return uniquePoRefNum;
+            }
+            else
+            {
+                Console.WriteLine("Error while posting PO: " + B2BQaToolsPage.GetSubmissionResult());
+                Console.WriteLine("Fail: PO Number: " + uniquePoRefNum);
+                throw new Exception("Error while posting PO: " + uniquePoRefNum);
+            }
+        }
+
+        /// <summary>
+        /// Verifies Po Posting with CBL3.
+        /// </summary>
+        /// <param name="qatoolsTargetUrl"></param>
+        /// <param name="fileName"></param>
+        /// <param name="poRefNum"></param>
+        /// <param name="identityName"></param>
+        /// <param name="supplierPartIdExt"></param>
+        /// <param name="unitPrice"></param>
+        /// <param name="quantity"></param>
+        public string VerifyDownloadAndPoPostingwithCxml(B2BEnvironment environment, CatalogItemType itemType, CatalogType type, CatalogStatus status, Region region, CRTStatus crtStatus,
+            string fileName, string poRefNum, string profileName, string identityName, string quantity)
+        {
+            uniquePoRefNum = poRefNum + DateTime.Today.ToString("yyMMdd") + DateTime.Now.ToString("HHmmss");
+            ChannelCatalogWorkflow uxWorkFlow = new ChannelCatalogWorkflow(webDriver);
+            CatalogItem item = uxWorkFlow.GetCatalogItem(environment, itemType, type, status, region, profileName, identityName);
+            webDriver = webDriver.SwitchBrowser(BrowserName.InternetExplorer);
+            webDriver.Navigate().GoToUrl(Convert.ToString(ConfigurationManager.AppSettings["BasePOURL"]));
+            B2BQaToolsPage = new B2BQaToolsPage(webDriver);
+
+            B2BQaToolsPage.PasteTargetUrl((environment == B2BEnvironment.Production) ? Convert.ToString(ConfigurationManager.AppSettings["QAToolsTargetUrlProd"])
+                : Convert.ToString(ConfigurationManager.AppSettings["QAToolsTargetUrlPrev"]));
+
+            string supplierPartIdExt = string.Empty;
+            supplierPartIdExt = (crtStatus == CRTStatus.OFF) ? item.PartId : item.ManufacturerPartNumber;
+            var unitPrice = Convert.ToString(item.UnitPrice);
+            var file = PoXmlGenerator.GeneratePoCxmll(fileName, uniquePoRefNum, profileName,identityName, supplierPartIdExt, unitPrice, quantity);
+            B2BQaToolsPage.PasteInputXml(file);
+            webDriver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromMinutes(2));
+            B2BQaToolsPage.ClickSubmitMessage();
+            if (B2BQaToolsPage.GetSubmissionResult().Equals("XML Response received from server Code: 200. Message: PO = " + uniquePoRefNum))
+            {
+                webDriver.Quit();
                 Console.WriteLine("Success: PO Number: " + uniquePoRefNum);
                 return uniquePoRefNum;
             }
