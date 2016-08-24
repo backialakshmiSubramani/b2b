@@ -299,12 +299,37 @@ namespace Modules.Channel.B2B.Common
         public static List<string> GetColumnNames(this IWebElement tableElement)
         {
             List<IWebElement> columnHeaders = tableElement.FindElements(By.CssSelector("thead tr th")).ToList();
+
             List<string> columnNames = new List<string>();
 
             foreach (IWebElement element in columnHeaders)
                 columnNames.Add(element.Text.Trim());
 
             return columnNames;
+        }
+
+        public static List<string> GetLogReportColumnNames(this IWebElement tableElement)
+        {
+            List<IWebElement> columnHeaders = tableElement.FindElements(By.CssSelector("tbody tr th")).ToList();
+            List<string> columnNames = new List<string>();
+
+            foreach (IWebElement element in columnHeaders)
+                columnNames.Add(element.Text.Trim());
+
+            return columnNames;
+        }
+
+        public static int GetLogReportColumnIndex(this IWebElement tableElement, string columnName)
+        {
+            List<string> columnNames = tableElement.GetLogReportColumnNames();
+            for (int i = 0; i < columnNames.Count; i++)
+            {
+                if (columnNames[i].Contains(columnName))
+                {
+                    return i + 1;
+                }
+            }
+            return 0;
         }
 
         public static int GetColumnIndex(this IWebElement tableElement, string columnName)
@@ -323,6 +348,22 @@ namespace Modules.Channel.B2B.Common
             return 0;
         }
 
+        public static string GetLogReportCellValue(this IWebElement tableElement, int rowIndex, string columnName)
+        {
+            int columnIndex = tableElement.GetLogReportColumnIndex(columnName);
+            if (columnIndex == 0)
+                return null;
+
+            //if (columnIndex > 4 && columnIndex < 7)
+            //    columnIndex += 2;
+            //else if (columnIndex >= 7)
+            //    columnIndex += 3;
+
+            string cellValue = tableElement.FindElement(By.CssSelector("tbody tr:nth-of-type(" + rowIndex + ") td:nth-of-type(" + columnIndex + ")")).Text;
+
+            return cellValue;
+        }
+
         public static string GetCellValue(this IWebElement tableElement, int rowIndex, string columnName)
         {
             int columnIndex = tableElement.GetColumnIndex(columnName);
@@ -333,7 +374,7 @@ namespace Modules.Channel.B2B.Common
                 columnIndex += 2;
             else if (columnIndex >= 7)
                 columnIndex += 3;
-
+            
             string cellValue = tableElement.FindElement(By.CssSelector("tbody tr:nth-of-type(" + rowIndex + ") td:nth-of-type(" + columnIndex + ")")).Text;
 
             return cellValue;

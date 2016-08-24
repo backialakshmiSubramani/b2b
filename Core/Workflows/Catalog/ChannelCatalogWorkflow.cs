@@ -5521,7 +5521,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             ChannelUxWorkflow uxWorkflow = new ChannelUxWorkflow(webDriver);
             DateTime anyTimeAfter = DateTime.Now.AddDays(-180);
             uxWorkflow.SearchInstantCatalog(environment, region, profileName, identityName, catalogType, catalogStatus, catalogItemType, anyTimeAfter);
-            uxWorkflow.ValidateCatalogSearchResult(catalogType, catalogStatus, anyTimeAfter);
+            uxWorkflow.ValidateCatalogSearchResult(catalogType, catalogStatus, anyTimeAfter, RequestorValidation.Off);
             uxWorkflow.DownloadCatalog(identityName, anyTimeAfter).Should().NotBeNull("Unable to download the file");
         }
 
@@ -5643,6 +5643,29 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                 matchFlag = false;
             }
             return matchFlag;
+        }
+
+        public void VerifyLogReportOnFailedCatalog(B2BEnvironment environment, Region region, string profileName, string identityName,CatalogItemType[] catalogItemType, CatalogType catalogType, CatalogStatus catalogStatus)
+        {
+            DateTime beforeSchedTime = DateTime.Now;
+            ChannelUxWorkflow uxWorkflow = new ChannelUxWorkflow(webDriver);
+            uxWorkflow.PublishCatalogByClickOnce(environment, profileName, identityName, catalogType);
+            B2BChannelUx b2BChannelUx = new B2BChannelUx(webDriver);
+            b2BChannelUx.OpenAutoCatalogAndInventoryListPage(environment);
+            uxWorkflow.SearchCatalog(profileName, identityName, beforeSchedTime, catalogStatus, catalogType);
+            uxWorkflow.ValidateCatalogSearchResult(catalogItemType, catalogType, catalogStatus, beforeSchedTime);
+            CPTAutoCatalogInventoryListPage autoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
+            var threadId = autoCatalogListPage.CatalogsTable.GetCellValue(1, "Thread");
+            VerifyMessageInLogReport(threadId, environment);
+        }
+        internal void VerifyMessageInLogReport(string threadId, B2BEnvironment environment)
+        {
+            webDriver.Navigate().GoToUrl(ConfigurationReader.GetValue("B2BBaseURL") + ((environment == B2BEnvironment.Production) ? "P" : "U"));
+            webDriver.Navigate().GoToUrl(ConfigurationReader.GetValue("logReportUrl") + ((environment == B2BEnvironment.Production) ? "P" : "U"));
+            B2BLogReportPage b2bLogReport = new B2BLogReportPage(webDriver);
+            b2bLogReport.SearchThreadIdNumber(threadId);
+            b2bLogReport.WaitForElementVisible();
+            b2bLogReport.GetCellValueFromLogTable(3, "Message").Should().Contain("failed as Exclude UnChanged Items flag returned no records", "Delta Catalog creation is failed not due to Exclude Unchanged Items");
         }
     }
 

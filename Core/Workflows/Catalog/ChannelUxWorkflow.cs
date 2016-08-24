@@ -26,6 +26,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         private B2BChannelUx B2BChannelUx;
         private IJavaScriptExecutor javaScriptExecutor;
         private string windowsLogin;
+        private const string MMDDYYYY = "MM/dd/yyyy";
         /// <summary>
         /// Constructor for ChannelUxWorkflow
         /// </summary>
@@ -1584,7 +1585,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             autoCatalogListPage.CatalogsTable.GetCellValue(1, "Type").Should().Be(catalogType.ConvertToString(), "Expected Catalog type is incorrect");
             autoCatalogListPage.CatalogsTable.GetCellValue(1, "Status").Should().Be(catalogStatus.ConvertToString(), "Catalog status is not as expected");
             if (requestor == RequestorValidation.On)
-            autoCatalogListPage.CatalogsTable.GetCellValue(1, "Requester").ToLowerInvariant().Should().Be(windowsLogin, "Requestor name is different than windows NT user name");
+                autoCatalogListPage.CatalogsTable.GetCellValue(1, "Requester").ToLowerInvariant().Should().Be(windowsLogin, "Requestor name is different than windows NT user name");
         }
         /// <summary>
         /// Compare Requestor Information
@@ -1641,6 +1642,47 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             autoCatalogListPage.SearchRecordsLink.Click();
             autoCatalogListPage.CatalogsTable.WaitForElementVisible(TimeSpan.FromSeconds(30));
             autoCatalogListPage.WaitForCatalogInSearchResult(anyTimeAfter.ConvertToUtcTimeZone(), catalogStatus);
+        }
+
+        public bool SearchScheduledProfiles(B2BEnvironment environment, Region region, string profileName, string identityName, string Country = null, bool otherFilter = false)
+        {
+            webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["AutoCatalogListPageUrl"] + ((environment == B2BEnvironment.Production) ? "P" : "U"));
+            CPTAutoCatalogInventoryListPage autoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
+            autoCatalogListPage.SelectOption(autoCatalogListPage.SelectRegionSpan, region.ToString());
+            autoCatalogListPage.ScheduledCheckbox.Click();
+            autoCatalogListPage.OriginalCatalogCheckbox.Click();
+            if (!string.IsNullOrEmpty(Country))
+                autoCatalogListPage.SelectTheCountry(Country);
+
+            if (otherFilter)
+            {
+                autoCatalogListPage.CreationDateStart.SendKeys(DateTime.Now.AddDays(-15).ToString(MMDDYYYY));
+                autoCatalogListPage.CreationDateEnd.SendKeys(DateTime.Now.AddDays(-12).ToString(MMDDYYYY));
+            }
+            autoCatalogListPage.SearchRecordsLink.Click();
+            autoCatalogListPage.CatalogsTable.WaitForElementVisible(TimeSpan.FromSeconds(30));
+
+            ICollection<IWebElement> table = autoCatalogListPage.CatalogsTable.FindElements(By.TagName("tr"));
+            List<IWebElement> rows = table.ToList();
+            string actualProfile = string.Empty;
+            string actualIdentity = string.Empty;
+            int pageNo = 1; string pageInfo = rows[0].Text;
+            if (!string.IsNullOrEmpty(pageInfo))
+            {
+                while (Convert.ToInt32(pageInfo.Substring(pageInfo.LastIndexOf(' ') + 1)) != pageNo)
+                {
+                    for (int i = 1; i < table.Count - 1; i++)
+                    {
+                        actualIdentity = autoCatalogListPage.CatalogsTable.FindElement(By.CssSelector("tbody tr:nth-of-type(" + i + ") td:nth-of-type(" + 1 + ")")).Text;
+                        actualProfile = autoCatalogListPage.CatalogsTable.FindElement(By.CssSelector("tbody tr:nth-of-type(" + i + ") td:nth-of-type(" + 2 + ")")).Text;
+                        if (actualProfile.ToUpperInvariant().Equals(profileName.ToUpperInvariant()) && actualIdentity.ToUpperInvariant().Equals(identityName.ToUpperInvariant()))
+                            return false;
+                    }
+                    autoCatalogListPage.NextButton.Click();
+                    pageNo++;
+                }
+            }
+            return true;
         }
     }
 }

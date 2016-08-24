@@ -19,7 +19,7 @@ using System.IO;
 using System.Reflection;
 using System.Collections.ObjectModel;
 using System.Linq;
-
+using Modules.Channel.B2B.Common;
 //Adept Framework 
 using Dell.Adept.Core;
 using Dell.Adept.UI;
@@ -201,6 +201,16 @@ namespace Modules.Channel.B2B.Core.Pages
             webDriver.WaitForPageLoad(new TimeSpan(0, 0, 10));
         }
 
+        public IWebElement GetElementFromLogTable(int rowIndex, string columnName)
+        {
+            return LogTable.GetCellElement(rowIndex, columnName);
+        }
+
+        public string GetCellValueFromLogTable(int rowIndex, string columnName)
+        {
+            return LogTable.GetLogReportCellValue(rowIndex, columnName);
+        }
+
         public string FindDellPurchaseId(string expectedLogEntry)
         {
             var dellPurchaseIdEntry =
@@ -370,40 +380,43 @@ namespace Modules.Channel.B2B.Core.Pages
             webDriver.WaitForPageLoad(new TimeSpan(0, 0, 20));
         }
 
-         public void SearchThreadIdNumber(string poNumber)
+        public void SearchThreadIdNumber(string poNumber)
         {
             ThreadIdElement.SendKeys(poNumber);
             javaScriptExecutor.ExecuteScript("arguments[0].click();", IncludeInsertLogCheckBox);
             javaScriptExecutor.ExecuteScript("arguments[0].click();", SubmitLink);
             webDriver.WaitForPageLoad(new TimeSpan(0, 0, 20));
         }
+        public void WaitForElementVisible()
+        {
+            LogTable.WaitForElementVisible(TimeSpan.FromSeconds(60));
+        }
+        public bool FindErrorMessageInLogDetailPage(string messageToLookFor, string errorMessage)
+        {
+            var messageRow =
+                PoLogReportRows.FirstOrDefault(e => e.FindElements(By.TagName("td"))[5].Text.Contains(messageToLookFor));
 
-         public bool FindErrorMessageInLogDetailPage(string messageToLookFor, string errorMessage)
-         {
-             var messageRow =
-                 PoLogReportRows.FirstOrDefault(e => e.FindElements(By.TagName("td"))[5].Text.Contains(messageToLookFor));
+            if (messageRow == null)
+            {
+                Console.WriteLine("Message not found: {0}", messageToLookFor);
+                return false;
+            }
 
-             if (messageRow == null)
-             {
-                 Console.WriteLine("Message not found: {0}", messageToLookFor);
-                 return false;
-             }
+            ////messageRow.FindElements(By.TagName("td"))[0].Click();
+            this.javaScriptExecutor.ExecuteScript("arguments[0].click();", messageRow.FindElements(By.TagName("td"))[0].FindElement(By.TagName("a")));
+            this.webDriver.WaitForPageLoad(new TimeSpan(0, 0, 10));
 
-             ////messageRow.FindElements(By.TagName("td"))[0].Click();
-             this.javaScriptExecutor.ExecuteScript("arguments[0].click();", messageRow.FindElements(By.TagName("td"))[0].FindElement(By.TagName("a")));
-             this.webDriver.WaitForPageLoad(new TimeSpan(0, 0, 10));
-
-             //webDriver.FindElement(By.Id("tBox_ThreadID"));
-             B2BLogDetailPage B2BLogDetailPage = new B2BLogDetailPage(WebDriver);
-             if (B2BLogDetailPage.GetLogDetail().Contains(errorMessage))
-             {
-                 return true;
-             }
-             else
-             {
-                 return false;
-             }
-         }
+            //webDriver.FindElement(By.Id("tBox_ThreadID"));
+            B2BLogDetailPage B2BLogDetailPage = new B2BLogDetailPage(WebDriver);
+            if (B2BLogDetailPage.GetLogDetail().Contains(errorMessage))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
         #endregion
     }
 }
