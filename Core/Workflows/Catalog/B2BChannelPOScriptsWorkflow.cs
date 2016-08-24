@@ -66,7 +66,8 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         public string VerifyPoPosting(string qatoolsTargetUrl, string fileName, string poRefNum,
             string identityName, string supplierPartIdExt, string unitPrice, string quantity)
         {
-            uniquePoRefNum = poRefNum + DateTime.Today.ToString("yyMMdd") + DateTime.Now.ToString("HHmmss");
+            //uniquePoRefNum = poRefNum + DateTime.Today.ToString("yyMMdd") + DateTime.Now.ToString("HHmmss");
+            uniquePoRefNum = poRefNum + DateTime.Now.ToString("ffffff");
             B2BQaToolsPage = new B2BQaToolsPage(webDriver);
             B2BQaToolsPage.PasteTargetUrl(qatoolsTargetUrl);
             var file = PoXmlGenerator.GeneratePoCblwithoutCrt(fileName, uniquePoRefNum, identityName, supplierPartIdExt,
@@ -142,7 +143,8 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         public string VerifyPoPostingwithCbl3(string qatoolsTargetUrl, string fileName, string poRefNum,
             string identityName, string supplierPartIdExt, string unitPrice, string quantity)
         {
-            uniquePoRefNum = poRefNum + DateTime.Today.ToString("yyMMdd") + DateTime.Now.ToString("HHmmss");
+            //uniquePoRefNum = poRefNum + DateTime.Today.ToString("yyMMdd") + DateTime.Now.ToString("HHmmss");
+            uniquePoRefNum = poRefNum + DateTime.Now.ToString("ffffff");
             B2BQaToolsPage = new B2BQaToolsPage(webDriver);
             B2BQaToolsPage.PasteTargetUrl(qatoolsTargetUrl);
             var file = PoXmlGenerator.GeneratePoCbl3(fileName, uniquePoRefNum, identityName, supplierPartIdExt,
@@ -177,7 +179,8 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         public string VerifyPoPostingwithCxml(string qatoolsTargetUrl, string fileName, string poRefNum,
             string profileName,string identityName, string supplierPartIdExt, string unitPrice, string quantity)
         {
-            uniquePoRefNum = poRefNum + DateTime.Today.ToString("yyMMdd") + DateTime.Now.ToString("HHmmss");
+            //uniquePoRefNum = poRefNum + DateTime.Today.ToString("yyMMdd") + DateTime.Now.ToString("HHmmss");
+            uniquePoRefNum = poRefNum + DateTime.Now.ToString("ffffff");
             B2BQaToolsPage = new B2BQaToolsPage(webDriver);
             B2BQaToolsPage.PasteTargetUrl(qatoolsTargetUrl);
             var file = PoXmlGenerator.GeneratePoCxmll(fileName, uniquePoRefNum,profileName,
@@ -211,7 +214,8 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         public string VerifyDownloadAndPoPostingwithCbl1(B2BEnvironment environment, CatalogItemType itemType, CatalogType type, CatalogStatus status, Region region, CRTStatus crtStatus,
             string fileName, string poRefNum, string profileName, string identityName, string quantity)
         {
-            uniquePoRefNum = poRefNum + DateTime.Today.ToString("yyMMdd") + DateTime.Now.ToString("HHmmss");
+           // uniquePoRefNum = poRefNum + DateTime.Today.ToString("yyMMdd") + DateTime.Now.ToString("HHmmss");
+            uniquePoRefNum = poRefNum + DateTime.Now.ToString("ffffff");
             ChannelCatalogWorkflow uxWorkFlow = new ChannelCatalogWorkflow(webDriver);
             CatalogItem item = uxWorkFlow.GetCatalogItem(environment, itemType, type, status, region, profileName, identityName);
             webDriver = webDriver.SwitchBrowser(BrowserName.InternetExplorer);
@@ -255,7 +259,8 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         public string VerifyDownloadAndPoPostingwithCbl3(B2BEnvironment environment, CatalogItemType itemType, CatalogType type, CatalogStatus status, Region region, CRTStatus crtStatus,
             string fileName, string poRefNum, string profileName, string identityName, string quantity)
         {
-            uniquePoRefNum = poRefNum + DateTime.Today.ToString("yyMMdd") + DateTime.Now.ToString("HHmmss");
+            //uniquePoRefNum = poRefNum + DateTime.Today.ToString("yyMMdd") + DateTime.Now.ToString("HHmmss");
+            uniquePoRefNum = poRefNum + DateTime.Now.ToString("ffffff");
             ChannelCatalogWorkflow uxWorkFlow = new ChannelCatalogWorkflow(webDriver);
             CatalogItem item = uxWorkFlow.GetCatalogItem(environment, itemType, type, status, region, profileName, identityName);
             webDriver = webDriver.SwitchBrowser(BrowserName.InternetExplorer);
@@ -299,7 +304,8 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         public string VerifyDownloadAndPoPostingwithCxml(B2BEnvironment environment, CatalogItemType itemType, CatalogType type, CatalogStatus status, Region region, CRTStatus crtStatus,
             string fileName, string poRefNum, string profileName, string identityName, string quantity)
         {
-            uniquePoRefNum = poRefNum + DateTime.Today.ToString("yyMMdd") + DateTime.Now.ToString("HHmmss");
+            //uniquePoRefNum = poRefNum + DateTime.Today.ToString("yyMMdd") + DateTime.Now.ToString("HHmmss");
+            uniquePoRefNum = poRefNum + DateTime.Now.ToString("ffffff");
             ChannelCatalogWorkflow uxWorkFlow = new ChannelCatalogWorkflow(webDriver);
             CatalogItem item = uxWorkFlow.GetCatalogItem(environment, itemType, type, status, region, profileName, identityName);
             webDriver = webDriver.SwitchBrowser(BrowserName.InternetExplorer);

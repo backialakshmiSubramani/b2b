@@ -5289,10 +5289,10 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             autoCatalogListPage.SelectOption(autoCatalogListPage.SelectRegionSpan, region.ToString());
             autoCatalogListPage.SelectOption(autoCatalogListPage.SelectCustomerNameSpan, profile);
             autoCatalogListPage.SelectOption(autoCatalogListPage.SelectIdentityNameSpan, identity.ToUpper());
-            if (type == CatalogType.Original)
-                autoCatalogListPage.OriginalCatalogCheckbox.Click();
-            else
-                autoCatalogListPage.DeltaCatalogCheckbox.Click();
+            //if (type == CatalogType.Original)
+            //    autoCatalogListPage.OriginalCatalogCheckbox.Click();
+            //else
+            //    autoCatalogListPage.DeltaCatalogCheckbox.Click();
             autoCatalogListPage.SelectTheStatus(status.ToString());
             autoCatalogListPage.SearchRecordsLink.Click();
             autoCatalogListPage.CatalogsTable.WaitForElementVisible(TimeSpan.FromSeconds(30));
