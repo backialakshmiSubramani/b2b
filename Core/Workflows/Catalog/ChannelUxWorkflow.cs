@@ -1173,7 +1173,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             WaitForPageRefresh();
 
             Console.WriteLine("Actual: " + b2BChannelUx.FeedBackMessage.Text);
-            b2BChannelUx.FeedBackMessage.Text.Trim().ShouldBeEquivalentTo("Original Catalog doesn't exist, hence, Delta can not be generated.");
+            b2BChannelUx.FeedBackMessage.Text.Trim().ShouldBeEquivalentTo("Instant Original Catalog doesn't exist. Please create an original catalog then initiate delta.");
         }
 
         /// <summary>
