@@ -1212,7 +1212,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                 autoCatalogListPage.OriginalCatalogCheckbox.Click();
             else if (autoCatalogListPage.DeltaCatalogCheckbox.Selected != (catalogType == CatalogType.Delta))
                 autoCatalogListPage.DeltaCatalogCheckbox.Click();
-
+            autoCatalogListPage.SelectTheStatus(UtilityMethods.ConvertToString(catalogStatus));
             autoCatalogListPage.SearchRecordsLink.Click();
             autoCatalogListPage.CatalogsTable.WaitForElementVisible(TimeSpan.FromSeconds(30));
             autoCatalogListPage.WaitForCatalogInSearchResult(anyTimeAfter.ConvertToUtcTimeZone(), catalogStatus);

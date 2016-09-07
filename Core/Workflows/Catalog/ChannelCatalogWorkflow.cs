@@ -5660,12 +5660,12 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         }
         internal void VerifyMessageInLogReport(string threadId, B2BEnvironment environment)
         {
-            webDriver.Navigate().GoToUrl(ConfigurationReader.GetValue("B2BBaseURL") + ((environment == B2BEnvironment.Production) ? "P" : "U"));
+            webDriver.Navigate().GoToUrl(ConfigurationReader.GetValue("B2BBaseURL"));// + ((environment == B2BEnvironment.Production) ? "P" : "U"));
             webDriver.Navigate().GoToUrl(ConfigurationReader.GetValue("logReportUrl") + ((environment == B2BEnvironment.Production) ? "P" : "U"));
             B2BLogReportPage b2bLogReport = new B2BLogReportPage(webDriver);
             b2bLogReport.SearchThreadIdNumber(threadId);
             b2bLogReport.WaitForElementVisible();
-            b2bLogReport.GetCellValueFromLogTable(3, "Message").Should().Contain("failed as Exclude UnChanged Items flag returned no records", "Delta Catalog creation is failed not due to Exclude Unchanged Items");
+            b2bLogReport.GetCellValueFromLogTable(3, "Message").Should().Contain("failed as Exclude Unchanged Items flag returned no records", "Delta Catalog creation is failed not due to Exclude Unchanged Items");
         }
     }
 
