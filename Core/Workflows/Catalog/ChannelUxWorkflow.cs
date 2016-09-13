@@ -993,7 +993,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             {
                 UtilityMethods.ClickElement(webDriver, b2BChannelUx.PreviewEnvRadioButton);
             }
-            b2BChannelUx.SelectOption(b2BChannelUx.SelectCustomerProfileDiv, profileName);
+            b2BChannelUx.SelectOption(b2BChannelUx.SelectCustomerProfileDiv, profileName.ToUpper());
             b2BChannelUx.SelectOption(b2BChannelUx.SelectProfileIdentityDiv, identityName.ToUpper());
 
             if (!b2BChannelUx.UseExistingB2BAutoScheduleRadioButton.Selected)
@@ -1025,7 +1025,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             else if (b2BEnvironment == B2BEnvironment.Preview)
                 UtilityMethods.ClickElement(webDriver, b2BChannelUx.PreviewEnvRadioButton);
 
-            b2BChannelUx.SelectOption(b2BChannelUx.SelectCustomerProfileDiv, profileName);
+            b2BChannelUx.SelectOption(b2BChannelUx.SelectCustomerProfileDiv, profileName.ToUpper());
             b2BChannelUx.SelectOption(b2BChannelUx.SelectProfileIdentityDiv, identityName.ToUpper());
 
             if (!b2BChannelUx.SetNewRadioButton.Selected)
@@ -1071,7 +1071,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             else if (environment == B2BEnvironment.Preview)
                 b2BChannelUx.PreviewEnvRadioButton.Click();
 
-            b2BChannelUx.SelectOption(b2BChannelUx.SelectCustomerProfileDiv, profileName);
+            b2BChannelUx.SelectOption(b2BChannelUx.SelectCustomerProfileDiv, profileName.ToUpper());
             b2BChannelUx.SelectOption(b2BChannelUx.SelectProfileIdentityDiv, identityName.ToUpper());
 
             if (!b2BChannelUx.UseExistingB2BAutoScheduleRadioButton.Selected)
@@ -1098,7 +1098,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             else if (environment == B2BEnvironment.Preview)
                 b2BChannelUx.PreviewEnvRadioButton.Click();
 
-            b2BChannelUx.SelectOption(b2BChannelUx.SelectCustomerProfileDiv, profileName);
+            b2BChannelUx.SelectOption(b2BChannelUx.SelectCustomerProfileDiv, profileName.ToUpper());
             b2BChannelUx.SelectOption(b2BChannelUx.SelectProfileIdentityDiv, identityName.ToUpper());
             b2BChannelUx.SetNewRadioButton.Click();
 
@@ -1160,7 +1160,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             else if (environment == B2BEnvironment.Preview)
                 b2BChannelUx.PreviewEnvRadioButton.Click();
 
-            b2BChannelUx.SelectOption(b2BChannelUx.SelectCustomerProfileDiv, profileName);
+            b2BChannelUx.SelectOption(b2BChannelUx.SelectCustomerProfileDiv, profileName.ToUpper());
             b2BChannelUx.SelectOption(b2BChannelUx.SelectProfileIdentityDiv, identityName.ToUpper());
 
             if (catalogType == CatalogType.Original)
@@ -1187,7 +1187,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         {
             CPTAutoCatalogInventoryListPage autoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
             autoCatalogListPage.SelectOption(autoCatalogListPage.SelectRegionSpan, "US");
-            autoCatalogListPage.SelectOption(autoCatalogListPage.SelectCustomerNameSpan, profileName);
+            autoCatalogListPage.SelectOption(autoCatalogListPage.SelectCustomerNameSpan, profileName.ToUpper());
             autoCatalogListPage.SelectOption(autoCatalogListPage.SelectIdentityNameSpan, identityName.ToUpper());
             autoCatalogListPage.SearchRecordsLink.Click();
             autoCatalogListPage.CatalogsTable.WaitForElementVisible(TimeSpan.FromSeconds(30));
@@ -1205,7 +1205,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         {
             CPTAutoCatalogInventoryListPage autoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
             autoCatalogListPage.SelectOption(autoCatalogListPage.SelectRegionSpan, "US");
-            autoCatalogListPage.SelectOption(autoCatalogListPage.SelectCustomerNameSpan, profileName);
+            autoCatalogListPage.SelectOption(autoCatalogListPage.SelectCustomerNameSpan, profileName.ToUpper());
             autoCatalogListPage.SelectOption(autoCatalogListPage.SelectIdentityNameSpan, identityName.ToUpper());
 
             if (autoCatalogListPage.OriginalCatalogCheckbox.Selected != (catalogType == CatalogType.Original))
@@ -1477,7 +1477,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             {
             b2bChannelUx.OpenAutoCatalogAndInventoryListPage(b2BEnvironment);
             autoCatalogListPage.SelectOption(autoCatalogListPage.SelectRegionSpan, "US");
-            autoCatalogListPage.SelectOption(autoCatalogListPage.SelectCustomerNameSpan, profile);
+            autoCatalogListPage.SelectOption(autoCatalogListPage.SelectCustomerNameSpan, profile.ToUpper());
             autoCatalogListPage.SelectOption(autoCatalogListPage.SelectIdentityNameSpan, identity.ToUpper());
 
             if (type == CatalogType.Original)
@@ -1613,8 +1613,8 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         {
             webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["AutoCatalogListPageUrl"] + ((environment == B2BEnvironment.Production) ? "P" : "U"));
             CPTAutoCatalogInventoryListPage autoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
-            autoCatalogListPage.SelectOption(autoCatalogListPage.SelectRegionSpan, region.ToString());
-            autoCatalogListPage.SelectOption(autoCatalogListPage.SelectCustomerNameSpan, profileName);
+            autoCatalogListPage.SelectOption(autoCatalogListPage.SelectRegionSpan, region.ToString().ToUpper());
+            autoCatalogListPage.SelectOption(autoCatalogListPage.SelectCustomerNameSpan, profileName.ToUpper());
             autoCatalogListPage.SelectOption(autoCatalogListPage.SelectIdentityNameSpan, identityName.ToUpper());
 
             if (autoCatalogListPage.OriginalCatalogCheckbox.Selected != (catalogType == CatalogType.Original))
@@ -1648,7 +1648,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         {
             webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["AutoCatalogListPageUrl"] + ((environment == B2BEnvironment.Production) ? "P" : "U"));
             CPTAutoCatalogInventoryListPage autoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
-            autoCatalogListPage.SelectOption(autoCatalogListPage.SelectRegionSpan, region.ToString());
+            autoCatalogListPage.SelectOption(autoCatalogListPage.SelectRegionSpan, region.ToString().ToUpper());
             autoCatalogListPage.ScheduledCheckbox.Click();
             autoCatalogListPage.OriginalCatalogCheckbox.Click();
             if (!string.IsNullOrEmpty(Country))

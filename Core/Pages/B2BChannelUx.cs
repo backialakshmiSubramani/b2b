@@ -291,7 +291,7 @@ namespace Modules.Channel.B2B.Core.Pages
         {
             webDriver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromMinutes(1));
             UtilityMethods.ClickElement(webDriver, webElement);
-            IWebElement textElement = webElement.FindElement(By.XPath("div/ul/child::li/a/div/strong[text()='" + optionText + "']"));
+            IWebElement textElement = webElement.FindElement(By.XPath("div/ul/child::li/a/div/strong[translate(text(),'abcdefghijklmnopqrstuvwxyz','ABCDEFGHIJKLMNOPQRSTUVWXYZ')='" + optionText + "']"));
             UtilityMethods.ClickElement(webDriver, textElement);
         }
 

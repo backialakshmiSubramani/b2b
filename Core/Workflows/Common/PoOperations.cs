@@ -482,7 +482,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
         {
             B2BHomePage.ClickB2BProfileList();
             B2BCustomerProfileListPage.SearchProfile(null, profileName);
-            B2BCustomerProfileListPage.ClickSearchedProfile(profileName);
+            B2BCustomerProfileListPage.ClickSearchedProfile(profileName.ToUpper());
             B2BProfileSettingsGeneralPage.GoToAsnTab();
             var deliveryPreference = B2BProfileSettingsAsnPage.GetDeliveryPreference();
             B2BProfileSettingsAsnPage.GoToHomePage();

@@ -648,12 +648,12 @@ namespace Modules.Channel.B2B.Core.Pages
                     WebDriver.FindElement(By.XPath("//div[@class='ng-pristine ng-untouched ng-valid dropdown custom-select open']")).Click();
                     return true;
                 }
-                   
+
             }
             catch
             {
             }
-            
+
             return false;
         }
 
@@ -737,8 +737,8 @@ namespace Modules.Channel.B2B.Core.Pages
 
         public void SearchCatalogs(Region region, string profileName, string identityName)
         {
-            SelectOption(SelectRegionSpan, region.ConvertToString());
-            SelectOption(SelectCustomerNameSpan, profileName);
+            SelectOption(SelectRegionSpan, region.ConvertToString().ToUpper());
+            SelectOption(SelectCustomerNameSpan, profileName.ToUpper());
             SelectOption(SelectIdentityNameSpan, identityName.ToUpper());
             SearchRecordsLink.Click();
             CatalogsTable.WaitForElementVisible(TimeSpan.FromSeconds(30));
@@ -747,11 +747,11 @@ namespace Modules.Channel.B2B.Core.Pages
         public void SearchInventoryRecords(Region region, string profileName = "", string identityName = "")
         {
             InventoryCheckbox.Click();
-            SelectOption(SelectRegionSpan, region.ConvertToString());
+            SelectOption(SelectRegionSpan, region.ConvertToString().ToUpper());
 
             if (!string.IsNullOrEmpty(profileName))
             {
-                SelectOption(SelectCustomerNameSpan, profileName);
+                SelectOption(SelectCustomerNameSpan, profileName.ToUpper());
             }
 
             if (!string.IsNullOrEmpty(identityName))
@@ -804,7 +804,7 @@ namespace Modules.Channel.B2B.Core.Pages
         public void SelectOption(IWebElement webElement, string optionText)
         {
             webElement.Click();
-            IWebElement textElement = webElement.FindElement(By.XPath("../following-sibling::div/child::ul/child::li/a[(text()='" + optionText + "')]"));
+            IWebElement textElement = webElement.FindElement(By.XPath("../following-sibling::div/child::ul/child::li/a[translate(text(),'abcdefghijklmnopqrstuvwxyz','ABCDEFGHIJKLMNOPQRSTUVWXYZ')='" + optionText + "']"));
             textElement.Click();
         }
 

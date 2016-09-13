@@ -44,7 +44,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Common
             Console.WriteLine("Searching for Profile by Customer Name : {0}", profileName);
             b2BCustomerProfileListPage = new B2BCustomerProfileListPage(webDriver);
             b2BCustomerProfileListPage.SearchProfile("Customer Name", profileName);
-            b2BCustomerProfileListPage.ClickSearchedProfile(profileName);
+            b2BCustomerProfileListPage.ClickSearchedProfile(profileName.ToUpper());
 
             b2BManageProfileIdentitiesPage = new B2BManageProfileIdentitiesPage(webDriver);
             Console.WriteLine("Opened Profile Page for profile: {0}", profileName);

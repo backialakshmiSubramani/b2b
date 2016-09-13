@@ -57,7 +57,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             b2BHomePage.ClickB2BProfileList();
             b2BCustomerProfileListPage = new B2BCustomerProfileListPage(webDriver);
             b2BCustomerProfileListPage.SearchProfile("Customer Name", profileName);
-            b2BCustomerProfileListPage.ClickSearchedProfile(profileName);
+            b2BCustomerProfileListPage.ClickSearchedProfile(profileName.ToUpper());
             b2BManageProfileIdentitiesPage = new B2BManageProfileIdentitiesPage(webDriver);
             Console.WriteLine("Opened Profile Page for profile: {0}", profileName);
             b2BManageProfileIdentitiesPage.BuyerCatalogTab.Click();
@@ -78,7 +78,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             b2BHomePage.ClickB2BProfileList();
             b2BCustomerProfileListPage = new B2BCustomerProfileListPage(webDriver);
             b2BCustomerProfileListPage.SearchProfile("Customer Name", profileName);
-            b2BCustomerProfileListPage.ClickSearchedProfile(profileName);
+            b2BCustomerProfileListPage.ClickSearchedProfile(profileName.ToUpper());
             b2BManageProfileIdentitiesPage = new B2BManageProfileIdentitiesPage(webDriver);
             Console.WriteLine("Opened Profile Page for profile: {0}", profileName);
         }
@@ -1999,7 +1999,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
             b2BAutoCatalogListPage.SelectTheRegion(regionName);
             b2BAutoCatalogListPage.SelectTheCountry(countryName);
-            b2BAutoCatalogListPage.SelectOption(b2BAutoCatalogListPage.SelectCustomerNameSpan, profileName);
+            b2BAutoCatalogListPage.SelectOption(b2BAutoCatalogListPage.SelectCustomerNameSpan, profileName.ToUpper());
             WaitForPageRefresh();
             if (identityList.Count() ==
                 b2BAutoCatalogListPage.SelectIdentity.Select()
@@ -4375,7 +4375,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             b2BHomePage.ClickB2BProfileList();
             B2BCustomerProfileListPage b2BCustomerProfileListPage = new B2BCustomerProfileListPage(webDriver);
             b2BCustomerProfileListPage.SearchProfile("Customer Name", profileName);
-            b2BCustomerProfileListPage.ClickSearchedProfile(profileName);
+            b2BCustomerProfileListPage.ClickSearchedProfile(profileName.ToUpper());
             B2BManageProfileIdentitiesPage b2BManageProfileIdentitiesPage = new B2BManageProfileIdentitiesPage(webDriver);
             string regionName = b2BManageProfileIdentitiesPage.RegionName_Globalization.Text.Split(':')[1].Trim();
             regionName.Should().Be("US");
@@ -5286,8 +5286,8 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             B2BChannelUx b2bChannelUx = new B2BChannelUx(webDriver);
             b2bChannelUx.OpenAutoCatalogAndInventoryListPage(b2BEnvironment);
             CPTAutoCatalogInventoryListPage autoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
-            autoCatalogListPage.SelectOption(autoCatalogListPage.SelectRegionSpan, region.ToString());
-            autoCatalogListPage.SelectOption(autoCatalogListPage.SelectCustomerNameSpan, profile);
+            autoCatalogListPage.SelectOption(autoCatalogListPage.SelectRegionSpan, region.ToString().ToUpper());
+            autoCatalogListPage.SelectOption(autoCatalogListPage.SelectCustomerNameSpan, profile.ToUpper());
             autoCatalogListPage.SelectOption(autoCatalogListPage.SelectIdentityNameSpan, identity.ToUpper());
             //if (type == CatalogType.Original)
             //    autoCatalogListPage.OriginalCatalogCheckbox.Click();

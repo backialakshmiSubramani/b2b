@@ -251,9 +251,11 @@ namespace Modules.Channel.B2B.Core.Pages
 
         public void ClickSearchedProfile(string linkText)
         {
-            webDriver.WaitForElementDisplayed(By.LinkText(linkText), TimeSpan.FromSeconds(30));
-            var elem = webDriver.FindElement(By.LinkText(linkText));
-            javaScriptExecutor.ExecuteScript("arguments[0].click();", elem);
+            IWebElement profileLink = webDriver.FindElement(By.XPath("//a[contains(@id,'CustomerName')][translate(text(),'abcdefghijklmnopqrstuvwxyz','ABCDEFGHIJKLMNOPQRSTUVWXYZ')='" + linkText + "']"));
+            profileLink.Click();
+            //webDriver.WaitForElementDisplayed(By.LinkText(linkText), TimeSpan.FromSeconds(30));
+            //var elem = webDriver.FindElement(By.LinkText(linkText));
+            //javaScriptExecutor.ExecuteScript("arguments[0].click();", elem);
             //Thread.Sleep(1000);
             //webDriver.WaitForPageLoad(new TimeSpan(0, 0, 60));
             PageUtility.WaitForPageRefresh(webDriver);
