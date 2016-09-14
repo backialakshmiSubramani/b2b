@@ -1150,6 +1150,105 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             }
         }
 
+        internal void ValidateInstantCatalogErrorMessage(B2BEnvironment environment, string profileName, string identityName, CatalogType catalogType,
+        CatalogItemType catalogItemType, string accessGroup, ErrorMessages errorMessages, bool isSetNew)
+        {
+            webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["TestHarnessPageUrl"] + ((environment == B2BEnvironment.Production) ? "P" : "U"));
+            B2BChannelUx b2BChannelUx = new B2BChannelUx(webDriver);
+
+            if (environment == B2BEnvironment.Production)
+                b2BChannelUx.ProductionEnvRadioButton.Click();
+            else if (environment == B2BEnvironment.Preview)
+                b2BChannelUx.PreviewEnvRadioButton.Click();
+
+            b2BChannelUx.SelectOption(b2BChannelUx.SelectCustomerProfileDiv, profileName);
+            b2BChannelUx.SelectOption(b2BChannelUx.SelectProfileIdentityDiv, identityName.ToUpper());
+
+            if (isSetNew)
+            {
+                if (!b2BChannelUx.SetNewRadioButton.Selected)
+                    b2BChannelUx.SetNewRadioButton.Click();
+          
+                switch (catalogItemType)
+                {
+                    case CatalogItemType.ConfigWithDefaultOptions:
+                        if(!b2BChannelUx.STDSetNewCheckBox.Selected)
+                        b2BChannelUx.STDSetNewCheckBox.Click();
+                        break;
+                    case CatalogItemType.SNP:
+                        b2BChannelUx.SNPSetNewCheckBox.Click();
+                        break;
+                    case CatalogItemType.Systems:
+                        b2BChannelUx.SYSSetNewCheckBox.Click();
+                        break;
+                    default:
+                        b2BChannelUx.STDSetNewCheckBox.Click();
+                        b2BChannelUx.SNPSetNewCheckBox.Click();
+                        b2BChannelUx.SYSSetNewCheckBox.Click();
+                        break;
+                }
+                
+                if (catalogType == CatalogType.Original)
+                    b2BChannelUx.OriginalRadioButton.Click();
+                else if (catalogType == CatalogType.Delta)
+                    b2BChannelUx.DeltaRadioButton.Click();
+                
+                b2BChannelUx.CreateAndDownloadButton.Click();
+
+            }
+            else
+            {
+                if (!b2BChannelUx.UseExistingB2BAutoScheduleRadioButton.Selected)
+                    b2BChannelUx.UseExistingB2BAutoScheduleRadioButton.Click();
+
+                if (catalogType == CatalogType.Original)
+                    b2BChannelUx.OriginalRadioButton.Click();
+                else if (catalogType == CatalogType.Delta)
+                    b2BChannelUx.DeltaRadioButton.Click();
+
+                b2BChannelUx.CreateButton.Click();
+                
+                WaitForPageRefresh();
+            }
+           
+            b2BChannelUx.WaitForFeedBackMessage(TimeSpan.FromMinutes(2));
+            switch (errorMessages)
+            {
+                case ErrorMessages.AccessGroupNotAssociated:
+                    if (catalogItemType == CatalogItemType.ConfigWithDefaultOptions || catalogItemType == CatalogItemType.ConfigWithUpsellDownsell)
+                    {
+                        string stdError = string.Concat("Error while generating Auto Catalog XML. STD Catalog is not Enabled in the OST for the Access Group " + accessGroup);
+                        b2BChannelUx.ValidationMessage.Text.Trim().ShouldBeEquivalentTo(stdError);
+                    }
+
+                    if (catalogItemType == CatalogItemType.SNP)
+                    {
+                        string snpError = string.Concat("Error while generating Auto Catalog XML. SNP Catalog is not Enabled in the OST for the Access Group " + accessGroup);
+                        b2BChannelUx.ValidationMessage.Text.Trim().ShouldBeEquivalentTo(snpError);
+                    }
+
+                    if (catalogItemType == CatalogItemType.Systems)
+                    {
+                        string sysError = string.Concat("Error while generating Auto Catalog XML. SYS Catalog is not Enabled in the OST for the Access Group " + accessGroup);
+                        b2BChannelUx.ValidationMessage.Text.Trim().ShouldBeEquivalentTo(sysError);
+                    }
+
+                    break;
+                
+                case ErrorMessages.ZeroCatalogItems:
+                    b2BChannelUx.ValidationMessage.Text.Trim().ShouldBeEquivalentTo("Error while generating Auto Catalog XML. Auto Catalog creation failed due to zero items in the OST Store.");
+                    break;
+                case ErrorMessages.IdentityIsDisabled:
+                    b2BChannelUx.ValidationMessage.Text.Trim().ShouldBeEquivalentTo("Auto Catalog Creation is not allowed for this profile since the selected identity is disabled for this profile.");
+                    break;
+                case ErrorMessages.DeltaCatalogCheckBoxIsDisabled:
+                    b2BChannelUx.ValidationMessage.Text.Trim().ShouldBeEquivalentTo("Delta Catalog Creation is not allowed for this profile since Delta Catalog is turned OFF for this profile.");
+                    break;
+                default:
+                    break;
+            }
+        }
+
         internal void ValidateErrorMessageWhileCreatingDeltaCatalog(B2BEnvironment environment, string profileName, string identityName, CatalogType catalogType)
         {
             webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["TestHarnessPageUrl"] + ((environment == B2BEnvironment.Production) ? "P" : "U"));

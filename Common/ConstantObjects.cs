@@ -151,4 +151,12 @@ namespace Modules.Channel.B2B.Common
         DeltaWithOriginal,
         DeltaWithoutOriginal
     }
+
+    public enum ErrorMessages
+    {
+        ZeroCatalogItems,
+        AccessGroupNotAssociated,
+        IdentityIsDisabled,
+        DeltaCatalogCheckBoxIsDisabled
+    }
 }

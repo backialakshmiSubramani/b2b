@@ -5667,6 +5667,13 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             b2bLogReport.WaitForElementVisible();
             b2bLogReport.GetCellValueFromLogTable(3, "Message").Should().Contain("failed as Exclude Unchanged Items flag returned no records", "Delta Catalog creation is failed not due to Exclude Unchanged Items");
         }
+
+        public void VerifyInstantCatalogErrorMessage(B2BEnvironment b2BEnvironment, string profileName, string identityName, CatalogType catalogType, CatalogItemType catalogItemType
+            ,  string accessGroup, ErrorMessages errorMessages, bool isSetNew)
+        {
+            ChannelUxWorkflow uxWorkflow = new ChannelUxWorkflow(webDriver);
+            uxWorkflow.ValidateInstantCatalogErrorMessage(b2BEnvironment, profileName, identityName, catalogType, catalogItemType, accessGroup, errorMessages, isSetNew);
+        }
     }
 
     /// <summary>
