@@ -159,4 +159,11 @@ namespace Modules.Channel.B2B.Common
         IdentityIsDisabled,
         DeltaCatalogCheckBoxIsDisabled
     }
+
+    public enum CatalogTestOrLive
+    {
+        Test,
+        Live,
+        None,
+    }
 }

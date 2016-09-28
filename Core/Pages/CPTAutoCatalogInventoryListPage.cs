@@ -590,6 +590,21 @@ namespace Modules.Channel.B2B.Core.Pages
             get { return webDriver.FindElement(By.XPath("//span[@class='ui-button-text' and text()='Ok']")); }
         }
 
+        public IWebElement LiveChk
+        {
+            get
+            {
+                return webDriver.FindElement(By.CssSelector("input[type='checkbox'][ng-model='parIsLiveProfile']"));
+            }
+        }
+
+        public IWebElement TestChk
+        {
+            get
+            {
+                return webDriver.FindElement(By.CssSelector("input[type='checkbox'][ng-model='parIsTestProfile']"));
+            }
+        }
 
         #endregion
 
@@ -693,6 +708,21 @@ namespace Modules.Channel.B2B.Core.Pages
             webDriver.FindElement(By.XPath("//div[@ng-model='CatalogStatusId']/a")).Click();
             webDriver.FindElement(By.XPath("//div[@ng-model='CatalogStatusId']/div/div[@class='custom-select-search']/input")).SendKeys(status);
             webDriver.FindElement(By.XPath("//div[@ng-model='CatalogStatusId']/div/ul/li/a[contains(text(),'" + status + "')]")).Click();
+        }
+
+        public void SelectCatalogTestOrLive(CatalogTestOrLive catalogTestOrLive)
+        {
+            if (catalogTestOrLive == CatalogTestOrLive.Live && !LiveChk.Selected)
+                LiveChk.Click();
+            else if (catalogTestOrLive == CatalogTestOrLive.Test && !TestChk.Selected)
+                TestChk.Click();
+            else if (catalogTestOrLive == CatalogTestOrLive.None)
+            {
+                if (LiveChk.Selected)
+                    LiveChk.Click();
+                if (TestChk.Selected)
+                    TestChk.Click();
+            }
         }
 
         /// <summary>
