@@ -3751,6 +3751,28 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
 
         }
 
+        public void VerifyDefaultValueForExpiryDaysForSPL(B2BEnvironment b2BEnvironment, string profileName)
+        {
+            B2BHomePage b2BHomePage = new B2BHomePage(webDriver);
+            b2BHomePage.OpenB2BHomePage(b2BEnvironment);
+
+            GoToBuyerCatalogTab(b2BEnvironment.ToString(), profileName);
+
+            string currentExpiryDays = b2BBuyerCatalogPage.CatalogExpireInDays.SelectedOption.Text.ToString();
+
+            b2BBuyerCatalogPage.EditScheduleButton.Click();
+
+            if (!b2BBuyerCatalogPage.BcpchkSPLFlagCheckbox.Selected)
+                b2BBuyerCatalogPage.BcpchkSPLFlagCheckbox.Click();
+
+            b2BBuyerCatalogPage.CatalogExpireInDays.SelectedOption.Text.Should().Be("30", "Expiry days is not 30 when SPL is selected");
+
+            if (b2BBuyerCatalogPage.BcpchkSPLFlagCheckbox.Selected)
+                b2BBuyerCatalogPage.BcpchkSPLFlagCheckbox.Click();
+
+            b2BBuyerCatalogPage.CatalogExpireInDays.SelectedOption.Text.Should().Be(currentExpiryDays, "Expiry days is not retverted back to " + currentExpiryDays + " when SPL is de-selected");
+        }
+
         /// <summary>
         /// To verify the logging of change in Cross ref Std under audit history section
         /// </summary>

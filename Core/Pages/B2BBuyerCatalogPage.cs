@@ -834,6 +834,17 @@ namespace Modules.Channel.B2B.Core.Pages
             }
         }
 
+        private SelectElement _catalogExpiresInDays;
+        public SelectElement CatalogExpireInDays
+        {
+            get
+            {
+
+                _catalogExpiresInDays = new SelectElement(webDriver.FindElement(By.Id("ddlCatalogExpiresInDays"), new TimeSpan(0, 0, 30)));
+                return _catalogExpiresInDays;
+            }
+        }
+
         /// <summary>
         /// Audit History Section on Buyer Catalog Page
         /// </summary>
