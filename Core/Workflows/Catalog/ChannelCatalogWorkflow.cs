@@ -5001,6 +5001,8 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
 
             b2BAutoCatalogListPage.SelectTheCustomer(profile);
             b2BAutoCatalogListPage.SelectTheStatus(status.ToString());
+            if (b2BAutoCatalogListPage.LiveChk.Selected)
+                b2BAutoCatalogListPage.LiveChk.Click();
             b2BAutoCatalogListPage.SearchRecordsLink.Click();
             b2BAutoCatalogListPage.CatalogsTable.WaitForElementVisible(TimeSpan.FromSeconds(30));
             string filePath = uxWorkflow.DownloadCatalog(identity, beforeSchedTime);
