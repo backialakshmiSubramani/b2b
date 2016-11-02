@@ -513,12 +513,12 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                 matchFlag &= UtilityMethods.CompareValues<int>("PackageLength", actualCatalogItem.PackageLength, expectedCatalogItem.PackageLength);
                 matchFlag &= UtilityMethods.CompareValues<int>("PackageWidth", actualCatalogItem.PackageWidth, expectedCatalogItem.PackageWidth);
                 matchFlag &= UtilityMethods.CompareValues<int>("PackageHeight", actualCatalogItem.PackageHeight, expectedCatalogItem.PackageHeight);
-                matchFlag &= UtilityMethods.CompareValues<int>("PalletLength", actualCatalogItem.PalletLength, expectedCatalogItem.PalletLength);
-                matchFlag &= UtilityMethods.CompareValues<int>("PalletWidth", actualCatalogItem.PalletWidth, expectedCatalogItem.PalletWidth);
-                matchFlag &= UtilityMethods.CompareValues<int>("PalletHeight", actualCatalogItem.PalletHeight, expectedCatalogItem.PalletHeight);
-                matchFlag &= UtilityMethods.CompareValues<int>("PalletUnitsPerLayer", actualCatalogItem.PalletUnitsPerLayer, expectedCatalogItem.PalletUnitsPerLayer);
-                matchFlag &= UtilityMethods.CompareValues<int>("PalletLayerPerPallet", actualCatalogItem.PalletLayerPerPallet, expectedCatalogItem.PalletLayerPerPallet);
-                matchFlag &= UtilityMethods.CompareValues<int>("PalletUnitsPerPallet", actualCatalogItem.PalletUnitsPerPallet, expectedCatalogItem.PalletUnitsPerPallet);
+                matchFlag &= UtilityMethods.CompareValues<string>("PalletLength", String.IsNullOrEmpty(actualCatalogItem.PalletLength)? "0":actualCatalogItem.PalletLength, expectedCatalogItem.PalletLength);
+                matchFlag &= UtilityMethods.CompareValues<string>("PalletWidth", String.IsNullOrEmpty(actualCatalogItem.PalletWidth)?"0": actualCatalogItem.PalletWidth, expectedCatalogItem.PalletWidth);
+                matchFlag &= UtilityMethods.CompareValues<string>("PalletHeight", String.IsNullOrEmpty(actualCatalogItem.PalletHeight)?"0": actualCatalogItem.PalletHeight, expectedCatalogItem.PalletHeight);
+                matchFlag &= UtilityMethods.CompareValues<string>("PalletUnitsPerLayer", String.IsNullOrEmpty(actualCatalogItem.PalletUnitsPerLayer) ? "0" : actualCatalogItem.PalletUnitsPerLayer, expectedCatalogItem.PalletUnitsPerLayer);
+                matchFlag &= UtilityMethods.CompareValues<string>("PalletLayerPerPallet", String.IsNullOrEmpty(actualCatalogItem.PalletLayerPerPallet) ? "0" : actualCatalogItem.PalletLayerPerPallet, expectedCatalogItem.PalletLayerPerPallet);
+                matchFlag &= UtilityMethods.CompareValues<string>("PalletUnitsPerPallet", String.IsNullOrEmpty(actualCatalogItem.PalletUnitsPerPallet) ? "0" : actualCatalogItem.PalletUnitsPerPallet, expectedCatalogItem.PalletUnitsPerPallet);
 
                 Console.WriteLine("PartId: " + actualCatalogItem.PartId);
                 Console.WriteLine("QuoteId: " + actualCatalogItem.QuoteId);
@@ -706,12 +706,12 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             matchFlag &= UtilityMethods.CompareValues<int>("PackageLength", actualCatalogItem.PackageLength, expectedCatalogItem.PackageLength);
             matchFlag &= UtilityMethods.CompareValues<int>("PackageWidth", actualCatalogItem.PackageWidth, expectedCatalogItem.PackageWidth);
             matchFlag &= UtilityMethods.CompareValues<int>("PackageHeight", actualCatalogItem.PackageHeight, expectedCatalogItem.PackageHeight);
-            matchFlag &= UtilityMethods.CompareValues<int>("PalletLength", actualCatalogItem.PalletLength, expectedCatalogItem.PalletLength);
-            matchFlag &= UtilityMethods.CompareValues<int>("PalletWidth", actualCatalogItem.PalletWidth, expectedCatalogItem.PalletWidth);
-            matchFlag &= UtilityMethods.CompareValues<int>("PalletHeight", actualCatalogItem.PalletHeight, expectedCatalogItem.PalletHeight);
-            matchFlag &= UtilityMethods.CompareValues<int>("PalletUnitsPerLayer", actualCatalogItem.PalletUnitsPerLayer, expectedCatalogItem.PalletUnitsPerLayer);
-            matchFlag &= UtilityMethods.CompareValues<int>("PalletLayerPerPallet", actualCatalogItem.PalletLayerPerPallet, expectedCatalogItem.PalletLayerPerPallet);
-            matchFlag &= UtilityMethods.CompareValues<int>("PalletUnitsPerPallet", actualCatalogItem.PalletUnitsPerPallet, expectedCatalogItem.PalletUnitsPerPallet);
+            matchFlag &= UtilityMethods.CompareValues<string>("PalletLength", actualCatalogItem.PalletLength, expectedCatalogItem.PalletLength);
+            matchFlag &= UtilityMethods.CompareValues<string>("PalletWidth", actualCatalogItem.PalletWidth, expectedCatalogItem.PalletWidth);
+            matchFlag &= UtilityMethods.CompareValues<string>("PalletHeight", actualCatalogItem.PalletHeight, expectedCatalogItem.PalletHeight);
+            matchFlag &= UtilityMethods.CompareValues<string>("PalletUnitsPerLayer", actualCatalogItem.PalletUnitsPerLayer, expectedCatalogItem.PalletUnitsPerLayer);
+            matchFlag &= UtilityMethods.CompareValues<string>("PalletLayerPerPallet", actualCatalogItem.PalletLayerPerPallet, expectedCatalogItem.PalletLayerPerPallet);
+            matchFlag &= UtilityMethods.CompareValues<string>("PalletUnitsPerPallet", actualCatalogItem.PalletUnitsPerPallet, expectedCatalogItem.PalletUnitsPerPallet);
 
             Console.WriteLine("PartId: " + actualCatalogItem.PartId);
             Console.WriteLine("QuoteId: " + actualCatalogItem.QuoteId);

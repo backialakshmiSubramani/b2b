@@ -307,22 +307,22 @@ namespace CatalogTests.Common.CatalogXMLTemplates
         public int PackageHeight { get; set; }
 
         [XmlElement("PalletLength")]
-        public int PalletLength { get; set; }
+        public string PalletLength { get; set; }
 
         [XmlElement("PalletWidth")]
-        public int PalletWidth { get; set; }
+        public string PalletWidth { get; set; }
 
         [XmlElement("PalletHeight")]
-        public int PalletHeight { get; set; }
+        public string PalletHeight { get; set; }
 
         [XmlElement("PalletUnitsPerLayer")]
-        public int PalletUnitsPerLayer { get; set; }
+        public string PalletUnitsPerLayer { get; set; }
 
         [XmlElement("PalletLayerPerPallet")]
-        public int PalletLayerPerPallet { get; set; }
+        public string PalletLayerPerPallet { get; set; }
 
         [XmlElement("PalletUnitsPerPallet")]
-        public int PalletUnitsPerPallet { get; set; }
+        public string PalletUnitsPerPallet { get; set; }
 
         //For SPL additional Nodes
         [XmlElement("BoxDimensions")]

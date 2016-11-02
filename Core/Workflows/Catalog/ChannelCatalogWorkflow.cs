@@ -4616,12 +4616,12 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                 actualCatalogItem.PackageLength.Should().Be(excelTable.Rows[0]["Package Length"].RoundValue(), "Package Length mismatch");
                 actualCatalogItem.PackageWidth.Should().Be(excelTable.Rows[0]["Package Width"].RoundValue(), "Package Width mismatch");
                 actualCatalogItem.PackageHeight.Should().Be(excelTable.Rows[0]["Package Height"].RoundValue(), "Package Height mismatch");
-                actualCatalogItem.PalletHeight.Should().Be(excelTable.Rows[0]["Pallet Height"].RoundValue(), "Pallet Height mismatch");
-                actualCatalogItem.PalletLength.Should().Be(excelTable.Rows[0]["Pallet Length"].RoundValue(), "Pallet Length mismatch");
-                actualCatalogItem.PalletWidth.Should().Be(excelTable.Rows[0]["Pallet Width"].RoundValue(), "Pallet Width mismatch");
-                actualCatalogItem.PalletUnitsPerLayer.Should().Be(excelTable.Rows[0]["Pallet Units / Layer"].RoundValue(), "Pallet Units / Layer mismatch");
-                actualCatalogItem.PalletLayerPerPallet.Should().Be(excelTable.Rows[0]["Pallet Layer / Pallet"].RoundValue(), "Pallet Layer / Pallet mismatch");
-                actualCatalogItem.PalletUnitsPerPallet.Should().Be(excelTable.Rows[0]["Pallet Units / Pallet"].RoundValue(), "Pallet Units / Pallet mismatch");
+                actualCatalogItem.PalletHeight.Should().Be(excelTable.Rows[0]["Pallet Height"].ToString(), "Pallet Height mismatch");
+                actualCatalogItem.PalletLength.Should().Be(excelTable.Rows[0]["Pallet Length"].ToString(), "Pallet Length mismatch");
+                actualCatalogItem.PalletWidth.Should().Be(excelTable.Rows[0]["Pallet Width"].ToString(), "Pallet Width mismatch");
+                actualCatalogItem.PalletUnitsPerLayer.Should().Be(excelTable.Rows[0]["Pallet Units / Layer"].ToString(), "Pallet Units / Layer mismatch");
+                actualCatalogItem.PalletLayerPerPallet.Should().Be(excelTable.Rows[0]["Pallet Layer / Pallet"].ToString(), "Pallet Layer / Pallet mismatch");
+                actualCatalogItem.PalletUnitsPerPallet.Should().Be(excelTable.Rows[0]["Pallet Units / Pallet"].ToString(), "Pallet Units / Pallet mismatch");
             }
         }
 
@@ -4643,12 +4643,12 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             string excelQuery = @"select [Region],[Country],[MPN],LOB,[Config Name],[Ship Weight],[Package Length],[Package Width],[Package Height],[Pallet Length],[Pallet Width],[Pallet Height],[Pallet Units / Layer],[Pallet Layer / Pallet],[Pallet Units / Pallet] FROM [B2B_Catalog_matching_table$] where [MPN] = '" + mfgNumber + "'";
             DataTable excelTable = UtilityMethods.GetDataFromExcel(@"PackagingData.xlsx", excelQuery);
 
-            actualCatalogItem.PalletLength.Should().Be(Convert.ToInt32(excelTable.Rows[0]["Pallet Length"]), "Pallet Length not found");
-            actualCatalogItem.PalletWidth.Should().Be(Convert.ToInt32(excelTable.Rows[0]["Pallet Width"]), "Pallet Width not found");
-            actualCatalogItem.PalletHeight.Should().Be(Convert.ToInt32(excelTable.Rows[0]["Pallet Height"]), "Pallet Height not found");
-            actualCatalogItem.PalletUnitsPerLayer.Should().Be(Convert.ToInt32(excelTable.Rows[0]["Pallet Units / Layer"]), "Pallet Units / Layer not found");
-            actualCatalogItem.PalletLayerPerPallet.Should().Be(Convert.ToInt32(excelTable.Rows[0]["Pallet Layer / Pallet"]), "Pallet Layer / Pallet not found");
-            actualCatalogItem.PalletUnitsPerPallet.Should().Be(Convert.ToInt32(excelTable.Rows[0]["Pallet Units / Pallet"]), "Pallet Units / Pallet not found");
+            actualCatalogItem.PalletLength.Should().Be(excelTable.Rows[0]["Pallet Length"].ToString(), "Pallet Length not found");
+            actualCatalogItem.PalletWidth.Should().Be(excelTable.Rows[0]["Pallet Width"].ToString(), "Pallet Width not found");
+            actualCatalogItem.PalletHeight.Should().Be(excelTable.Rows[0]["Pallet Height"].ToString(), "Pallet Height not found");
+            actualCatalogItem.PalletUnitsPerLayer.Should().Be(excelTable.Rows[0]["Pallet Units / Layer"].ToString(), "Pallet Units / Layer not found");
+            actualCatalogItem.PalletLayerPerPallet.Should().Be(excelTable.Rows[0]["Pallet Layer / Pallet"].ToString(), "Pallet Layer / Pallet not found");
+            actualCatalogItem.PalletUnitsPerPallet.Should().Be(excelTable.Rows[0]["Pallet Units / Pallet"].ToString(), "Pallet Units / Pallet not found");
 
         }
 
