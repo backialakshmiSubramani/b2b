@@ -4616,12 +4616,12 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                 actualCatalogItem.PackageLength.Should().Be(excelTable.Rows[0]["Package Length"].RoundValue(), "Package Length mismatch");
                 actualCatalogItem.PackageWidth.Should().Be(excelTable.Rows[0]["Package Width"].RoundValue(), "Package Width mismatch");
                 actualCatalogItem.PackageHeight.Should().Be(excelTable.Rows[0]["Package Height"].RoundValue(), "Package Height mismatch");
-                actualCatalogItem.PalletHeight.Should().Be(excelTable.Rows[0]["Pallet Height"].ToString(), "Pallet Height mismatch");
-                actualCatalogItem.PalletLength.Should().Be(excelTable.Rows[0]["Pallet Length"].ToString(), "Pallet Length mismatch");
-                actualCatalogItem.PalletWidth.Should().Be(excelTable.Rows[0]["Pallet Width"].ToString(), "Pallet Width mismatch");
-                actualCatalogItem.PalletUnitsPerLayer.Should().Be(excelTable.Rows[0]["Pallet Units / Layer"].ToString(), "Pallet Units / Layer mismatch");
-                actualCatalogItem.PalletLayerPerPallet.Should().Be(excelTable.Rows[0]["Pallet Layer / Pallet"].ToString(), "Pallet Layer / Pallet mismatch");
-                actualCatalogItem.PalletUnitsPerPallet.Should().Be(excelTable.Rows[0]["Pallet Units / Pallet"].ToString(), "Pallet Units / Pallet mismatch");
+                actualCatalogItem.PalletHeight.Should().Be(excelTable.Rows[0]["Pallet Height"].RoundValue().ToString(), "Pallet Height mismatch");
+                actualCatalogItem.PalletLength.Should().Be(excelTable.Rows[0]["Pallet Length"].RoundValue().ToString(), "Pallet Length mismatch");
+                actualCatalogItem.PalletWidth.Should().Be(excelTable.Rows[0]["Pallet Width"].RoundValue().ToString(), "Pallet Width mismatch");
+                actualCatalogItem.PalletUnitsPerLayer.Should().Be(excelTable.Rows[0]["Pallet Units / Layer"].RoundValue().ToString(), "Pallet Units / Layer mismatch");
+                actualCatalogItem.PalletLayerPerPallet.Should().Be(excelTable.Rows[0]["Pallet Layer / Pallet"].RoundValue().ToString(), "Pallet Layer / Pallet mismatch");
+                actualCatalogItem.PalletUnitsPerPallet.Should().Be(excelTable.Rows[0]["Pallet Units / Pallet"].RoundValue().ToString(), "Pallet Units / Pallet mismatch");
             }
         }
 
