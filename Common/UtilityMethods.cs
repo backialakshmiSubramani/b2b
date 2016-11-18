@@ -1,23 +1,18 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using OpenQA.Selenium;
+﻿using OpenQA.Selenium;
+using OpenQA.Selenium.Chrome;
+using OpenQA.Selenium.Edge;
+using OpenQA.Selenium.IE;
+using OpenQA.Selenium.Remote;
 using OpenQA.Selenium.Support.UI;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Data;
 using System.Data.OleDb;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
-using System.Xml;
-using System.Xml.Serialization;
-using OpenQA.Selenium.Remote;
-using OpenQA.Selenium.Chrome;
-using System.Configuration;
-using OpenQA.Selenium.IE;
-using OpenQA.Selenium.Edge;
 
 namespace Modules.Channel.B2B.Common
 {
@@ -425,7 +420,7 @@ namespace Modules.Channel.B2B.Common
                     options.AddArguments("--start-maximized");
                     webDriver = new ChromeDriver(options);
                     break;
-                case BrowserName.InternetExplorer:
+                case BrowserName.InternetExplorer:                    
                     webDriver = new InternetExplorerDriver();
                     webDriver.Manage().Window.Maximize();
                     break;
@@ -435,6 +430,13 @@ namespace Modules.Channel.B2B.Common
             }
 
             return webDriver;
+        }
+
+        public static void SelectOptionFromDDL(IWebDriver webDriver, IWebElement webElement, string xPath)
+        {
+            UtilityMethods.ClickElement(webDriver, webElement);
+            IWebElement textElement = webElement.FindElement(By.XPath(xPath));
+            UtilityMethods.ClickElement(webDriver, textElement);
         }
     }
 }
