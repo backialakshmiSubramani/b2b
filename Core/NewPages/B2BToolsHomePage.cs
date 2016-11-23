@@ -35,11 +35,6 @@ namespace Modules.Channel.B2B.Core.NewPages
         public B2BToolsHomePage(IWebDriver webDriver) : base(ref webDriver)
         {
             this.webDriver = webDriver;
-            //populate the following variables with the appropriate value
-            //Name = "";
-            //Url = "";
-            //ProductUnit = "";
-
         }
 
         private SelectElement EnvironmentList

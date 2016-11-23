@@ -140,8 +140,6 @@ namespace Modules.Channel.B2B.Core.NewPages
 
         public string PublishCatalog(B2BEnvironment b2BEnvironment, string profileName, string identityName, CatalogType catalogType)
         {
-           // webDriver.Navigate().GoToUrl(ConfigurationReader.GetValue("TestHarnessPageUrl") + ((b2BEnvironment == B2BEnvironment.Production) ? "P" : "U"));
-           // SelectEnvironmentProdOrPrev(b2BEnvironment);
             SelectOptionFromDropDown(SelectCustomerProfileDiv, profileName);
             SelectOptionFromDropDown(SelectProfileIdentityDiv, identityName.ToUpper());
 
