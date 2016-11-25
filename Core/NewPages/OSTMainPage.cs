@@ -113,7 +113,7 @@ namespace Modules.Channel.B2B.Core.NewPages
         public void GotoStandardConfigPage()
         {
             StandardConfigurationsLink.SendKeys(Keys.Enter);
-            webDriver.WaitForPageLoadNew(TimeSpan.FromSeconds(60));          
+            webDriver.WaitForPageLoadNew(TimeSpan.FromSeconds(90));          
         }
     }
 }

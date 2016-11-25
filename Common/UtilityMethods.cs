@@ -77,6 +77,7 @@ namespace Modules.Channel.B2B.Common
 
         public static void WaitForPageLoadNew(this IWebDriver webDriver, TimeSpan timeSpan)
         {
+            Thread.Sleep(5000);
             IWait<IWebDriver> wait = new OpenQA.Selenium.Support.UI.WebDriverWait(webDriver, timeSpan);
 
             wait.Until(driver1 => ((IJavaScriptExecutor)webDriver).ExecuteScript("return document.readyState").Equals("complete"));
