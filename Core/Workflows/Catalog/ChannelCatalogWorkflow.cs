@@ -5561,12 +5561,18 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             if (isTestProfile)
             {
                 if (!b2BProfileSettingsGeneralPage.TestProfileCheckbox.Selected)
+                {
                     b2BProfileSettingsGeneralPage.TestProfileCheckbox.Click();
+                    b2BProfileSettingsGeneralPage.UpdateProfileButton.Click();
+                }
             }
             else
             {
                 if (b2BProfileSettingsGeneralPage.TestProfileCheckbox.Selected)
+                {
                     b2BProfileSettingsGeneralPage.TestProfileCheckbox.Click();
+                    b2BProfileSettingsGeneralPage.UpdateProfileButton.Click();
+                }
             }
 
             b2BManageProfileIdentitiesPage.BuyerCatalogTab.Click();

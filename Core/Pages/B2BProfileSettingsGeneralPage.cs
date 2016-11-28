@@ -138,7 +138,13 @@ namespace Modules.Channel.B2B.Core.Pages
                 return webDriver.FindElement(By.Id("ContentPageHolder_btnCreateProfile"));
             }
         }
-
+        public IWebElement UpdateProfileButton
+        {
+            get
+            {
+                return webDriver.FindElement(By.Id("ContentPageHolder_lnkSaveProfileChanges"));
+            }
+        }
         private IWebElement AffinityAccountId
         {
             get
