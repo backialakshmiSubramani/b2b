@@ -88,15 +88,7 @@ namespace Modules.Channel.B2B.Core.NewPages
                 return webDriver.FindElement(AdeptBy.Attribute(ElementTag.input, "value", "Original"));
             }
         }
-
-        /// <summary>
-        /// Delta catalog check box
-        /// </summary>
-        public IWebElement LiveCatalogCheckbox
-        {
-            get { return webDriver.FindElement(AdeptBy.Attribute(ElementTag.input, "value", "Live")); }
-        }
-
+        
         /// <summary>
         /// Selects the status from the Select drop down
         /// </summary>
@@ -159,14 +151,12 @@ namespace Modules.Channel.B2B.Core.NewPages
             SelectOptionFromDropDown(SelectCustomerNameSpan, profileName);
             SelectOptionFromDropDown(SelectIdentityNameSpan, identityName.ToUpper());
 
-            SelectOriginalOrDeltaCheckBox(catalogType);
-          //  UncheckLiveCheckboxForPrev();
+            SelectOriginalOrDeltaCheckBox(catalogType);          
             SelectCatalogStatus(UtilityMethods.ConvertToString(catalogStatus));
             SearchRecordsLink.Click();
             CatalogsTable.WaitForElementVisible(TimeSpan.FromSeconds(30));
             WaitForCatalogInSearchResult(anyTimeAfter.ConvertToUtcTimeZone(), catalogStatus);
         }
-
         public void RetrieveCatalogSearchResult(out string lastStatusDate, out string type, out string status)
         {
             lastStatusDate = CatalogsTable.GetCellValue(1, "Last Status Date");
@@ -231,17 +221,6 @@ namespace Modules.Channel.B2B.Core.NewPages
                 OriginalCatalogCheckbox.Click();
             else if (DeltaCatalogCheckbox.Selected != (catalogType == CatalogType.Delta))
                 DeltaCatalogCheckbox.Click();
-        }
-
-        private void UncheckLiveCheckboxForPrev()
-        {
-            if (LiveCatalogCheckbox.Selected)
-            {
-                LiveCatalogCheckbox.Clear();
-
-                LiveCatalogCheckbox.SendKeys(Keys.Enter);
-               // javaScriptExecutor.ExecuteScript("arguments[0].click();", LiveCatalogCheckbox);
-            }
         }
     }
 }
