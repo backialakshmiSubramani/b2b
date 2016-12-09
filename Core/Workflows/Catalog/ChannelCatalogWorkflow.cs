@@ -3266,7 +3266,10 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             {
                 b2BBuyerCatalogPage.DeltaFrequencyWeeks.Select().SelectByValue(frequency);
             }
-            //b2BBuyerCatalogPage.SetTextBoxValue(b2BBuyerCatalogPage.DeltaCatalogEndDate, endDate);
+            if (b2BBuyerCatalogPage.DeltaCatalogEndDate.Enabled)
+            {
+                b2BBuyerCatalogPage.SetTextBoxValue(b2BBuyerCatalogPage.DeltaCatalogEndDate, endDate);
+            }
             b2BBuyerCatalogPage.DeltaTimeOfSend.Select().SelectByValue(timeOfSend);
         }
 
