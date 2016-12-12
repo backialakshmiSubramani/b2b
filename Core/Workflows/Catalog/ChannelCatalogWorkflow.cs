@@ -2740,6 +2740,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             b2BBuyerCatalogPage.DeltaTimeOfSend.Select().SelectByValue("8");
 
             b2BBuyerCatalogPage.UpdateButton.Click();
+            WaitForPageRefresh();
 
             return VerifyAuditHistoryRow(oldValue, newValue, originalTimeOfSendAuditHistoryProperty);
         }
@@ -3812,6 +3813,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
 
             newValue = b2BBuyerCatalogPage.BcpchkCrossRefernceStdUpdate.Selected.ToString();
             b2BBuyerCatalogPage.UpdateButton.Click();
+            WaitForPageRefresh();
             return VerifyAuditHistoryRow(oldValue, newValue, crossrefstdAuditHistoryProperty);
 
         }
@@ -3850,6 +3852,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
 
             newValue = b2BBuyerCatalogPage.BcpchkCrossRefernceSnpUpdate.Selected.ToString();
             b2BBuyerCatalogPage.UpdateButton.Click();
+            WaitForPageRefresh();
             return VerifyAuditHistoryRow(oldValue, newValue, crossrefsnpAuditHistoryProperty);
 
         }
@@ -3888,6 +3891,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
 
             newValue = b2BBuyerCatalogPage.BcpchkCrossRefernceSysUpdate.Selected.ToString();
             b2BBuyerCatalogPage.UpdateButton.Click();
+            WaitForPageRefresh();
             return VerifyAuditHistoryRow(oldValue, newValue, crossrefsysAuditHistoryProperty);
 
         }
@@ -3957,6 +3961,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             {
                 b2BBuyerCatalogPage.BcpchkCrossRefernceStdUpdate.Click();
                 b2BBuyerCatalogPage.UpdateButton.Click();
+                WaitForPageRefresh();
                 b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
                 b2BBuyerCatalogPage.AutomatedBhcCatalogProcessingRules.Click();
                 if (!b2BBuyerCatalogPage.BcpchkCrossRefernceStdUpdate.Selected)
@@ -3968,6 +3973,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
 
             b2BBuyerCatalogPage.BcpchkCrossRefernceStdUpdate.Click();
             b2BBuyerCatalogPage.UpdateButton.Click();
+            WaitForPageRefresh();
             b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
             b2BBuyerCatalogPage.AutomatedBhcCatalogProcessingRules.Click();
             if (b2BBuyerCatalogPage.BcpchkCrossRefernceStdUpdate.Selected)
@@ -4051,6 +4057,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
 
             b2BBuyerCatalogPage.BcpchkCrossRefernceSysUpdate.Click();
             b2BBuyerCatalogPage.UpdateButton.Click();
+            WaitForPageRefresh();
             b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
             b2BBuyerCatalogPage.AutomatedBhcCatalogProcessingRules.Click();
             if (b2BBuyerCatalogPage.BcpchkCrossRefernceSysUpdate.Selected)
@@ -4901,6 +4908,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             }
             }
             UtilityMethods.ClickElement(webDriver, b2BBuyerCatalogPage.UpdateButton);
+            WaitForPageRefresh();
             UtilityMethods.ClickElement(webDriver, b2BBuyerCatalogPage.AutomatedBhcCatalogProcessingRules);
             b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
             b2BBuyerCatalogPage.EnableCatalogAutoGeneration.WaitForElementDisplayed(TimeSpan.FromSeconds(30));
