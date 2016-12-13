@@ -1646,6 +1646,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                 b2BAutoCatalogListPage.DeltaCatalogCheckbox.Click();
 
             b2BAutoCatalogListPage.SelectTheCustomer(profile);
+            b2BAutoCatalogListPage.SelectTheIdentity(identity);
             b2BAutoCatalogListPage.SelectTheStatus(CatalogStatus.Published.ToString());
             b2BAutoCatalogListPage.SearchRecordsLink.Click();
             b2BAutoCatalogListPage.CatalogsTable.WaitForElementVisible(TimeSpan.FromSeconds(30));
@@ -1955,12 +1956,14 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             {
                 UtilityMethods.ClickElement(webDriver, b2BBuyerCatalogPage.BcpchkRemoveItemsWithLTAbove3Days);
                 UtilityMethods.ClickElement(webDriver, b2BBuyerCatalogPage.UpdateButton);
+                WaitForPageRefresh();
                 return true;
             }
             else if (!b2BBuyerCatalogPage.BcpchkRemoveItemsWithLTAbove3Days.Selected)
             {
                 UtilityMethods.ClickElement(webDriver, b2BBuyerCatalogPage.BcpchkRemoveItemsWithLTAbove3Days);
                 UtilityMethods.ClickElement(webDriver, b2BBuyerCatalogPage.UpdateButton);
+                WaitForPageRefresh();
                 return true;
             }
             else
@@ -3500,6 +3503,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             {
                 b2BBuyerCatalogPage.BcpchkSysCatalogCheckbox.Click();
                 b2BBuyerCatalogPage.UpdateButton.Click();
+                WaitForPageRefresh();
                 b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
                 b2BBuyerCatalogPage.AutomatedBhcCatalogProcessingRules.Click();
                 b2BBuyerCatalogPage.EditScheduleButton.Click();
@@ -3513,6 +3517,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             {
                 b2BBuyerCatalogPage.BcpchkSysCatalogCheckbox.Click();
                 b2BBuyerCatalogPage.UpdateButton.Click();
+                WaitForPageRefresh();
                 b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
                 b2BBuyerCatalogPage.AutomatedBhcCatalogProcessingRules.Click();
                 b2BBuyerCatalogPage.EditScheduleButton.Click();
@@ -5011,6 +5016,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                 b2BAutoCatalogListPage.DeltaCatalogCheckbox.Click();
 
             b2BAutoCatalogListPage.SelectTheCustomer(profile);
+            b2BAutoCatalogListPage.SelectTheIdentity(identity);
             b2BAutoCatalogListPage.SelectTheStatus(status.ToString());
             if (b2BAutoCatalogListPage.LiveChk.Selected)
                 b2BAutoCatalogListPage.LiveChk.Click();

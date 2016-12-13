@@ -994,6 +994,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             {
                 UtilityMethods.ClickElement(webDriver, b2BChannelUx.PreviewEnvRadioButton);
             }
+            WaitForPageRefresh();
             b2BChannelUx.SelectOption(b2BChannelUx.SelectCustomerProfileDiv, profileName.ToUpper());
             b2BChannelUx.SelectOption(b2BChannelUx.SelectProfileIdentityDiv, identityName.ToUpper());
 
