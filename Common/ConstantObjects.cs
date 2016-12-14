@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.ComponentModel;
 
 namespace Modules.Channel.B2B.Common
@@ -34,12 +30,12 @@ namespace Modules.Channel.B2B.Common
         public long scheduleId;
     }
 
-    public enum CatalogItemType
+    public enum CatalogItemType : int
     {
         ConfigWithDefaultOptions = 0,
         SNP = 2,
         Systems = 3,
-        ConfigWithUpsellDownsell = 1 
+        ConfigWithUpsellDownsell = 1
     }
 
     public enum CatalogOperation
@@ -52,7 +48,7 @@ namespace Modules.Channel.B2B.Common
         None=0,
         LeadTimeOff=1,
         LeadTimeON=2,
-        DuplicateBPN=3, 
+        DuplicateBPN=3,
         NullBPN=4,
         WithDefOptions=5,
         SPL=6
@@ -87,7 +83,7 @@ namespace Modules.Channel.B2B.Common
         EMEA,
         APJ
     }
-    
+
     public enum CatalogStatus
     {
         [Description("Created")]
@@ -103,7 +99,7 @@ namespace Modules.Channel.B2B.Common
         [Description("Created-Instant")]
         CreatedInstant,
         [Description("Failed-Instant")]
-        FailedInstant     
+        FailedInstant
     }
 
     public enum CRTStatus
@@ -140,7 +136,7 @@ namespace Modules.Channel.B2B.Common
     }
 
     public enum RequestorValidation
-    { 
+    {
         On = 0,
         Off = 1
     }

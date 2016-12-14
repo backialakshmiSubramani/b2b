@@ -1,11 +1,8 @@
-﻿using System;
+﻿using Modules.Channel.B2B.Common;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Serialization;
-using Modules.Channel.B2B.Common;
 
 namespace CatalogTests.Common.CatalogXMLTemplates
 {
@@ -325,6 +322,12 @@ namespace CatalogTests.Common.CatalogXMLTemplates
         public string PalletUnitsPerPallet { get; set; }
 
         //For SPL additional Nodes
+        [XmlElement("AssociatedSNPSkus")]
+        public string AssociatedSNPSkus { get; set; }
+
+        [XmlElement("AssociatedServiceSkus")]
+        public string AssociatedServiceSkus { get; set; }
+
         [XmlElement("BoxDimensions")]
         public string BoxDimensions { get; set; }
 
@@ -403,8 +406,8 @@ namespace CatalogTests.Common.CatalogXMLTemplates
         [XmlIgnore]
         public string ImageList;
 
-        [XmlElement("Images")]
-        public string Images { get; set; }
+        //[XmlElement("Images")]
+        //public string Images { get; set; }
         //public string Images
         //{
         //    get { return new XmlDocument().CreateCDataSection(ImageList).Value; }
@@ -429,8 +432,8 @@ namespace CatalogTests.Common.CatalogXMLTemplates
         [XmlIgnore]
         public string TechSpecList;
 
-        [XmlElement("TechSpec")]
-        public string TechSpec { get; set; }
+        //[XmlElement("TechSpec")]
+        //public string TechSpec { get; set; }
 
         //public string TechSpec
         //{
@@ -441,12 +444,6 @@ namespace CatalogTests.Common.CatalogXMLTemplates
         //    get { return new XmlDocument().CreateCDataSection(TechSpecList).Value; }
         //    set { TechSpecList = (value != null) ? value.ToString() : null; }
         //}
-
-        [XmlElement("AssociatedSNPSkus")]
-        public string AssociatedSNPSkus { get; set; }
-
-        [XmlElement("AssociatedServiceSkus")]
-        public string AssociatedServiceSkus { get; set; }
 
         //SPL End
 
@@ -480,13 +477,13 @@ namespace CatalogTests.Common.CatalogXMLTemplates
 
         [XmlElement("ExpensedTotal")]
         public decimal ExpensedTotal { get; set; }
-        
+
         [XmlElement("Frequency")]
         public string Frequency { get; set; }
-        
+
         [XmlElement("LeaseTerms")]
         public string LeaseTerms { get; set; }
-        
+
         [XmlElement("LRF")]
         public decimal LRF { get; set; }
     }
@@ -506,28 +503,28 @@ namespace CatalogTests.Common.CatalogXMLTemplates
 
         [XmlElement("DefaultOptionId")]
         public string DefaultOptionId { get; set; }
-        
+
         [XmlElement("DefaultOptionPrice")]
         public decimal DefaultOptionPrice { get; set; }
-        
+
         [XmlElement("IsHiddenOptionExists")]
         public string IsHiddenOptionExists { get; set; }
-        
+
         [XmlElement("IsMultiQtyOptionExists")]
         public string IsMultiQtyOptionExists { get; set; }
-        
+
         [XmlElement("IsRequiredOptionExists")]
         public string IsRequiredOptionExists { get; set; }
-        
+
         [XmlElement("ModuleDesc")]
         public string ModuleDesc { get; set; }
-        
+
         [XmlElement("ModuleId")]
         public int ModuleId { get; set; }
-        
+
         [XmlElement("MultiSelect")]
         public bool MultiSelect { get; set; }
-        
+
         [XmlElement("Required")]
         public bool Required { get; set; }
     }
@@ -544,28 +541,28 @@ namespace CatalogTests.Common.CatalogXMLTemplates
     {
         [XmlElement("MultiQtyDets")]
         public MultiQtyDets MultiQtyDets;
-        
+
         [XmlElement("OptionSkuList")]
         public OptionSkuList OptionSkuList;
-        
+
         [XmlElement("DeltaPrice")]
         public decimal DeltaPrice { get; set; }
-        
+
         [XmlElement("FinalPrice")]
         public decimal FinalPrice { get; set; }
 
         [XmlElement("IsMultiQtyOption")]
         public string IsMultiQtyOption { get; set; }
-        
+
         [XmlElement("OptionDesc")]
         public string OptionDesc { get; set; }
-        
+
         [XmlElement("OptionId")]
         public string OptionId { get; set; }
-        
+
         [XmlAttribute("Type")]
         public string OptionType { get; set; }
-        
+
         [XmlElement("Selected")]
         public bool Selected { get; set; }
     }
@@ -575,10 +572,10 @@ namespace CatalogTests.Common.CatalogXMLTemplates
     {
         [XmlElement("OptionValue")]
         public decimal OptionValue { get; set; }
-        
+
         [XmlElement("Quantity")]
         public int Quantity { get; set; }
-        
+
         [XmlElement("UnitPrice")]
         public decimal UnitPrice { get; set; }
     }
@@ -595,13 +592,13 @@ namespace CatalogTests.Common.CatalogXMLTemplates
     {
         [XmlElement("OptionId")]
         public string OptionId { get; set; }
-        
+
         [XmlElement("SkuDescription")]
         public string SkuDescription { get; set; }
-        
+
         [XmlElement("SkuId")]
         public string SkuId { get; set; }
-        
+
         [XmlElement("SkuPrice")]
         public decimal SkuPrice { get; set; }
     }

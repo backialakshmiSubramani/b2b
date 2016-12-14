@@ -11,6 +11,7 @@ using System.Data;
 using System.Data.OleDb;
 using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading;
 
@@ -226,6 +227,35 @@ namespace Modules.Channel.B2B.Common
             return result;
         }
 
+        public static bool CompareActualAndExpectedValues<T,K>(
+            T sourceElement,
+            K expected,
+            Expression<Func<T, object>> sourceExpression,
+            Expression<Func<K, object>> expectedExpression = null)
+        {
+            MemberInfo expectedMemberInfo, actualMemberInfo;
+            expectedMemberInfo = actualMemberInfo = GetMemberInfoFrom(sourceExpression);
+            if (expectedExpression != null)
+            {
+                expectedMemberInfo = GetMemberInfoFrom(expectedExpression);
+            }
+
+            var actualValue = actualMemberInfo.GetValue(sourceElement);
+            var expectedValue = expectedMemberInfo.GetValue(expected);
+
+            if (actualMemberInfo.GetMemberType() == typeof(string))
+            {
+                actualValue = actualValue.ToString().Trim() ?? "";
+                expectedValue = expectedValue.ToString().Trim() ?? "";
+            }
+
+            bool result = actualValue.Equals(expectedValue);
+            if (!result)
+                Console.WriteLine(string.Format("[FieldName]: {0} ---- [Actual]: {1}, [Expected]: {2} ---- [Match]: {3}", actualMemberInfo.Name, actualValue, expectedValue, result));
+
+            return result;
+        }
+
         public static bool CompareValues<T>(string fieldName, T actualValue, T expectedValue, Computation computation = Computation.EqualTo) where T : IComparable
         {
             bool result = false;
@@ -365,7 +395,7 @@ namespace Modules.Channel.B2B.Common
                 columnIndex += 2;
             else if (columnIndex >= 7)
                 columnIndex += 3;
-            
+
             string cellValue = tableElement.FindElement(By.CssSelector("tbody tr:nth-of-type(" + rowIndex + ") td:nth-of-type(" + columnIndex + ")")).Text;
 
             return cellValue;
@@ -421,7 +451,7 @@ namespace Modules.Channel.B2B.Common
                     options.AddArguments("--start-maximized");
                     webDriver = new ChromeDriver(options);
                     break;
-                case BrowserName.InternetExplorer:                    
+                case BrowserName.InternetExplorer:
                     webDriver = new InternetExplorerDriver();
                     webDriver.Manage().Window.Maximize();
                     break;
@@ -438,6 +468,53 @@ namespace Modules.Channel.B2B.Common
             UtilityMethods.ClickElement(webDriver, webElement);
             IWebElement textElement = webElement.FindElement(By.XPath(xPath));
             UtilityMethods.ClickElement(webDriver, textElement);
+        }
+
+        #region Private Methods
+
+        private static MemberInfo GetMemberInfoFrom<T>(Expression<Func<T, object>> sourceExpression)
+        {
+            var lambda = sourceExpression as LambdaExpression;
+            MemberExpression memberExpression;
+            if (lambda.Body is UnaryExpression)
+            {
+                var unaryExpression = lambda.Body as UnaryExpression;
+                memberExpression = unaryExpression.Operand as MemberExpression;
+            }
+            else
+            {
+                memberExpression = lambda.Body as MemberExpression;
+            }
+            return memberExpression.Member;
+        }
+
+        #endregion Private Methods
+    }
+
+    public static class MemberInfoExtension
+    {
+        public static object GetValue(this MemberInfo memberInfo, object objInstance)
+        {
+            if (memberInfo is FieldInfo)
+            {
+                var fieldInfo = memberInfo as FieldInfo;
+                return fieldInfo.GetValue(objInstance);
+            }
+
+            var propertyInfo = memberInfo as PropertyInfo;
+            return propertyInfo.GetValue(objInstance);
+        }
+
+        public static Type GetMemberType(this MemberInfo memberInfo)
+        {
+            if (memberInfo is FieldInfo)
+            {
+                var fieldInfo = memberInfo as FieldInfo;
+                return fieldInfo.FieldType;
+            }
+
+            var propertyInfo = memberInfo as PropertyInfo;
+            return propertyInfo.PropertyType;
         }
     }
 }
