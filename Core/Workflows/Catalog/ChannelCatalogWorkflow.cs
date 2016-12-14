@@ -555,6 +555,8 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                 b2BBuyerCatalogPage.BuyerCatalogFirstIdentity.Click();
             if (!b2BBuyerCatalogPage.CatalogConfigStandard.Selected)
                 b2BBuyerCatalogPage.CatalogConfigStandard.Click();
+            var originalTimeOfSend = (centralTime.Hour + 2).ToString();
+            b2BBuyerCatalogPage.OriginalTimeOfSend.Select().SelectByValue(originalTimeOfSend);
             b2BBuyerCatalogPage.UpdateButton.Click();
             WaitForPageRefresh();
             b2BManageProfileIdentitiesPage.BuyerCatalogTab.Click();
@@ -577,7 +579,8 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             if (!b2BBuyerCatalogPage.CatalogConfigStandard.Selected)
                 b2BBuyerCatalogPage.CatalogConfigStandard.Click();
             b2BBuyerCatalogPage.CatalogConfigUpsellDownSell.Click();
-            var originalTimeOfSend = centralTime.Hour.ToString();
+            //var originalTimeOfSend = centralTime.Hour.ToString();
+            originalTimeOfSend = (centralTime.Hour + 2).ToString();
             if (originalTimeOfSend == "0")
             {
                 b2BBuyerCatalogPage.SetTextBoxValue(b2BBuyerCatalogPage.OriginalCatalogStartDate, DateTime.Now.AddDays(1).ToString(MMDDYYYY));
@@ -2702,14 +2705,17 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                 b2BBuyerCatalogPage.EnableOriginalCatalog.Click();
 
 
-            b2BBuyerCatalogPage.OriginalTimeOfSend.Select().SelectByValue("8");
+            DateTime currentCstTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("Central Standard Time"));
 
+            string originalOldHrs = (currentCstTime.Hour + 1).ToString();
+            b2BBuyerCatalogPage.OriginalTimeOfSend.Select().SelectByValue(originalOldHrs);
             var oldValue1 = b2BBuyerCatalogPage.OriginalTimeOfSend.GetAttribute("value").ToString();
             oldValue = "0" + oldValue1 + ":00:00";
             if (!b2BBuyerCatalogPage.EnableDeltaCatalog.Selected)
                 b2BBuyerCatalogPage.EnableDeltaCatalog.Click();
 
-            b2BBuyerCatalogPage.DeltaTimeOfSend.Select().SelectByValue("9");
+            string deltaOldHrs = (currentCstTime.Hour + 2).ToString();
+            b2BBuyerCatalogPage.DeltaTimeOfSend.Select().SelectByValue(deltaOldHrs);
 
             b2BBuyerCatalogPage.UpdateButton.Click();
 
@@ -2730,8 +2736,8 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             if (!b2BBuyerCatalogPage.EnableOriginalCatalog.Selected)
                 b2BBuyerCatalogPage.EnableOriginalCatalog.Click();
 
-
-            b2BBuyerCatalogPage.OriginalTimeOfSend.Select().SelectByValue("7");
+            string originalNewHrs = (currentCstTime.Hour + 3).ToString();
+            b2BBuyerCatalogPage.OriginalTimeOfSend.Select().SelectByValue(originalNewHrs);
 
             var newValue1 = b2BBuyerCatalogPage.OriginalTimeOfSend.GetAttribute("value").ToString();
 
@@ -2739,8 +2745,8 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             if (!b2BBuyerCatalogPage.EnableDeltaCatalog.Selected)
                 b2BBuyerCatalogPage.EnableDeltaCatalog.Click();
 
-
-            b2BBuyerCatalogPage.DeltaTimeOfSend.Select().SelectByValue("8");
+            string deltaNewHrs = (currentCstTime.Hour + 4).ToString();
+            b2BBuyerCatalogPage.DeltaTimeOfSend.Select().SelectByValue(deltaNewHrs);
 
             b2BBuyerCatalogPage.UpdateButton.Click();
             WaitForPageRefresh();
@@ -2852,7 +2858,9 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             b2BBuyerCatalogPage.CatalogConfigStandard.Click();
             b2BBuyerCatalogPage.SetTextBoxValue(b2BBuyerCatalogPage.OriginalCatalogStartDate,
                 DateTime.Now.AddDays(1).ToString(MMDDYYYY));
-            b2BBuyerCatalogPage.OriginalTimeOfSend.Select().SelectByValue("8");
+            DateTime currentCstTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("Central Standard Time"));
+            string hrs = (currentCstTime.Hour + 1).ToString();
+            b2BBuyerCatalogPage.OriginalTimeOfSend.Select().SelectByValue(hrs);
             UtilityMethods.ClickElement(webDriver, b2BBuyerCatalogPage.UpdateButton);
             return VerifyAuditHistoryRow(oldValue, newValue, autoBhcAuditHistoryProperty);
         }
@@ -4302,10 +4310,11 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         }
         public void VerifyAuditHistoryRecordsForPackageUpload(B2BEnvironment b2BEnvironment, string fileToUpload, string message)
         {
+            DateTime timeBeforeUpload = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "Central Standard Time");
             B2BChannelUx b2BChannelUx = new B2BChannelUx(webDriver);
             b2BChannelUx.OpenAutoPackageUploadPage(b2BEnvironment);
             b2BCatalogPackagingDataUploadPage = new B2BCatalogPackagingDataUploadPage(webDriver);
-            DateTime timeBeforeUpload = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTime.Now, "Central Standard Time");
+            
             b2BCatalogPackagingDataUploadPage.UploadExcelFile(fileToUpload);
             b2BCatalogPackagingDataUploadPage.UploadMessage.WaitForElementDisplayed(TimeSpan.FromSeconds(10));
             b2BCatalogPackagingDataUploadPage.UploadMessage.Text.Trim().Equals(message);
