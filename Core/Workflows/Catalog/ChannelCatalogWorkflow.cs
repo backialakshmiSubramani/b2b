@@ -11,10 +11,15 @@ using OpenQA.Selenium.Support.UI;
 using Dell.Adept.UI.Web.Support.Extensions.WebDriver;
 using System.Data;
 using System.Configuration;
-using CatalogTests.Common.CatalogXMLTemplates;
 using Modules.Channel.Utilities;
 using System.Security.Principal;
 using System.IO;
+using System.Text.RegularExpressions;
+using System.ServiceModel;
+using Modules.Channel.ATSServiceReferenceForSTDandSYS;
+using System.Net;
+using System.Text;
+using Modules.Channel.B2B.CatalogXMLTemplates;
 
 namespace Modules.Channel.B2B.Core.Workflows.Catalog
 {
@@ -1725,7 +1730,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                 if (catalogName.Contains('('))
                 {
                     catalogName = catalogName.Split(' ')[0];
-            }
+                }
             }
             if (customerName != "")
             { b2BAutoCatalogListPage.SelectTheCustomer(customerName); }
@@ -2958,7 +2963,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             string[] SubHeaderStringValue = SubHeader.Split(',');
             string[] HeaderStringvalue = Headervalue.ToString().Split(',');
             string[] SubRow1StringValue = SubRowvalue1.ToString().Split(new string[] { " ," }, StringSplitOptions.None);
-            
+
             int quoteidlength = SubRow1StringValue[4].Length;
             string quoteid = SubRow1StringValue[4].Substring(4, quoteidlength - 4);
 
@@ -2980,7 +2985,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                 var subHeaderTestdata = SubHeaderStringValue[j];
                 //var subRow1Testdata = SubRow1StringValue[j].Replace('_', ',');
                 var subRow1Testdata = SubRow1StringValue[j];
-                
+
                 if (subHeaderTable1fromLocator.Equals(subHeaderTestdata) && subRowTable1fromLocator.Equals(subRow1Testdata))
                 {
                     subHeaderRows++;
@@ -3009,11 +3014,11 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                 }
                 else
                 {
-                if (HeaderRowTextfromLocator.ToUpper().Contains(HeaderRowTestData.ToUpper()))
-                {
-                    HeaderRowsCount++;
+                    if (HeaderRowTextfromLocator.ToUpper().Contains(HeaderRowTestData.ToUpper()))
+                    {
+                        HeaderRowsCount++;
+                    }
                 }
-            }
             }
             // Sub Header and Sub Rows Table1
             if (Headercount.Equals(8) && HeaderRowsCount.Equals(8) && subHeaderRows.Equals(8))
@@ -3465,9 +3470,9 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                     break;
                 var auditHistoryRow = b2BBuyerCatalogPage.AuditHistoryRows.FirstOrDefault(r => r.FindElements(By.TagName("td"))[0].Text.Contains(fieldNames[i].ToString()));
                 var oldv = auditHistoryRow.FindElements(By.TagName("td"))[1].Text;
-                
+
                 var newv = auditHistoryRow.FindElements(By.TagName("td"))[2].Text;
-                
+
                 var oldValue = oldValues[fieldNames[i].ToString()];
                 var newValue = newValues[fieldNames[i].ToString()];
                 matchFlag &= (UtilityMethods.CompareValues<string>(fieldNames[i].ToString(), oldValue.ToUpperInvariant(), oldv.ToUpperInvariant()));
@@ -3806,7 +3811,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             GoToBuyerCatalogTab(environment, profile);
             b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
             oldValue = b2BBuyerCatalogPage.BcpchkCrossRefernceStdUpdate.Selected.ToString();
-            
+
             b2BBuyerCatalogPage.EditScheduleButton.Click();
             if (!b2BBuyerCatalogPage.EnableOriginalCatalog.Selected)
                 b2BBuyerCatalogPage.EnableOriginalCatalog.Click();
@@ -3816,7 +3821,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                 DateTime.Now.AddDays(1).ToString(MMDDYYYY));
             b2BBuyerCatalogPage.SetTextBoxValue(b2BBuyerCatalogPage.DeltaCatalogStartDate,
                     DateTime.Now.AddDays(2).ToString(MMDDYYYY));
-            
+
             b2BBuyerCatalogPage.BcpchkCrossRefernceStdUpdate.Click();
             if (b2BBuyerCatalogPage.BcpchkCrossRefernceStdUpdate.Selected)
             {
@@ -4012,8 +4017,8 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             {
                 b2BBuyerCatalogPage.CatalogConfigSnP.Click();
             }
-           
-            
+
+
             if (!b2BBuyerCatalogPage.BcpchkCrossRefernceSnpUpdate.Selected)
             {
                 b2BBuyerCatalogPage.BcpchkCrossRefernceSnpUpdate.Click();
@@ -4289,6 +4294,197 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             }
             return true;
         }
+
+        public bool VerifyLeadTimeAndInventoryByItemType(B2BEnvironment b2BEnvironment, CatalogItemType catalogItemType, string profileName, string identityName, CatalogStatus catalogStatus, CatalogType catalogType)
+        {
+            DateTime beforeSchedTime = DateTime.Now;
+
+            ChannelUxWorkflow uxWorkflow = new ChannelUxWorkflow(webDriver);
+            uxWorkflow.PublishCatalogByClickOnce(b2BEnvironment, profileName, identityName, catalogType);
+
+            B2BChannelUx b2BChannelUXPage = new B2BChannelUx(webDriver);
+            b2BChannelUXPage.OpenAutoCatalogAndInventoryListPage(b2BEnvironment);
+
+            uxWorkflow.SearchCatalog(profileName, identityName, beforeSchedTime, catalogStatus, catalogType, CatalogTestOrLive.None, false);
+            uxWorkflow.ValidateCatalogSearchResult(catalogType, catalogStatus, beforeSchedTime);
+            string filePath = uxWorkflow.DownloadCatalog(identityName, beforeSchedTime);
+
+            B2BXML actualcatalogXML = XMLDeserializer<B2BXML>.DeserializeFromXmlFile(filePath);
+            CatalogDetails actualCatalogDetails = actualcatalogXML.BuyerCatalog.CatalogDetails;
+            CatalogHeader actualCatalogHeader = actualcatalogXML.BuyerCatalog.CatalogHeader;
+
+            List<CatalogItem> catalogItemList = null;
+            CatalogItem catalogItem = null;
+            SKUDetailsFromATS sKUDetailsFromATS;
+            bool itemFound = false;
+            bool errorFlag = false;
+
+            if (catalogItemType == CatalogItemType.SNP)
+            {
+                // Get Dell Branded SnP SKU's
+                Regex regex = new Regex(@"^\d{3}-", RegexOptions.IgnoreCase);
+                catalogItem = actualCatalogDetails.CatalogItem.Where(ci => ci.CatalogItemType == CatalogItemType.SNP && regex.Match(ci.BaseSKUId).Success).FirstOrDefault();
+                itemFound = UtilityMethods.CheckForNotNull(catalogItem, string.Format("Dell Branded SNP SKU not found in catalog {0}", actualCatalogHeader.CatalogName));
+                sKUDetailsFromATS = GetLeadTimeAndInventoryForSNP("US", catalogItem.BaseSKUId);
+                if (itemFound)
+                {
+                    errorFlag &= UtilityMethods.CompareValuesAndLogError<int>(catalogItem.LeadTime, Constant.DefaultLeadTime, string.Format("Lead time validation failed for {0} of type {1} for SKU {2}. Actual: {3}, Expected: {4}",
+                        catalogItem.ItemOrderCode, catalogItem.ItemType, catalogItem.ItemSKUinfo, catalogItem.LeadTime, Constant.DefaultLeadTime));
+                    errorFlag &= UtilityMethods.CompareValuesAndLogError<int>(catalogItem.InventoryQty, sKUDetailsFromATS.IsTracked ? sKUDetailsFromATS.InventoryQty : Constant.DefaultInventoryQty, string.Format("Inventory Quantity validation failed for {0} of type {1} for SKU {2}. Actual: {3}, Expected: {4}",
+                        catalogItem.ItemOrderCode, catalogItem.ItemType, catalogItem.ItemSKUinfo, catalogItem.InventoryQty, sKUDetailsFromATS.IsTracked ? sKUDetailsFromATS.InventoryQty : Constant.DefaultInventoryQty));
+                }
+                errorFlag &= !itemFound;
+
+                // Get Non Dell Branded SnP SKU's
+                catalogItem = actualCatalogDetails.CatalogItem.Where(ci => ci.CatalogItemType == CatalogItemType.SNP && !regex.Match(ci.BaseSKUId).Success).FirstOrDefault();
+                itemFound = UtilityMethods.CheckForNotNull(catalogItem, string.Format("Non Dell Branded SNP SKU not found in catalog {0}", actualCatalogHeader.CatalogName));
+                sKUDetailsFromATS = GetLeadTimeAndInventoryForSNP("US", catalogItem.BaseSKUId);
+                if (itemFound)
+                {
+                    errorFlag &= UtilityMethods.CompareValuesAndLogError<int>(catalogItem.LeadTime, Constant.DefaultLeadTime, string.Format("Lead time validation failed for {0} of type {1} for SKU {2}. Actual: {3}, Expected: {4}",
+                        catalogItem.ItemOrderCode, catalogItem.ItemType, catalogItem.ItemSKUinfo, catalogItem.LeadTime, Constant.DefaultLeadTime));
+                    errorFlag &= UtilityMethods.CompareValuesAndLogError<int>(catalogItem.InventoryQty, sKUDetailsFromATS.IsTracked ? sKUDetailsFromATS.InventoryQty : Constant.DefaultInventoryQty, string.Format("Inventory Quantity validation failed for {0} of type {1} for SKU {2}. Actual: {3}, Expected: {4}",
+                        catalogItem.ItemOrderCode, catalogItem.ItemType, catalogItem.ItemSKUinfo, catalogItem.InventoryQty, sKUDetailsFromATS.IsTracked ? sKUDetailsFromATS.InventoryQty : Constant.DefaultInventoryQty));
+                }
+                errorFlag &= !itemFound;
+            }
+            else if (catalogItemType == CatalogItemType.ConfigWithDefaultOptions || catalogItemType == CatalogItemType.Systems)
+            {
+                // Get BTO order code
+                catalogItem = actualCatalogDetails.CatalogItem.Where(ci => ci.ItemType == ProductType.BTO.ConvertToString()).FirstOrDefault();
+                itemFound = UtilityMethods.CheckForNotNull(catalogItem, string.Format("Catalog {0} does not have BTO catalog item", actualCatalogHeader.CatalogName));
+                sKUDetailsFromATS = GetLeadTimeAndInventoryForSTDandSYS(catalogItem.ItemSKUinfo, ProductType.BTO);
+                if (itemFound)
+                {
+                    errorFlag &= UtilityMethods.CompareValuesAndLogError<int>(catalogItem.LeadTime, Constant.DefaultLeadTime, string.Format("Lead time validation failed for {0} of type {1} for SKU {2}. Actual: {3}, Expected: {4}",
+                        catalogItem.ItemOrderCode, catalogItem.ItemType, catalogItem.ItemSKUinfo, catalogItem.LeadTime, Constant.DefaultLeadTime));
+                    errorFlag &= UtilityMethods.CompareValuesAndLogError<int>(catalogItem.InventoryQty, sKUDetailsFromATS.IsTracked ? sKUDetailsFromATS.InventoryQty : Constant.DefaultInventoryQty, string.Format("Inventory Quantity validation failed for {0} of type {1} for SKU {2}. Actual: {3}, Expected: {4}",
+                      catalogItem.ItemOrderCode, catalogItem.ItemType, catalogItem.ItemSKUinfo, catalogItem.InventoryQty, sKUDetailsFromATS.IsTracked ? sKUDetailsFromATS.InventoryQty : Constant.DefaultInventoryQty));
+                }
+                errorFlag &= !itemFound;
+
+                catalogItemList = actualCatalogDetails.CatalogItem.Where(ci => ci.CatalogItemType == catalogItemType && ci.ItemType == ProductType.BTS.ConvertToString()).ToList();
+
+                // Get BTS order code not tracked at ATS
+                foreach (CatalogItem ci in catalogItemList)
+                {
+                    sKUDetailsFromATS = GetLeadTimeAndInventoryForSTDandSYS(ci.ItemSKUinfo, ProductType.BTS);
+                    if (!sKUDetailsFromATS.IsTracked)
+                    {
+                        errorFlag &= UtilityMethods.CompareValuesAndLogError(ci.LeadTime, Constant.DefaultLeadTime, string.Format("Lead time validation failed for {0} of type {1} for SKU {2}. Actual: {3}, Expected: {4}",
+                            ci.ItemOrderCode, ci.ItemType, ci.ItemSKUinfo, ci.LeadTime, Constant.DefaultLeadTime));
+                        errorFlag &= UtilityMethods.CompareValuesAndLogError<int>(ci.InventoryQty, sKUDetailsFromATS.IsTracked ? sKUDetailsFromATS.InventoryQty : Constant.DefaultInventoryQty, string.Format("Inventory Quantity validation failed for {0} of type {1} for SKU {2}. Actual: {3}, Expected: {4}",
+                            ci.ItemOrderCode, ci.ItemType, ci.ItemSKUinfo, ci.InventoryQty, sKUDetailsFromATS.IsTracked ? sKUDetailsFromATS.InventoryQty : Constant.DefaultInventoryQty));
+                        itemFound = true;
+                        break;
+                    }
+                }
+                errorFlag &= UtilityMethods.CompareValuesAndLogError<bool>(itemFound, true, string.Format("BTS order code not tracked in ATS is not found in catalog {0}", actualCatalogHeader.CatalogName));
+
+                // Get BTS order code tracked at ATS
+                itemFound = false;
+                foreach (CatalogItem ci in catalogItemList)
+                {
+                    sKUDetailsFromATS = GetLeadTimeAndInventoryForSTDandSYS(ci.ItemSKUinfo, ProductType.BTS);
+                    if (sKUDetailsFromATS.IsTracked)
+                    {
+                        errorFlag &= UtilityMethods.CompareValuesAndLogError(ci.LeadTime, sKUDetailsFromATS.LeadTime, string.Format("Lead time validation failed for {0} of type {1} for SKU {2}. Actual: {3}, Expected: {4}",
+                            ci.ItemOrderCode, ci.ItemType, ci.ItemSKUinfo, ci.LeadTime, sKUDetailsFromATS.LeadTime));
+                        errorFlag &= UtilityMethods.CompareValuesAndLogError<int>(ci.InventoryQty, sKUDetailsFromATS.IsTracked ? sKUDetailsFromATS.InventoryQty : Constant.DefaultInventoryQty, string.Format("Inventory Quantity validation failed for {0} of type {1} for SKU {2}. Actual: {3}, Expected: {4}",
+                            ci.ItemOrderCode, ci.ItemType, ci.ItemSKUinfo, ci.InventoryQty, sKUDetailsFromATS.IsTracked ? sKUDetailsFromATS.InventoryQty : Constant.DefaultInventoryQty));
+                        itemFound = true;
+                        break;
+                    }
+                }
+                errorFlag &= UtilityMethods.CompareValuesAndLogError(itemFound, true, string.Format("BTS order code tracked in ATS is not found in catalog {0}", actualCatalogHeader.CatalogName));
+
+                if (catalogItemType == CatalogItemType.ConfigWithDefaultOptions)
+                {
+                    // Get DWC order code
+                    catalogItem = actualCatalogDetails.CatalogItem.Where(ci => ci.BaseSKUId == ProductType.DWC.ConvertToString()).FirstOrDefault();
+                    itemFound = UtilityMethods.CheckForNotNull(catalogItem, string.Format("Catalog {0} does not have DWC catalog item", actualCatalogHeader.CatalogName));
+                    sKUDetailsFromATS = GetLeadTimeAndInventoryForSTDandSYS(catalogItem.ItemSKUinfo, ProductType.DWC);
+                    if (itemFound)
+                    {
+                        errorFlag &= UtilityMethods.CompareValuesAndLogError<int>(catalogItem.LeadTime, Constant.DefaultLeadTime, string.Format("Lead time validation failed for {0} of type {1}. Actual: {2}, Expected: {3}",
+                            catalogItem.ItemOrderCode, catalogItem.BaseSKUId, catalogItem.LeadTime, Constant.DefaultLeadTime));
+                        errorFlag &= UtilityMethods.CompareValuesAndLogError<int>(catalogItem.InventoryQty, sKUDetailsFromATS.IsTracked ? sKUDetailsFromATS.InventoryQty : Constant.DefaultInventoryQty, string.Format("Inventory Quantity validation failed for {0} of type {1}. Actual: {2}, Expected: {3}",
+                            catalogItem.ItemOrderCode, catalogItem.BaseSKUId, catalogItem.InventoryQty, sKUDetailsFromATS.IsTracked ? sKUDetailsFromATS.InventoryQty : Constant.DefaultInventoryQty));
+                    }
+                    errorFlag &= !itemFound;
+                }
+            }
+
+            return errorFlag;
+        }
+
+        public SKUDetailsFromATS GetLeadTimeAndInventoryForSTDandSYS(string skuId, ProductType productType)
+        {
+            string url = ConfigurationManager.AppSettings["ATSServiceURLForSTDandSYS"];
+
+            var remoteAddress = new System.ServiceModel.EndpointAddress(new Uri(url));
+
+            BasicHttpBinding basicHttpBinding = new BasicHttpBinding();
+            basicHttpBinding.MaxBufferSize = 2147483647;
+            basicHttpBinding.MaxReceivedMessageSize = 2147483647;
+
+            AvailableToSellBySKUResponse availableToSellBySKUResponse = null;
+
+            using (var inventoryServiceClient = new InventoryServiceClient(basicHttpBinding, remoteAddress))
+            {
+                AvailableToSellBySKURequest availableToSellBySKURequest = new AvailableToSellBySKURequest();
+                availableToSellBySKURequest.SKU = skuId;
+                availableToSellBySKURequest.SalesChannel = SalesChannelOptions.Online;
+                availableToSellBySKURequest.LightWeightProfile = new LightWeightProfile { CountryCode = "US", LanguageCode = "EN" };
+
+                availableToSellBySKUResponse = inventoryServiceClient.AvailableToSellBySKU(availableToSellBySKURequest);
+            }
+
+            SKUDetailsFromATS sKUDetailsFromATS = new SKUDetailsFromATS();
+            if (string.IsNullOrWhiteSpace(availableToSellBySKUResponse.ProductATS.InventoryStatus))
+            {
+                sKUDetailsFromATS.IsTracked = false;
+                sKUDetailsFromATS.LeadTime = Constant.DefaultLeadTime;
+            }
+            else
+            {
+                sKUDetailsFromATS.IsTracked = true;
+                sKUDetailsFromATS.InventoryQty = availableToSellBySKUResponse.ProductATS.AvailableToSell;
+                sKUDetailsFromATS.LeadTime = availableToSellBySKUResponse.ProductATS.LeadTime;
+            }
+
+            return sKUDetailsFromATS;
+        }
+
+        public SKUDetailsFromATS GetLeadTimeAndInventoryForSNP(string countryCode, string SkuId)
+        {
+            WebRequest request = WebRequest.Create(ConfigurationReader.GetValue("ATSServiceURLForSNP"));
+            request.Method = "POST";
+            string postData = "{\"CountryCode\":\"" + countryCode + "\", \"SkuList\": [{\"Sku\":\"" + SkuId + "\"}]}";
+            byte[] byteArray = Encoding.UTF8.GetBytes(postData);
+            request.ContentType = "application/json";
+            request.ContentLength = byteArray.Length;
+            Stream dataStream = request.GetRequestStream();
+            dataStream.Write(byteArray, 0, byteArray.Length);
+            dataStream.Close();
+            WebResponse response = request.GetResponse();
+            dataStream = response.GetResponseStream();
+            StreamReader reader = new StreamReader(dataStream);
+            string responseFromServer = reader.ReadToEnd();
+            ATSResponseSNP responseObj = JsonHelper.DeserializeJsonObject<ATSResponseSNP>(responseFromServer);
+            SkuList skuList = responseObj.SkuList.Where(sk => sk.Sku == SkuId).FirstOrDefault();
+            skuList.Should().NotBeNull(string.Format("No data returned from ATS service for SKU {0}", SkuId));
+
+            SKUDetailsFromATS sKUDetailsFromATS = new SKUDetailsFromATS();
+            sKUDetailsFromATS.LeadTime = Convert.ToInt32(skuList.LeadTime);
+            sKUDetailsFromATS.InventoryQty = Convert.ToInt32(skuList.Inventory);
+            reader.Close();
+            dataStream.Close();
+            response.Close();
+
+            return sKUDetailsFromATS;
+        }
+
         public void VerifyRoundOffValuesPackageUploadForAllFields(B2BEnvironment b2BEnvironment, string fileToUpload, string message)
         {
             B2BChannelUx b2BChannelUx = new B2BChannelUx(webDriver);
@@ -4314,7 +4510,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             B2BChannelUx b2BChannelUx = new B2BChannelUx(webDriver);
             b2BChannelUx.OpenAutoPackageUploadPage(b2BEnvironment);
             b2BCatalogPackagingDataUploadPage = new B2BCatalogPackagingDataUploadPage(webDriver);
-            
+
             b2BCatalogPackagingDataUploadPage.UploadExcelFile(fileToUpload);
             b2BCatalogPackagingDataUploadPage.UploadMessage.WaitForElementDisplayed(TimeSpan.FromSeconds(10));
             b2BCatalogPackagingDataUploadPage.UploadMessage.Text.Trim().Equals(message);
@@ -4510,14 +4706,14 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                 uxWorkflow.ValidateCRT(b2BEnvironment, profileName, filePath).Should().BeTrue("Error: Data mismatch for CRT XML content with Catalog XML");
         }
 
-        public void VerifySetNewCatalogForConfig(B2BEnvironment b2BEnvironment, CatalogItemType[] catalogItemType, string profileName, string identityName, CatalogStatus catalogStatus, CatalogType catalogType, 
+        public void VerifySetNewCatalogForConfig(B2BEnvironment b2BEnvironment, CatalogItemType[] catalogItemType, string profileName, string identityName, CatalogStatus catalogStatus, CatalogType catalogType,
             ConfigRules configRules = ConfigRules.None,
             DefaultOptions defaultOptions = DefaultOptions.Off)
         {
             DateTime beforeSchedTime = DateTime.Now;
 
             ChannelUxWorkflow uxWorkflow = new ChannelUxWorkflow(webDriver);
-            uxWorkflow.CreateInstantCatalogSetNew(b2BEnvironment,profileName,identityName,catalogType,catalogItemType);
+            uxWorkflow.CreateInstantCatalogSetNew(b2BEnvironment, profileName, identityName, catalogType, catalogItemType);
 
             B2BChannelUx b2BChannelUx = new B2BChannelUx(webDriver);
             b2BChannelUx.OpenAutoCatalogAndInventoryListPage(b2BEnvironment);
@@ -4680,7 +4876,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         /// Below method verifies whether the BTS Order code exists or not in a Catlog file while Lead time > 3in BHC section
         /// If BTS Order code not exists then it retuns True
         /// </summary>
-        public void VerifyLeadTimeGreaterThanThreeBTSOrderCodesNotExistsInCatalog(B2BEnvironment b2BEnvironment, CatalogItemType[] catalogItemType, string profileName, string identityName, CatalogStatus catalogStatus, CatalogType catalogType, string itemOrderCode,ConfigRules configRules)
+        public void VerifyLeadTimeGreaterThanThreeBTSOrderCodesNotExistsInCatalog(B2BEnvironment b2BEnvironment, CatalogItemType[] catalogItemType, string profileName, string identityName, CatalogStatus catalogStatus, CatalogType catalogType, string itemOrderCode, ConfigRules configRules)
         {
             DateTime beforeSchedTime = DateTime.Now;
             ChannelUxWorkflow uxWorkflow = new ChannelUxWorkflow(webDriver);
@@ -4695,7 +4891,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         }
 
 
-             /// <summary>
+        /// <summary>
         /// It Verify the SPL with SYS Config, SNP Config, SNP Auto CRT & SYS Auto CRT UI settings in B2B Profile->Buyer Catalog page, under under "Automated BHC Catalog-Processing Rules" section
         /// </summary>
 
@@ -4715,7 +4911,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                 UtilityMethods.ClickElement(webDriver, b2BBuyerCatalogPage.EditScheduleButton);
             }
 
-             return (b2BBuyerCatalogPage.EnableExcludeNonChangedItems.Displayed);
+            return (b2BBuyerCatalogPage.EnableExcludeNonChangedItems.Displayed);
         }
 
 
@@ -4916,10 +5112,10 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
 
             if (splField == true && snpField == false && sysField == false && stdField == false)
             {
-            if (!b2BBuyerCatalogPage.CatalogConfigStandard.Selected)
-            {
-                b2BBuyerCatalogPage.CatalogConfigStandard.Click();
-            }
+                if (!b2BBuyerCatalogPage.CatalogConfigStandard.Selected)
+                {
+                    b2BBuyerCatalogPage.CatalogConfigStandard.Click();
+                }
             }
             UtilityMethods.ClickElement(webDriver, b2BBuyerCatalogPage.UpdateButton);
             WaitForPageRefresh();
@@ -4970,7 +5166,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             {
                 b2BBuyerCatalogPage.BcpchkSysCatalogCheckbox.Click();
             }
-            
+
             if (b2BBuyerCatalogPage.CatalogConfigStandard.Selected)
             {
                 b2BBuyerCatalogPage.CatalogConfigStandard.Click();
@@ -5048,7 +5244,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                 IEnumerable<CatalogItem> actualCatalogItems = actualCatalogDetails.CatalogItem.Where(ci => ci.CatalogItemType == itemType);
                 foreach (CatalogItem actualCatalogItem in actualCatalogItems)
                 {
-                   ValueinSubHeaderRowOrigPub = actualCatalogItem.ShortName + " ," + actualCatalogItem.ItemDescription + " ," + actualCatalogItem.UNSPSC + " ," + actualCatalogItem.UnitPrice.ToString().TrimEnd('0').TrimEnd('.') + " ," + actualCatalogItem.PartId + " ," + actualCatalogItem.QuoteId + " ," + actualCatalogItem.BaseSKUId + " ," + actualCatalogItem.ListPrice.ToString().TrimEnd('0').TrimEnd('.');
+                    ValueinSubHeaderRowOrigPub = actualCatalogItem.ShortName + " ," + actualCatalogItem.ItemDescription + " ," + actualCatalogItem.UNSPSC + " ," + actualCatalogItem.UnitPrice.ToString().TrimEnd('0').TrimEnd('.') + " ," + actualCatalogItem.PartId + " ," + actualCatalogItem.QuoteId + " ," + actualCatalogItem.BaseSKUId + " ," + actualCatalogItem.ListPrice.ToString().TrimEnd('0').TrimEnd('.');
                     dict.Add(i, ValueinSubHeaderRowOrigPub); i++;
                 }
             }
@@ -5241,7 +5437,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             B2BLogReportPage = new B2BLogReportPage(webDriver);
             B2BLogReportPage.SearchThreadIdNumber(threadId);
             bool error = B2BLogReportPage.FindErrorMessageInLogDetailPage(logError, lodDetailError);
-            
+
             return error;
         }
 
@@ -5254,7 +5450,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             B2BChannelUx b2BChannelUx = new B2BChannelUx(webDriver);
             b2BChannelUx.OpenAutoCatalogAndInventoryListPage(b2BEnvironment);
 
-            uxWorkflow.SearchCatalog(profileName, identityName, beforeSchedTime, catalogStatus, catalogType, CatalogTestOrLive.None,false);
+            uxWorkflow.SearchCatalog(profileName, identityName, beforeSchedTime, catalogStatus, catalogType, CatalogTestOrLive.None, false);
             uxWorkflow.ValidateCatalogSearchResult(catalogType, catalogStatus, beforeSchedTime);
 
             if (!(catalogStatus == CatalogStatus.Failed))
@@ -5290,7 +5486,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             b2BHomePage.ClickB2BProfileList();
             b2BCustomerProfileListPage = new B2BCustomerProfileListPage(webDriver);
             b2BCustomerProfileListPage.AdvanceSearchProfileWithFilterOptions(customerName, customerID, region, isMigrated, isBHCAutoEnabled);
-           return b2BCustomerProfileListPage.VerifyProfileSearchResult(customerName, "No");
+            return b2BCustomerProfileListPage.VerifyProfileSearchResult(customerName, "No");
         }
 
         public string UpdateScheduleInformationForNewProfile(ExpireDays expireDays)
@@ -5347,7 +5543,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             //else
             //    autoCatalogListPage.DeltaCatalogCheckbox.Click();
             autoCatalogListPage.SelectTheStatus(UtilityMethods.ConvertToString(status));
-            autoCatalogListPage.SelectCatalogTestOrLive(catalogTestOrLive);     
+            autoCatalogListPage.SelectCatalogTestOrLive(catalogTestOrLive);
             autoCatalogListPage.SearchRecordsLink.Click();
             autoCatalogListPage.CatalogsTable.WaitForElementVisible(TimeSpan.FromSeconds(30));
             var threadId = autoCatalogListPage.CatalogsTable.GetCellValue(1, "Thread");
@@ -5532,7 +5728,8 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                 fields.Add("AUTO BHC: SYS: Final Price", b2BBuyerCatalogPage.CatalogConfigSysFinalPriceCheckbox.Selected.ToString());
                 fields.Add("AUTO BHC: SYS: Sku Details", b2BBuyerCatalogPage.CatalogConfigSysSkuDetailsCheckbox.Selected.ToString());
             }
-            else{
+            else
+            {
                 fields.Add("AUTO BHC: SYS: Default Options", "False");
                 fields.Add("AUTO BHC: SYS: Final Price", "False");
                 fields.Add("AUTO BHC: SYS: Sku Details", "False");
@@ -5568,7 +5765,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             ChannelUxWorkflow uxWorkflow = new ChannelUxWorkflow(webDriver);
             return VerifyAutoScheduledUISettingsValidations(b2BEnvironment.ToString(), profileName, splUI, snpUI, sysUI, snpCRTField, sysCRTField, stdField, stdCRTField, excludeUnChangedItems, enableDeltaCatallog);
         }
-  
+
 
         public void VerifyInstantCatalogSearch(B2BEnvironment environment, Region region, string profileName, string identityName, CatalogType catalogType, CatalogStatus catalogStatus, CatalogItemType[] catalogItemType)
         {
@@ -5705,7 +5902,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             return matchFlag;
         }
 
-        public void VerifyLogReportOnFailedCatalog(B2BEnvironment environment, Region region, string profileName, string identityName,CatalogItemType[] catalogItemType, CatalogType catalogType, CatalogStatus catalogStatus)
+        public void VerifyLogReportOnFailedCatalog(B2BEnvironment environment, Region region, string profileName, string identityName, CatalogItemType[] catalogItemType, CatalogType catalogType, CatalogStatus catalogStatus)
         {
             DateTime beforeSchedTime = DateTime.Now;
             ChannelUxWorkflow uxWorkflow = new ChannelUxWorkflow(webDriver);
@@ -5727,15 +5924,15 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             b2bLogReport.WaitForElementVisible();
             b2bLogReport.GetCellValueFromLogTable(3, "Message").Should().Contain("failed as Exclude Unchanged Items flag returned no records", "Delta Catalog creation is failed not due to Exclude Unchanged Items");
         }
-        public void VerifyHardcodedInvQtyLTValuesForDellBrandedSnP(B2BEnvironment b2BEnvironment, CatalogItemType[] catalogItemType, string profileName, string identityName, 
+        public void VerifyHardcodedInvQtyLTValuesForDellBrandedSnP(B2BEnvironment b2BEnvironment, CatalogItemType[] catalogItemType, string profileName, string identityName,
             CatalogStatus catalogStatus, CatalogType catalogType)
         {
             DateTime beforeSchedTime = DateTime.Now;
 
             ChannelUxWorkflow uxWorkflow = new ChannelUxWorkflow(webDriver);
-            if(catalogStatus == CatalogStatus.Published)
+            if (catalogStatus == CatalogStatus.Published)
                 uxWorkflow.PublishCatalogByClickOnce(b2BEnvironment, profileName, identityName, catalogType);
-            else if(catalogStatus == CatalogStatus.CreatedInstant)
+            else if (catalogStatus == CatalogStatus.CreatedInstant)
                 uxWorkflow.CreateInstantCatalogSetNew(b2BEnvironment, profileName, identityName, catalogType, catalogItemType);
 
             B2BChannelUx b2BChannelUx = new B2BChannelUx(webDriver);
@@ -5792,10 +5989,10 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             IReadOnlyCollection<string> windowHandles = webDriver.WindowHandles;
             webDriver.SwitchTo().Window(webDriver.WindowHandles.Last()); WaitForPageRefresh();
             webDriver.Url.Should().Contain(threadIdValue, "User navigated to Logdetails page");
-        }    
+        }
 
         public void VerifyInstantCatalogErrorMessage(B2BEnvironment b2BEnvironment, string profileName, string identityName, CatalogType catalogType, CatalogItemType catalogItemType
-            ,  string accessGroup, ErrorMessages errorMessages, bool isSetNew)
+            , string accessGroup, ErrorMessages errorMessages, bool isSetNew)
         {
             ChannelUxWorkflow uxWorkflow = new ChannelUxWorkflow(webDriver);
             uxWorkflow.ValidateInstantCatalogErrorMessage(b2BEnvironment, profileName, identityName, catalogType, catalogItemType, accessGroup, errorMessages, isSetNew);

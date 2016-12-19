@@ -23,10 +23,8 @@ using Modules.Channel.B2B.Common;
 using Modules.Channel.B2B.Core.Pages;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Support.PageObjects;
-using CatalogTests.Common.CatalogXMLTemplates;
 using System.Configuration;
-
-
+using Modules.Channel.B2B.CatalogXMLTemplates;
 
 namespace Modules.Channel.B2B.Core.Workflows.Catalog
 {

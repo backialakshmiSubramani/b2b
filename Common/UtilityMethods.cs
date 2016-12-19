@@ -488,6 +488,37 @@ namespace Modules.Channel.B2B.Common
             return memberExpression.Member;
         }
 
+        public static bool CheckForNull(object value, string message)
+        {
+            bool result = (value == null || string.IsNullOrEmpty(value.ToString()) || string.IsNullOrWhiteSpace(value.ToString()));
+
+            if (!result)
+                Console.WriteLine(message);
+
+            return result;
+        }
+
+        public static bool CheckForNotNull(object value, string message)
+        {
+            bool result = (value != null);
+
+            if (!result)
+                Console.WriteLine(message);
+
+            return result;
+        }
+
+        public static bool CompareValuesAndLogError<T>(T actualValue, T expectedValue, string message)
+        {
+            Type valueType = typeof(T);
+
+            bool result = actualValue.Equals(expectedValue);// Convert.ChangeType(actualValue, typeof(T)).Equals((Convert.ChangeType(expectedValue, typeof(T))));
+            if (!result)
+                Console.WriteLine(message);
+
+            return result;
+        }
+
         #endregion Private Methods
     }
 

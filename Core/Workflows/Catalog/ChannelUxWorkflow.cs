@@ -11,7 +11,6 @@ using OpenQA.Selenium.Remote;
 using Modules.Channel.B2B.Common;
 using System.IO;
 using System.Configuration;
-using CatalogTests.Common.CatalogXMLTemplates;
 using Modules.Channel.Utilities;
 using Microsoft.Exchange.WebServices.Data;
 using Modules.Channel.B2B.CatalogXMLTemplates;

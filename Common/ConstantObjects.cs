@@ -3,6 +3,12 @@ using System.ComponentModel;
 
 namespace Modules.Channel.B2B.Common
 {
+    public class Constant
+    {
+        public const int DefaultLeadTime = 10;
+        public const int DefaultInventoryQty = 9999;
+    }
+
     public enum B2BEnvironment
     {
         Production,
@@ -161,5 +167,23 @@ namespace Modules.Channel.B2B.Common
         Test,
         Live,
         None,
+    }
+
+    public enum ProductType
+    {
+        BTO,
+        BTP,
+        BTS,
+        DWC,
+        DellBranded,
+        NonDellBranded
+    }
+
+    public struct SKUDetailsFromATS
+    {
+        public bool IsTracked;
+        public string SkuId;
+        public int LeadTime;
+        public int InventoryQty;
     }
 }

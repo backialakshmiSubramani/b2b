@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Xml;
 using System.Xml.Serialization;
 
-namespace CatalogTests.Common.CatalogXMLTemplates
+namespace Modules.Channel.B2B.CatalogXMLTemplates
 {
 
     [Serializable, XmlRoot("B2BXML")]
