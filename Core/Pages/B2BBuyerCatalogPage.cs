@@ -1308,7 +1308,7 @@ namespace Modules.Channel.B2B.Core.Pages
         /// Click on Click to Run once button
         /// </summary>
         /// <returns>The <see cref="bool"/></returns>
-        public bool ClickToRunOnce(string statusMessage, out DateTime utcTime)
+        public bool ClickToRunOnce(out DateTime utcTime)
         {
             Console.WriteLine("Clicking on ClickToRunOnce Button..");
             ClickToRunOnceButton.Click();
@@ -1316,7 +1316,7 @@ namespace Modules.Channel.B2B.Core.Pages
             PageUtility.WaitForPageRefresh(webDriver);
             Console.WriteLine("Done!");
             Console.WriteLine("Inventory Feed Request Status : {0}", ConfirmationLabel.Text);
-            return string.Equals(ConfirmationLabel.Text.Trim(), statusMessage);
+            return string.Equals(ConfirmationLabel.Text.Trim(), "Inventory feed request initiated.");
         }
 
         /// <summary>

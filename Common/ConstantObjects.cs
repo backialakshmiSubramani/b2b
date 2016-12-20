@@ -18,7 +18,8 @@ namespace Modules.Channel.B2B.Common
     public enum CatalogType
     {
         Original,
-        Delta
+        Delta,
+        Inventory
     }
 
     public enum Computation

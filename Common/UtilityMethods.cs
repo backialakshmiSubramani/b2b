@@ -395,6 +395,22 @@ namespace Modules.Channel.B2B.Common
                 columnIndex += 2;
             else if (columnIndex >= 7)
                 columnIndex += 3;
+            
+            string cellValue = tableElement.FindElement(By.CssSelector("tbody tr:nth-of-type(" + rowIndex + ") td:nth-of-type(" + columnIndex + ")")).Text;
+
+            return cellValue;
+        }
+
+        public static string GetCellValueForInventory(this IWebElement tableElement, int rowIndex, string columnName)
+        {
+            int columnIndex = tableElement.GetColumnIndex(columnName);
+            if (columnIndex == 0)
+                return null;
+
+            if (columnIndex >= 4 && columnIndex < 7)
+                columnIndex += 2;
+            else if (columnIndex >= 7)
+                columnIndex += 3;
 
             string cellValue = tableElement.FindElement(By.CssSelector("tbody tr:nth-of-type(" + rowIndex + ") td:nth-of-type(" + columnIndex + ")")).Text;
 
@@ -451,7 +467,7 @@ namespace Modules.Channel.B2B.Common
                     options.AddArguments("--start-maximized");
                     webDriver = new ChromeDriver(options);
                     break;
-                case BrowserName.InternetExplorer:
+                case BrowserName.InternetExplorer:                    
                     webDriver = new InternetExplorerDriver();
                     webDriver.Manage().Window.Maximize();
                     break;

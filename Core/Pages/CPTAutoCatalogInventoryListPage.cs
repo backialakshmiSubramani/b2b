@@ -738,7 +738,10 @@ namespace Modules.Channel.B2B.Core.Pages
         {
             return CatalogsTable.FindElement(By.CssSelector("tbody>tr:nth-of-type(" + rowIndex + ")>td[title=' download']>input[type='image']"));
         }
-
+        public IWebElement GetInventoryDownloadButton(int rowIndex)
+        {
+            return CatalogsTable.FindElement(By.CssSelector("tbody>tr:nth-of-type(" + rowIndex + ")>td[title=' download']>input[type='image'][ng-show='(Catalog.IsFeedGenerated)']"));
+        }
         public void WaitForCatalogInSearchResult(DateTime createdTime, CatalogStatus catalogStatus)
         {
             DateTime lastStatusDate;
@@ -749,11 +752,31 @@ namespace Modules.Channel.B2B.Core.Pages
             {
                 lastStatusDate = Convert.ToDateTime(CatalogsTable.GetCellValue(1, "Last Status Date"), System.Globalization.CultureInfo.InvariantCulture);
                 if (CatalogsTable.GetCellValue(1, "Status") != null)
-                    //status = (CatalogStatus)Enum.Parse(typeof(CatalogStatus), CatalogsTable.GetCellValue(1, "Status"));
                     status = UtilityMethods.ConvertToEnum<CatalogStatus>(CatalogsTable.GetCellValue(1, "Status"));
+                
+                if (lastStatusDate.AddMinutes(1) > createdTime && (status == catalogStatus || status == CatalogStatus.Failed || status == CatalogStatus.FailedInstant))
+                    break;
+                else
+                {
+                    SearchRecordsLink.Click();
+                    Thread.Sleep(TimeSpan.FromSeconds(5));
+                    timeOutInSecs -= 5;
+                }
+            }
+        }
 
+        public void WaitForInventoryInSearchResult(DateTime createdTime, CatalogStatus catalogStatus)
+        {
+            DateTime lastStatusDate;
+            double timeOutInSecs = CatalogTimeOuts.CatalogSearchTimeOut.TotalSeconds;
+            CatalogStatus status = catalogStatus;
 
-                //if (lastStatusDate.AddMinutes(1) > createdTime && (status == catalogStatus || status == CatalogStatus.Failed))
+            while (timeOutInSecs > 0)
+            {
+                lastStatusDate = Convert.ToDateTime(CatalogsTable.GetCellValueForInventory(1, "Last Status Date"), System.Globalization.CultureInfo.InvariantCulture);
+                if (CatalogsTable.GetCellValueForInventory(1, "Status") != null)
+                    status = UtilityMethods.ConvertToEnum<CatalogStatus>(CatalogsTable.GetCellValueForInventory(1, "Status"));
+
                 if (lastStatusDate.AddMinutes(1) > createdTime && (status == catalogStatus || status == CatalogStatus.Failed || status == CatalogStatus.FailedInstant))
                     break;
                 else

@@ -1364,8 +1364,8 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             string downloadPath = ConfigurationManager.AppSettings["CatalogDownloadPath"];
 
             webDriver.WaitForDownLoadToComplete(downloadPath, identityName, anyTimeAfter, TimeSpan.FromMinutes(1));
-            string fileName = new DirectoryInfo(downloadPath).GetFiles().AsEnumerable()
-                .Where(file => file.Name.Contains(identityName.ToUpper()) && file.CreationTime > anyTimeAfter)
+            string fileName = new DirectoryInfo(downloadPath).GetFiles().OrderByDescending(p => p.CreationTime).AsEnumerable()
+                .Where(file => file.Name.StartsWith(identityName.ToUpper()) && file.CreationTime > anyTimeAfter)
                 .FirstOrDefault().FullName;
 
             return fileName;
