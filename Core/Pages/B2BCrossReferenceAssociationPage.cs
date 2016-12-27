@@ -321,10 +321,12 @@ namespace Modules.Channel.B2B.Core.Pages
             }
         }
 
-        internal void OpenCrossReferenceListPage(B2BEnvironment b2BEnvironment)
+        public void OpenCrossReferenceListPage(B2BEnvironment b2BEnvironment)
         {
             webDriver.Navigate().GoToUrl(ConfigurationReader.GetValue("CrossReferenceAssociationListPage") + (b2BEnvironment == B2BEnvironment.Production ? "P" : "U"));
         }
+
+
         #endregion
     }
 }
