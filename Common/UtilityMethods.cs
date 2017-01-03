@@ -219,12 +219,18 @@ namespace Modules.Channel.B2B.Common
         public static bool CompareValues<T>(string fieldName, T actualValue, T expectedValue)
         {
             Type valueType = typeof(T);
-
-            bool result = Convert.ChangeType(actualValue, typeof(T)).Equals((Convert.ChangeType(expectedValue, typeof(T))));
+            bool result;
+ 
+            if (valueType.ToString() == "System.String")
+                result = Convert.ChangeType(actualValue, typeof(T)).ToString().ToUpper().Equals((Convert.ChangeType(expectedValue, typeof(T))).ToString().ToUpper());
+            else
+                result = Convert.ChangeType(actualValue, typeof(T)).Equals((Convert.ChangeType(expectedValue, typeof(T))));
+ 
             if (!result)
-                Console.WriteLine(string.Format("[FieldName]: {0} ---- [Actual]: {1}, [Expected]: {2} ---- [Match]: {3}", fieldName, actualValue, expectedValue, result));
-
+                Console.WriteLine(string.Format("FieldName: {0} ---- Actual: {1}, Expected: {2} ---- Match: {3}", fieldName, actualValue, expectedValue, result));
+ 
             return result;
+
         }
 
         public static bool CompareActualAndExpectedValues<T,K>(

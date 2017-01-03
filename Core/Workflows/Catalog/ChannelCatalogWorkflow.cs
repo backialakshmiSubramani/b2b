@@ -174,7 +174,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             var isloaded = string.Empty;
             do
             {
-                Thread.Sleep(4000);
+                Thread.Sleep(10000);
                 try
                 {
                     isloaded = javaScriptExecutor.ExecuteScript("return window.document.readyState") as string;
