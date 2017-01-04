@@ -1269,7 +1269,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             var regioncode = b2BAutoCatalogListPage.CatalogsTable.GetCellValue(1, "Region").Trim();
             var Currencycode = b2BAutoCatalogListPage.CatalogsTable.GetCellValue(1, "Currency").Trim();
             Console.WriteLine(Status + ", " + countryCode + " ," + regioncode + ", " + currencyCode);
-            if (Status.Equals(status.ToString()) && countryCode.Equals(CountryCode) && regioncode.Equals(region) && Currencycode.Equals(currencyCode))
+            if (Status.Equals(status.ToString(), StringComparison.InvariantCultureIgnoreCase) && countryCode.Equals(CountryCode, StringComparison.InvariantCultureIgnoreCase) && regioncode.Equals(region, StringComparison.InvariantCultureIgnoreCase) && Currencycode.Equals(currencyCode, StringComparison.InvariantCultureIgnoreCase))
             {
                 return true;
             }
@@ -1382,7 +1382,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                 } while (!Status.Equals(status));
 
             }
-            if (countryCode.Equals(countrycode) && regioncode.Equals(regionCode) && cUrrencycode.Equals(currencycode) && Status.Equals(status))
+            if (countryCode.Equals(countrycode, StringComparison.InvariantCultureIgnoreCase) && regioncode.Equals(regionCode) && cUrrencycode.Equals(currencycode, StringComparison.InvariantCultureIgnoreCase) && Status.Equals(status))
             {
                 return true;
             }
