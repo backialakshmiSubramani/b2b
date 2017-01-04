@@ -1,4 +1,5 @@
-﻿using OpenQA.Selenium;
+﻿using Modules.Channel.B2B.Core.Pages;
+using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Edge;
 using OpenQA.Selenium.IE;
@@ -401,7 +402,7 @@ namespace Modules.Channel.B2B.Common
                 columnIndex += 2;
             else if (columnIndex >= 7)
                 columnIndex += 3;
-            
+
             string cellValue = tableElement.FindElement(By.CssSelector("tbody tr:nth-of-type(" + rowIndex + ") td:nth-of-type(" + columnIndex + ")")).Text;
 
             return cellValue;
@@ -473,7 +474,7 @@ namespace Modules.Channel.B2B.Common
                     options.AddArguments("--start-maximized");
                     webDriver = new ChromeDriver(options);
                     break;
-                case BrowserName.InternetExplorer:                    
+                case BrowserName.InternetExplorer:
                     webDriver = new InternetExplorerDriver();
                     webDriver.Manage().Window.Maximize();
                     break;
@@ -488,6 +489,7 @@ namespace Modules.Channel.B2B.Common
         public static void SelectOptionFromDDL(IWebDriver webDriver, IWebElement webElement, string xPath)
         {
             UtilityMethods.ClickElement(webDriver, webElement);
+            PageUtility.WaitForPageRefresh(webDriver);
             IWebElement textElement = webElement.FindElement(By.XPath(xPath));
             UtilityMethods.ClickElement(webDriver, textElement);
         }

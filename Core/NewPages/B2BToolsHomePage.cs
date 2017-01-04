@@ -14,6 +14,7 @@ using Dell.Adept.UI.Web.Pages;
 using Dell.Adept.UI.Web.Support.Extensions.WebDriver;
 using Dell.Adept.UI.Web.Support.Extensions.WebElement;
 using Modules.Channel.B2B.Common;
+using Modules.Channel.B2B.Core.Pages;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Support.UI;
 using System;
@@ -27,6 +28,7 @@ namespace Modules.Channel.B2B.Core.NewPages
     public class B2BToolsHomePage : PageBase
     {
         IWebDriver webDriver;
+        private IJavaScriptExecutor javaScriptExecutor;
 
         /// <summary>
         /// Constructor to hand off webDriver
@@ -35,7 +37,10 @@ namespace Modules.Channel.B2B.Core.NewPages
         public B2BToolsHomePage(IWebDriver webDriver) : base(ref webDriver)
         {
             this.webDriver = webDriver;
+            javaScriptExecutor = (IJavaScriptExecutor)webDriver;
         }
+
+        #region Elements
 
         private SelectElement EnvironmentList
         {
@@ -53,6 +58,17 @@ namespace Modules.Channel.B2B.Core.NewPages
                 return webDriver.FindElement(By.Id("ucLeftMenu_lnkGo"));
             }
         }
+
+        private IWebElement B2BProfileListLink
+        {
+            get
+            {
+                webDriver.WaitForElement(By.XPath("//a[contains(text(),'B2B Profile List')]"), new TimeSpan(0, 0, 10));
+                return webDriver.FindElement(By.XPath("//a[contains(text(),'B2B Profile List')]"));
+            }
+        }
+
+        #endregion Elements
 
         /// <summary>
         /// Treat this like a BVT of the page. If Validate does not pass, throw exception and console.writeline a return message into Test Class
@@ -72,6 +88,8 @@ namespace Modules.Channel.B2B.Core.NewPages
             throw new NotImplementedException();
         }
 
+        #region Element Actions
+
         public void OpenB2BHomePage(B2BEnvironment b2BEnvironment)
         {
             webDriver.Navigate().GoToUrl(ConfigurationManager.AppSettings["B2BBaseURL"]);
@@ -90,5 +108,13 @@ namespace Modules.Channel.B2B.Core.NewPages
             Console.WriteLine("B2B environment selected is: ** {0} **", environmentValue);
             UtilityMethods.ClickElement(webDriver, GoButton);
         }
+
+        public void ClickB2BProfileList()
+        {
+            javaScriptExecutor.ExecuteScript("arguments[0].click();", B2BProfileListLink);
+            PageUtility.WaitForPageRefresh(webDriver);
+        }
+
+        #endregion Element Actions
     }
 }

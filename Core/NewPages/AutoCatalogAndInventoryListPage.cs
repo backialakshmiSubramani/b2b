@@ -39,14 +39,9 @@ namespace Modules.Channel.B2B.Core.NewPages
         public AutoCatalogAndInventoryListPage(IWebDriver webDriver) : base(ref webDriver)
         {
             this.webDriver = webDriver;
-            //populate the following variables with the appropriate value
-            //Name = "";
-            //Url = "";
-            //ProductUnit = "";
-
         }
 
-        public IWebElement SelectCustomerNameSpan
+        private IWebElement SelectCustomerNameSpan
         {
             get
             {
@@ -54,7 +49,7 @@ namespace Modules.Channel.B2B.Core.NewPages
             }
         }
 
-        public IWebElement SelectIdentityNameSpan
+        private IWebElement SelectIdentityNameSpan
         {
             get
             {
@@ -62,7 +57,7 @@ namespace Modules.Channel.B2B.Core.NewPages
             }
         }
 
-        public IWebElement SelectRegionSpan
+        private IWebElement SelectRegionSpan
         {
             get
             {
@@ -73,7 +68,7 @@ namespace Modules.Channel.B2B.Core.NewPages
         /// <summary>
         /// Delta catalog check box
         /// </summary>
-        public IWebElement DeltaCatalogCheckbox
+        private IWebElement DeltaCatalogCheckbox
         {
             get { return webDriver.FindElement(AdeptBy.Attribute(ElementTag.input, "value", "Delta")); }
         }
@@ -81,19 +76,19 @@ namespace Modules.Channel.B2B.Core.NewPages
         /// <summary>
         /// Original Catalog check box
         /// </summary>
-        public IWebElement OriginalCatalogCheckbox
+        private IWebElement OriginalCatalogCheckbox
         {
             get
             {
                 return webDriver.FindElement(AdeptBy.Attribute(ElementTag.input, "value", "Original"));
             }
         }
-        
+
         /// <summary>
         /// Selects the status from the Select drop down
         /// </summary>
         /// <param name="status"></param>
-        public void SelectCatalogStatus(string status)
+        private void SelectCatalogStatus(string status)
         {
             webDriver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromSeconds(60));
             webDriver.FindElement(By.XPath("//div[@ng-model='CatalogStatusId']/a")).Click();
@@ -101,7 +96,7 @@ namespace Modules.Channel.B2B.Core.NewPages
             webDriver.FindElement(By.XPath("//div[@ng-model='CatalogStatusId']/div/ul/li/a[contains(text(),'" + status + "')]")).Click();
         }
 
-        public IWebElement CatalogsTable
+        private IWebElement CatalogsTable
         {
             get
             {
@@ -109,17 +104,47 @@ namespace Modules.Channel.B2B.Core.NewPages
             }
         }
 
+        private IWebElement ClearAllLink
+        {
+            get
+            {
+                return webDriver.FindElement(By.Id("lnkClear"));
+            }
+        }
+
+        /// <summary>
+        /// Catalog Type - Inventory Checkbox
+        /// </summary>
+        private IWebElement InventoryCheckbox
+        {
+            get
+            {
+                return webDriver.FindElement(AdeptBy.Attribute(ElementTag.input, "value", "Inventory"));
+            }
+        }
+
         /// <summary>
         /// Search Records hyperlink
         /// </summary>
-        public IWebElement SearchRecordsLink
+        private IWebElement SearchRecordsLink
         {
             get { return webDriver.FindElement(By.Id("lnkSearch")); }
         }
 
-        public IWebElement GetDownloadButton(int rowIndex)
+        private IWebElement GetDownloadButton(int rowIndex)
         {
             return CatalogsTable.FindElement(By.CssSelector("tbody>tr:nth-of-type(" + rowIndex + ")>td[title=' download']>input[type='image']"));
+        }
+
+        /// <summary>
+        /// Automated Catalog List Page
+        /// </summary>
+        public IWebElement AutoCatalogInventoryListPageLink
+        {
+            get
+            {
+                return webDriver.FindElement(By.XPath("//a[text()=' Auto Catalog & Inventory']"));
+            }
         }
 
         /// <summary>
@@ -145,23 +170,37 @@ namespace Modules.Channel.B2B.Core.NewPages
             webDriver.Navigate().GoToUrl(ConfigurationReader.GetValue("AutoCatalogListPageUrl") + ((b2BEnvironment == B2BEnvironment.Production) ? "P" : "U"));
         }
 
+        public void GoToAutoCatalogAndInventoryPage()
+        {
+            AutoCatalogInventoryListPageLink.Click();
+            webDriver.SwitchTo().Window(WebDriver.WindowHandles.LastOrDefault());
+        }
+
         public void SearchCatalog(string profileName, string identityName, DateTime anyTimeAfter, CatalogStatus catalogStatus, CatalogType catalogType)
         {
             SelectOptionFromDropDown(SelectRegionSpan, "US");
             SelectOptionFromDropDown(SelectCustomerNameSpan, profileName);
             SelectOptionFromDropDown(SelectIdentityNameSpan, identityName.ToUpper());
 
-            SelectOriginalOrDeltaCheckBox(catalogType);          
+            SelectOriginalOrDeltaCheckBox(catalogType);
             SelectCatalogStatus(UtilityMethods.ConvertToString(catalogStatus));
             SearchRecordsLink.Click();
             CatalogsTable.WaitForElementVisible(TimeSpan.FromSeconds(30));
             WaitForCatalogInSearchResult(anyTimeAfter.ConvertToUtcTimeZone(), catalogStatus);
         }
+
         public void RetrieveCatalogSearchResult(out string lastStatusDate, out string type, out string status)
         {
             lastStatusDate = CatalogsTable.GetCellValue(1, "Last Status Date");
             type = CatalogsTable.GetCellValue(1, "Type");
             status = CatalogsTable.GetCellValue(1, "Status");
+        }
+
+        public void ValidateInventoryFeedSearchResult(out string lastStatusDate, out string type, out string status)
+        {
+            lastStatusDate = CatalogsTable.GetCellValueForInventory(1, "Last Status Date");
+            type = CatalogsTable.GetCellValueForInventory(1, "Type");
+            status = CatalogsTable.GetCellValueForInventory(1, "Status");
         }
 
         /// <summary>
@@ -183,6 +222,21 @@ namespace Modules.Channel.B2B.Core.NewPages
             return fileName;
         }
 
+        public void SearchInventoryFeedRecords(string profileName, string identityName, Region region, DateTime anyTimeAfter, CatalogStatus catalogStatus)
+        {
+            ClearAllLink.Click();
+            SelectOptionFromDropDown(SelectRegionSpan, "US");
+            SelectOptionFromDropDown(SelectCustomerNameSpan, profileName);
+            SelectOptionFromDropDown(SelectIdentityNameSpan, identityName.ToUpper());
+            SelectCatalogStatus(UtilityMethods.ConvertToString(catalogStatus));
+            InventoryCheckbox.Click();
+            SearchRecordsLink.Click();
+            CatalogsTable.WaitForElementVisible(TimeSpan.FromSeconds(30));
+            WaitForInventoryInSearchResult(anyTimeAfter.ConvertToUtcTimeZone(), catalogStatus);
+        }
+
+        #region Private Methods
+
         private void SelectOptionFromDropDown(IWebElement webElement, string optionText)
         {
             string xPath = "../following-sibling::div/child::ul/child::li/a[(text()='" + optionText + "')]";
@@ -199,11 +253,31 @@ namespace Modules.Channel.B2B.Core.NewPages
             {
                 lastStatusDate = Convert.ToDateTime(CatalogsTable.GetCellValue(1, "Last Status Date"), System.Globalization.CultureInfo.InvariantCulture);
                 if (CatalogsTable.GetCellValue(1, "Status") != null)
-                    //status = (CatalogStatus)Enum.Parse(typeof(CatalogStatus), CatalogsTable.GetCellValue(1, "Status"));
                     status = UtilityMethods.ConvertToEnum<CatalogStatus>(CatalogsTable.GetCellValue(1, "Status"));
 
+                if (lastStatusDate.AddMinutes(1) > createdTime && (status == catalogStatus || status == CatalogStatus.Failed || status == CatalogStatus.FailedInstant))
+                    break;
+                else
+                {
+                    SearchRecordsLink.Click();
+                    Thread.Sleep(TimeSpan.FromSeconds(5));
+                    timeOutInSecs -= 5;
+                }
+            }
+        }
 
-                //if (lastStatusDate.AddMinutes(1) > createdTime && (status == catalogStatus || status == CatalogStatus.Failed))
+        private void WaitForInventoryInSearchResult(DateTime createdTime, CatalogStatus catalogStatus)
+        {
+            DateTime lastStatusDate;
+            double timeOutInSecs = CatalogTimeOuts.CatalogSearchTimeOut.TotalSeconds;
+            CatalogStatus status = catalogStatus;
+
+            while (timeOutInSecs > 0)
+            {
+                lastStatusDate = Convert.ToDateTime(CatalogsTable.GetCellValueForInventory(1, "Last Status Date"), System.Globalization.CultureInfo.InvariantCulture);
+                if (CatalogsTable.GetCellValueForInventory(1, "Status") != null)
+                    status = UtilityMethods.ConvertToEnum<CatalogStatus>(CatalogsTable.GetCellValueForInventory(1, "Status"));
+
                 if (lastStatusDate.AddMinutes(1) > createdTime && (status == catalogStatus || status == CatalogStatus.Failed || status == CatalogStatus.FailedInstant))
                     break;
                 else
@@ -222,5 +296,7 @@ namespace Modules.Channel.B2B.Core.NewPages
             else if (DeltaCatalogCheckbox.Selected != (catalogType == CatalogType.Delta))
                 DeltaCatalogCheckbox.Click();
         }
+
+        #endregion Private Methods
     }
 }
