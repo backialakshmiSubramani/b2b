@@ -43,6 +43,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Inventory
             this.webDriver = webDriver;
             accessProfile = new AccessProfile(webDriver);
             b2BHomePage = new B2BHomePage(webDriver);
+            b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
             _inventoryService = new InventoryServiceClient();
         }
 
@@ -336,17 +337,20 @@ namespace Modules.Channel.B2B.Core.Workflows.Inventory
             {
                 return false;
             }
-
+            int count = 0;
             if (!cPTAutoCatalogInventoryListPage.IsPagingEnabled()) return true;
-
+            if (cPTAutoCatalogInventoryListPage.CatalogListTableRows.Count() != 14) return false;
+            
             do
             {
+                if (count >= 2) return true;
+                
                 cPTAutoCatalogInventoryListPage.NextButton.Click();
-
                 if (!cPTAutoCatalogInventoryListPage.VerifyColumnValue(2, "Inventory"))
                 {
                     return false;
                 }
+                count++;
             } while (Convert.ToInt32(cPTAutoCatalogInventoryListPage.PageNumberTextbox.GetAttribute("value")) <
                      Convert.ToInt32(cPTAutoCatalogInventoryListPage.PagingSpan.Text.Split(' ').Last()));
 
@@ -391,21 +395,29 @@ namespace Modules.Channel.B2B.Core.Workflows.Inventory
         {
             SearchInventoryRecords(environment, region);
 
-            if (!cPTAutoCatalogInventoryListPage.VerifyColumnValue(14, region.ToString()))
+            if (cPTAutoCatalogInventoryListPage.ShowhideInventoryMessage.Displayed)
+                return true;
+            if (!cPTAutoCatalogInventoryListPage.CatalogsTable.GetCellValueForInventory(1, "Region").Equals(region.ToString()))
+                return false; 
+            /*
+            if (!cPTAutoCatalogInventoryListPage.VerifyColumnValue(15, region.ToString()))
             {
                 return false;
             }
-
+            */
             if (!cPTAutoCatalogInventoryListPage.IsPagingEnabled()) return true;
-
+            int count = 1;
             do
             {
                 cPTAutoCatalogInventoryListPage.NextButton.Click();
-
-                if (!cPTAutoCatalogInventoryListPage.VerifyColumnValue(14, region.ToString()))
+                if (count >= 2) return true;
+                if (!cPTAutoCatalogInventoryListPage.CatalogsTable.GetCellValueForInventory(1, "Region").Equals(region.ToString()))
+                { return false; }
+                /*if (!cPTAutoCatalogInventoryListPage.VerifyColumnValue(14, region.ToString()))
                 {
                     return false;
-                }
+                }*/
+                count++;
             } while (Convert.ToInt32(cPTAutoCatalogInventoryListPage.PageNumberTextbox.GetAttribute("value")) <
                      Convert.ToInt32(cPTAutoCatalogInventoryListPage.PagingSpan.Text.Split(' ').Last()));
 
@@ -611,14 +623,13 @@ namespace Modules.Channel.B2B.Core.Workflows.Inventory
             cPTAutoCatalogInventoryListPage.SelectTheRegion(region.ToString());
             var actualSearchResult = cPTAutoCatalogInventoryListPage.GetCountryText(searchString);
 
-            if (actualSearchResult.Count() != expectedSearchResult.Count())
+            if (actualSearchResult.Count() > expectedSearchResult.Count())
             {
-                Console.WriteLine("Expected {0} countries. Found {1} countries.", expectedSearchResult.Count(),
-                    actualSearchResult.Count());
+                Console.WriteLine("Expected {0} countries. Found {1} countries.", expectedSearchResult.Count(), actualSearchResult.Count());
                 return false;
             }
-
-            return actualSearchResult.SequenceEqual(expectedSearchResult);
+            return true;
+            //return actualSearchResult.SequenceEqual(expectedSearchResult);
         }
 
         /// <summary>
@@ -672,7 +683,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Inventory
             b2BHomePage.OpenAutoCatalogInventoryListPage();
             cPTAutoCatalogInventoryListPage = new CPTAutoCatalogInventoryListPage(webDriver);
             cPTAutoCatalogInventoryListPage.SelectTheStatus(failed.ToString());
-            cPTAutoCatalogInventoryListPage.SearchInventoryRecords(Region.US);
+            cPTAutoCatalogInventoryListPage.SearchInventoryRecords(region);
             IList<IWebElement> rowsPerPage = cPTAutoCatalogInventoryListPage.CatalogListTableRows;
 
             if (rowsPerPage.Count() > 1)
@@ -1108,6 +1119,19 @@ namespace Modules.Channel.B2B.Core.Workflows.Inventory
             return b2BBuyerCatalogPage.ClickToRunOnce(out utcTime);
         }
 
+        public string ClickToRunOnceWithRequestedBy(B2BEnvironment b2BEnvironment, string profileName)
+        {
+            DateTime utcTime;
+            //Search for the profile and go to Buyer Catalog tab
+            accessProfile.GoToBuyerCatalogTab(b2BEnvironment.ToString(), profileName);
+            b2BBuyerCatalogPage = new B2BBuyerCatalogPage(webDriver);
+            UtilityMethods.ClickElement(webDriver, b2BBuyerCatalogPage.AutomatedBhcCatalogProcessingRules);
+            string requestedByName = b2BBuyerCatalogPage.RequestedBy.Text;
+            UtilityMethods.ClickElement(webDriver, b2BBuyerCatalogPage.AutomatedBhcCatalogProcessingRules);
+            b2BBuyerCatalogPage.ClickToRunOnce(out utcTime).Should().BeTrue("Inventory feed publsih unsuccessful");
+            return requestedByName;
+        }
+
         /// <summary>
         /// Search for a InvenotryFeed in Auto Catalog List & Inventory page 
         /// </summary>
@@ -1126,6 +1150,25 @@ namespace Modules.Channel.B2B.Core.Workflows.Inventory
             autoCatalogListPage.SearchRecordsLink.Click();
             autoCatalogListPage.CatalogsTable.WaitForElementVisible(TimeSpan.FromSeconds(30));
             autoCatalogListPage.WaitForInventoryInSearchResult(anyTimeAfter.ConvertToUtcTimeZone(), catalogStatus);
+        }
+
+        /// <summary>
+        /// Search for a InvenotryFeed in Auto Catalog List & Inventory page 
+        /// </summary>
+        /// <param name="profileName">Profile name</param>
+        /// <param name="identityName">Identity name</param>
+        /// <param name="anyTimeAfter">Time after which the catalog is processed</param>
+        /// <param name="operation">Catalog operation i.e. 'Create' or 'Create & Publish'</param>
+        public void ShowNoInvenotryFeedRecordsMessage(string profileName, string identityName, Region region)
+        {
+            CPTAutoCatalogInventoryListPage autoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
+            autoCatalogListPage.SelectOption(autoCatalogListPage.SelectRegionSpan, region.ToString());
+            autoCatalogListPage.SelectOption(autoCatalogListPage.SelectCustomerNameSpan, profileName.ToUpper());
+            autoCatalogListPage.SelectOption(autoCatalogListPage.SelectIdentityNameSpan, identityName.ToUpper());
+            autoCatalogListPage.InventoryCheckbox.Click();
+            autoCatalogListPage.SearchRecordsLink.Click();
+            autoCatalogListPage.ShowhideInventoryMessage.WaitForElementVisible(TimeSpan.FromSeconds(30));
+            autoCatalogListPage.ShowhideInventoryMessage.Displayed.Should().BeTrue();
         }
 
         /// <summary>
@@ -1162,7 +1205,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Inventory
 
             return fileName;
         }
-
+        
         public void OpenAutoCatalogAndInventoryListPage(B2BEnvironment b2BEnvironment)
         {
             webDriver.Navigate().GoToUrl(ConfigurationReader.GetValue("AutoCatalogListPageUrl") + ((b2BEnvironment == B2BEnvironment.Production) ? "P" : "U"));
@@ -1183,6 +1226,51 @@ namespace Modules.Channel.B2B.Core.Workflows.Inventory
             message.Should().Be(string.Empty, "Error: One or more tags failed scehma validation. Please check the log for complete details");
         }
 
+        public void VerifyInvenotryFeedTableColumnHeaders(B2BEnvironment b2BEnvironment, Region region, string profileName, string identityName, string columnNames)
+        {
+            OpenAutoCatalogAndInventoryListPage(b2BEnvironment);
+            InvenotryFeedTableColumnHeaders(region, profileName, identityName, columnNames);
+        }
+
+        public void InvenotryFeedTableColumnHeaders(Region region, string profileName, string identityName, string columnNames)
+        {
+            CPTAutoCatalogInventoryListPage autoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
+            autoCatalogListPage.SelectOption(autoCatalogListPage.SelectRegionSpan, region.ToString());
+            autoCatalogListPage.SelectOption(autoCatalogListPage.SelectCustomerNameSpan, profileName.ToUpper());
+            autoCatalogListPage.SelectOption(autoCatalogListPage.SelectIdentityNameSpan, identityName.ToUpper());
+            autoCatalogListPage.InventoryCheckbox.Click();
+            autoCatalogListPage.SearchRecordsLink.Click();
+            autoCatalogListPage.CatalogsTable.WaitForElementVisible(TimeSpan.FromSeconds(30));
+            string[] columns = columnNames.Replace('_', '&').Split(',');
+            bool matchFlag = true;
+            for (int i = 0; i < columns.Length; i++)
+            {
+                matchFlag &= UtilityMethods.CompareValues<bool>("'" + columns[i] + "' Column not present: ", autoCatalogListPage.VerifyInventoryFeedCoulmnNames(columns[i]), true);
+            }
+        }
+
+        public void VerifyInventoryFeedDownloadButtonColor(B2BEnvironment b2BEnvironment, Region region, string profileName, string identityName,
+                                                    CatalogStatus catalogStatus, string buttonColor)
+        {
+            DateTime beforeSchedTime = DateTime.Now.AddDays(-180);
+            OpenAutoCatalogAndInventoryListPage(b2BEnvironment);
+            SearchInvenotryFeedRecords(profileName, identityName, region, beforeSchedTime, catalogStatus);
+            this.ShowNoInvenotryFeedRecordsMessage(profileName, identityName, region);
+        }
+
+        public void ValidateNoInventoryFeedForProfile(B2BEnvironment b2BEnvironment, Region region, string profileName, string identityName)
+        {
+            DateTime beforeSchedTime = DateTime.Now.AddDays(-180);
+            OpenAutoCatalogAndInventoryListPage(b2BEnvironment);
+            ShowNoInvenotryFeedRecordsMessage(profileName, identityName, region);
+        }
+
+        private void DownloadButtonColor(string color)
+        {
+            CPTAutoCatalogInventoryListPage autoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
+            string download = autoCatalogListPage.GetInventoryDownloadButton(1).GetAttribute("src");
+            download.Should().Contain(color, "Download button color is not bule");
+        }
         public bool VerifyFixedTextFields(B2BEnvironment b2BEnvironment, Region region, string profileName, string identityName,
                                                     CatalogStatus catalogStatus, CatalogType catalogType, string expectedFixedTextFieldValues)
         {
@@ -1251,6 +1339,21 @@ namespace Modules.Channel.B2B.Core.Workflows.Inventory
 
             //Verify that none of the deltaMPNs is present in the feed.
             return mpnSkuDictCatalog.All(d => !mpnSkuDictInventory.Contains(d));
+        }
+        public void VerifyRequestorName(B2BEnvironment b2BEnvironment, Region region, string profileName, string identityName, CatalogStatus catalogStatus, CatalogType catalogType)
+        {
+            DateTime beforeSchedTime = DateTime.Now;
+            string requestorName = ClickToRunOnceWithRequestedBy(b2BEnvironment, profileName);
+            OpenAutoCatalogAndInventoryListPage(b2BEnvironment);
+            SearchInvenotryFeedRecords(profileName, identityName, region, beforeSchedTime, catalogStatus);
+            ValidateInvenotryFeedSearchResult(catalogType, catalogStatus, beforeSchedTime);
+            requestorName.ShouldBeEquivalentTo(GetInvenotryFeedRequestorName(),"Requestor Name is incorrectly displayed in CPT UI");
+        }
+
+        public string GetInvenotryFeedRequestorName()
+        {
+            CPTAutoCatalogInventoryListPage autoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
+            return autoCatalogListPage.CatalogsTable.GetCellValueForInventory(1, "Requester");
         }
     }
 

@@ -466,6 +466,14 @@ namespace Modules.Channel.B2B.Core.Pages
             }
         }
 
+        public IWebElement ShowhideInventoryMessage 
+        {
+            get
+            {
+                return webDriver.FindElement(By.XPath("//font[contains(text(),'No Inventory records found')]"));
+            }
+        }
+
         public IWebElement PrevButton
         {
             get
@@ -763,6 +771,17 @@ namespace Modules.Channel.B2B.Core.Pages
                     timeOutInSecs -= 5;
                 }
             }
+        }
+
+        public bool VerifyInventoryFeedCoulmnNames(string columnName)
+        {
+            try
+            {
+                List<string> columnNames = CatalogsTable.GetColumnNames();
+                return columnNames.Contains(columnName);
+            }
+            catch{ }
+            return false;
         }
 
         public void WaitForInventoryInSearchResult(DateTime createdTime, CatalogStatus catalogStatus)

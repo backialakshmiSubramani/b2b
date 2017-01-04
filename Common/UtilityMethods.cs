@@ -416,9 +416,10 @@ namespace Modules.Channel.B2B.Common
 
             if (columnIndex >= 4 && columnIndex < 7)
                 columnIndex += 2;
-            else if (columnIndex >= 7)
+            else if (columnIndex >= 7 && columnIndex < 10)
                 columnIndex += 3;
-
+            else if (columnIndex >= 10)
+                columnIndex += 7;
             string cellValue = tableElement.FindElement(By.CssSelector("tbody tr:nth-of-type(" + rowIndex + ") td:nth-of-type(" + columnIndex + ")")).Text;
 
             return cellValue;
