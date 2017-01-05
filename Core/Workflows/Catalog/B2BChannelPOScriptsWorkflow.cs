@@ -213,7 +213,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             string fileName, string poRefNum, string profileName, string identityName, string quantity)
         {
            // uniquePoRefNum = poRefNum + DateTime.Today.ToString("yyMMdd") + DateTime.Now.ToString("HHmmss");
-            uniquePoRefNum = poRefNum + DateTime.Now.ToString("ffffff");
+            uniquePoRefNum = poRefNum + DateTime.Now.ToString("fffffff");
             ChannelCatalogWorkflow uxWorkFlow = new ChannelCatalogWorkflow(webDriver);
             CatalogItem item = uxWorkFlow.GetCatalogItem(environment, itemType, type, status, region, profileName, identityName);
             webDriver = webDriver.SwitchBrowser(BrowserName.InternetExplorer);
