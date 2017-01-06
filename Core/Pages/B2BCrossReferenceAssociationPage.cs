@@ -321,6 +321,12 @@ namespace Modules.Channel.B2B.Core.Pages
             }
         }
 
+        public string GetCRTID(string userId)
+        {
+            return CRTResultTable.FindElement(By.XPath(string.Format("//td[translate(text(),'abcdefghijklmnopqrstuvwxyz','ABCDEFGHIJKLMNOPQRSTUVWXYZ')='{0}']/../td", userId))).Text;
+        }
+
+
         public void OpenCrossReferenceListPage(B2BEnvironment b2BEnvironment)
         {
             webDriver.Navigate().GoToUrl(ConfigurationReader.GetValue("CrossReferenceAssociationListPage") + (b2BEnvironment == B2BEnvironment.Production ? "P" : "U"));

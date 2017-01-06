@@ -1497,10 +1497,12 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             b2BCrossReferenceAssociationPage.OpenCrossReferenceListPage(b2BEnvironment);
             b2BCrossReferenceAssociationPage.AccountName.SelectByValue(profileName);
             b2BCrossReferenceAssociationPage.Search.Click();
-            b2BCrossReferenceAssociationPage.OpenCRTXML(profileName);
+            //b2BCrossReferenceAssociationPage.OpenCRTXML(profileName);
+            string CRId = b2BCrossReferenceAssociationPage.GetCRTID(profileName.ToUpper());
+            webDriver.Navigate().GoToUrl(ConfigurationReader.GetValue("CrossReferenceXMLPage") + CRId);
 
-            IReadOnlyCollection<string> windowHandles = webDriver.WindowHandles;
-            webDriver.SwitchTo().Window(webDriver.WindowHandles.Last());
+            //IReadOnlyCollection<string> windowHandles = webDriver.WindowHandles;
+            //webDriver.SwitchTo().Window(webDriver.WindowHandles.Last());
 
             BrowserName browser = webDriver.GetBrowserName();
             bool matchflag = true;
