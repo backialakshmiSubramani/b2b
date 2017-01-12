@@ -16,6 +16,7 @@ using Dell.Adept.UI.Web.Support.Extensions.WebDriver;
 using Dell.Adept.UI.Web.Support.Extensions.WebElement;
 using Dell.Adept.UI.Web.Support.Locators;
 using Modules.Channel.B2B.Common;
+using Modules.Channel.B2B.Core.Pages;
 using OpenQA.Selenium;
 using System;
 using System.Configuration;
@@ -173,7 +174,19 @@ namespace Modules.Channel.B2B.Core.NewPages
         public void GoToAutoCatalogAndInventoryPage()
         {
             AutoCatalogInventoryListPageLink.Click();
-            webDriver.SwitchTo().Window(WebDriver.WindowHandles.LastOrDefault());
+            PageUtility.WaitForPageRefresh(webDriver);
+            webDriver.SwitchTo().Window(WebDriver.WindowHandles.Last());
+        }
+
+        public void SwitchToPreviousTab()
+        {
+            webDriver.SwitchTo().Window(webDriver.WindowHandles.First());
+        }
+
+        public void SwitchToNextTab()
+        {
+            var gcmWindow = webDriver.WindowHandles.LastOrDefault();
+            webDriver.SwitchTo().Window(WebDriver.WindowHandles.Last());
         }
 
         public void SearchCatalog(string profileName, string identityName, DateTime anyTimeAfter, CatalogStatus catalogStatus, CatalogType catalogType)

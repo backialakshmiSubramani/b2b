@@ -12,6 +12,7 @@
 // ***********************************************************************
 using Dell.Adept.UI.Web.Pages;
 using Dell.Adept.UI.Web.Support.Extensions.WebDriver;
+using Modules.Channel.B2B.Core.Pages;
 using OpenQA.Selenium;
 using System;
 
@@ -71,6 +72,22 @@ namespace Modules.Channel.B2B.Core.NewPages
             }
         }
 
+        private IWebElement DeleteThisIdentityLink
+        {
+            get
+            {
+                return webDriver.FindElement(By.Id("ContentPageHolder_lnkDeleteIdentity"));
+            }
+        }
+
+        private IWebElement DeleteThisProfileIdentityNowLink
+        {
+            get
+            {
+                return webDriver.FindElement(By.Id("ContentPageHolder_lnkDeleteProfileIdentity"));
+            }
+        }
+
         private IWebElement _confirmationLabel;
         private IWebElement ConfirmationLabel
         {
@@ -98,6 +115,13 @@ namespace Modules.Channel.B2B.Core.NewPages
         {
             SaveChangesLink.Click();
             return string.Equals(ConfirmationLabel.Text.Trim(), "Profile Identity details saved successfully.");
+        }
+
+        public void DeleteIdentity()
+        {
+            DeleteThisIdentityLink.Click();
+            PageUtility.WaitForPageRefresh(webDriver);
+            DeleteThisProfileIdentityNowLink.Click();
         }
 
         #endregion ElementActions

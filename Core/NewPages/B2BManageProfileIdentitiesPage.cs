@@ -56,16 +56,11 @@ namespace Modules.Channel.B2B.Core.NewPages
 
         #region Elements
 
-        private IWebElement _manageProfileIdentitiesLink;
         private IWebElement ManageProfileIdentitiesLink
         {
             get
             {
-                if (_manageProfileIdentitiesLink == null)
-                {
-                    _manageProfileIdentitiesLink = webDriver.FindElement(By.XPath("//*[@id='manageprofileplus']/a/img"), new TimeSpan(0, 0, 30));
-                }
-                return _manageProfileIdentitiesLink;
+                return webDriver.FindElement(By.XPath("//*[@id='manageprofileplus']/a/img"), new TimeSpan(0, 0, 30));
             }
         }
 
@@ -84,17 +79,12 @@ namespace Modules.Channel.B2B.Core.NewPages
             }
         }
 
-        private List<IWebElement> _manageProfileIdentitiesRows;
         private List<IWebElement> ManageProfileIdentitiesRows
         {
             get
             {
-                if (_manageProfileIdentitiesRows == null)
-                {
-                    _manageProfileIdentitiesRows = webDriver.FindElements(
-                        By.XPath("//table[@id='ContentPageHolder_gvIdentities']/tbody/tr"), new TimeSpan(0, 0, 30)).ToList();
-                }
-                return _manageProfileIdentitiesRows;
+                return webDriver.FindElements(
+                    By.XPath("//table[@id='ContentPageHolder_gvIdentities']/tbody/tr"), new TimeSpan(0, 0, 30)).ToList();
             }
         }
 
@@ -103,6 +93,27 @@ namespace Modules.Channel.B2B.Core.NewPages
             get
             {
                 return webDriver.FindElement(By.Id("ContentPageHolder_ProfileHeader_hyp_PH_BuyerCatalog"));
+            }
+        }
+
+        private IWebElement GeneralTab
+        {
+            get
+            {
+                return webDriver.FindElement(By.Id("ContentPageHolder_ProfileHeader_hyp_PH_Authentication"));
+            }
+        }
+
+        private IWebElement _createNewProfileIdentityLink;
+        private IWebElement CreateNewProfileIdentityLink
+        {
+            get
+            {
+                if (_createNewProfileIdentityLink == null)
+                {
+                    _createNewProfileIdentityLink = webDriver.FindElement(By.Id("ContentPageHolder_lnkCreateProfileIdentity"));
+                }
+                return _createNewProfileIdentityLink;
             }
         }
 
@@ -115,9 +126,11 @@ namespace Modules.Channel.B2B.Core.NewPages
             ManageProfileIdentitiesLink.Click();
         }
 
-        public void ClickIdentityLink()
+        public string ClickIdentityLink()
         {
+            string identityText = ManageProfileIdentitiesRow.Text;
             ManageProfileIdentitiesRow.Click();
+            return identityText;
         }
 
         public List<string> GetIdentities()
@@ -128,6 +141,16 @@ namespace Modules.Channel.B2B.Core.NewPages
         public void GoToBuyerCatalogTab()
         {
             BuyerCatalogTab.Click();
+        }
+
+        public void GoToGeneralTab()
+        {
+            GeneralTab.Click();
+        }
+
+        public void ClickCreateNewProfileIdentity()
+        {
+            CreateNewProfileIdentityLink.Click();
         }
 
         #endregion ElementActions

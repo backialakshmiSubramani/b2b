@@ -19,6 +19,7 @@ using OpenQA.Selenium;
 using OpenQA.Selenium.Support.UI;
 using System;
 using System.Configuration;
+using System.Linq;
 
 namespace Modules.Channel.B2B.Core.NewPages
 {
@@ -68,6 +69,15 @@ namespace Modules.Channel.B2B.Core.NewPages
             }
         }
 
+        private IWebElement CreateInstantCatalogLink
+        {
+            get
+            {
+                webDriver.WaitForElement(By.XPath("//a[contains(text(),'Create Instant Catalog')]"), new TimeSpan(0, 0, 10));
+                return webDriver.FindElement(By.XPath("//a[contains(text(),'Create Instant Catalog')]"));
+            }
+        }
+
         #endregion Elements
 
         /// <summary>
@@ -113,6 +123,13 @@ namespace Modules.Channel.B2B.Core.NewPages
         {
             javaScriptExecutor.ExecuteScript("arguments[0].click();", B2BProfileListLink);
             PageUtility.WaitForPageRefresh(webDriver);
+        }
+
+        public void OpenCreateInstantCatalogPage()
+        {
+            javaScriptExecutor.ExecuteScript("arguments[0].click();", CreateInstantCatalogLink);
+            PageUtility.WaitForPageRefresh(webDriver);
+            webDriver.SwitchTo().Window(WebDriver.WindowHandles.LastOrDefault());
         }
 
         #endregion Element Actions

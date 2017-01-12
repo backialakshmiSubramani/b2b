@@ -69,20 +69,22 @@ namespace Modules.Channel.B2B.Core.NewPages
             }
         }
 
-        private IWebElement _automatedBhcCatalogProcessingRules;
+        private IWebElement EnableBHCCatalogAutoGeneration
+        {
+            get
+            {
+                return webDriver.FindElement(By.Id("chk_BC_BuyerCatalogCheck"));
+            }
+        }
+
         private IWebElement AutomatedBhcCatalogProcessingRules
         {
             get
             {
-                if (_automatedBhcCatalogProcessingRules == null)
-                {
-                    _automatedBhcCatalogProcessingRules = webDriver.FindElement(By.XPath("//*[@id='autobhccatalogprocessingrulesplus']/a/img"));
-                }
-                return _automatedBhcCatalogProcessingRules;
+                return webDriver.FindElement(By.XPath("//*[@id='autobhccatalogprocessingrulesplus']/a/img"));
             }
         }
 
-        private IWebElement _clickToRunOnceButton;
         /// <summary>
         /// 'Click to Run Once' button under 'Inventory Feed - Processing Rules' section
         /// Click to Run Once Button - to perform catalog Inventory Feed manually
@@ -91,9 +93,7 @@ namespace Modules.Channel.B2B.Core.NewPages
         {
             get
             {
-                return _clickToRunOnceButton ??
-                       (_clickToRunOnceButton = webDriver.FindElement(By.Id("ContentPageHolder_btnClicktoRunOnce"),
-                           new TimeSpan(0, 0, 10)));
+                return webDriver.FindElement(By.Id("ContentPageHolder_btnClicktoRunOnce"), new TimeSpan(0, 0, 10));
             }
         }
 
@@ -131,17 +131,41 @@ namespace Modules.Channel.B2B.Core.NewPages
             return string.Equals(ConfirmationLabel.Text.Trim(), "Buyer Catalog details saved successfully.");
         }
 
+        public void ExpandAutomatedBHCCatalogSection()
+        {
+            //Expand Auto BHC Section
+            AutomatedBhcCatalogProcessingRules.Click();
+            if (!EnableBHCCatalogAutoGeneration.Selected)
+            {
+                EnableBHCCatalogAutoGeneration.Click();
+            }
+        }
+
+        public void SelectAllIdentities()
+        {
+            foreach (var item in CheckedIdentityList)
+            {
+                if (!item.FindElements(By.TagName("input"))[0].Selected)
+                {
+                    item.FindElements(By.TagName("input"))[0].Click();
+                }
+            }
+        }
+
+        public bool UpdateBuyerCatalog()
+        {
+            UpdateButton.Click();
+            return string.Equals(ConfirmationLabel.Text.Trim(), "Buyer Catalog details saved successfully.");
+        }
+
         public bool ClickToRunOnce()
         {
             Console.WriteLine("Clicking on ClickToRunOnce Button..");
             ClickToRunOnceButton.Click();
             PageUtility.WaitForPageRefresh(webDriver);
             Console.WriteLine("Done!");
-            /*  The below 2 lines should be uncommented once the Click to run once button issue gets fixed */
-
-            //Console.WriteLine("Inventory Feed Request Status : {0}", ConfirmationLabel.Text);
-            //return string.Equals(ConfirmationLabel.Text.Trim(), "Inventory feed request initiated.");
-            return true;
+            Console.WriteLine("Inventory Feed Request Status : {0}", ConfirmationLabel.Text);
+            return string.Equals(ConfirmationLabel.Text.Trim(), "Inventory feed request initiated.");
         }
 
         #region Private Methods
