@@ -18,6 +18,7 @@ using Modules.Channel.B2B.Common;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Support.UI;
 using System;
+using System.Collections.ObjectModel;
 
 namespace Modules.Channel.B2B.Core.NewPages
 {
@@ -36,6 +37,10 @@ namespace Modules.Channel.B2B.Core.NewPages
         {
             throw new NotImplementedException();
         }
+
+        public string CurrentPrice { get; set; }
+
+        public string ChangedPrice { get; set; }
 
         public override bool Validate()
         {
@@ -105,6 +110,24 @@ namespace Modules.Channel.B2B.Core.NewPages
             }
         }
 
+
+        private IWebElement Link_PriceList
+        {
+            get
+            {
+                return webDriver.FindElement(By.Id("SubclassManager_TabPanel3_SkuListControl1_ProductsGrid_ctl03_ChangePricing"));
+            }
+        }
+
+        private IWebElement Price_After_Discount
+        {
+            get
+            {
+                return webDriver.FindElement(By.XPath("//*[@id='Pricing-Cell-313-7449']"));
+            }
+        }
+
+
         private IWebElement DropDown_Status_ViewSKU
         {
             get
@@ -136,7 +159,7 @@ namespace Modules.Channel.B2B.Core.NewPages
                 return webDriver.FindElement(By.XPath("//*[@id='ctl00_MainContentPlaceHolder_lnkBtnSwitch']"));
             }
         }
-        private IWebElement IsVerifyClassicViewLinks
+        private IWebElement IsClassicViewLink
         {
             get
             {
@@ -152,8 +175,23 @@ namespace Modules.Channel.B2B.Core.NewPages
                 return webDriver.FindElement(By.LinkText("Software and Peripherals"));
             }
         }
+        private IWebElement TxtDiscountSNP
+        {
+            get
+            {
+                return webDriver.FindElement(By.Id("TxtDiscount"), TimeSpan.FromSeconds(30));
+            }
+        }
+        public IWebElement BtnApplyChanges
+        {
+            get
+            {
+                return webDriver.FindElement(By.Id("btnApply"));
+            }
+        }
 
-    
+
+
 
         public void OpenOSTHomePage()
         {
@@ -178,7 +216,8 @@ namespace Modules.Channel.B2B.Core.NewPages
         public void ClickOnCutomizeCategoriesAndManufacturers()
         {
             SwitchToLeftIFrame();
-            webDriver.SwitchTo().Frame(0);
+            webDriver.WaitForPageLoadNew(TimeSpan.FromSeconds(60));
+           // webDriver.SwitchTo().Frame(0);
             _javaScriptExecutor.ExecuteScript("arguments[0].click();", CutomizeCategoriesAndManufacturers);           
         }
 
@@ -223,18 +262,29 @@ namespace Modules.Channel.B2B.Core.NewPages
             _javaScriptExecutor.ExecuteScript("arguments[0].click();", UpdateButton);
             webDriver.WaitForPageLoad(TimeSpan.FromSeconds(60));
         }
+        public void UpdateSKUDiscount()
+        {
+
+            webDriver.SwitchTo().DefaultContent();
+            webDriver.SwitchTo().Frame(0);
+            webDriver.SwitchTo().Frame(1);
+            _javaScriptExecutor.ExecuteScript("arguments[0].click();", UpdateButton);
+            webDriver.WaitForPageLoad(TimeSpan.FromSeconds(60));
+        }
+
 
         private void SwitchToLeftIFrame()
         {
             webDriver.SwitchTo().Frame(0);
-            //webDriver.SwitchTo().Frame(LeftIframe);
-         
+            //webDriver.SwitchTo().Frame(LeftIframe);         
            // _javaScriptExecutor.ExecuteScript()
         }
 
         public void SwtichToClassicView()
         {
-            IsVerifyClassicViewLinks.Click();
+            webDriver.SwitchTo().Frame(webDriver.FindElement(By.Id("ctl00_ContentPageHolder_ifrmHedgeRate")));
+            IsClassicViewLink.SendKeys(Keys.Enter);
+            webDriver.SwitchTo().DefaultContent();
             webDriver.WaitForPageLoadNew(TimeSpan.FromSeconds(60));
         }
 
@@ -246,8 +296,12 @@ namespace Modules.Channel.B2B.Core.NewPages
             bool isElementVisible = false;
             try
             {
+                webDriver.SwitchTo().Frame(webDriver.FindElement(By.Id("ctl00_ContentPageHolder_ifrmHedgeRate")));
+              //  IWebElement _webElement = _wait.Until(ExpectedConditions.ElementIsVisible(By.Id("ctl00_MainContentPlaceHolder_lnkBtnSwitch")));
+
                 IWebElement _webElement = _wait.Until(ExpectedConditions.ElementIsVisible(By.XPath("//*[@id='ctl00_MainContentPlaceHolder_lnkBtnSwitch']")));
                 isElementVisible = _webElement.Displayed;
+                webDriver.SwitchTo().DefaultContent();
             }
             catch (WebDriverTimeoutException)
             {
@@ -255,6 +309,80 @@ namespace Modules.Channel.B2B.Core.NewPages
             }
 
             return isElementVisible;
+        }
+
+        public void GotoViewSkus()
+        {
+            webDriver.SwitchTo().DefaultContent();
+            webDriver.SwitchTo().Frame(0);
+            webDriver.SwitchTo().Frame(1);
+            webDriver.WaitForPageLoadNew(TimeSpan.FromSeconds(30));
+            _javaScriptExecutor.ExecuteScript("arguments[0].click();", Link_ViewSkus);
+            webDriver.WaitForPageLoadNew(TimeSpan.FromSeconds(60));
+        }
+
+        public void SelectPriceList()
+        {
+            webDriver.SwitchTo().DefaultContent();
+            webDriver.SwitchTo().Frame(0);
+            webDriver.SwitchTo().Frame(1);
+            webDriver.WaitForPageLoadNew(TimeSpan.FromSeconds(30));
+          //  string price = CurrentConfigPrice;
+            _javaScriptExecutor.ExecuteScript("arguments[0].click();", Link_PriceList);           
+            webDriver.WaitForPageLoadNew(TimeSpan.FromSeconds(30));
+        }
+
+        public void GetCurrentSKUPrice()
+        {
+            webDriver.SwitchTo().DefaultContent();
+            webDriver.SwitchTo().Frame(0);
+            webDriver.SwitchTo().Frame(1);
+            CurrentPrice = Price_After_Discount.Text;
+        }
+
+        public void GetPriceAfterDiscount() 
+        {
+            webDriver.SwitchTo().DefaultContent();
+            webDriver.SwitchTo().Frame(0);
+            webDriver.SwitchTo().Frame(1);
+            webDriver.WaitForPageLoadNew(TimeSpan.FromSeconds(30));
+            string price = Price_After_Discount.Text;
+            ChangedPrice = Price_After_Discount.Text;
+        }
+
+        public void ApplyDiscountOnSKU(string Discount)
+        {
+            string oldWindow = webDriver.CurrentWindowHandle;
+            string popWindowHandle = null;
+            WebDriverWait wait = new WebDriverWait(webDriver, new TimeSpan(0, 0, 5));
+          //  wait.Until((d) => webDriver.WindowHandles.Count == 2);
+            var windowHandles = webDriver.WindowHandles;
+            ReadOnlyCollection<string> handles = new ReadOnlyCollection<string>(windowHandles);
+            foreach (string handle in handles)
+            {
+                if (handle != oldWindow)
+                {
+                    popWindowHandle = handle;
+                }
+            }
+            webDriver.SwitchTo().Window(popWindowHandle);
+            webDriver.SwitchTo().DefaultContent();
+            webDriver.SwitchTo().Frame(0);
+            webDriver.SwitchTo().Frame(1);
+            TxtDiscountSNP.Clear();
+            TxtDiscountSNP.SendKeys(Discount);
+            BtnApplyChanges.SendKeys(Keys.Enter);
+            webDriver.SwitchTo().Window(oldWindow);
+            webDriver.WaitForPageLoad(TimeSpan.FromSeconds(30));
+            UpdateSKUDiscount();
+        }
+
+        public string CurrentConfigPrice
+        {
+            get
+            {
+                return webDriver.FindElement(By.Id("lblConfigPrice")).Text;
+            }
         }
     }
 }

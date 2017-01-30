@@ -72,7 +72,7 @@ namespace Modules.Channel.B2B.Core.Pages
         public override bool IsActive()
         {
             return (webDriver).ToString().Contains("(null)") ? false : true;
-        }
+        }        
 
         #region elements
         /// <summary>
@@ -332,7 +332,39 @@ namespace Modules.Channel.B2B.Core.Pages
             webDriver.Navigate().GoToUrl(ConfigurationReader.GetValue("CrossReferenceAssociationListPage") + (b2BEnvironment == B2BEnvironment.Production ? "P" : "U"));
         }
 
+        public void GoToCrossReferenceXMLPage(string ProfileName)
+        {
+            string CRId = GetCRTID(ProfileName.ToUpper());
+            webDriver.Navigate().GoToUrl(ConfigurationReader.GetValue("CrossReferenceXMLPage") + CRId);
+        }
 
-        #endregion
-    }
+        public void WaitForPageLoad()
+        {
+            webDriver.WaitForPageLoadNew(TimeSpan.FromSeconds(60));
+        }
+        public string BrowserName
+        {
+            get
+            {
+                return webDriver.GetBrowserName().ToString();
+            }
+        }
+
+        public string PageSource
+        {
+            get
+            {
+                return webDriver.PageSource;
+            }
+        }
+
+        public string crtXMLText()
+        {
+            return CRTResultTable.FindElement(By.CssSelector("div[class='pretty-print']")).Text;
+            
+        }   
+
+
+    #endregion
+}
 }
