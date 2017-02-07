@@ -144,7 +144,7 @@ namespace Modules.Channel.B2B.Core.NewPages
         {
             get
             {
-                return webDriver.FindElement(By.XPath("//a[text()=' Auto Catalog & Inventory']"));
+                return webDriver.FindElement(By.XPath("//a[text()=' Auto Catalog & Inventory List']"));
             }
         }
 
@@ -214,6 +214,12 @@ namespace Modules.Channel.B2B.Core.NewPages
             lastStatusDate = CatalogsTable.GetCellValueForInventory(1, "Last Status Date");
             type = CatalogsTable.GetCellValueForInventory(1, "Type");
             status = CatalogsTable.GetCellValueForInventory(1, "Status");
+        }
+
+        public void GetInventoryFileName(out string inventoryName, out string lastStatusDate)
+        {
+            inventoryName = CatalogsTable.GetCellValueForInventory(1, "Catalog/Inventory Name");
+            lastStatusDate = CatalogsTable.GetCellValueForInventory(1, "Last Status Date");
         }
 
         /// <summary>

@@ -221,15 +221,15 @@ namespace Modules.Channel.B2B.Common
         {
             Type valueType = typeof(T);
             bool result;
- 
+
             if (valueType.ToString() == "System.String")
                 result = Convert.ChangeType(actualValue, typeof(T)).ToString().ToUpper().Equals((Convert.ChangeType(expectedValue, typeof(T))).ToString().ToUpper());
             else
                 result = Convert.ChangeType(actualValue, typeof(T)).Equals((Convert.ChangeType(expectedValue, typeof(T))));
- 
+
             if (!result)
                 Console.WriteLine(string.Format("FieldName: {0} ---- Actual: {1}, Expected: {2} ---- Match: {3}", fieldName, actualValue, expectedValue, result));
- 
+
             return result;
 
         }
@@ -413,7 +413,8 @@ namespace Modules.Channel.B2B.Common
             int columnIndex = tableElement.GetColumnIndex(columnName);
             if (columnIndex == 0)
                 return null;
-
+            if(columnIndex == 1)
+                return tableElement.FindElement(By.CssSelector("tbody tr:nth-of-type(" + rowIndex + ") td:nth-of-type(" + columnIndex + ")")).GetAttribute("title");
             if (columnIndex >= 4 && columnIndex < 7)
                 columnIndex += 2;
             else if (columnIndex >= 7 && columnIndex < 10)

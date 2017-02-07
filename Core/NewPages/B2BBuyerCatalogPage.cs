@@ -112,9 +112,17 @@ namespace Modules.Channel.B2B.Core.NewPages
             {
                 if (_updateButton == null)
                 {
-                    _updateButton = webDriver.FindElement(By.Id("ContentPageHolder_lnk_BC_Save"), new TimeSpan(0, 0, 30));
+                    _updateButton = webDriver.FindElement(By.Id("ContentPageHolder_lnk_BC_Save"), new TimeSpan(0, 0, 60));
                 }
                 return _updateButton;
+            }
+        }
+
+        private IWebElement InternalEmailAddresses
+        {
+            get
+            {
+                return webDriver.FindElement(By.Id("txtInterEmail"), new TimeSpan(0, 0, 60));
             }
         }
 
@@ -166,6 +174,11 @@ namespace Modules.Channel.B2B.Core.NewPages
             Console.WriteLine("Done!");
             Console.WriteLine("Inventory Feed Request Status : {0}", ConfirmationLabel.Text);
             return string.Equals(ConfirmationLabel.Text.Trim(), "Inventory feed request initiated.");
+        }
+
+        public void UpdateInternalEmailAddresses(string internalEmailAddress)
+        {
+            InternalEmailAddresses.Set(internalEmailAddress);
         }
 
         #region Private Methods
