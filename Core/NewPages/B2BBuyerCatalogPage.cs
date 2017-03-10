@@ -15,6 +15,7 @@ using Dell.Adept.UI.Web.Support.Extensions.WebDriver;
 using Dell.Adept.UI.Web.Support.Extensions.WebElement;
 using Modules.Channel.B2B.Core.Pages;
 using OpenQA.Selenium;
+using OpenQA.Selenium.Support.UI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -126,6 +127,38 @@ namespace Modules.Channel.B2B.Core.NewPages
             }
         }
 
+        private IWebElement ExternalEmailAddresses => webDriver.FindElement(By.Id("txtCustEmail"), new TimeSpan(0, 0, 60));
+
+        private string DaysInterval
+        {
+            get
+            {
+                IWebElement comboBox = webDriver.FindElement(By.Id("ContentPageHolder_dd_AutomatedATSIntervaldays"));
+                SelectElement selectedValue = new SelectElement(comboBox);
+                return selectedValue.SelectedOption.Text;
+            }
+        }
+
+        private string HoursInterval
+        {
+            get
+            {
+                IWebElement comboBox = webDriver.FindElement(By.Id("ContentPageHolder_dd_AutomatedATSIntervalhr"));
+                SelectElement selectedValue = new SelectElement(comboBox);
+                return selectedValue.SelectedOption.Text;
+            }
+        }
+
+        private string MinutesInterval
+        {
+            get
+            {
+                IWebElement comboBox = webDriver.FindElement(By.Id("ContentPageHolder_dd_AutomatedATSIntervalmn"));
+                SelectElement selectedValue = new SelectElement(comboBox);
+                return selectedValue.SelectedOption.Text;
+            }
+        }
+
         #endregion Elements
 
         #region ElementActions
@@ -181,7 +214,20 @@ namespace Modules.Channel.B2B.Core.NewPages
             InternalEmailAddresses.Set(internalEmailAddress);
         }
 
+        public void UpdateExternalEmailAddresses(string externalEmailAddress)
+        {
+            ExternalEmailAddresses.Set(externalEmailAddress);
+        }
+
+        public void RetrieveRefreshInterval(out string daysRefreshInterval,out string hoursRefreshInterval, out string minutesRefreshInterval)
+        {
+            daysRefreshInterval = DaysInterval;
+            hoursRefreshInterval = HoursInterval;
+            minutesRefreshInterval = MinutesInterval;
+        }
+
         #region Private Methods
+
         private string SelectIdentity()
         {
             if (!CheckedIdentityList[0].FindElements(By.TagName("input"))[0].Selected)

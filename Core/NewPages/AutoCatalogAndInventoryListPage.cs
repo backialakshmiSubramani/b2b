@@ -12,7 +12,6 @@
 // ***********************************************************************
 using Dell.Adept.UI.Web.Pages;
 using Dell.Adept.UI.Web.Support;
-using Dell.Adept.UI.Web.Support.Extensions.WebDriver;
 using Dell.Adept.UI.Web.Support.Extensions.WebElement;
 using Dell.Adept.UI.Web.Support.Locators;
 using Modules.Channel.B2B.Common;
@@ -185,7 +184,6 @@ namespace Modules.Channel.B2B.Core.NewPages
 
         public void SwitchToNextTab()
         {
-            var gcmWindow = webDriver.WindowHandles.LastOrDefault();
             webDriver.SwitchTo().Window(WebDriver.WindowHandles.Last());
         }
 
