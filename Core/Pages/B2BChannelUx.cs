@@ -289,6 +289,7 @@ namespace Modules.Channel.B2B.Core.Pages
 
         public void SelectOption(IWebElement webElement, string optionText)
         {
+            optionText = optionText.ToUpper();
             webDriver.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromMinutes(1));
             UtilityMethods.ClickElement(webDriver, webElement);
             IWebElement textElement = webElement.FindElement(By.XPath("div/ul/child::li/a/div/strong[translate(text(),'abcdefghijklmnopqrstuvwxyz','ABCDEFGHIJKLMNOPQRSTUVWXYZ')='" + optionText + "']"));
