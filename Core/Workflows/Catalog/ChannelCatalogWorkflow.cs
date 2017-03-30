@@ -3007,16 +3007,9 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                 var HeaderRowElement = webDriver.FindElements(By.XPath(TableXpath_First + Table1FirstRow_End))[z];
                 var HeaderRowTextfromLocator = HeaderRowElement.Text;
                 var HeaderRowTestData = HeaderStringvalue[z];
-                if (HeaderRowTextfromLocator.ToUpper().Contains("DELL.COM"))
+                if (HeaderRowTextfromLocator.ToUpper().Contains(HeaderRowTestData.ToUpper()))
                 {
                     HeaderRowsCount++;
-                }
-                else
-                {
-                    if (HeaderRowTextfromLocator.ToUpper().Contains(HeaderRowTestData.ToUpper()))
-                    {
-                        HeaderRowsCount++;
-                    }
                 }
             }
             // Sub Header and Sub Rows Table1
@@ -5213,7 +5206,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             b2bChannelUx.OpenAutoCatalogAndInventoryListPage(b2BEnvironment);
             b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
             b2BAutoCatalogListPage.SelectTheRegion(region);
-            b2BAutoCatalogListPage.SelectTheCountry(country);
+            //b2BAutoCatalogListPage.SelectTheCountry(country);
             if (type == CatalogType.Original)
                 b2BAutoCatalogListPage.OriginalCatalogCheckbox.Click();
             else
