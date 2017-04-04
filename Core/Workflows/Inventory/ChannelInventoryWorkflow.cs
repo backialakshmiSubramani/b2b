@@ -659,6 +659,8 @@ namespace Modules.Channel.B2B.Core.Workflows.Inventory
                 cPTAutoCatalogInventoryListPage.PageNumberTextbox.SendKeys(totalPages);
             }
 
+            Console.WriteLine(cPTAutoCatalogInventoryListPage.CatalogListTableRows.Last());
+            Console.WriteLine(cPTAutoCatalogInventoryListPage.CatalogListTableRows.Last().FindElements(By.TagName("td"))[6].Text);
             var oldestRecordDate =
                 Convert.ToDateTime(
                     cPTAutoCatalogInventoryListPage.CatalogListTableRows.Last().FindElements(By.TagName("td"))[6].Text);
