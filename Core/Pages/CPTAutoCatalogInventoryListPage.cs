@@ -466,7 +466,7 @@ namespace Modules.Channel.B2B.Core.Pages
             }
         }
 
-        public IWebElement ShowhideInventoryMessage 
+        public IWebElement ShowhideInventoryMessage
         {
             get
             {
@@ -761,7 +761,7 @@ namespace Modules.Channel.B2B.Core.Pages
                 lastStatusDate = Convert.ToDateTime(CatalogsTable.GetCellValue(1, "Last Status Date"), System.Globalization.CultureInfo.InvariantCulture);
                 if (CatalogsTable.GetCellValue(1, "Status") != null)
                     status = UtilityMethods.ConvertToEnum<CatalogStatus>(CatalogsTable.GetCellValue(1, "Status"));
-                
+
                 if (lastStatusDate.AddMinutes(1) > createdTime && (status == catalogStatus || status == CatalogStatus.Failed || status == CatalogStatus.FailedInstant))
                     break;
                 else
@@ -780,7 +780,7 @@ namespace Modules.Channel.B2B.Core.Pages
                 List<string> columnNames = CatalogsTable.GetColumnNames();
                 return columnNames.Contains(columnName);
             }
-            catch{ }
+            catch { }
             return false;
         }
 
@@ -888,7 +888,10 @@ namespace Modules.Channel.B2B.Core.Pages
         {
             try
             {
-                if (!PagingSpan.IsElementVisible())
+                var textInPagingSpan = CatalogsTable.FindElement(By.XPath("thead/tr[1]/td")).Text;
+
+                //if (!PagingSpan.IsElementVisible())
+                if (string.IsNullOrEmpty(textInPagingSpan) || !textInPagingSpan.Contains("Page of"))
                 {
                     Console.WriteLine("Paging not enabled");
                     return false;
