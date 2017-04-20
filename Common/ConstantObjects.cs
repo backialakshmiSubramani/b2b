@@ -106,7 +106,15 @@ namespace Modules.Channel.B2B.Common
         [Description("Created-Instant")]
         CreatedInstant,
         [Description("Failed-Instant")]
-        FailedInstant
+        FailedInstant,
+        [Description("Created-Warning-Instant")]
+        CreatedWarningInstant,
+        [Description("Processed-Warning")]
+        ProcessedWarning,
+        [Description("Created-Warning")]
+        CreatedWarning,
+        [Description("Published-Warning")]
+        PublishedWarning
     }
 
     public enum CRTStatus

@@ -750,7 +750,7 @@ namespace Modules.Channel.B2B.Core.Pages
         {
             return CatalogsTable.FindElement(By.CssSelector("tbody>tr:nth-of-type(" + rowIndex + ")>td[title=' download']>input[type='image'][ng-show='(Catalog.IsFeedGenerated)']"));
         }
-        public void WaitForCatalogInSearchResult(DateTime createdTime, CatalogStatus catalogStatus)
+        public void WaitForCatalogInSearchResult_Old(DateTime createdTime, CatalogStatus catalogStatus)
         {
             DateTime lastStatusDate;
             double timeOutInSecs = CatalogTimeOuts.CatalogSearchTimeOut.TotalSeconds;
@@ -772,6 +772,45 @@ namespace Modules.Channel.B2B.Core.Pages
                 }
             }
         }
+
+
+        public void WaitForCatalogInSearchResult(DateTime createdTime, CatalogStatus catalogStatus)
+        {
+            DateTime lastStatusDate;
+            double timeOutInSecs = CatalogTimeOuts.CatalogSearchTimeOut.TotalSeconds;
+            string threadId = string.Empty;
+            CatalogStatus status = catalogStatus;
+
+            while (timeOutInSecs > 0)
+            {
+                lastStatusDate = Convert.ToDateTime(CatalogsTable.GetCellValue(1, "Last Status Date"), System.Globalization.CultureInfo.InvariantCulture);
+                if (CatalogsTable.GetCellValue(1, "Status") != null)
+                    status = UtilityMethods.ConvertToEnum<CatalogStatus>(CatalogsTable.GetCellValue(1, "Status"));
+
+                if (lastStatusDate.AddMinutes(1) > createdTime)
+                {
+                    if (catalogStatus == CatalogStatus.Created && (status == CatalogStatus.Created || status == CatalogStatus.CreatedWarning || status == CatalogStatus.Failed))
+                        break;
+                    else if (catalogStatus == CatalogStatus.Published && (status == CatalogStatus.Published || status == CatalogStatus.PublishedWarning || status == CatalogStatus.Failed))
+                        break;
+                    else if (catalogStatus == CatalogStatus.CreatedInstant && (status == CatalogStatus.CreatedInstant || status == CatalogStatus.CreatedWarningInstant || status == CatalogStatus.FailedInstant))
+                        break;
+                    else if (catalogStatus == CatalogStatus.Failed && (status == CatalogStatus.Created || status == CatalogStatus.CreatedWarning || status == CatalogStatus.Failed))
+                        break;
+                    else if (catalogStatus == CatalogStatus.Failed && (status == CatalogStatus.Published || status == CatalogStatus.PublishedWarning || status == CatalogStatus.Failed))
+                        break;
+                }
+
+                SearchRecordsLink.Click();
+                Thread.Sleep(TimeSpan.FromSeconds(5));
+                timeOutInSecs -= 5;
+            }
+
+            //threadId = CatalogsTable.GetCellValue(1, "Thread Id");
+            //Console.WriteLine("Thread Id: " + threadId);
+            //return threadId;
+        }
+
 
         public bool VerifyInventoryFeedCoulmnNames(string columnName)
         {
