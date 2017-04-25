@@ -1334,6 +1334,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             autoCatalogListPage.CatalogsTable.GetCellValue(1, "Last Status Date").Trim().ConvertToDateTime().AddMinutes(1).Should().BeAfter(anyTimeAfter.ConvertToUtcTimeZone(), "Catalog is not displayed in Search Result");
             autoCatalogListPage.CatalogsTable.GetCellValue(1, "Type").Should().Be(catalogType.ConvertToString(), "Expected Catalog type is incorrect");
             autoCatalogListPage.CatalogsTable.GetCellValue(1, "Status").Should().Contain(catalogStatus.ConvertToString(), "Catalog status is not as expected");
+            //status == CatalogStatus.Created || status == CatalogStatus.CreatedWarning
         }
 
         public void ValidateCatalogSearchResult(CatalogType catalogType, CatalogStatus catalogStatus, DateTime anyTimeAfter)
