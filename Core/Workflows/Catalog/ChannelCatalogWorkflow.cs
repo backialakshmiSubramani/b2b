@@ -1190,6 +1190,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             b2BAutoCatalogListPage.SelectTheCountry(country);
             b2BAutoCatalogListPage.SelectTheStatus(status.ToString());
             b2BAutoCatalogListPage.SelectCatalogTestOrLive(catalogTestOrLive);
+            b2BAutoCatalogListPage.CatalogRadioButton.Click();
             b2BAutoCatalogListPage.SearchRecordsLink.Click();
             b2BAutoCatalogListPage.CatalogsTable.WaitForElementVisible(TimeSpan.FromSeconds(30));
             var firstThreadIdElement = b2BAutoCatalogListPage.CatalogsTable.GetCellElement(1, "Thread Id");
@@ -1259,6 +1260,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             else
                 b2BAutoCatalogListPage.DeltaCatalogCheckbox.Click();
             b2BAutoCatalogListPage.SelectTheStatus(status.ToString());
+            b2BAutoCatalogListPage.CatalogRadioButton.Click();
             b2BAutoCatalogListPage.SearchRecordsLink.Click();
             b2BAutoCatalogListPage.CatalogsTable.WaitForElementVisible(TimeSpan.FromSeconds(30));
             var Status = b2BAutoCatalogListPage.CatalogsTable.GetCellValue(1, "Status");
@@ -1692,7 +1694,8 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             else
                 b2BAutoCatalogListPage.DeltaCatalogCheckbox.Click();
 
-            b2BAutoCatalogListPage.SelectTheStatus(status.ToString()); ;
+            b2BAutoCatalogListPage.SelectTheStatus(status.ToString());
+            b2BAutoCatalogListPage.CatalogRadioButton.Click();
             b2BAutoCatalogListPage.SearchRecordsLink.Click();
             b2BAutoCatalogListPage.CatalogsTable.WaitForElementVisible(TimeSpan.FromSeconds(30));
             //webDriver.WaitForTableRowCount(b2BAutoCatalogListPage.CatalogsTable, 1);
@@ -2096,6 +2099,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             b2BAutoCatalogListPage.SelectTheCountry(country);
             b2BAutoCatalogListPage.SelectTheCustomer(customerName);
             b2BAutoCatalogListPage.SelectTheIdentity(identity);
+            b2BAutoCatalogListPage.CatalogRadioButton.Click();
             b2BAutoCatalogListPage.SearchRecordsLink.Click();
             b2BAutoCatalogListPage.CatalogsTable.WaitForElementVisible(TimeSpan.FromSeconds(30));
 
@@ -5217,6 +5221,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             b2BAutoCatalogListPage.SelectTheStatus(status.ToString());
             if (b2BAutoCatalogListPage.LiveChk.Selected)
                 b2BAutoCatalogListPage.LiveChk.Click();
+            b2BAutoCatalogListPage.CatalogRadioButton.Click();
             b2BAutoCatalogListPage.SearchRecordsLink.Click();
             b2BAutoCatalogListPage.CatalogsTable.WaitForElementVisible(TimeSpan.FromSeconds(30));
             string filePath = uxWorkflow.DownloadCatalog(identity, beforeSchedTime);

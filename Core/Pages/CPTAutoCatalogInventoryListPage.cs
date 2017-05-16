@@ -306,6 +306,16 @@ namespace Modules.Channel.B2B.Core.Pages
             get { return webDriver.FindElement(By.CssSelector("input[type='checkbox'][ng-model='parIsSystem']")); }
         }
 
+        public IWebElement CatalogRadioButton
+        {
+            get { return webDriver.FindElement(By.CssSelector("input[type='radio'][value='Catalog'][ng-model='typeSelected']")); }
+        }
+
+        public IWebElement InventoryRadioButton
+        {
+            get { return webDriver.FindElement(By.CssSelector("input[type='radio'][value='Inventory'][ng-model='typeSelected']")); }
+        }
+
         /// <summary>
         /// Search Records hyperlink
         /// </summary>
@@ -335,7 +345,7 @@ namespace Modules.Channel.B2B.Core.Pages
         /// </summary>
         public ReadOnlyCollection<IWebElement> CatalogListTableRows
         {
-            get { return webDriver.FindElements(By.XPath("//table[@st-safe-src='Catalogs']/tbody/tr")); }
+            get { return webDriver.FindElements(By.XPath("//table[@st-safe-src='gridResult']/tbody/tr")); }
         }
 
         /// <summary>
@@ -343,7 +353,7 @@ namespace Modules.Channel.B2B.Core.Pages
         /// </summary>
         public IWebElement CatalogListTableHeader
         {
-            get { return webDriver.FindElement(By.XPath("//table[@st-safe-src='Catalogs']/thead")); }
+            get { return webDriver.FindElement(By.XPath("//table[@st-safe-src='gridResult']/thead")); }
         }
 
         /// <summary>
@@ -462,7 +472,7 @@ namespace Modules.Channel.B2B.Core.Pages
         {
             get
             {
-                return webDriver.FindElement(By.XPath("//table[@st-table='Channel' and @st-safe-src='Catalogs']"));
+                return webDriver.FindElement(By.XPath("//table[@st-table='Channel' and @st-safe-src='gridResult']"));
             }
         }
 
