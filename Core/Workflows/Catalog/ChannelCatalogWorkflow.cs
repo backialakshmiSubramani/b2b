@@ -3021,7 +3021,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             {
                 return true;
             }
-            Console.WriteLine("Headercount: " + Headercount + "HeaderRowsCount: " + HeaderRowsCount + "subHeaderRows: " + subHeaderRows);
+            Console.WriteLine("Headercount: " + Headercount + ",HeaderRowsCount: " + HeaderRowsCount + ",subHeaderRows: " + subHeaderRows);
             return false;
         }
 
