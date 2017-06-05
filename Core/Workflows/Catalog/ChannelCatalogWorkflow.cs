@@ -1255,12 +1255,12 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
             b2BAutoCatalogListPage.SelectTheRegion(regionName);
             b2BAutoCatalogListPage.SelectTheCountry(countryName);
+            b2BAutoCatalogListPage.CatalogRadioButton.Click();
             if (type == CatalogType.Original)
                 b2BAutoCatalogListPage.OriginalCatalogCheckbox.Click();
             else
                 b2BAutoCatalogListPage.DeltaCatalogCheckbox.Click();
             b2BAutoCatalogListPage.SelectTheStatus(status.ToString());
-            b2BAutoCatalogListPage.CatalogRadioButton.Click();
             b2BAutoCatalogListPage.SearchRecordsLink.Click();
             b2BAutoCatalogListPage.CatalogsTable.WaitForElementVisible(TimeSpan.FromSeconds(30));
             var Status = b2BAutoCatalogListPage.CatalogsTable.GetCellValue(1, "Status");
@@ -1689,13 +1689,13 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
             b2BAutoCatalogListPage.SelectTheRegion(region);
             b2BAutoCatalogListPage.SelectTheCountry(country);
+            b2BAutoCatalogListPage.CatalogRadioButton.Click();
             if (type == CatalogType.Original)
                 b2BAutoCatalogListPage.OriginalCatalogCheckbox.Click();
             else
                 b2BAutoCatalogListPage.DeltaCatalogCheckbox.Click();
 
             b2BAutoCatalogListPage.SelectTheStatus(status.ToString());
-            b2BAutoCatalogListPage.CatalogRadioButton.Click();
             b2BAutoCatalogListPage.SearchRecordsLink.Click();
             b2BAutoCatalogListPage.CatalogsTable.WaitForElementVisible(TimeSpan.FromSeconds(30));
             //webDriver.WaitForTableRowCount(b2BAutoCatalogListPage.CatalogsTable, 1);
@@ -5211,6 +5211,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
             b2BAutoCatalogListPage.SelectTheRegion(region);
             //b2BAutoCatalogListPage.SelectTheCountry(country);
+            b2BAutoCatalogListPage.CatalogRadioButton.Click();
             if (type == CatalogType.Original)
                 b2BAutoCatalogListPage.OriginalCatalogCheckbox.Click();
             else
@@ -5221,7 +5222,6 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             b2BAutoCatalogListPage.SelectTheStatus(status.ToString());
             if (b2BAutoCatalogListPage.LiveChk.Selected)
                 b2BAutoCatalogListPage.LiveChk.Click();
-            b2BAutoCatalogListPage.CatalogRadioButton.Click();
             b2BAutoCatalogListPage.SearchRecordsLink.Click();
             b2BAutoCatalogListPage.CatalogsTable.WaitForElementVisible(TimeSpan.FromSeconds(30));
             string filePath = uxWorkflow.DownloadCatalog(identity, beforeSchedTime);

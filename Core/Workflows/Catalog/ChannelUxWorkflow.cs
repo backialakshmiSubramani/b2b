@@ -1309,7 +1309,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             autoCatalogListPage.SelectOption(autoCatalogListPage.SelectRegionSpan, "US");
             autoCatalogListPage.SelectOption(autoCatalogListPage.SelectCustomerNameSpan, profileName.ToUpper());
             autoCatalogListPage.SelectOption(autoCatalogListPage.SelectIdentityNameSpan, identityName.ToUpper());
-
+            autoCatalogListPage.CatalogRadioButton.Click();
             if (autoCatalogListPage.OriginalCatalogCheckbox.Selected != (catalogType == CatalogType.Original))
                 autoCatalogListPage.OriginalCatalogCheckbox.Click();
             else if (autoCatalogListPage.DeltaCatalogCheckbox.Selected != (catalogType == CatalogType.Delta))
@@ -1317,7 +1317,6 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             if (statusFilter)
                 autoCatalogListPage.SelectTheStatus(UtilityMethods.ConvertToString(catalogStatus));
             autoCatalogListPage.SelectCatalogTestOrLive(catalogTestOrLive);
-            autoCatalogListPage.CatalogRadioButton.Click();
             autoCatalogListPage.SearchRecordsLink.Click();
             autoCatalogListPage.CatalogsTable.WaitForElementVisible(TimeSpan.FromSeconds(30));
             autoCatalogListPage.WaitForCatalogInSearchResult(anyTimeAfter.ConvertToUtcTimeZone(), catalogStatus);
