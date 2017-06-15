@@ -2134,15 +2134,15 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             if (
                  !b2BAutoCatalogListPage.CatalogListTableRows.All(
                      r =>
-                         r.FindElements(By.TagName("td"))[3].Text.Equals(b2BAutoCatalogListPage.StatusTable[0].FindElements(By.TagName("td"))[0].Text) ||
-                         r.FindElements(By.TagName("td"))[3].Text.Equals(b2BAutoCatalogListPage.StatusTable[1].FindElements(By.TagName("td"))[0].Text) ||
-                         r.FindElements(By.TagName("td"))[3].Text.Equals(b2BAutoCatalogListPage.StatusTable[2].FindElements(By.TagName("td"))[0].Text) ||
-                         r.FindElements(By.TagName("td"))[3].Text.Equals(b2BAutoCatalogListPage.StatusTable[3].FindElements(By.TagName("td"))[0].Text) ||
-                         r.FindElements(By.TagName("td"))[3].Text.Equals(b2BAutoCatalogListPage.StatusTable[4].FindElements(By.TagName("td"))[0].Text) ||
-                         r.FindElements(By.TagName("td"))[3].Text.Equals(b2BAutoCatalogListPage.StatusTable[5].FindElements(By.TagName("td"))[0].Text) ||
-                         r.FindElements(By.TagName("td"))[3].Text.Equals(b2BAutoCatalogListPage.StatusTable[6].FindElements(By.TagName("td"))[0].Text) ||
-                         r.FindElements(By.TagName("td"))[3].Text.Equals(b2BAutoCatalogListPage.StatusTable[7].FindElements(By.TagName("td"))[0].Text) ||
-                         r.FindElements(By.TagName("td"))[3].Text.Equals(b2BAutoCatalogListPage.StatusTable[8].FindElements(By.TagName("td"))[0].Text) ))
+                         r.FindElements(By.TagName("td"))[4].Text.Equals(b2BAutoCatalogListPage.StatusTable[0].FindElements(By.TagName("td"))[0].Text) ||
+                         r.FindElements(By.TagName("td"))[4].Text.Equals(b2BAutoCatalogListPage.StatusTable[1].FindElements(By.TagName("td"))[0].Text) ||
+                         r.FindElements(By.TagName("td"))[4].Text.Equals(b2BAutoCatalogListPage.StatusTable[2].FindElements(By.TagName("td"))[0].Text) ||
+                         r.FindElements(By.TagName("td"))[4].Text.Equals(b2BAutoCatalogListPage.StatusTable[3].FindElements(By.TagName("td"))[0].Text) ||
+                         r.FindElements(By.TagName("td"))[4].Text.Equals(b2BAutoCatalogListPage.StatusTable[4].FindElements(By.TagName("td"))[0].Text) ||
+                         r.FindElements(By.TagName("td"))[4].Text.Equals(b2BAutoCatalogListPage.StatusTable[5].FindElements(By.TagName("td"))[0].Text) ||
+                         r.FindElements(By.TagName("td"))[4].Text.Equals(b2BAutoCatalogListPage.StatusTable[6].FindElements(By.TagName("td"))[0].Text) ||
+                         r.FindElements(By.TagName("td"))[4].Text.Equals(b2BAutoCatalogListPage.StatusTable[7].FindElements(By.TagName("td"))[0].Text) ||
+                         r.FindElements(By.TagName("td"))[4].Text.Equals(b2BAutoCatalogListPage.StatusTable[8].FindElements(By.TagName("td"))[0].Text) ))
                 return false;
 
             return true;
