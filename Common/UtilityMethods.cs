@@ -399,9 +399,9 @@ namespace Modules.Channel.B2B.Common
                 return null;
 
             if (columnIndex > 4 && columnIndex < 7)
-                columnIndex += 3;
+                columnIndex += 2;
             else if (columnIndex >= 7)
-                columnIndex += 4;
+                columnIndex += 3;
 
             string cellValue = tableElement.FindElement(By.CssSelector("tbody tr:nth-of-type(" + rowIndex + ") td:nth-of-type(" + columnIndex + ")")).Text;
 
@@ -431,9 +431,9 @@ namespace Modules.Channel.B2B.Common
             int columnIndex = tableElement.GetColumnIndex(columnName);
 
             if (columnIndex > 4 && columnIndex < 7)
-                columnIndex += 3;
+                columnIndex += 2;
             else if (columnIndex >= 7)
-                columnIndex += 4;
+                columnIndex += 3;
 
             var cellValue = tableElement.FindElement(By.CssSelector("tbody tr:nth-of-type(" + rowIndex + ") td:nth-of-type(" + columnIndex + ")"));
 
