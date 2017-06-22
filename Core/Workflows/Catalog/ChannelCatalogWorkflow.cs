@@ -2130,21 +2130,43 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                         r.FindElements(By.TagName("td"))[2].Text.ToLowerInvariant().Equals("delta") ||
                         r.FindElements(By.TagName("td"))[2].Text.ToLowerInvariant().Equals("original")))
                 return false;
+                        
+            for (int i = 1; i < b2BAutoCatalogListPage.CatalogListTableRows.Count; i++)
+            {
+                for (int j = 0; j < b2BAutoCatalogListPage.StatusTable.Count; j++)
+                {
+                    if (b2BAutoCatalogListPage.CatalogsTable.GetCellValue(i, "Status").Equals(b2BAutoCatalogListPage.StatusTable[j].FindElements(By.TagName("td"))[0].Text))
+                        break;
 
-            if (
-                 !b2BAutoCatalogListPage.CatalogListTableRows.All(
-                     r =>
-                         r.FindElements(By.TagName("td"))[4].Text.Equals(b2BAutoCatalogListPage.StatusTable[0].FindElements(By.TagName("td"))[0].Text) ||
-                         r.FindElements(By.TagName("td"))[4].Text.Equals(b2BAutoCatalogListPage.StatusTable[1].FindElements(By.TagName("td"))[0].Text) ||
-                         r.FindElements(By.TagName("td"))[4].Text.Equals(b2BAutoCatalogListPage.StatusTable[2].FindElements(By.TagName("td"))[0].Text) ||
-                         r.FindElements(By.TagName("td"))[4].Text.Equals(b2BAutoCatalogListPage.StatusTable[3].FindElements(By.TagName("td"))[0].Text) ||
-                         r.FindElements(By.TagName("td"))[4].Text.Equals(b2BAutoCatalogListPage.StatusTable[4].FindElements(By.TagName("td"))[0].Text) ||
-                         r.FindElements(By.TagName("td"))[4].Text.Equals(b2BAutoCatalogListPage.StatusTable[5].FindElements(By.TagName("td"))[0].Text) ||
-                         r.FindElements(By.TagName("td"))[4].Text.Equals(b2BAutoCatalogListPage.StatusTable[6].FindElements(By.TagName("td"))[0].Text) ||
-                         r.FindElements(By.TagName("td"))[4].Text.Equals(b2BAutoCatalogListPage.StatusTable[7].FindElements(By.TagName("td"))[0].Text) ||
-                         r.FindElements(By.TagName("td"))[4].Text.Equals(b2BAutoCatalogListPage.StatusTable[8].FindElements(By.TagName("td"))[0].Text) ))
-                return false;
-
+                    if(j == b2BAutoCatalogListPage.StatusTable.Count - 1)
+                        return false;
+                }
+                //if (!(b2BAutoCatalogListPage.CatalogsTable.GetCellValue(i, "Status").Equals(b2BAutoCatalogListPage.StatusTable[0].FindElements(By.TagName("td"))[0].Text)||
+                //    b2BAutoCatalogListPage.CatalogsTable.GetCellValue(i, "Status").Equals(b2BAutoCatalogListPage.StatusTable[1].FindElements(By.TagName("td"))[0].Text) ||
+                //    b2BAutoCatalogListPage.CatalogsTable.GetCellValue(i, "Status").Equals(b2BAutoCatalogListPage.StatusTable[2].FindElements(By.TagName("td"))[0].Text) ||
+                //    b2BAutoCatalogListPage.CatalogsTable.GetCellValue(i, "Status").Equals(b2BAutoCatalogListPage.StatusTable[3].FindElements(By.TagName("td"))[0].Text) ||
+                //    b2BAutoCatalogListPage.CatalogsTable.GetCellValue(i, "Status").Equals(b2BAutoCatalogListPage.StatusTable[4].FindElements(By.TagName("td"))[0].Text) ||
+                //    b2BAutoCatalogListPage.CatalogsTable.GetCellValue(i, "Status").Equals(b2BAutoCatalogListPage.StatusTable[5].FindElements(By.TagName("td"))[0].Text) ||
+                //    b2BAutoCatalogListPage.CatalogsTable.GetCellValue(i, "Status").Equals(b2BAutoCatalogListPage.StatusTable[6].FindElements(By.TagName("td"))[0].Text) ||
+                //    b2BAutoCatalogListPage.CatalogsTable.GetCellValue(i, "Status").Equals(b2BAutoCatalogListPage.StatusTable[7].FindElements(By.TagName("td"))[0].Text) ||
+                //    b2BAutoCatalogListPage.CatalogsTable.GetCellValue(i, "Status").Equals(b2BAutoCatalogListPage.StatusTable[8].FindElements(By.TagName("td"))[0].Text) ||
+                //    b2BAutoCatalogListPage.CatalogsTable.GetCellValue(i, "Status").Equals(b2BAutoCatalogListPage.StatusTable[9].FindElements(By.TagName("td"))[0].Text) ||
+                //    b2BAutoCatalogListPage.CatalogsTable.GetCellValue(i, "Status").Equals(b2BAutoCatalogListPage.StatusTable[10].FindElements(By.TagName("td"))[0].Text)))
+                // return false;
+            }
+            //if (
+            //     !b2BAutoCatalogListPage.CatalogListTableRows.All(
+            //         r =>
+            //             r.FindElements(By.TagName("td"))[3].Text.Equals(b2BAutoCatalogListPage.StatusTable[0].FindElements(By.TagName("td"))[0].Text) ||
+            //             r.FindElements(By.TagName("td"))[3].Text.Equals(b2BAutoCatalogListPage.StatusTable[1].FindElements(By.TagName("td"))[0].Text) ||
+            //             r.FindElements(By.TagName("td"))[3].Text.Equals(b2BAutoCatalogListPage.StatusTable[2].FindElements(By.TagName("td"))[0].Text) ||
+            //             r.FindElements(By.TagName("td"))[3].Text.Equals(b2BAutoCatalogListPage.StatusTable[3].FindElements(By.TagName("td"))[0].Text) ||
+            //             r.FindElements(By.TagName("td"))[3].Text.Equals(b2BAutoCatalogListPage.StatusTable[4].FindElements(By.TagName("td"))[0].Text) ||
+            //             r.FindElements(By.TagName("td"))[3].Text.Equals(b2BAutoCatalogListPage.StatusTable[5].FindElements(By.TagName("td"))[0].Text) ||
+            //             r.FindElements(By.TagName("td"))[3].Text.Equals(b2BAutoCatalogListPage.StatusTable[6].FindElements(By.TagName("td"))[0].Text) ||
+            //             r.FindElements(By.TagName("td"))[3].Text.Equals(b2BAutoCatalogListPage.StatusTable[7].FindElements(By.TagName("td"))[0].Text) ||
+            //             r.FindElements(By.TagName("td"))[3].Text.Equals(b2BAutoCatalogListPage.StatusTable[8].FindElements(By.TagName("td"))[0].Text) ))
+            //    return false;
             return true;
         }
 
