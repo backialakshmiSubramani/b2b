@@ -295,13 +295,13 @@ namespace Modules.Channel.B2B.CatalogXMLTemplates
         public DeltaStatus DeltaChange { get; set; }
 
         [XmlElement("PackageLength")]
-        public int PackageLength { get; set; }
+        public string PackageLength { get; set; }
 
         [XmlElement("PackageWidth")]
-        public int PackageWidth { get; set; }
+        public string PackageWidth { get; set; }
 
         [XmlElement("PackageHeight")]
-        public int PackageHeight { get; set; }
+        public string PackageHeight { get; set; }
 
         [XmlElement("PalletLength")]
         public string PalletLength { get; set; }

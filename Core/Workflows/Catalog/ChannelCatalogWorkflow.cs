@@ -4867,9 +4867,9 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                 string excelQuery = @"select [Region],[Country],[MPN],LOB,[Config Name],[Ship Weight],[Package Length],[Package Width],[Package Height],[Pallet Length],[Pallet Width],[Pallet Height],[Pallet Units / Layer],[Pallet Layer / Pallet],[Pallet Units / Pallet] FROM [B2B_Catalog_matching_table$] where [MPN] = '" + mfgNumber + "'";
                 DataTable excelTable = UtilityMethods.GetDataFromExcel(@"PackagingData.xlsx", excelQuery);
 
-                actualCatalogItem.PackageLength.Should().Be(excelTable.Rows[0]["Package Length"].RoundValue(), "Package Length mismatch");
-                actualCatalogItem.PackageWidth.Should().Be(excelTable.Rows[0]["Package Width"].RoundValue(), "Package Width mismatch");
-                actualCatalogItem.PackageHeight.Should().Be(excelTable.Rows[0]["Package Height"].RoundValue(), "Package Height mismatch");
+                actualCatalogItem.PackageLength.Should().Be(excelTable.Rows[0]["Package Length"].ToString(), "Package Length mismatch");
+                actualCatalogItem.PackageWidth.Should().Be(excelTable.Rows[0]["Package Width"].ToString(), "Package Width mismatch");
+                actualCatalogItem.PackageHeight.Should().Be(excelTable.Rows[0]["Package Height"].ToString(), "Package Height mismatch");
                 actualCatalogItem.PalletHeight.Should().Be(excelTable.Rows[0]["Pallet Height"].RoundValue().ToString(), "Pallet Height mismatch");
                 actualCatalogItem.PalletLength.Should().Be(excelTable.Rows[0]["Pallet Length"].RoundValue().ToString(), "Pallet Length mismatch");
                 actualCatalogItem.PalletWidth.Should().Be(excelTable.Rows[0]["Pallet Width"].RoundValue().ToString(), "Pallet Width mismatch");

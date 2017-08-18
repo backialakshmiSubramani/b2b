@@ -509,9 +509,9 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                 matchFlag &= UtilityMethods.CompareValues<string>("ManufacturerCode", actualCatalogItem.ManufacturerCode, expectedCatalogItem.ManufacturerCode);
                 matchFlag &= UtilityMethods.CompareValues<string>("VPNReplacement", actualCatalogItem.VPNReplacement, expectedCatalogItem.VPNReplacement);
                 matchFlag &= UtilityMethods.CompareValues<string>("VPNEOLDate", actualCatalogItem.VPNEOLDate, expectedCatalogItem.VPNEOLDate);
-                matchFlag &= UtilityMethods.CompareValues<int>("PackageLength", actualCatalogItem.PackageLength, expectedCatalogItem.PackageLength);
-                matchFlag &= UtilityMethods.CompareValues<int>("PackageWidth", actualCatalogItem.PackageWidth, expectedCatalogItem.PackageWidth);
-                matchFlag &= UtilityMethods.CompareValues<int>("PackageHeight", actualCatalogItem.PackageHeight, expectedCatalogItem.PackageHeight);
+                matchFlag &= UtilityMethods.CompareValues<string>("PackageLength", actualCatalogItem.PackageLength, expectedCatalogItem.PackageLength);
+                matchFlag &= UtilityMethods.CompareValues<string>("PackageWidth", actualCatalogItem.PackageWidth, expectedCatalogItem.PackageWidth);
+                matchFlag &= UtilityMethods.CompareValues<string>("PackageHeight", actualCatalogItem.PackageHeight, expectedCatalogItem.PackageHeight);
                 matchFlag &= UtilityMethods.CompareValues<string>("PalletLength", String.IsNullOrEmpty(actualCatalogItem.PalletLength)? "0":actualCatalogItem.PalletLength, expectedCatalogItem.PalletLength);
                 matchFlag &= UtilityMethods.CompareValues<string>("PalletWidth", String.IsNullOrEmpty(actualCatalogItem.PalletWidth)?"0": actualCatalogItem.PalletWidth, expectedCatalogItem.PalletWidth);
                 matchFlag &= UtilityMethods.CompareValues<string>("PalletHeight", String.IsNullOrEmpty(actualCatalogItem.PalletHeight)?"0": actualCatalogItem.PalletHeight, expectedCatalogItem.PalletHeight);
@@ -702,9 +702,9 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             matchFlag &= UtilityMethods.CompareValues<string>("ManufacturerCode", actualCatalogItem.ManufacturerCode, expectedCatalogItem.ManufacturerCode);
             matchFlag &= UtilityMethods.CompareValues<string>("VPNReplacement", actualCatalogItem.VPNReplacement, expectedCatalogItem.VPNReplacement);
             matchFlag &= UtilityMethods.CompareValues<string>("VPNEOLDate", actualCatalogItem.VPNEOLDate, expectedCatalogItem.VPNEOLDate);
-            matchFlag &= UtilityMethods.CompareValues<int>("PackageLength", actualCatalogItem.PackageLength, expectedCatalogItem.PackageLength);
-            matchFlag &= UtilityMethods.CompareValues<int>("PackageWidth", actualCatalogItem.PackageWidth, expectedCatalogItem.PackageWidth);
-            matchFlag &= UtilityMethods.CompareValues<int>("PackageHeight", actualCatalogItem.PackageHeight, expectedCatalogItem.PackageHeight);
+            matchFlag &= UtilityMethods.CompareValues<string>("PackageLength", actualCatalogItem.PackageLength, expectedCatalogItem.PackageLength);
+            matchFlag &= UtilityMethods.CompareValues<string>("PackageWidth", actualCatalogItem.PackageWidth, expectedCatalogItem.PackageWidth);
+            matchFlag &= UtilityMethods.CompareValues<string>("PackageHeight", actualCatalogItem.PackageHeight, expectedCatalogItem.PackageHeight);
             matchFlag &= UtilityMethods.CompareValues<string>("PalletLength", actualCatalogItem.PalletLength, expectedCatalogItem.PalletLength);
             matchFlag &= UtilityMethods.CompareValues<string>("PalletWidth", actualCatalogItem.PalletWidth, expectedCatalogItem.PalletWidth);
             matchFlag &= UtilityMethods.CompareValues<string>("PalletHeight", actualCatalogItem.PalletHeight, expectedCatalogItem.PalletHeight);
