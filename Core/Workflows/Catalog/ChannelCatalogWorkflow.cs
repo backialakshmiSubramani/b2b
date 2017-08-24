@@ -2130,7 +2130,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                         r.FindElements(By.TagName("td"))[2].Text.ToLowerInvariant().Equals("delta") ||
                         r.FindElements(By.TagName("td"))[2].Text.ToLowerInvariant().Equals("original")))
                 return false;
-                        
+
             for (int i = 1; i < b2BAutoCatalogListPage.CatalogListTableRows.Count; i++)
             {
                 for (int j = 0; j < b2BAutoCatalogListPage.StatusTable.Count; j++)
@@ -3053,7 +3053,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                 }
             }
             // Sub Header and Sub Rows Table1
-            if (Headercount.Equals(8) && HeaderRowsCount.Equals(8) && subHeaderRows.Equals(8))
+            if (Headercount.Equals(8) && HeaderRowsCount.Equals(8) && subHeaderRows.Equals(9))
             {
                 return true;
             }
@@ -5278,7 +5278,24 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                 IEnumerable<CatalogItem> actualCatalogItems = actualCatalogDetails.CatalogItem.Where(ci => ci.CatalogItemType == itemType);
                 foreach (CatalogItem actualCatalogItem in actualCatalogItems)
                 {
-                    ValueinSubHeaderRowOrigPub = actualCatalogItem.ShortName + " ," + actualCatalogItem.ItemDescription + " ," + actualCatalogItem.UNSPSC + " ," + actualCatalogItem.UnitPrice.ToString().TrimEnd('0').TrimEnd('.') + " ," + actualCatalogItem.PartId + " ," + actualCatalogItem.QuoteId + " ," + actualCatalogItem.BaseSKUId + " ," + actualCatalogItem.ListPrice.ToString().TrimEnd('0').TrimEnd('.');
+                    ValueinSubHeaderRowOrigPub = string.Concat(actualCatalogItem.ShortName,
+                        " ,",
+                        actualCatalogItem.ItemDescription,
+                        " ,",
+                        actualCatalogItem.UNSPSC,
+                        " ,",
+                        actualCatalogItem.UnitPrice.ToString().TrimEnd('0').TrimEnd('.'),
+                        " ,",
+                        actualCatalogItem.PartId,
+                        " ,",
+                        actualCatalogItem.QuoteId,
+                        " ,",
+                        actualCatalogItem.BaseSKUId,
+                        " ,",
+                         actualCatalogItem.ManufacturerPartNumber,
+                        " ,",
+                        actualCatalogItem.ListPrice.ToString().TrimEnd('0').TrimEnd('.'));
+
                     dict.Add(i, ValueinSubHeaderRowOrigPub); i++;
                 }
             }
