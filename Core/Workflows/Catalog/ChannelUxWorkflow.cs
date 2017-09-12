@@ -1883,5 +1883,51 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             return matchFlag;
         }
 
+        /// <summary>
+        /// Validate catalog details in Auto Catalog List & Inventory page
+        /// </summary>
+        /// <param name="catalogItemType">Catalog Item Type</param>
+        /// <param name="catalogType">Catalog Type</param>
+        /// <param name="catalogOperation">Catalog Operation</param>
+        /// <param name="anyTimeAfter">Time after which catalog was generated</param>
+        public bool ValidateRecentCatalogExists(string region, string profileName, string identityName, CatalogType catalogType, CatalogStatus catalogStatus, DateTime anyTimeAfter)
+        {
+            bool matchflag = true;
+            CPTAutoCatalogInventoryListPage autoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
+            autoCatalogListPage.SelectOption(autoCatalogListPage.SelectRegionSpan, region);
+            autoCatalogListPage.SelectOption(autoCatalogListPage.SelectCustomerNameSpan, profileName.ToUpper());
+            autoCatalogListPage.SelectOption(autoCatalogListPage.SelectIdentityNameSpan, identityName.ToUpper());
+            autoCatalogListPage.CatalogRadioButton.Click();
+            if (autoCatalogListPage.OriginalCatalogCheckbox.Selected != (catalogType == CatalogType.Original))
+                autoCatalogListPage.OriginalCatalogCheckbox.Click();
+            else if (autoCatalogListPage.DeltaCatalogCheckbox.Selected != (catalogType == CatalogType.Delta))
+                autoCatalogListPage.DeltaCatalogCheckbox.Click();
+            autoCatalogListPage.SearchRecordsLink.Click();
+            autoCatalogListPage.CatalogsTable.WaitForElementVisible(TimeSpan.FromSeconds(15));
+
+            if (autoCatalogListPage.ShowhideCatalogMessage.Displayed)
+                return false;
+
+            DateTime lastStatusDate = Convert.ToDateTime(autoCatalogListPage.CatalogsTable.GetCellValue(1, "Last Status Date"), System.Globalization.CultureInfo.InvariantCulture);
+            string strStatus = autoCatalogListPage.CatalogsTable.GetCellValue(1, "Status");
+            if (!string.IsNullOrEmpty(strStatus))
+            {
+                CatalogStatus status = UtilityMethods.ConvertToEnum<CatalogStatus>(strStatus);
+                matchflag &= lastStatusDate.AddMinutes(120) > anyTimeAfter.ConvertToUtcTimeZone();
+                if (catalogStatus == CatalogStatus.Created || catalogStatus == CatalogStatus.CreatedWarning)
+                    matchflag &= status == CatalogStatus.Created || status == CatalogStatus.CreatedWarning;
+                else if (catalogStatus == CatalogStatus.Published || catalogStatus == CatalogStatus.PublishedWarning)
+                    matchflag &= status == CatalogStatus.Published || status == CatalogStatus.PublishedWarning;
+                else if (catalogStatus == CatalogStatus.CreatedInstant || catalogStatus == CatalogStatus.CreatedWarningInstant)
+                    matchflag &= status == CatalogStatus.CreatedInstant || status == CatalogStatus.CreatedWarningInstant;
+                else if (catalogStatus == CatalogStatus.ProcessedWarning)
+                    matchflag &= status == CatalogStatus.ProcessedWarning;
+                else if (catalogStatus == CatalogStatus.Failed)
+                    matchflag &= status == CatalogStatus.Failed;
+                else
+                    matchflag &= status == CatalogStatus.Failed;
+            }
+            return matchflag;
+        }
     }
 }

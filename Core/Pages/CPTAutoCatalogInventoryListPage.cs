@@ -624,6 +624,13 @@ namespace Modules.Channel.B2B.Core.Pages
             }
         }
 
+        public IWebElement ShowhideCatalogMessage
+        {
+            get
+            {
+                return webDriver.FindElement(By.XPath("//font[contains(text(),'No Catalog records found')]"));
+            }
+        }
         #endregion
 
         #region Helper Methods

@@ -464,6 +464,21 @@ namespace Modules.Channel.B2B.Common
             }
         }
 
+        public static IWebElement GetStatusMessageIconForCatalog(this IWebElement tableElement, int rowIndex, string columnName)
+        {
+            int columnIndex = tableElement.GetColumnIndex(columnName);
+            if (columnIndex == 0)
+                return null;
+            else if (columnIndex > 4 && columnIndex < 7)
+                columnIndex += 2;
+            else if (columnIndex >= 7 && columnIndex < 10)
+                columnIndex += 3;
+            else if (columnIndex >= 10)
+                columnIndex += 7;
+            var cellValue = tableElement.FindElement(By.CssSelector("tbody tr:nth-of-type(" + rowIndex + ") td:nth-of-type(" + columnIndex + ") > input[type='image']"));
+
+            return cellValue;
+        }
         public static IWebDriver SwitchBrowser(this IWebDriver webDriver, BrowserName browserName)
         {
             webDriver.Quit();

@@ -168,7 +168,10 @@ namespace Modules.Channel.B2B.Common
         ZeroCatalogItems,
         AccessGroupNotAssociated,
         IdentityIsDisabled,
-        DeltaCatalogCheckBoxIsDisabled
+        DeltaCatalogCheckBoxIsDisabled,
+        PageLevelSettingsOff,
+        AccessGroupDeletedInOST,
+        WarningOrderCodes
     }
 
     public enum CatalogTestOrLive

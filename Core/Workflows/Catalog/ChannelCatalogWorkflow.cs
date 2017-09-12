@@ -6045,6 +6045,149 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             ChannelUxWorkflow uxWorkflow = new ChannelUxWorkflow(webDriver);
             uxWorkflow.ValidateInstantCatalogErrorMessage(b2BEnvironment, profileName, identityName, catalogType, catalogItemType, accessGroup, errorMessages, isSetNew);
         }
+
+        public void VerifyWarningMessageInCPTPage(B2BEnvironment b2BEnvironment,string region, string profileName, string identityName, string customerSet,
+            CatalogType catalogType, CatalogStatus catalogStatus, CatalogItemType[] catalogItemType, ErrorMessages errorMessages,
+            string accessGroup = null, bool instantCatalog = false, string orderCodes = null)
+        {
+            DateTime beforeSchedTime = DateTime.Now;
+            B2BChannelUx b2BChannelUx = new B2BChannelUx(webDriver);
+            b2BChannelUx.OpenAutoCatalogAndInventoryListPage(b2BEnvironment);
+            ChannelUxWorkflow uxWorkflow = new ChannelUxWorkflow(webDriver);
+            if (!uxWorkflow.ValidateRecentCatalogExists(region, profileName, identityName, catalogType, catalogStatus, beforeSchedTime))
+            {
+                if (instantCatalog)
+                {
+                    if (catalogItemType.Count() == 1)
+                    {
+                        if (catalogItemType[0] == CatalogItemType.ConfigWithDefaultOptions)
+                            uxWorkflow.CreateInstantCatalogSetNew(b2BEnvironment, profileName, identityName, catalogType,
+                                new CatalogItemType[] { CatalogItemType.ConfigWithDefaultOptions, CatalogItemType.Systems });
+                        if (catalogItemType[0] == CatalogItemType.Systems)
+                            uxWorkflow.CreateInstantCatalogSetNew(b2BEnvironment, profileName, identityName, catalogType,
+                                new CatalogItemType[] { CatalogItemType.ConfigWithDefaultOptions, CatalogItemType.Systems });
+                        if (catalogItemType[0] == CatalogItemType.SNP)
+                            uxWorkflow.CreateInstantCatalogSetNew(b2BEnvironment, profileName, identityName, catalogType,
+                                new CatalogItemType[] { CatalogItemType.ConfigWithDefaultOptions, CatalogItemType.SNP });
+                    }
+                    else
+                        uxWorkflow.CreateInstantCatalogSetNew(b2BEnvironment, profileName, identityName, catalogType, new CatalogItemType[] { CatalogItemType.ConfigWithDefaultOptions, CatalogItemType.SNP, CatalogItemType.Systems }/*catalogItemType*/);
+                }
+                else
+                    uxWorkflow.PublishCatalogByClickOnce(b2BEnvironment, profileName, identityName, catalogType);
+                b2BChannelUx.OpenAutoCatalogAndInventoryListPage(b2BEnvironment);
+                uxWorkflow.SearchCatalog(profileName, identityName, beforeSchedTime, catalogStatus, catalogType, CatalogTestOrLive.None);//.Should().NotBeNullOrEmpty("No Catalog records found"); ;
+                uxWorkflow.ValidateCatalogSearchResult(catalogType, catalogStatus, beforeSchedTime);
+            }
+            CPTAutoCatalogInventoryListPage autoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
+            autoCatalogListPage.CatalogsTable.GetStatusMessageIconForCatalog(1, "Status").Click();
+            Thread.Sleep(5000); string allConifgs = string.Empty;
+
+            if (catalogItemType.Count() > 1)
+            {
+                if (catalogItemType.Count() == 2)
+                {
+                    if (catalogItemType.Contains(CatalogItemType.ConfigWithDefaultOptions) && catalogItemType.Contains(CatalogItemType.Systems))
+                        allConifgs = "STD and SYS";
+                    if (catalogItemType.Contains(CatalogItemType.ConfigWithDefaultOptions) && catalogItemType.Contains(CatalogItemType.SNP))
+                        allConifgs = "STD and SNP";
+                    if (catalogItemType.Contains(CatalogItemType.Systems) && catalogItemType.Contains(CatalogItemType.SNP))
+                        allConifgs = "SYS and SNP";
+                }
+                if (catalogItemType.Count() == 3)
+                {
+                    if (errorMessages == ErrorMessages.AccessGroupNotAssociated)
+                        allConifgs = "STD, SYS and SNP";
+                    if (errorMessages == ErrorMessages.PageLevelSettingsOff)
+                        allConifgs = "STD, SNP and SYS";
+                }
+                switch (errorMessages)
+                {
+                    case ErrorMessages.AccessGroupNotAssociated:
+                        string allAccessGroupError = string.Concat("For the Customer Set " + customerSet + " and Access Group " + accessGroup + ": " + allConifgs + " are not enabled at Access Group level in OST."/*\r\nPlease fix the OST configuration to rectify the error."*/);
+                        if (autoCatalogListPage.FailureReason.Trim().Contains("service cards"))
+                            autoCatalogListPage.FailureReason.Trim().Should().Contain(allAccessGroupError);
+                        else
+                            autoCatalogListPage.FailureReason.Should().Contain(allAccessGroupError);
+                        break;
+                    case ErrorMessages.ZeroCatalogItems:
+                        break;
+                    case ErrorMessages.PageLevelSettingsOff:
+                        string allPageLevelError = string.Concat("For the Customer Set " + customerSet + ", " + allConifgs + " configuration at OST Page level is turned off."/*\r\nPlease fix the OST configuration to rectify the error."*/);
+                        autoCatalogListPage.FailureReason.Should().Contain(allPageLevelError);
+                        break;
+                    case ErrorMessages.AccessGroupDeletedInOST:
+                        string accessGroupDeletedError = string.Concat("For the Customer Set " + customerSet + " and" + " Access Group " + accessGroup + " is inactive hence catalog failed."/*\r\nPlease fix the OST configuration to rectify the error."*/);
+                        autoCatalogListPage.FailureReason.Should().Contain(accessGroupDeletedError);
+                        break;
+                    default:
+                        break;
+                }
+            }
+            else if (catalogItemType.Count() == 1)
+            {
+                switch (errorMessages)
+                {
+                    case ErrorMessages.AccessGroupNotAssociated:
+                        if (catalogItemType[0] == CatalogItemType.ConfigWithDefaultOptions || catalogItemType[0] == CatalogItemType.ConfigWithUpsellDownsell)
+                        {
+                            string stdError = string.Concat("For the Customer Set " + customerSet + " and Access Group " + accessGroup + ": STD is not enabled at Access Group level in OST."/*\r\n\r\nPlease fix the OST configuration to rectify the error."*/);
+                            if (autoCatalogListPage.FailureReason.Trim().Contains("service cards"))
+                                autoCatalogListPage.FailureReason.Trim().Should().Contain(stdError);
+                            else
+                                autoCatalogListPage.FailureReason.Trim().Should().Contain(stdError);
+
+                        }
+                        if (catalogItemType[0] == CatalogItemType.SNP)
+                        {
+                            string snpError = string.Concat("For the Customer Set " + customerSet + " and Access Group " + accessGroup + ": SNP is not enabled at Access Group level in OST."/*\r\n\r\nPlease fix the OST configuration to rectify the error."*/);
+                            if (autoCatalogListPage.FailureReason.Trim().Contains("service cards"))
+                                autoCatalogListPage.FailureReason.Trim().Should().Contain(snpError);
+                            else
+                                autoCatalogListPage.FailureReason.Trim().Should().Contain(snpError);
+                        }
+                        if (catalogItemType[0] == CatalogItemType.Systems)
+                        {
+                            string sysError = string.Concat("For the Customer Set " + customerSet + " and Access Group " + accessGroup + ": SYS is not enabled at Access Group level in OST."/*\r\n\r\nPlease fix the OST configuration to rectify the error."*/);
+                            if (autoCatalogListPage.FailureReason.Trim().Contains("service cards"))
+                                autoCatalogListPage.FailureReason.Trim().Should().Contain(sysError);
+                            else
+                                autoCatalogListPage.FailureReason.Trim().Should().Contain(sysError);
+                        }
+                        break;
+                    case ErrorMessages.ZeroCatalogItems:
+                        autoCatalogListPage.FailureReason.Trim().Should().Contain("Error while generating Auto Catalog XML. Auto Catalog creation failed due to zero items in the OST Store.");
+                        break;
+                    case ErrorMessages.PageLevelSettingsOff:
+                        if (catalogItemType[0] == CatalogItemType.ConfigWithDefaultOptions || catalogItemType[0] == CatalogItemType.ConfigWithUpsellDownsell)
+                        {
+                            string stdPageError = string.Concat("For the Customer Set " + customerSet + ", STD configuration at OST Page level is turned off."/*\r\n\r\nPlease fix the OST configuration to rectify the error."*/);
+                            autoCatalogListPage.FailureReason.Trim().Should().Contain(stdPageError);
+                        }
+                        else if (catalogItemType[0] == CatalogItemType.Systems)
+                        {
+                            string sysPageError = string.Concat("For the Customer Set " + customerSet + ", SYS configuration at OST Page level is turned off."/*\r\n\r\nPlease fix the OST configuration to rectify the error."*/);
+                            autoCatalogListPage.FailureReason.Trim().Should().Contain(sysPageError);
+                        }
+                        else if (catalogItemType[0] == CatalogItemType.SNP)
+                        {
+                            string snpPageError = string.Concat("For the Customer Set " + customerSet + ", SNP configuration at OST Page level is turned off."/*\r\n\r\nPlease fix the OST configuration to rectify the error."*/);
+                            autoCatalogListPage.FailureReason.Trim().Should().Contain(snpPageError);
+                        }
+                        break;
+                    case ErrorMessages.AccessGroupDeletedInOST:
+                        string accessGroupDeletedError = string.Concat("For the Customer Set " + customerSet + "," + " Access Group " + accessGroup + "  is inactive hence catalog failed."/*\r\n\r\nPlease fix the OST configuration to rectify the error."*/);
+                        autoCatalogListPage.FailureReason.Should().Contain(accessGroupDeletedError);
+                        break;
+                    case ErrorMessages.WarningOrderCodes:
+                        foreach (string oCode in orderCodes.Split(','))
+                            autoCatalogListPage.FailureReason.IndexOf(oCode, StringComparison.InvariantCultureIgnoreCase).Should().BeGreaterOrEqualTo(0);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
     }
 
     /// <summary>
