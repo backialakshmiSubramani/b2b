@@ -1362,7 +1362,8 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         public string DownloadCatalog(string identityName, DateTime anyTimeAfter)
         {
             CPTAutoCatalogInventoryListPage autoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
-            UtilityMethods.ClickElement(webDriver, autoCatalogListPage.GetDownloadButton(1));
+            //UtilityMethods.ClickElement(webDriver, autoCatalogListPage.GetDownloadButton(1));
+            javaScriptExecutor.ExecuteScript("arguments[0].click();", autoCatalogListPage.GetDownloadButton(1));
             string downloadPath = ConfigurationManager.AppSettings["CatalogDownloadPath"];
 
             webDriver.WaitForDownLoadToComplete(downloadPath, identityName, anyTimeAfter, TimeSpan.FromMinutes(1));
