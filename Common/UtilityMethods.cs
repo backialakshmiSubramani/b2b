@@ -456,7 +456,8 @@ namespace Modules.Channel.B2B.Common
                     webElement.SendKeys(Keys.Enter);
                     break;
                 case BrowserName.Chrome:
-                    webElement.Click();
+                    //webElement.Click();
+                    ((IJavaScriptExecutor)webDriver).ExecuteScript("arguments[0].click();", webElement);
                     break;
                 case BrowserName.MicrosoftEdge:
                     ((IJavaScriptExecutor)webDriver).ExecuteScript("arguments[0].click();",webElement);
