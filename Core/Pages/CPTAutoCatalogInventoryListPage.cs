@@ -808,6 +808,8 @@ namespace Modules.Channel.B2B.Core.Pages
                 {
                     if (catalogStatus == CatalogStatus.Created && (status == CatalogStatus.Created || status == CatalogStatus.CreatedWarning || status == CatalogStatus.Failed))
                         break;
+                    else if (catalogStatus == CatalogStatus.CreatedWarning && (status == CatalogStatus.Created || status == CatalogStatus.CreatedWarning || status == CatalogStatus.Failed))
+                        break;
                     else if (catalogStatus == CatalogStatus.Published && (status == CatalogStatus.Published || status == CatalogStatus.PublishedWarning || status == CatalogStatus.Failed))
                         break;
                     else if (catalogStatus == CatalogStatus.CreatedInstant && (status == CatalogStatus.CreatedInstant || status == CatalogStatus.CreatedWarningInstant || status == CatalogStatus.FailedInstant))
