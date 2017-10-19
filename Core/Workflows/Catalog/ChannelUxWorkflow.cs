@@ -1359,7 +1359,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         /// <param name="identityName">Identity Name</param>
         /// <param name="anyTimeAfter">Time after which the catalog is processed</param>
         /// <returns>File name for the downloaded catalog</returns>
-        public string DownloadCatalog(string identityName, DateTime anyTimeAfter)
+        public string DownloadCatalog_Old(string identityName, DateTime anyTimeAfter)
         {
             CPTAutoCatalogInventoryListPage autoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
             //UtilityMethods.ClickElement(webDriver, autoCatalogListPage.GetDownloadButton(1));
@@ -1371,6 +1371,28 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                 .Where(file => file.Name.StartsWith(identityName.ToUpper()) && file.CreationTime > anyTimeAfter)
                 .FirstOrDefault().FullName;
 
+            return fileName;
+        }
+
+        public string DownloadCatalog(string identityName, DateTime anyTimeAfter)
+        {
+            string fileName = string.Empty;
+            string downloadPath = ConfigurationManager.AppSettings["CatalogDownloadPath"];
+            CPTAutoCatalogInventoryListPage autoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
+            var catalogName = autoCatalogListPage.CatalogsTable.GetCellElement(1, "Catalog/Inventory Name").GetAttribute("title");
+            DirectoryInfo dirInfo = new DirectoryInfo(ConfigurationReader.GetValue("CatalogDownloadPath"));
+            if (dirInfo.GetFiles(catalogName + ".xml").Count() > 0)
+                fileName = Path.Combine(dirInfo.FullName, dirInfo.GetFiles(catalogName + ".xml").First().Name);
+            else
+            {
+                javaScriptExecutor.ExecuteScript("arguments[0].click();", autoCatalogListPage.GetDownloadButton(1));
+                webDriver.WaitForDownLoadToComplete(downloadPath, identityName, anyTimeAfter, TimeSpan.FromMinutes(1));
+                fileName = new DirectoryInfo(downloadPath).GetFiles().AsEnumerable()
+                    .Where(file => file.Name.Contains(identityName.ToUpper()) && file.CreationTime > anyTimeAfter)
+                    .FirstOrDefault().FullName;
+                if (fileName.Contains('('))
+                    fileName = fileName.Substring(0, fileName.IndexOf('(')).Trim() + ".xml";
+            }
             return fileName;
         }
 
