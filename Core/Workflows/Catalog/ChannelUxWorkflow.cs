@@ -1359,7 +1359,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         /// <param name="identityName">Identity Name</param>
         /// <param name="anyTimeAfter">Time after which the catalog is processed</param>
         /// <returns>File name for the downloaded catalog</returns>
-        public string DownloadCatalog_Old(string identityName, DateTime anyTimeAfter)
+        public string DownloadCatalog(string identityName, DateTime anyTimeAfter)
         {
             CPTAutoCatalogInventoryListPage autoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
             //UtilityMethods.ClickElement(webDriver, autoCatalogListPage.GetDownloadButton(1));
@@ -1374,7 +1374,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             return fileName;
         }
 
-        public string DownloadCatalog(string identityName, DateTime anyTimeAfter)
+        public string DownloadCatalog_Old(string identityName, DateTime anyTimeAfter)
         {
             string fileName = string.Empty;
             string downloadPath = ConfigurationManager.AppSettings["CatalogDownloadPath"];
