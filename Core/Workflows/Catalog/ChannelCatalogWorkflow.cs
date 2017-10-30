@@ -2979,7 +2979,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
         ///// Retrieve Delta Published Auto BHC Config Quote ID thru Part Viewer. Verify all required info in the table
         ///// </summary>
         ///// <returns></returns>
-        public bool VerifyRetrieveCatalogConfigAquoteId(B2BEnvironment b2BEnvironment, CatalogItemType[] catalogItemType, string region, string country, string Header, string SubHeader, CatalogType type, CatalogStatus status, string profile, string identity)
+        public bool VerifyRetrieveCatalogConfigAquoteId_Old(B2BEnvironment b2BEnvironment, CatalogItemType[] catalogItemType, string region, string country, string Header, string SubHeader, CatalogType type, CatalogStatus status, string profile, string identity)
         {
             Dictionary<int, string> dict = GetPartViewerInformation(b2BEnvironment, catalogItemType, region, country, type, status, profile, identity);
 
@@ -3060,6 +3060,76 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             Console.WriteLine("Headercount: " + Headercount + ",HeaderRowsCount: " + HeaderRowsCount + ",subHeaderRows: " + subHeaderRows);
             return false;
         }
+
+        /// <summary>
+        /// Retrieve Delta Published Auto BHC Config Quote ID thru Part Viewer. Verify all required info in the table
+        /// </summary>
+        /// <returns></returns>
+        public bool VerifyRetrieveCatalogConfigAquoteId(B2BEnvironment b2BEnvironment, CatalogItemType[] catalogItemType, string region, string country, string Header, string SubHeader, CatalogType type, CatalogStatus status, string profile, string identity)
+        {
+            Dictionary<int, string> dict = GetPartViewerInformation(b2BEnvironment, catalogItemType, region, country, type, status, profile, identity);
+            bool matchFlag = true;
+            dict.Count().ShouldBeEquivalentTo(2, "**** " + catalogItemType[0] + " Items are not found in catalog ****");
+            var Headervalue = dict[1];
+            var SubRowvalue1 = dict[2];
+
+            B2BChannelUx b2BChannelUx = new B2BChannelUx(webDriver);
+            b2BChannelUx.OpenAutoPartViewerPage(b2BEnvironment);
+
+            b2BAutoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
+
+            string[] HeaderRowStringValue = Header.Split(',');
+            string[] SubHeaderStringValue = SubHeader.Split(',');
+            string[] HeaderStringvalue = Headervalue.ToString().Split(',');
+            string[] SubRow1StringValue = SubRowvalue1.ToString().Split(new string[] { "$" }, StringSplitOptions.None);
+
+            int quoteidlength = SubRow1StringValue[5].Length;
+            string quoteid = SubRow1StringValue[5].Substring(4, quoteidlength - 4);
+
+            b2BAutoCatalogListPage.PartViewerQuoteIdsLink.SendKeys(quoteid);
+            b2BAutoCatalogListPage.PartViewerSearchButton.Click();
+            b2BAutoCatalogListPage.PartViewerPlusButton.WaitForElementVisible(TimeSpan.FromSeconds(120));
+            b2BAutoCatalogListPage.PartViewerPlusButton.Click();
+
+            string TableXpath_First = "//*[@id='quoteTable']";
+            string Table1FirstRow_End = "/table/tbody/tr[1]/td";
+            string Table1SubHeadingEnd = "/table/tbody/tr[2]/td[2]/table/thead/tr/th";
+            string Table1SubRow_End = "/table/tbody/tr[2]/td[2]/table/tbody/tr/td";
+            for (int j = 0; j < SubHeaderStringValue.Length; j++)
+            {
+                var SubHeaderElement = webDriver.FindElements(By.XPath(TableXpath_First + Table1SubHeadingEnd))[j];
+                var subHeaderTable1fromLocator = SubHeaderElement.Text;
+                var SubRowElemt = webDriver.FindElements(By.XPath(TableXpath_First + Table1SubRow_End))[j];
+                //var subRowTable1fromLocator = SubRowElemt.Text;
+                var subHeaderTestdata = SubHeaderStringValue[j];
+                var subRow1Testdata = SubRow1StringValue[j];
+
+                matchFlag &= UtilityMethods.CompareValues<string>(SubHeaderStringValue[j], SubHeaderElement.Text, SubHeaderStringValue[j]);
+                if (SubHeaderStringValue[j].Equals("Change Type"))
+                    matchFlag &= UtilityMethods.CompareValues<string>(SubHeaderStringValue[j], SubRowElemt.Text, SubRow1StringValue[j].Trim() == "NoChange" ? "NC" : SubRow1StringValue[j].Trim().Substring(0, 1));
+                else
+                    matchFlag &= UtilityMethods.CompareValues<string>(SubHeaderStringValue[j], SubRowElemt.Text, SubRow1StringValue[j].Replace("  ", " "));
+            }
+            //Header
+            for (int i = 0; i < HeaderRowStringValue.Length; i++)
+            {
+                var HeaderElement = b2BAutoCatalogListPage.PartViewerHeader.FirstOrDefault().FindElements(By.TagName("th"))[i + 1];
+                var HeaderTextfromLocator = HeaderElement.Text;
+                var HeadTestdata = HeaderRowStringValue[i];
+                matchFlag &= UtilityMethods.CompareValues<string>(HeaderRowStringValue[i], HeaderElement.Text, HeaderRowStringValue[i]);
+            }
+            //HeaderRows
+            for (int z = 1; z < HeaderStringvalue.Length; z++)
+            {
+                var HeaderRowElement = webDriver.FindElements(By.XPath(TableXpath_First + Table1FirstRow_End))[z];
+                var HeaderRowTextfromLocator = HeaderRowElement.Text;
+                var HeaderRowTestData = HeaderStringvalue[z];
+                if (!string.IsNullOrEmpty(HeaderRowElement.Text) && !HeaderRowElement.Text.ToUpperInvariant().Contains("@DELL.COM"))
+                    matchFlag &= UtilityMethods.CompareValues<string>(HeaderRowStringValue[z - 1], HeaderRowElement.Text, HeaderStringvalue[z]);
+            }
+            return matchFlag;
+        }
+
 
         /// <summary>
         /// Verifies if all the fields in Auto BHC section are disabled
@@ -5239,8 +5309,120 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             ChannelUxWorkflow uxWorkflow = new ChannelUxWorkflow(webDriver);
             uxWorkflow.ValidateP2PMessage(b2BEnvironment, profileNameBase, profileNameBase, catalogType);
         }
-
         public Dictionary<int, string> GetPartViewerInformation(B2BEnvironment b2BEnvironment, CatalogItemType[] catalogItemType, string region, string country, CatalogType type, CatalogStatus status, string profile, string identity)
+        {
+            string filePath = DownloadAndReturnCatalogFilePath(b2BEnvironment, region, type, ref status, profile, identity);
+            B2BXML actualcatalogXML = XMLDeserializer<B2BXML>.DeserializeFromXmlFile(filePath);
+            CatalogHeader actualCatalogHeader = actualcatalogXML.BuyerCatalog.CatalogHeader;
+
+            DateTime catDate = DateTime.Parse(actualCatalogHeader.CatalogDate);
+            DateTime expDate = DateTime.Parse(actualCatalogHeader.ExpirationDate);
+            string ValueinSubHeaderRowOrigPub = null; int i = 2;
+            Dictionary<int, string> dict = new Dictionary<int, string>();
+            var ValueinHeaderRowOrigPub = "" + "," + actualCatalogHeader.CatalogName + ","
+                + actualCatalogHeader.IdentityUserName + ","
+                + UtilityMethods.ConvertToString<CatalogStatus>(status)
+                + "," + actualCatalogHeader.RequesterEmailId
+                + "," + catDate.ToString("dd-MMM-yyyy") + ","
+                + actualCatalogHeader.RequesterEmailId + ","
+                + actualCatalogHeader.CountryCode + ","
+                + expDate.ToString("dd-MMM-yyyy");
+            dict.Add(1, ValueinHeaderRowOrigPub);
+            CatalogDetails actualCatalogDetails = actualcatalogXML.BuyerCatalog.CatalogDetails;
+            foreach (CatalogItemType itemType in catalogItemType)
+            {
+                var actualCatalogItem = actualCatalogDetails.CatalogItem.Where(ci => (ci.CatalogItemType == itemType && ci.DeltaChange != DeltaStatus.Remove)).FirstOrDefault();
+                if (actualCatalogItem != null)
+                {
+                    ValueinSubHeaderRowOrigPub = actualCatalogItem.DeltaChange + "$"
+                        + actualCatalogItem.ShortName + "$"
+                        + actualCatalogItem.ItemDescription + "$"
+                        + actualCatalogItem.UNSPSC + "$"
+                        + actualCatalogItem.UnitPrice.ToString().TrimEnd('0').TrimEnd('.') + "$"
+                        + actualCatalogItem.PartId + "$"
+                        + actualCatalogItem.QuoteId + "$"
+                        + actualCatalogItem.BaseSKUId + "$"
+                        + actualCatalogItem.ManufacturerPartNumber + "$"
+                        + actualCatalogItem.ListPrice.ToString().TrimEnd('0').TrimEnd('.');
+                    dict.Add(i, ValueinSubHeaderRowOrigPub); i++;
+                }
+            }
+            return dict;
+        }
+        private string DownloadAndReturnCatalogFilePath(B2BEnvironment b2BEnvironment, string region, CatalogType type, ref CatalogStatus status, string profile, string identity, CatalogTestOrLive catalogTestOrLive = CatalogTestOrLive.None)
+        {
+            DateTime beforeSchedTime = DateTime.Now;
+            string filename = string.Empty;
+
+            B2BChannelUx b2bChannelUx = new B2BChannelUx(webDriver);
+            b2bChannelUx.OpenAutoCatalogAndInventoryListPage(b2BEnvironment);
+            CPTAutoCatalogInventoryListPage autoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
+            autoCatalogListPage.SelectOption(autoCatalogListPage.SelectRegionSpan, region);
+            autoCatalogListPage.SelectOption(autoCatalogListPage.SelectCustomerNameSpan, profile.ToUpper());
+            autoCatalogListPage.SelectOption(autoCatalogListPage.SelectIdentityNameSpan, identity.ToUpper());
+            autoCatalogListPage.SelectCatalogTestOrLive(catalogTestOrLive);
+            autoCatalogListPage.CatalogRadioButton.Click();
+            if (autoCatalogListPage.OriginalCatalogCheckbox.Selected != (type == CatalogType.Original))
+                autoCatalogListPage.OriginalCatalogCheckbox.Click();
+            else if (autoCatalogListPage.DeltaCatalogCheckbox.Selected != (type == CatalogType.Delta))
+                autoCatalogListPage.DeltaCatalogCheckbox.Click();
+            string threadId = string.Empty; int row = 1;
+            if (status.Equals(CatalogStatus.CreatedInstant) || status.Equals(CatalogStatus.CreatedWarningInstant))
+            {
+                autoCatalogListPage.SelectTheStatus(UtilityMethods.ConvertToString(status));
+                autoCatalogListPage.SearchRecordsLink.Click();
+                autoCatalogListPage.CatalogsTable.WaitForElementVisible(TimeSpan.FromSeconds(10));
+                var catalogStatus = autoCatalogListPage.CatalogsTable.GetCellValue(row, "Status");
+                if (catalogStatus == null)
+                {
+                    autoCatalogListPage.SelectTheStatus(UtilityMethods.ConvertToString(CatalogStatus.CreatedWarningInstant));
+                    autoCatalogListPage.SearchRecordsLink.Click();
+                    autoCatalogListPage.CatalogsTable.WaitForElementVisible(TimeSpan.FromSeconds(10));
+                }
+                autoCatalogListPage.ShowhideCatalogMessage.Text.Should().BeNullOrEmpty("No Catalog records found");
+                threadId = autoCatalogListPage.CatalogsTable.GetCellValue(row, "Thread");
+            }
+            else
+            {
+                autoCatalogListPage.SearchRecordsLink.Click();
+                autoCatalogListPage.CatalogsTable.WaitForElementVisible(TimeSpan.FromSeconds(30));
+                if (status == CatalogStatus.Created || status == CatalogStatus.CreatedWarning)
+                {
+                    while (!(UtilityMethods.ConvertToEnum<CatalogStatus>(autoCatalogListPage.CatalogsTable.GetCellValue(row, "Status").Trim()).Equals(CatalogStatus.Created)
+                        || UtilityMethods.ConvertToEnum<CatalogStatus>(autoCatalogListPage.CatalogsTable.GetCellValue(row, "Status").Trim()).Equals(CatalogStatus.CreatedWarning)))
+                    {
+                        row++;
+                    }
+                }
+                if (status == CatalogStatus.Published || status == CatalogStatus.PublishedWarning)
+                {
+                    while (!(UtilityMethods.ConvertToEnum<CatalogStatus>(autoCatalogListPage.CatalogsTable.GetCellValue(row, "Status").Trim()).Equals(CatalogStatus.Published)
+                    || UtilityMethods.ConvertToEnum<CatalogStatus>(autoCatalogListPage.CatalogsTable.GetCellValue(row, "Status").Trim()).Equals(CatalogStatus.PublishedWarning)))
+                    {
+                        row++;
+                    }
+                }
+                autoCatalogListPage.ShowhideCatalogMessage.Text.Should().BeNullOrEmpty("No Catalog records found");
+                row.Should().BeLessOrEqualTo(14, "No matching status records found");
+                threadId = autoCatalogListPage.CatalogsTable.GetCellValue(row, "Thread");
+            }
+            status = UtilityMethods.ConvertToEnum<CatalogStatus>(autoCatalogListPage.CatalogsTable.GetCellValue(row, "Status").Trim());
+            var catalogName = autoCatalogListPage.CatalogsTable.GetCellElement(row, "Catalog/Inventory Name").GetAttribute("title");
+            try
+            {
+                string downloadPath = ConfigurationManager.AppSettings["CatalogDownloadPath"];
+                return new DirectoryInfo(downloadPath).GetFiles().AsEnumerable()
+                    .Where(file => file.Name.Contains(catalogName))
+                    .FirstOrDefault().FullName;
+            }
+            catch
+            {
+                ChannelUxWorkflow uxWorkflow = new ChannelUxWorkflow(webDriver);
+                return uxWorkflow.DownloadCatalog(identity, beforeSchedTime, row);
+            }
+        }
+
+        public Dictionary<int, string> GetPartViewerInformation_Old(B2BEnvironment b2BEnvironment, CatalogItemType[] catalogItemType, string region, string country, CatalogType type, CatalogStatus status, string profile, string identity)
         {
             DateTime beforeSchedTime = DateTime.Now;
             ChannelUxWorkflow uxWorkflow = new ChannelUxWorkflow(webDriver);
@@ -6187,6 +6369,47 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                         break;
                 }
             }
+        }
+
+        public bool VerifyPartHistoryTable(B2BEnvironment b2BEnvironment, string region, string country, string profileName, string identityName, string[] status, bool instant)
+        {
+            Dictionary<int, string> dict = GetPartViewerInformation(b2BEnvironment,
+                new CatalogItemType[] { CatalogItemType.ConfigWithDefaultOptions },
+                region, country, CatalogType.Original, CatalogStatus.Created, profileName, identityName);
+            string mpn = string.Empty;
+            dict.Count().ShouldBeEquivalentTo(2, "Expected product types are not available in catalog generated &downloaded");
+            mpn = dict[2].Split('$')[8].ToString();
+            B2BChannelUx b2BChannelUXPage = new B2BChannelUx(webDriver);
+            b2BChannelUXPage.OpenAutoPartViewerPage(b2BEnvironment);
+            B2BQuoteViewerPage autoBHCQuoteViewerPage = new B2BQuoteViewerPage(webDriver);
+            WaitForPageRefresh();
+            if (!autoBHCQuoteViewerPage.HistoryCheckbox.Selected)
+                autoBHCQuoteViewerPage.HistoryCheckbox.Click();
+            autoBHCQuoteViewerPage.SelectOption(autoBHCQuoteViewerPage.SelectRegionSpan, region);
+            autoBHCQuoteViewerPage.SelectTheCountry(country);
+            autoBHCQuoteViewerPage.SelectOption(autoBHCQuoteViewerPage.SelectCustomerNameSpan, profileName.ToUpper());
+            autoBHCQuoteViewerPage.SelectOption(autoBHCQuoteViewerPage.SelectIdentityNameSpan, identityName.ToUpper());
+            autoBHCQuoteViewerPage.SelectTheStatus(status);
+            if (instant)
+                autoBHCQuoteViewerPage.InstantCheckbox.Click();
+            autoBHCQuoteViewerPage.MPNTextBox.SendKeys(mpn);
+            autoBHCQuoteViewerPage.PartViewerSearchButton.Click();
+            autoBHCQuoteViewerPage.QuoteHistoryTable.WaitForElementVisible(TimeSpan.FromSeconds(30));
+            autoBHCQuoteViewerPage.QuoteHistoryTable.Displayed.Should().BeTrue("No Data Found for '" + mpn + "'");
+
+            Convert.ToString(dict[1].Split(',')[1].Trim()).Should().BeEquivalentTo(autoBHCQuoteViewerPage.QuoteHistoryTable.GetCellValueFromMPNHistoryTable(1, "CatalogName").Trim(), "Catalog Name mismatch");
+            Convert.ToString(dict[1].Split(',')[2].Trim()).Should().BeEquivalentTo(autoBHCQuoteViewerPage.QuoteHistoryTable.GetCellValueFromMPNHistoryTable(1, "Identity").Trim(), "Identity Name mismatch");
+            Convert.ToString(dict[1].Split(',')[3].Trim()).Should().BeEquivalentTo(autoBHCQuoteViewerPage.QuoteHistoryTable.GetCellValueFromMPNHistoryTable(1, "Status").Trim(), "Catalog Status mismatch");
+            Convert.ToString(dict[2].Split('$')[0].Trim()).Should().Contain(autoBHCQuoteViewerPage.QuoteHistoryTable.GetCellValueFromMPNHistoryTable(1, "Change Type").Trim().Substring(0, 1), "ChangeType Name mismatch");
+            Convert.ToString(dict[2].Split('$')[2].Trim()).Should().BeEquivalentTo(autoBHCQuoteViewerPage.QuoteHistoryTable.GetCellValueFromMPNHistoryTable(1, "Part Description").Trim(), "Part Description mismatch");
+            Convert.ToString(dict[2].Split('$')[4].Trim()).Should().BeEquivalentTo(autoBHCQuoteViewerPage.QuoteHistoryTable.GetCellValueFromMPNHistoryTable(1, "Unit Price").Trim(), "Unit Price mismatch");
+            Convert.ToString(dict[2].Split('$')[6].Trim()).Should().BeEquivalentTo(autoBHCQuoteViewerPage.QuoteHistoryTable.GetCellValueFromMPNHistoryTable(1, "BHC Q ID").Trim(), "BHC Q ID mismatch");
+            Convert.ToString(dict[2].Split('$')[8].Trim()).Should().BeEquivalentTo(autoBHCQuoteViewerPage.QuoteHistoryTable.GetCellValueFromMPNHistoryTable(1, "MPN(VPN)").Trim(), "Manufacturer Number mismatch");
+            string cDate = autoBHCQuoteViewerPage.QuoteHistoryTable.GetCellValueFromMPNHistoryTable(1, "Date Of Change").Trim().ToString();
+            string[] d = cDate.Split(' ')[0].Split('-');
+            Convert.ToString(dict[1].Split(',')[5].Trim()).Should().BeEquivalentTo((d[1] + "-" + d[0] + "-" + d[2]).ConvertToDateTime("dd-MMM-yyyy"), "Date Of Change mismatch");
+
+            return true;
         }
     }
 

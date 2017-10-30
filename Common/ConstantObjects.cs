@@ -198,4 +198,27 @@ namespace Modules.Channel.B2B.Common
         public int LeadTime;
         public int InventoryQty;
     }
+
+    public enum CountryName
+    {
+        [Description("United States of America")]
+        US,
+        [Description("United Kingdom")]
+        UK,
+        [Description("France")]
+        FR,
+        [Description("Germany")]
+        DE,
+        [Description("Italy")]
+        IT,
+        [Description("Netherlands")]
+        NL,
+        [Description("Spain")]
+        ES,
+        [Description("Sweden")]
+        SE,
+        [Description("Canada")]
+        CA
+
+    }
 }

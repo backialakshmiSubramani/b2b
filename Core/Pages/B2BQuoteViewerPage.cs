@@ -25,6 +25,7 @@ using Dell.Adept.UI.Web.Support.Extensions.WebDriver;
 using Dell.Adept.UI.Web.Support.Extensions.WebElement;
 using Dell.Adept.UI.Web.Support.Locators;
 using Dell.Adept.UI.Web.Support;
+using Modules.Channel.B2B.Common;
 
 namespace Modules.Channel.B2B.Core.Pages
 {
@@ -86,10 +87,107 @@ namespace Modules.Channel.B2B.Core.Pages
             }
         }
 
+        ///<summary>
+        /// Auto Catalog part Viewer history Checkbox
+        /// </summary>
+        public IWebElement HistoryCheckbox
+        {
+            get
+            {
+                return webDriver.FindElement(By.CssSelector("input[type='checkbox'][ng-model='isHistoryEnabled']"));
+            }
+        }
+
+        ///<summary>
+        /// Auto Catalog part Viewer Instant Checkbox
+        /// </summary>
+        public IWebElement InstantCheckbox
+        {
+            get
+            {
+                return webDriver.FindElement(By.CssSelector("input[type='checkbox'][ng-model='isInstant']"));
+            }
+        }
+
+        ///<summary>
+        /// Auto Catalog Part Viewer Quote Ids Link
+        /// </summary>
+        public IWebElement MPNTextBox
+        {
+            get { return webDriver.FindElement(By.Id("quoteid")); }
+        }
+
+        ///<summary>
+        /// Auto Catalog part Viewer Search Button
+        /// </summary>
+        public IWebElement PartViewerSearchButton
+        {
+            get
+            {
+                return webDriver.FindElement(By.CssSelector("button[type='button'][class='btn btn-primary']"));
+            }
+        }
+
+        public IWebElement SelectRegionSpan
+        {
+            get
+            {
+                return webDriver.FindElement(By.XPath("//span[contains(text(),'Select Region')]"));
+            }
+        }
+
+        public IWebElement SelectCountrySpan
+        {
+            get
+            {
+                return webDriver.FindElement(By.XPath("//a[@class='dropdown-toggle']/span[@class='ng-binding']"));
+            }
+        }
+
+        public IWebElement SelectCustomerNameSpan
+        {
+            get
+            {
+                return webDriver.FindElement(By.XPath("//span[contains(text(),'Select Customer Profile')]"));
+            }
+        }
+
+        public IWebElement SelectIdentityNameSpan
+        {
+            get
+            {
+                return webDriver.FindElement(By.XPath("//span[contains(text(),'Select Profile Identity')]"));
+            }
+        }
+
+        public IWebElement SelectStatusSpan
+        {
+            get { return webDriver.FindElement(By.XPath("//span[contains(text(),'2 items selected ..')]")); }
+        }
+
+        public IWebElement QuoteHistoryTable
+        {
+            get
+            {
+                return webDriver.FindElement(By.XPath("//table[@id='quoteHistoryTable' and @st-safe-src='quoteHistoryDetails']"));
+            }
+        }
+        public IWebElement ExportToExcelButton
+        {
+            get
+            {
+                return webDriver.FindElement(By.XPath("//button[contains(text(),'Export to Excel')]"));
+            }
+        }
         #endregion
 
         #region Reusable Methods
-
+        public void SelectOption(IWebElement webElement, string optionText)
+        {
+            webElement.Click();
+            IWebElement textElement = webElement.FindElement(By.XPath("../following-sibling::div/child::ul/child::li/a[translate(text(),'abcdefghijklmnopqrstuvwxyz','ABCDEFGHIJKLMNOPQRSTUVWXYZ')='" + optionText + "']"));
+            textElement.Click();
+        }
         public bool CheckItemDetails(string description, string quantity, string unitPrice)
         {
             foreach (var t in this.QuoteViewerTableRowList)
@@ -104,7 +202,117 @@ namespace Modules.Channel.B2B.Core.Pages
             return false;
         }
 
-        #endregion
+        /// <summary>
+        /// Selects the status from the Status list
+        /// </summary>
+        /// <param name="Status[i]"></param>
+        public void SelectTheStatus(string[] Status = null)
+        {
+            string stat = string.Empty;
+            var statusDropDown = webDriver.FindElement(By.XPath("//div[@class='dropdown custom-select']/a[@class='dropdown-toggle']/span[contains(text(),'2 items selected ..')]"));
+            UtilityMethods.ClickElement(webDriver, statusDropDown);
+            foreach (string s in Status)
+            {
+                var elem = webDriver.FindElement(By.XPath("//div[@class='dropdown-menu status']//ul[@role='menu']/li[@class='ng-binding ng-scope']/input[@ng-model='checked']"));
+                var catalogStatusInput = webDriver.FindElement(By.XPath("//input[@ng-model='statusSearch.CatalogStatus']"));
+                if (s == "Created")
+                {
+                    stat = UtilityMethods.ConvertToString<CatalogStatus>(CatalogStatus.Created);
+                    catalogStatusInput.Clear();
+                    catalogStatusInput.SendKeys(stat);
+                    elem = webDriver.FindElement(By.XPath("//div[@class='dropdown-menu status']//ul[@role='menu']/li[@class='ng-binding ng-scope']/input[@ng-model='checked']"));
+                    if (!elem.Selected)
+                        elem.Click();
+                }
+                else if (s == "Created-Warning")
+                {
+                    stat = UtilityMethods.ConvertToString<CatalogStatus>(CatalogStatus.CreatedWarning);
+                    catalogStatusInput.Clear();
+                    catalogStatusInput.SendKeys(stat);
+                    elem = webDriver.FindElement(By.XPath("//div[@class='dropdown-menu status']//ul[@role='menu']/li[@class='ng-binding ng-scope']/input[@ng-model='checked']"));
+                    if (!elem.Selected)
+                        elem.Click();
+                }
+                else if (s == "Published")
+                {
+                    stat = UtilityMethods.ConvertToString<CatalogStatus>(CatalogStatus.Published);
+                    catalogStatusInput.SendKeys(stat);
+                    elem = webDriver.FindElement(By.XPath("//div[@class='dropdown-menu status']//ul[@role='menu']/li[@class='ng-binding ng-scope']/input[@ng-model='checked']"));
+                    if (!elem.Selected)
+                        elem.Click();
+                }
+                else if (s == "Published-Warning")
+                {
+                    stat = UtilityMethods.ConvertToString<CatalogStatus>(CatalogStatus.PublishedWarning);
+                    catalogStatusInput.Clear(); catalogStatusInput.SendKeys(stat);
+                    elem = webDriver.FindElement(By.XPath("//div[@class='dropdown-menu status']//ul[@role='menu']/li[@class='ng-binding ng-scope']/input[@ng-model='checked']"));
+                    if (!elem.Selected)
+                        elem.Click();
+                }
+                else if (s == "Expired")
+                {
+                    stat = UtilityMethods.ConvertToString<CatalogStatus>(CatalogStatus.Expired);
+                    catalogStatusInput.Clear(); catalogStatusInput.SendKeys(stat);
+                    elem = webDriver.FindElement(By.XPath("//div[@class='dropdown-menu status']//ul[@role='menu']/li[@class='ng-binding ng-scope']/input[@ng-model='checked']"));
+                    if (!elem.Selected)
+                        elem.Click();
+                }
+                else if (s == "Created-Instant")
+                {
+                    stat = UtilityMethods.ConvertToString<CatalogStatus>(CatalogStatus.CreatedInstant);
+                    catalogStatusInput.Clear(); catalogStatusInput.SendKeys(stat);
+                    elem = webDriver.FindElement(By.XPath("//div[@class='dropdown-menu status']//ul[@role='menu']/li[@class='ng-binding ng-scope']/input[@ng-model='checked']"));
+                    if (!elem.Selected)
+                        elem.Click();
+                }
+                else
+                {
+                    stat = UtilityMethods.ConvertToString<CatalogStatus>(CatalogStatus.CreatedWarningInstant);
+                    catalogStatusInput.Clear(); catalogStatusInput.SendKeys(stat);
+                    elem = webDriver.FindElement(By.XPath("//div[@class='dropdown-menu status']//ul[@role='menu']/li[@class='ng-binding ng-scope']/input[@ng-model='checked']"));
+                    if (!elem.Selected)
+                        elem.Click();
+                }
+            }
+            UtilityMethods.ClickElement(webDriver, statusDropDown);
+        }
 
+        /// <summary>
+        /// Get all the statuses list in Status dropdown
+        /// </summary>
+        /// <param name="Status"></param>
+        /// <returns></returns>
+        public IList<string> GetCatalogStatusFromStatusDropdown(string[] Status = null)
+        {
+            UtilityMethods.ClickElement(webDriver, SelectStatusSpan);
+            IList<IWebElement> allStatusesList = webDriver.FindElements(By.XPath("//div[@class='dropdown-menu status']//ul[@role='menu']/li[@class='ng-binding ng-scope']"));
+            return allStatusesList.Select(c => c.Text).ToList();
+        }
+
+        /// <summary>
+        /// Selects the country from the country listed
+        /// if not specified, selects the first country from the drop down
+        /// </summary>
+        /// <param name="identity"></param>
+        public void SelectTheCountry(string country = "")
+        {
+            if (country == "UK")
+                country = UtilityMethods.ConvertToString<CountryName>(CountryName.UK);
+            else if (country == "US")
+                country = UtilityMethods.ConvertToString<CountryName>(CountryName.US);
+            else if (country == "CA")
+                country = UtilityMethods.ConvertToString<CountryName>(CountryName.CA);
+            else if (country == "FR")
+                country = UtilityMethods.ConvertToString<CountryName>(CountryName.FR);
+            else if (country == "DE")
+                country = UtilityMethods.ConvertToString<CountryName>(CountryName.DE);
+            else if (country == "NL")
+                country = UtilityMethods.ConvertToString<CountryName>(CountryName.NL);
+            webDriver.FindElement(By.XPath("//div[@class='dropdown custom-select']/a")).Click();
+            webDriver.FindElement(By.XPath("//input[@ng-model='search.Name']")).SendKeys(country);
+            webDriver.FindElement(By.XPath("//div[@class='dropdown-menu countries']//ul[@role='menu']/li[@class='ng-binding ng-scope']/input[@ng-model='checked']")).Click();
+        }
+
+        #endregion
     }
 }

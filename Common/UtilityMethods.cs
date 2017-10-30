@@ -512,6 +512,34 @@ namespace Modules.Channel.B2B.Common
             UtilityMethods.ClickElement(webDriver, textElement);
         }
 
+        public static string GetCellValueFromMPNHistoryTable(this IWebElement tableElement, int rowIndex, string columnName)
+        {
+            int columnIndex = tableElement.GetColumnIndex(columnName);
+            if (columnIndex == 0)
+                return null;
+
+            string cellValue = string.Empty;
+            try
+            {
+                cellValue = tableElement.FindElement(By.CssSelector("tbody tr:nth-of-type(" + rowIndex + ") td:nth-of-type(" + columnIndex + ")")).GetAttribute("title");
+                if (string.IsNullOrEmpty(cellValue))
+                {
+                    cellValue = tableElement.FindElement(By.CssSelector("tbody tr:nth-of-type(" + rowIndex + ") td:nth-of-type(" + columnIndex + ")")).Text;
+                }
+            }
+            catch
+            {
+                cellValue = tableElement.FindElement(By.CssSelector("tbody tr:nth-of-type(" + rowIndex + ") td:nth-of-type(" + columnIndex + ")")).Text;
+            }
+
+            return cellValue;
+        }
+        
+        public static string ConvertToDateTime(this object value, string format)
+        {
+            return Convert.ToDateTime(value).ToString(format);
+        }
+
         #region Private Methods
 
         private static MemberInfo GetMemberInfoFrom<T>(Expression<Func<T, object>> sourceExpression)

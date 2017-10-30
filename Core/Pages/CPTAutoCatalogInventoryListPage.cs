@@ -379,7 +379,8 @@ namespace Modules.Channel.B2B.Core.Pages
         {
             get
             {
-                return webDriver.FindElement(By.XPath("//*[@id='homepage-var']/div/div[2]/div/div[1]/div[2]/button"));
+                //return webDriver.FindElement(By.XPath("//*[@id='homepage-var']/div/div[2]/div/div[1]/div[2]/button"));
+                return webDriver.FindElement(By.CssSelector("button[type='button'][class='btn btn-primary']"));
             }
         }
 
@@ -389,7 +390,10 @@ namespace Modules.Channel.B2B.Core.Pages
         public ReadOnlyCollection<IWebElement> PartViewerHeader
         {
 
-            get { return webDriver.FindElements(By.XPath("//*[@id='quoteTable']/thead/tr")); }
+            get
+            { /*return webDriver.FindElements(By.XPath("//*[@id='quoteTable']/thead/tr"));*/
+                return webDriver.FindElements(By.XPath("//*[@id='quoteTable']/table/thead/tr"));
+            } //*[@id="quoteTable"]/table/thead/tr
         }
 
         ///<summary>
@@ -398,7 +402,10 @@ namespace Modules.Channel.B2B.Core.Pages
         public ReadOnlyCollection<IWebElement> PartViewerFirstRows
         {
 
-            get { return webDriver.FindElements(By.XPath("//*[@id='quoteTable']/tbody[1]/tr[1]")); }
+            get
+            { /*return webDriver.FindElements(By.XPath("//*[@id='quoteTable']/tbody[1]/tr[1]"));*/
+                return webDriver.FindElements(By.XPath("//*[@id='quoteTable']/table/tbody/tr[1]"));
+            }//*[@id="quoteTable"]/table/tbody/tr[1]
         }
 
         ///<summary>
@@ -406,7 +413,10 @@ namespace Modules.Channel.B2B.Core.Pages
         /// </summary>
         public IWebElement PartViewerPlusButton
         {
-            get { return webDriver.FindElement(By.XPath("//*[@id='quoteTable']/tbody[1]/tr[1]/td[1]/img")); }
+            get
+            { /*return webDriver.FindElement(By.XPath("//*[@id='quoteTable']/tbody[1]/tr[1]/td[1]/img"));*/
+                return webDriver.FindElement(By.XPath("//*[@id='quoteTable']/table/tbody/tr[1]/td[1]/img"));
+            }
         }
 
         ///<summary>
@@ -414,7 +424,10 @@ namespace Modules.Channel.B2B.Core.Pages
         /// </summary>
         public ReadOnlyCollection<IWebElement> PartViewerSubHeader
         {
-            get { return webDriver.FindElements(By.XPath("//*[@id='quoteTable']/tbody[1]/tr[2]/td[2]/table/thead/tr")); }
+            get
+            { /*return webDriver.FindElements(By.XPath("//*[@id='quoteTable']/tbody[1]/tr[2]/td[2]/table/thead/tr"));*/
+                return webDriver.FindElements(By.XPath("//*[@id='quoteTable']/table/tbody/tr[2]/td[2]/table/thead/tr"));
+            }
         }
 
         ///<summary>
@@ -423,7 +436,10 @@ namespace Modules.Channel.B2B.Core.Pages
         public ReadOnlyCollection<IWebElement> PartViewerSubRows
         {
 
-            get { return webDriver.FindElements(By.XPath("//*[@id='quoteTable']/tbody[1]/tr[2]/td[2]/table/tbody/tr")); }
+            get
+            { /*return webDriver.FindElements(By.XPath("//*[@id='quoteTable']/tbody[1]/tr[2]/td[2]/table/tbody/tr"));*/
+                return webDriver.FindElements(By.XPath("//*[@id='quoteTable']/table/tbody/tr[2]/td[2]/table/tbody/tr"));
+            }//*[@id="quoteTable"]/table/tbody/tr[2]/td[2]/table/tbody/tr
         }
 
         ///<summary>
