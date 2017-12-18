@@ -494,7 +494,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                 matchFlag &= UtilityMethods.CompareValues<string>("GrossWeight", actualCatalogItem.GrossWeight, expectedCatalogItem.GrossWeight);
                 matchFlag &= UtilityMethods.CompareValues<string>("Availability", actualCatalogItem.Availability, expectedCatalogItem.Availability);
                 matchFlag &= UtilityMethods.CompareValues<string>("CategoryLevel1", actualCatalogItem.CategoryLevel1, expectedCatalogItem.CategoryLevel1);
-                matchFlag &= UtilityMethods.CompareValues<string>("CategoryLevel2", actualCatalogItem.CategoryLevel2, expectedCatalogItem.CategoryLevel2);
+                //matchFlag &= UtilityMethods.CompareValues<string>("CategoryLevel2", actualCatalogItem.CategoryLevel2, expectedCatalogItem.CategoryLevel2);
                 matchFlag &= UtilityMethods.CompareValues<string>("DomsQuote", actualCatalogItem.DomsQuote, expectedCatalogItem.DomsQuote);
                 matchFlag &= UtilityMethods.CompareValues<string>("ItemOrderCode", actualCatalogItem.ItemOrderCode, expectedCatalogItem.ItemOrderCode);
                 matchFlag &= UtilityMethods.CompareValues<string>("BaseSKUId", actualCatalogItem.BaseSKUId, expectedCatalogItem.BaseSKUId);
@@ -1380,35 +1380,35 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             CPTAutoCatalogInventoryListPage autoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
             var catalogName = autoCatalogListPage.CatalogsTable.GetCellElement(1, "Catalog/Inventory Name").GetAttribute("title");
             DirectoryInfo dirInfo = new DirectoryInfo(ConfigurationReader.GetValue("CatalogDownloadPath"));
-            if (dirInfo.GetFiles(catalogName + ".xml").Count() > 0)
-                fileName = Path.Combine(dirInfo.FullName, dirInfo.GetFiles(catalogName + ".xml").First().Name);
-            else
+            //if (dirInfo.GetFiles(catalogName + ".xml").Count() > 0)
+            //    fileName = Path.Combine(dirInfo.FullName, dirInfo.GetFiles(catalogName + ".xml").First().Name);
+            //else
+            //{
+            UtilityMethods.ClickElement(webDriver, autoCatalogListPage.GetDownloadButton(1));
+            FileInfo fileFound = webDriver.WaitForDownLoadToComplete(downloadPath, identityName, anyTimeAfter, TimeSpan.FromMinutes(1));
+            if (fileFound == null)
             {
-                UtilityMethods.ClickElement(webDriver, autoCatalogListPage.GetDownloadButton(1));
-                FileInfo fileFound = webDriver.WaitForDownLoadToComplete(downloadPath, identityName, anyTimeAfter, TimeSpan.FromMinutes(1));
-                if (fileFound == null)
-                {
-                    try
-                    {
-                        fileName = new DirectoryInfo(downloadPath).GetFiles().AsEnumerable()
-                            .Where(file => file.Extension.Equals(".crdownload") && file.CreationTime > anyTimeAfter)
-                            .FirstOrDefault().FullName;
-                    }
-                    catch (Exception)
-                    {
-                        fileName.Should().NotBeNullOrEmpty("Unable to download/save the catalog xml file");
-                    }
-                    fileName.Should().BeNullOrEmpty("File download is incomplete due to 'This type of file can harm your computer' warning from browser download-protection settings");
-                }
-                else
+                try
                 {
                     fileName = new DirectoryInfo(downloadPath).GetFiles().AsEnumerable()
-                        .Where(file => file.Name.Contains(identityName.ToUpper()) && file.CreationTime > anyTimeAfter)
+                        .Where(file => file.Extension.Equals(".crdownload") && file.CreationTime > anyTimeAfter)
                         .FirstOrDefault().FullName;
-                    if (fileName.Contains('('))
-                        fileName = fileName.Substring(0, fileName.IndexOf('(')).Trim() + ".xml";
                 }
+                catch (Exception)
+                {
+                    fileName.Should().NotBeNullOrEmpty("Unable to download/save the catalog xml file");
+                }
+                fileName.Should().BeNullOrEmpty("File download is incomplete due to 'This type of file can harm your computer' warning from browser download-protection settings");
             }
+            else
+            {
+                fileName = new DirectoryInfo(downloadPath).GetFiles().AsEnumerable()
+                    .Where(file => file.Name.Contains(identityName.ToUpper()) && file.CreationTime > anyTimeAfter)
+                    .FirstOrDefault().FullName;
+                if (fileName.Contains('('))
+                    fileName = fileName.Substring(0, fileName.IndexOf('(')).Trim() + ".xml";
+            }
+            //}
             return fileName;
         }
 
