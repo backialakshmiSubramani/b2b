@@ -1480,9 +1480,11 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             ChannelUxWorkflow uxWorkflow = new ChannelUxWorkflow(webDriver);
             uxWorkflow.SearchCatalog(profileName, identityName, beforeSchedTime, catalogStatus, catalogType);
             uxWorkflow.ValidateCatalogSearchResult(catalogType, catalogStatus, beforeSchedTime, requestor);
-            string filePath = uxWorkflow.DownloadCatalog(identityName, beforeSchedTime);
+            string result = uxWorkflow.DownloadCatalogResponse(environment);
+            //string filePath = uxWorkflow.DownloadCatalog(identityName, beforeSchedTime);
             string schemaPath = Path.Combine(System.Environment.CurrentDirectory, "CatalogSchema.xsd");
-            string message = XMLSchemaValidator.ValidateSchema(filePath, schemaPath);
+            //string message = XMLSchemaValidator.ValidateSchema(filePath, schemaPath);
+            string message = XMLSchemaValidator.ValidateSchemaNew(result, schemaPath);
             message.Should().Be(string.Empty, "Error: One or more tags failed scehma validation. Please check the log for complete details");
         }
 
@@ -2141,32 +2143,7 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                     if(j == b2BAutoCatalogListPage.StatusTable.Count - 1)
                         return false;
                 }
-                //if (!(b2BAutoCatalogListPage.CatalogsTable.GetCellValue(i, "Status").Equals(b2BAutoCatalogListPage.StatusTable[0].FindElements(By.TagName("td"))[0].Text)||
-                //    b2BAutoCatalogListPage.CatalogsTable.GetCellValue(i, "Status").Equals(b2BAutoCatalogListPage.StatusTable[1].FindElements(By.TagName("td"))[0].Text) ||
-                //    b2BAutoCatalogListPage.CatalogsTable.GetCellValue(i, "Status").Equals(b2BAutoCatalogListPage.StatusTable[2].FindElements(By.TagName("td"))[0].Text) ||
-                //    b2BAutoCatalogListPage.CatalogsTable.GetCellValue(i, "Status").Equals(b2BAutoCatalogListPage.StatusTable[3].FindElements(By.TagName("td"))[0].Text) ||
-                //    b2BAutoCatalogListPage.CatalogsTable.GetCellValue(i, "Status").Equals(b2BAutoCatalogListPage.StatusTable[4].FindElements(By.TagName("td"))[0].Text) ||
-                //    b2BAutoCatalogListPage.CatalogsTable.GetCellValue(i, "Status").Equals(b2BAutoCatalogListPage.StatusTable[5].FindElements(By.TagName("td"))[0].Text) ||
-                //    b2BAutoCatalogListPage.CatalogsTable.GetCellValue(i, "Status").Equals(b2BAutoCatalogListPage.StatusTable[6].FindElements(By.TagName("td"))[0].Text) ||
-                //    b2BAutoCatalogListPage.CatalogsTable.GetCellValue(i, "Status").Equals(b2BAutoCatalogListPage.StatusTable[7].FindElements(By.TagName("td"))[0].Text) ||
-                //    b2BAutoCatalogListPage.CatalogsTable.GetCellValue(i, "Status").Equals(b2BAutoCatalogListPage.StatusTable[8].FindElements(By.TagName("td"))[0].Text) ||
-                //    b2BAutoCatalogListPage.CatalogsTable.GetCellValue(i, "Status").Equals(b2BAutoCatalogListPage.StatusTable[9].FindElements(By.TagName("td"))[0].Text) ||
-                //    b2BAutoCatalogListPage.CatalogsTable.GetCellValue(i, "Status").Equals(b2BAutoCatalogListPage.StatusTable[10].FindElements(By.TagName("td"))[0].Text)))
-                // return false;
             }
-            //if (
-            //     !b2BAutoCatalogListPage.CatalogListTableRows.All(
-            //         r =>
-            //             r.FindElements(By.TagName("td"))[3].Text.Equals(b2BAutoCatalogListPage.StatusTable[0].FindElements(By.TagName("td"))[0].Text) ||
-            //             r.FindElements(By.TagName("td"))[3].Text.Equals(b2BAutoCatalogListPage.StatusTable[1].FindElements(By.TagName("td"))[0].Text) ||
-            //             r.FindElements(By.TagName("td"))[3].Text.Equals(b2BAutoCatalogListPage.StatusTable[2].FindElements(By.TagName("td"))[0].Text) ||
-            //             r.FindElements(By.TagName("td"))[3].Text.Equals(b2BAutoCatalogListPage.StatusTable[3].FindElements(By.TagName("td"))[0].Text) ||
-            //             r.FindElements(By.TagName("td"))[3].Text.Equals(b2BAutoCatalogListPage.StatusTable[4].FindElements(By.TagName("td"))[0].Text) ||
-            //             r.FindElements(By.TagName("td"))[3].Text.Equals(b2BAutoCatalogListPage.StatusTable[5].FindElements(By.TagName("td"))[0].Text) ||
-            //             r.FindElements(By.TagName("td"))[3].Text.Equals(b2BAutoCatalogListPage.StatusTable[6].FindElements(By.TagName("td"))[0].Text) ||
-            //             r.FindElements(By.TagName("td"))[3].Text.Equals(b2BAutoCatalogListPage.StatusTable[7].FindElements(By.TagName("td"))[0].Text) ||
-            //             r.FindElements(By.TagName("td"))[3].Text.Equals(b2BAutoCatalogListPage.StatusTable[8].FindElements(By.TagName("td"))[0].Text) ))
-            //    return false;
             return true;
         }
 
@@ -4800,14 +4777,15 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
 
             uxWorkflow.SearchCatalog(profileName, identityName, beforeSchedTime, catalogStatus, catalogType, CatalogTestOrLive.None, false);
             uxWorkflow.ValidateCatalogSearchResult(catalogItemType, catalogType, catalogStatus, beforeSchedTime);
-            string filePath = uxWorkflow.DownloadCatalog(identityName, beforeSchedTime);
+            //string filePath = uxWorkflow.DownloadCatalog(identityName, beforeSchedTime);
+            string catalogResponse = uxWorkflow.DownloadCatalogResponse(b2BEnvironment);
+            //uxWorkflow.ValidateCatalogXML(catalogItemType, catalogType, identityName, filePath, beforeSchedTime, configRules).Should().BeTrue("Error: Data mismatch for Catalog XML content with expected values");
+            uxWorkflow.ValidateCatalogXMLNew(catalogItemType, catalogType, identityName, catalogResponse, beforeSchedTime, configRules).Should().BeTrue("Error: Data mismatch for Catalog XML content with expected values");
 
-            uxWorkflow.ValidateCatalogXML(catalogItemType, catalogType, identityName, filePath, beforeSchedTime, configRules).Should().BeTrue("Error: Data mismatch for Catalog XML content with expected values");
-            //uxWorkflow.ValidateCatalogXML(catalogItemType, catalogType, identityName, filePath, beforeSchedTime, configRules, defaultOptions).Should().BeTrue("Error: Data mismatch for Catalog XML content with expected values");
-            //uxWorkflow.ValidateCatalogEMails(identityName, beforeSchedTime, operation);
-
+            //if (crtStatus == CRTStatus.ON)
+            //    uxWorkflow.ValidateCRT(b2BEnvironment, profileName, filePath).Should().BeTrue("Error: Data mismatch for CRT XML content with Catalog XML");
             if (crtStatus == CRTStatus.ON)
-                uxWorkflow.ValidateCRT(b2BEnvironment, profileName, filePath).Should().BeTrue("Error: Data mismatch for CRT XML content with Catalog XML");
+                uxWorkflow.ValidateCRTNew(b2BEnvironment, profileName, catalogResponse).Should().BeTrue("Error: Data mismatch for CRT XML content with Catalog XML");
         }
 
         public void VerifySetNewCatalogForConfig(B2BEnvironment b2BEnvironment, CatalogItemType[] catalogItemType, string profileName, string identityName, CatalogStatus catalogStatus, CatalogType catalogType,
@@ -4958,9 +4936,10 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             b2bChannelUx.OpenAutoCatalogAndInventoryListPage(b2BEnvironment);
             uxWorkflow.SearchCatalog(profileName, identityName, beforeSchedTime, catalogStatus);
             uxWorkflow.ValidateCatalogSearchResult(catalogItemType, catalogType, catalogStatus, beforeSchedTime);
-            string filePath = uxWorkflow.DownloadCatalog(identityName, beforeSchedTime);
-
-            B2BXML actualCatalog = XMLDeserializer<B2BXML>.DeserializeFromXmlFile(filePath);
+            //string filePath = uxWorkflow.DownloadCatalog(identityName, beforeSchedTime);
+            string filePath = uxWorkflow.DownloadCatalogResponse(b2BEnvironment);
+            //B2BXML actualCatalog = XMLDeserializer<B2BXML>.DeserializeFromXmlFile(filePath);
+            B2BXML actualCatalog = XMLDeserializer<B2BXML>.DeserializeFromXmlString(filePath);
 
             CatalogItem actualCatalogItem = actualCatalog.BuyerCatalog.CatalogDetails.CatalogItem.Where(ci => ci.ManufacturerPartNumber.ToString() == mfgNumber).FirstOrDefault();
 

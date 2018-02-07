@@ -17,6 +17,7 @@ using Modules.Channel.B2B.CatalogXMLTemplates;
 using System.Security.Principal;
 using System.Xml;
 using OpenQA.Selenium.Support.UI;
+using System.Net.Http;
 
 namespace Modules.Channel.B2B.Core.Workflows.Catalog
 {
@@ -214,6 +215,107 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
 
             return matchFlag;
         }
+
+        /// <summary>
+        /// Compares the content of Catalog XML
+        /// </summary>
+        /// <param name="catalogItemType">Catalog Item Type like ConfigWithDefaultOptions or SNP</param>
+        /// <param name="catalogType">Catalog Type like Original or Delta</param>
+        /// <param name="identityName">Name of the Identity</param>
+        /// <param name="filePath">XML file path</param>
+        /// <param name="anyTimeAfter">Time after which the XML is created</param>
+        /// <param name="catalogItemBaseSKU">One of the Catalog Item SKU for which data needs to be validated</param>
+        /// <returns></returns>
+        public bool ValidateCatalogXMLNew(CatalogItemType[] catalogItemType, CatalogType catalogType, string identityName, string catalogResponse, DateTime anyTimeAfter, ConfigRules configRules)
+        {
+            string schemaPath = string.Empty;
+            if (configRules == ConfigRules.SPL)
+            {
+                schemaPath = Path.Combine(System.Environment.CurrentDirectory, "SPLCatalogSchema.xsd");
+                string message = XMLSchemaValidator.ValidateSchemaNew(catalogResponse, schemaPath);
+                message.Should().Be(string.Empty, "Error: One or more tags failed scehma validation. Please check the log for complete details");
+            }
+            else
+            {
+                schemaPath = Path.Combine(System.Environment.CurrentDirectory, "CatalogSchema.xsd");
+                string message = XMLSchemaValidator.ValidateSchemaNew(catalogResponse, schemaPath);
+                message.Should().Be(string.Empty, "Error: One or more tags failed scehma validation. Please check the log for complete details");
+            }
+            
+
+            B2BXML actualcatalogXML = XMLDeserializer<B2BXML>.DeserializeFromXmlString(catalogResponse);
+            CatalogDetails actualCatalogDetails = actualcatalogXML.BuyerCatalog.CatalogDetails;
+            CatalogHeader actualCatalogHeader = actualcatalogXML.BuyerCatalog.CatalogHeader;
+
+            string expectedCatalogFilePath = catalogType == CatalogType.Original
+                ? Path.Combine(System.Environment.CurrentDirectory, "Catalog_OC_Expected.xml")
+                : Path.Combine(System.Environment.CurrentDirectory, "Catalog_DC_Expected.xml");
+
+            B2BXML expectedCatalogXML = XMLDeserializer<B2BXML>.DeserializeFromXmlFile(expectedCatalogFilePath);
+            CatalogDetails expectedCatalogDetails = expectedCatalogXML.BuyerCatalog.CatalogDetails;
+            CatalogHeader expectedCatalogHeader = expectedCatalogXML.BuyerCatalog.CatalogHeader;
+
+            Console.WriteLine(string.Format("[CatalogName: {0}]", actualCatalogHeader.CatalogName));
+
+            //int itemCount = 0;
+            bool matchFlag = true;
+            foreach (CatalogItemType itemType in catalogItemType)
+            {
+                Console.WriteLine("Catalog Items validation for : " + itemType.ConvertToString());
+
+                IEnumerable<CatalogItem> actualCatalogItems = actualCatalogDetails.CatalogItem.Where(ci => ci.CatalogItemType == itemType);
+                IEnumerable<CatalogItem> expectedCatalogItems =
+                        expectedCatalogDetails.CatalogItem.Where(ci => ci.CatalogItemType == itemType);
+                string matchingOrderCode = string.Empty; bool flag = false;
+                if (itemType.Equals(CatalogItemType.ConfigWithDefaultOptions) ||
+                    itemType.Equals(CatalogItemType.ConfigWithUpsellDownsell) ||
+                    itemType.Equals(CatalogItemType.Systems))
+                {
+                    switch (configRules)
+                    {
+                        case ConfigRules.DuplicateBPN:
+                            expectedCatalogItems = expectedCatalogItems.Where(ci => ci.ShortName.StartsWith("Duplicate BPN"));
+                            break;
+                        case ConfigRules.NullBPN:
+                            expectedCatalogItems = expectedCatalogItems.Where(ci => ci.ShortName.StartsWith("Null BPN"));
+                            break;
+                        case ConfigRules.WithDefOptions:
+                            expectedCatalogItems = expectedCatalogItems.Where(ci => ci.Modules.Module.Count != 0);
+                            try
+                            {
+                                flag = true;
+                                matchingOrderCode = actualCatalogItems.Select(ci => ci.ItemOrderCode).ToList().Intersect(expectedCatalogItems.Select(ci => ci.ItemOrderCode).ToList()).First();
+                            }
+                            catch { flag.Should().BeFalse("There are not matching ordercodes in catalog generated with default options"); }
+                            actualCatalogItems = actualCatalogItems.Where(ci => ci.ItemOrderCode == matchingOrderCode);
+                            expectedCatalogItems = expectedCatalogItems.Where(ci => ci.ItemOrderCode == matchingOrderCode);
+                            break;
+                        default:
+                            try
+                            {
+                                flag = true;
+                                matchingOrderCode = actualCatalogItems.Select(ci => ci.ItemOrderCode).ToList().Intersect(expectedCatalogItems.Select(ci => ci.ItemOrderCode).ToList()).First();
+                            }
+                            catch { flag.Should().BeFalse("There are not matching ordercodes in catalog generated without default options"); }
+                            actualCatalogItems = actualCatalogItems.Where(ci => ci.ItemOrderCode == matchingOrderCode);
+                            expectedCatalogItems = expectedCatalogItems.Where(ci => ci.ItemOrderCode == matchingOrderCode);
+                            break;
+                    }
+                }
+                else if (itemType.Equals(CatalogItemType.SNP))
+                {
+                    matchingOrderCode = actualCatalogItems.Select(ci => ci.BaseSKUId).ToList().Intersect(expectedCatalogItems.Select(ci => ci.BaseSKUId).ToList()).First();
+                    actualCatalogItems = actualCatalogItems.Where(ci => ci.BaseSKUId == matchingOrderCode);
+                    expectedCatalogItems = expectedCatalogItems.Where(ci => ci.BaseSKUId == matchingOrderCode);
+                }
+
+                matchFlag &= ValidateCatalogItems(actualCatalogItems, expectedCatalogItems, configRules);
+            }
+            matchFlag &= ValidateCatalogHeader(actualCatalogHeader, expectedCatalogHeader, catalogItemType, identityName, actualCatalogHeader.CatalogName);
+
+            return matchFlag;
+        }
+
 
 
         public bool ValidateDeltaCatalog(CatalogItemType[] catalogItemType, CatalogType catalogType, string identityName, string filePath, DateTime anyTimeAfter, DeltaChange[] deltaChanges, bool excludeNonChangedItems = false)
@@ -1373,6 +1475,26 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
             return fileName;
         }
 
+        public string DownloadCatalogResponse(B2BEnvironment environment)
+        {
+            CPTAutoCatalogInventoryListPage autoCatalogListPage = new CPTAutoCatalogInventoryListPage(webDriver);
+            var catalogName = autoCatalogListPage.CatalogsTable.GetCellElement(1, "Catalog/Inventory Name").GetAttribute("title");
+            string downloadAPI = ConfigurationManager.AppSettings["DownloadAPI"];
+            string result = string.Empty;
+            HttpClientHandler handler = new HttpClientHandler()
+            {
+                UseDefaultCredentials = true
+            };
+            using (var client = new HttpClient(handler))
+            {
+                //client.crede
+                client.BaseAddress = new Uri(downloadAPI);
+                HttpResponseMessage response = client.GetAsync("CatalogDownload/get?catalogname=" + catalogName + "&envoirnment="+ ((environment == B2BEnvironment.Production) ? "P" : "U")+"&searchCriteria=Name").Result;
+                response.EnsureSuccessStatusCode();
+                result = response.Content.ReadAsStringAsync().Result;
+            }
+            return result;
+        }
         public string DownloadCatalog(string identityName, DateTime anyTimeAfter)
         {
             string fileName = string.Empty;
@@ -1632,6 +1754,77 @@ namespace Modules.Channel.B2B.Core.Workflows.Catalog
                             break;
                     }
 
+                    matchflag &= UtilityMethods.CompareValues<string>("ID", CrtXML.CrossReference.CRTValues.CRTValue.Where(crt => crt.Id == catalogItem.ManufacturerPartNumber).First().Item.Where(item => item.Id == "ID").First().Data, id);
+                    matchflag &= UtilityMethods.CompareValues<string>("Buyer Code", CrtXML.CrossReference.CRTValues.CRTValue.Where(crt => crt.Id == catalogItem.ManufacturerPartNumber).First().Item.Where(item => item.Id == "buyer_code").First().Data, catalogItem.PartId);
+                    matchflag &= UtilityMethods.CompareValues<string>("Price", CrtXML.CrossReference.CRTValues.CRTValue.Where(crt => crt.Id == catalogItem.ManufacturerPartNumber).First().Item.Where(item => item.Id == "price").First().Data, catalogItem.UnitPrice.ToString());
+                    matchflag &= UtilityMethods.CompareValues<string>("Buyer Code Type", CrtXML.CrossReference.CRTValues.CRTValue.Where(crt => crt.Id == catalogItem.ManufacturerPartNumber).First().Item.Where(item => item.Id == "buyer_code_type").First().Data, "B2B Quote");
+                }
+            }
+            return matchflag;
+        }
+
+        internal bool ValidateCRTNew(B2BEnvironment b2BEnvironment, string profileName, string catalogXMLFilePath)
+        {
+            B2BHomePage b2BHomePage = new B2BHomePage(webDriver);
+            b2BHomePage.OpenB2BHomePage(b2BEnvironment);
+
+            B2BCrossReferenceAssociationPage b2BCrossReferenceAssociationPage = new B2BCrossReferenceAssociationPage(webDriver);
+            b2BCrossReferenceAssociationPage.OpenCrossReferenceListPage(b2BEnvironment);
+            b2BCrossReferenceAssociationPage.AccountName.SelectByValue(profileName.ToUpper());
+            b2BCrossReferenceAssociationPage.Search.Click();
+            string CRId = b2BCrossReferenceAssociationPage.GetCRTID(profileName.ToUpper());
+            webDriver.Navigate().GoToUrl(ConfigurationReader.GetValue("CrossReferenceXMLPage") + CRId);
+
+            bool matchflag = true;
+            B2BXML CatalogXML = XMLDeserializer<B2BXML>.DeserializeFromXmlString(catalogXMLFilePath);
+            List<CatalogItem> validCRTCatalogItems = CatalogXML.BuyerCatalog.CatalogDetails.CatalogItem.Where(ci => ((ci.CatalogItemType == CatalogItemType.ConfigWithDefaultOptions || ci.CatalogItemType == CatalogItemType.ConfigWithUpsellDownsell || ci.CatalogItemType == CatalogItemType.Systems)
+                && !string.IsNullOrEmpty(ci.ManufacturerPartNumber)) || (ci.CatalogItemType == CatalogItemType.SNP && !string.IsNullOrEmpty(ci.BaseSKUId))).ToList();
+
+            BrowserName browser = webDriver.GetBrowserName();
+            if (browser == BrowserName.MicrosoftEdge)
+            {
+                WaitForPageRefresh();
+                string pageSource = webDriver.PageSource;
+                foreach (CatalogItem catalogItem in validCRTCatalogItems)
+                {
+                    string id = string.Empty;
+                    switch (catalogItem.CatalogItemType)
+                    {
+                        case CatalogItemType.ConfigWithDefaultOptions:
+                        case CatalogItemType.ConfigWithUpsellDownsell:
+                        case CatalogItemType.Systems:
+                            id = catalogItem.ManufacturerPartNumber;
+                            break;
+                        case CatalogItemType.SNP:
+                            id = catalogItem.BaseSKUId;
+                            break;
+                    }
+                    matchflag = pageSource.Contains(catalogItem.PartId);
+                    matchflag = pageSource.Contains(catalogItem.ListPrice);
+                    matchflag = pageSource.Contains(id);
+                }
+            }
+            else
+            {
+                string crtXMLText = webDriver.FindElement(By.CssSelector("div[class='pretty-print']")).Text;
+                CRTXML CrtXML = XMLDeserializer<CRTXML>.DeserializeFromXmlString(crtXMLText);
+                CrtXML.CrossReference.CRTValues.CRTValue.Count().Should().Be(validCRTCatalogItems.Count, "CRT XML Count does not match with catalog item count");
+                Console.WriteLine(string.Format("[CRTID: {0}]", CrtXML.CrossReference.CRTValues.CRTId));
+
+                foreach (CatalogItem catalogItem in validCRTCatalogItems)
+                {
+                    string id = string.Empty;
+                    switch (catalogItem.CatalogItemType)
+                    {
+                        case CatalogItemType.ConfigWithDefaultOptions:
+                        case CatalogItemType.ConfigWithUpsellDownsell:
+                        case CatalogItemType.Systems:
+                            id = catalogItem.ManufacturerPartNumber;
+                            break;
+                        case CatalogItemType.SNP:
+                            id = catalogItem.BaseSKUId;
+                            break;
+                    }
                     matchflag &= UtilityMethods.CompareValues<string>("ID", CrtXML.CrossReference.CRTValues.CRTValue.Where(crt => crt.Id == catalogItem.ManufacturerPartNumber).First().Item.Where(item => item.Id == "ID").First().Data, id);
                     matchflag &= UtilityMethods.CompareValues<string>("Buyer Code", CrtXML.CrossReference.CRTValues.CRTValue.Where(crt => crt.Id == catalogItem.ManufacturerPartNumber).First().Item.Where(item => item.Id == "buyer_code").First().Data, catalogItem.PartId);
                     matchflag &= UtilityMethods.CompareValues<string>("Price", CrtXML.CrossReference.CRTValues.CRTValue.Where(crt => crt.Id == catalogItem.ManufacturerPartNumber).First().Item.Where(item => item.Id == "price").First().Data, catalogItem.UnitPrice.ToString());
